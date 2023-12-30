@@ -1,0 +1,762 @@
+<templates>
+  <template id="feretui-page-404">
+    <div class="container">
+      <div class="content">
+        <h1>Page not found</h1>
+        <p>
+          The page "<strong>{{ page }}</strong>" is not a declared page
+        </p>
+      </div>
+    </div>
+  </template>
+  <template id="feretui-page-forbidden">
+    <div class="container">
+      <div class="content">
+        <h1>This page is forbidden</h1>
+        <p>
+          The page "<strong>{{ page }}</strong>" is forbidden.
+        </p>
+      </div>
+    </div>
+  </template>
+  <template id="feretui-page-homepage">
+    <div class="container has-text-centered">
+      <div class="content">
+        <h1>Welcome to the FeretUI's client</h1>
+        <div class="container">
+          <figure class="image 1by1">
+            <img src="/feretui/static/logo.png">
+          </figure>
+        </div>
+        <p>
+            Small and modular web client
+        </p>
+      </div>
+    </div>
+  </template>
+  <template id="feretui-page-pydantic-failed">
+    <div class="notification is-danger content">
+      Some fields are invalid
+      <ul>
+        {% for error in errors %}
+          <li>
+            <strong>{{ error }}</strong>
+            <ul>
+              {% for msg in errors[error] %}
+              <li>{{ msg }}</li>
+              {% endfor %}
+            </ul>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </template>
+  <template id="feretui-page-error-500">
+    <div class="notification is-danger">
+      An obscure error raise on the server.
+    </div>
+  </template>
+  <template id="feretui-page-login">
+    <div class="container">
+      <form
+        hx-post="/feretui/action/login_password"
+        hx-trigger="submit"
+        hx-target="#feretui-login-notification"
+        hx-ext='json-enc'
+      >
+        <div id="feretui-login-notification" />
+        <div class="has-text-centered">
+          <div class="field">
+            <label class="label">Login</label>
+            <div class="control">
+              <input 
+                class="input is-link"
+                type="text"
+                autocomplete="username"
+                name="login"
+                required
+              />
+            </div>
+          </div>
+          <div class="field">
+            <label class="label">Password</label>
+            <div class="control">
+              <input
+                class="input is-link"
+                type="password"
+                autocomplete="current-password"
+                name="password"
+                required
+              />
+            </div>
+          </div>
+          <div class="buttons">
+            <button 
+              class="button is-primary is-fullwidth" 
+              type="submit" 
+            >
+              Log in
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </template>
+  <template id="feretui-page-signup">
+    <div class="container">
+      <form
+        hx-post="/feretui/action/login_signup"
+        hx-trigger="submit"
+        hx-target="#feretui-login-notification"
+        hx-ext='json-enc'
+      >
+        <div id="feretui-login-notification" />
+        <p>Register new user</p>
+        <div id="feret-submit-field-login" class="field">
+          <label class="label">Login</label>
+          <div class="control">
+            <input 
+              class="input is-link"
+              type="text"
+              autocomplete="username"
+              name="login"
+              required
+            />
+          </div>
+        </div>
+        <div id="feret-submit-field-lang" class="field">
+          <label class="label">Lang</label>
+          <div class="control is-expanded">
+            <div class="select is-fullwidth">
+              <select name="lang">
+                {% for option in feret.get_callback('feretui_langs')() %}
+                <option value="{{ option.code }}">{{ option.label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        </div>
+        <div id="feret-submit-field-password" class="field">
+          <label class="label">Password</label>
+          <div class="control">
+            <input
+              class="input is-link"
+              type="password"
+              autocomplete="current-password"
+              name="password"
+              required
+            />
+          </div>
+        </div>
+        <div id="feret-submit-field-password2" class="field">
+          <label class="label">Confirm the password</label>
+          <div class="control">
+            <input
+              class="input is-link"
+              type="password"
+              name="confirm_password"
+              required
+            />
+          </div>
+        </div>
+        <div class="buttons">
+          <button 
+            class="button is-primary is-fullwidth" 
+            type="submit" 
+          >
+            Sign up
+          </button>
+        </div>
+      </form>
+    </div>
+  </template>
+  <template id="feretui-page-login-failed">
+    <div class="notification is-danger">
+      The user is not existing or the password is wrong
+    </div>
+  </template>
+  <template id="feretui-page-signup-success">
+    <div class="notification is-success">
+      Signup done
+    </div>
+  </template>
+  <template id="feretui-page-resource">
+    <div id="feretui-page-resource-{{ resource }}">
+      <div hx-get="{{ resource_url }}" hx-trigger="load">
+      </div>
+    </div>
+  </template>
+  <template id="feretui-page-resource-left">
+    <div class="container is-fluid">
+      <div class="columns">
+        <div class="column is-narrow footer pt-5 pb-5">
+          <call template="feretui-page-resource-menus"/>
+        </div>
+        <div class="column">
+          <call template="feretui-page-resource"/>
+        </div>
+      </div>
+    </div>
+  </template>
+  <template id="feretui-page-resource-right">
+    <div class="container is-fluid">
+      <div class="columns">
+        <div class="column">
+          <call template="feretui-page-resource"/>
+        </div>
+        <div class="column is-2 footer pt-5 pb-5">
+          <call template="feretui-page-resource-actions"/>
+        </div>
+      </div>
+    </div>
+  </template>
+  <template id="feretui-page-resource-left-right">
+      <div class="columns">
+        <div class="column is-narrow footer pt-5 pb-5">
+          <call template="feretui-page-resource-menus"/>
+        </div>
+        <div class="column">
+          <call template="feretui-page-resource"/>
+        </div>
+        <div class="column is-2 footer pt-5 pb-5">
+          <call template="feretui-page-resource-actions"/>
+        </div>
+      </div>
+  </template>
+  <template id="feretui-page-resource-menus">
+    <div class="card">
+      <div class="card-content">
+        <aside class="menu">
+          {% for menu in left_menus %}
+            {% if menu.get('children') %}
+            <p class="menu-label">
+              {{ menu.label }}
+            </p>
+            <ul class="menu-list">
+              {% set menus = menu.children %}
+              <call template="feretui-page-resource-menus-list" />
+            </ul>
+            {% elif menu.get('code') %}
+            <p class="menu-label">
+              <a
+                hx-get="/feretui/action/goto-{{ menu.code }}"
+                hx-target="#feretui-body"
+                hx-swap="innerHTML"
+              >
+                {{ menu.label }}
+              </a>
+            </p>
+            {% elif menu.get('url') %}
+            <p class="menu-label">
+              <a
+                href="{{ current_menu.url }}"
+              >
+                {{ menu.label }}
+              </a>
+            </p>
+            {% else %}
+            <p class="menu-label">
+              {{ menu.label }}
+            </p>
+            {% endif %}
+          {% endfor %}
+        </aside>
+      </div>
+    </div>
+  </template>
+  <template id="feretui-page-resource-menus-list">
+    <div>
+      {% for menu in menus recursive %}
+      <li>
+        {% if menu.get('children') %}
+        <p class="menu-label">
+          <a>
+            {{ menu.label }}
+          </a>
+          <ul class="menu-list">
+            {{ loop(menu.children) }}
+          </ul>
+        </p>
+        {% elif menu.get('code') %}
+        <p class="menu-label">
+          <a
+            hx-get="/feretui/action/goto-{{ menu.code }}"
+            hx-target="#feretui-body"
+            hx-swap="innerHTML"
+          >
+            {{ menu.label }}
+          </a>
+        </p>
+        {% elif menu.get('url') %}
+        <p class="menu-label">
+          <a
+            href="{{ current_menu.url }}"
+          >
+            {{ menu.label }}
+          </a>
+        </p>
+        {% else %}
+        <p class="menu-label">
+          <a>
+            {{ menu.label }}
+          </a>
+        </p>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </div>
+  </template>
+  <template id="feretui-page-resource-actions">
+    <div>
+      {% for action in actions %}
+      {{ action | safe }}
+      {% endfor %}
+    </div>
+  </template>
+  <template id="feretui-page-resource-list">
+    <div class="container is-fluid">
+      <div class="columns is-vcentered">
+        <div class="column is-2">
+          <h1>{{ label }} ({{ dataset.total }})</h1>
+        </div>
+        <div class="column">
+          <div class="field is-grouped is-grouped-multiline">
+            {% for fname, op, values in filters %}
+            <div class="control">
+              <div class="tags has-addons">
+                <span class="tag is-dark">{{ fname }}</span>
+                <span class="tag is-info">{{ op }}</span>
+                {% for value in values %}
+                <span class="tag">
+                  {{ value }}
+                  <button
+                    class="delete"
+                    hx-get="/feretui/action/resource-filter?resource={{ Resource._code }}&mode=remove&operator=like&name={{fname}}&value={{value}}"
+                    hx-target="#feretui-page-resource-{{ Resource._code }}"
+                  >
+                  </button>
+                </span>
+                {% endfor %}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      <call template="feretui-page-resource-pagination" />
+      <table class="table is-fullwidth is-striped">
+        <thead>
+          <tr>
+            {% for field in fields %}
+            <th id="{{field.name}}">{{ field.get_label() }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+            {% for row_number, values in dataset.data %}
+            <tr
+              hx-trigger="dblclick"
+              hx-get="/feretui/action/goto-resource?{{ open_view_qs }}&id={{ row_number }}"
+              hx-target="#feretui-body"
+            >
+              {% for field in fields %}
+              <td>
+                {% if field.get_render_ro_without_label %}
+                {{ field.get_render_ro_without_label(feret, session, values.get(field.name, '')) | safe}}
+                {% elif field.get_render_buttons %}
+                {{ field.get_render_buttons(feret, session, Resource, row_number) | safe}}
+                {% endif %}
+              </td>
+              {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr>
+            {% for field in fields %}
+            <th id="{{field.name}}">{{ field.get_label() }}</th>
+            {% endfor %}
+          </tr>
+        </tfoot>
+      </table>
+      <call template="feretui-page-resource-pagination" />
+    </div>
+  </template>
+  <template id="feretui-page-resource-pagination">
+    <div class="columns is-vcentered">
+      <div class="column is-1">
+        <div class="buttons">
+          {% if create_view_qs %}
+          <button 
+            class="button is-primary"
+            hx-get="/feretui/action/goto-resource?{{ create_view_qs }}"
+            hx-target="#feretui-body"
+          >
+            Create
+          </button>
+          {% endif %}
+        </div>
+      </div>
+      <div class="column">
+        {% if paginations %}
+        <nav class="pagination" role="pagination" arial-label="pagination">
+          {% if paginations[0] == offset %}
+          <a class="pagination-previous" disabled>Previous page</a>
+          {% endif %}
+          {% if paginations[0] != offset %}
+          <a
+            class="pagination-previous"
+            hx-get="/feretui/action/resource-pagination?resource={{ Resource._code }}&offset={{offset - limit}}"
+            hx-target="#feretui-page-resource-{{ Resource._code }}"
+          >
+            Previous page
+          </a>
+          {% endif %}
+          {% if paginations[-1] == offset %}
+          <a class="pagination-next" disabled>Next page</a>
+          {% endif %}
+          {% if paginations[-1] != offset %}
+          <a
+            class="pagination-next"
+            hx-get="/feretui/action/resource-pagination?resource={{ Resource._code }}&offset={{offset + limit}}"
+            hx-target="#feretui-page-resource-{{ Resource._code }}"
+          >
+            Next page
+          </a>
+          {% endif %}
+          <ul class="pagination-list">
+            {% for pagination in paginations %}
+            <li>
+              {% if pagination == offset %}
+              <a class="pagination-link is-current">
+                {{ pagination }}-{{ [pagination + limit - 1, dataset.total]|min }}
+              </a>
+              {% endif %}
+              {% if pagination != offset %}
+              <a
+                class="pagination-link"
+                hx-get="/feretui/action/resource-pagination?resource={{ Resource._code }}&offset={{pagination}}"
+                hx-target="#feretui-page-resource-{{ Resource._code }}"
+              >
+                {{ pagination }}-{{ [pagination + limit - 1, dataset.total]|min }}
+              </a>
+              {% endif %}
+            </li>
+            {% endfor %}
+          </ul>
+        </nav>
+        {% endif %}
+      </div>
+    </div>
+  </template>
+  <template id="feretui-page-resource-filter">
+    <div class="card mb-4">
+      <header class="card-header">
+         <p class="card-header-title">Filters</p>
+      </header>
+      <div class="card-content">
+        {% for filter_ in filters %}
+        <p>
+          {{ filter_.render(feret, session)|safe }}
+        </p>
+        {% endfor %}
+      </div>
+    </div>
+  </template>
+  <template id="feretui-page-resource-action-set">
+    <div class="card mb-4">
+      <header class="card-header">
+         <p class="card-header-title">{{ actionset.label }}</p>
+      </header>
+      <div class="card-content">
+        {% for action in actionset.actions %}
+        {% if not action.is_invisible(session) %}
+        <a
+          class="button is-ghost is-fullwidth"
+          hx-post="{{ action.url }}&resource={{ Resource._code }}"
+          hx-swap="none"
+        >
+          {{ action.label }}
+        </a>
+        {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  </template>
+  <template id="feretui-page-resource-new">
+    <div class="container is-fluid">
+      <div class="content">
+        <form
+          hx-post="/feretui/action/resource-create?resource={{ Resource._code }}"
+          hx-target="#feretui-body"
+          hx-ext='json-enc'
+        >
+          <call template="feretui-page-resource-new-buttons-top"/>
+          <div class="mb-4 mt-4">
+            {{ template | safe }}
+          </div>
+          <call template="feretui-page-resource-new-buttons-bottom"/>
+        </form>
+      </div>
+    </div>
+  </template>
+  <template id="feretui-page-resource-new-buttons-top">
+    <div class="columns">
+      <div class="column">
+        <h1>{{ label }}</h1>
+      </div>
+      <div class="column">
+        <div class="buttons is-centered">
+          <button 
+            class="button is-primary"
+            type="submit"
+          >
+            Create
+          </button>
+          <button 
+            class="button is-ghost"
+            type="reset"
+            onclick="window.history.back()"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+      <div class="column">
+      </div>
+    </div>
+  </template>
+  <template
+    id="feretui-page-resource-new-buttons-bottom"
+    extend="feretui-page-resource-new-buttons-top"
+  >
+    <xpath expression=".//h1" action="replace">
+    </xpath>
+  </template>
+  <template id="feretui-page-resource-form">
+    <div class="container">
+      <div class="content">
+        <call template="feretui-page-resource-form-buttons-top"/>
+        <div class="mb-4 mt-4">
+          {{ template | safe }}
+        </div>
+        <call template="feretui-page-resource-form-buttons-bottom"/>
+      </div>
+    </div>
+  </template>
+  <template id="feretui-page-resource-form-buttons-top">
+    <div class="columns">
+      <div class="column">
+        <h1>{{ label }}</h1>
+      </div>
+      <div class="column">
+        <div class="buttons is-centered">
+          {% if create_view_qs %}
+          <button 
+            class="button is-primary"
+            hx-get="/feretui/action/goto-resource?{{ create_view_qs }}"
+            hx-target="#feretui-body"
+          >
+            Create
+          </button>
+          {% endif %}
+          {% if edit_view_qs %}
+          <button 
+            class="button is-primary"
+            hx-get="/feretui/action/goto-resource?{{ edit_view_qs }}"
+            hx-target="#feretui-body"
+          >
+            Edit
+          </button>
+          {% endif %}
+          {% if has_delete_button %}
+          <button 
+            class="button is-danger"
+            hx-delete="/feretui/action/resource-delete?resource={{ Resource._code }}&id={{ id }}"
+            hx-target="#feretui-body"
+            hx-confirm="Are you sure you wish to delete it?"
+          >
+            Delete
+          </button>
+          {% endif %}
+          {% if return_view_qs %}
+          <button 
+            class="button"
+            hx-get="/feretui/action/goto-resource?{{ return_view_qs }}"
+            hx-target="#feretui-body"
+          >
+            Return
+          </button>
+          {% endif %}
+        </div>
+      </div>
+      <div class="column"></div>
+    </div>
+  </template>
+  <template
+    id="feretui-page-resource-form-buttons-bottom"
+    extend="feretui-page-resource-form-buttons-top"
+  >
+    <xpath expression=".//h1" action="replace">
+    </xpath>
+  </template>
+  <template id="feretui-page-resource-edit">
+    <div class="content">
+      <form
+        hx-post="/feretui/action/resource-update?resource={{ Resource._code }}&id={{ id }}"
+        hx-trigger="submit"
+        hx-target="#feretui-resource-{{ Resource._code }}-notification"
+        hx-ext='json-enc'
+      >
+        <call template="feretui-page-resource-edit-buttons-top"/>
+        <div id="feretui-resource-{{ Resource._code }}-notification" />
+        <div class="mb-4 mt-4">
+          {{ template | safe }}
+        </div>
+        <call template="feretui-page-resource-edit-buttons-bottom"/>
+      </form>
+    </div>
+  </template>
+  <template id="feretui-page-resource-edit-buttons-top">
+    <div class="columns">
+      <div class="column">
+        <h1>{{ label }}</h1>
+      </div>
+      <div class="column">
+        <div class="buttons is-centered">
+          <button 
+            class="button is-primary"
+            type="submit"
+          >
+            Update
+          </button>
+          {% if cancel_view_qs %}
+          <button 
+            class="button is-ghost"
+            type="reset"
+            hx-get="/feretui/action/goto-resource?{{ cancel_view_qs }}"
+            hx-target="#feretui-body"
+          >
+            Cancel
+          </button>
+          {% endif %}
+        </div>
+      </div>
+      <div class="column">
+      </div>
+    </div>
+  </template>
+  <template
+    id="feretui-page-resource-edit-buttons-bottom"
+    extend="feretui-page-resource-edit-buttons-top"
+  >
+    <xpath expression=".//h1" action="replace">
+    </xpath>
+  </template>
+  <template id="feretui-view-autogenerated-template">
+    <div>
+      {% for field in fields %}
+      <field name="{{ field.name }}" />
+      {% endfor %}
+    </div>
+  </template>
+  <template id="feretui-field-ro">
+    <div class="field">
+      {% if label %}
+      <label class="label">{{ label }}</label>
+      {% endif %}
+      <div class="control">
+        <input
+          class="input is-static"
+          type="text"
+          value="{{ value }}"
+          readonly
+        >
+      </div>
+    </div>
+  </template>
+  <template id="feretui-field-action-set">
+    <div class="buttons">
+      {% for action in actions %}
+        {% if not action.is_invisible(session) %}
+          {{ action.render(feret, session, Resource, id)|safe }}
+        {% endif %}
+      {% endfor %}
+    </div>
+  </template>
+  <template 
+    id="feretui-field-action"
+    tag="a"
+    class="button"
+    hx-post="{{ url }}&resource={{ Resource._code }}&id={{ id }}"
+    hx-swap="none"
+  >
+    {{ label }}
+  </template>
+  <template id="feretui-field-string-filter">
+    <div class="field">
+      <label class="label">{{ label }}</label>
+      <div class="control">
+        <input
+          class="input"
+          type="text"
+          name="value"
+          hx-get="/feretui/action/resource-filter?resource={{ Resource._code }}&mode=add&operator=like&name={{ name }}"
+          hx-target="#feretui-page-resource-{{ Resource._code }}"
+          hx-trigger="keyup[key=='Enter']"
+          _="on htmx:afterRequest set my value to ''"
+        >
+      </div>
+    </div>
+  </template>
+  <template id="feretui-field-string-ro">
+    <div class="field">
+      {% if label %}
+      <label class="label">{{ label }}</label>
+      {% endif %}
+      <div class="control">
+        <input
+          class="input is-static"
+          type="text"
+          name="{{ name }}"
+          value="{{ value }}"
+          readonly
+        >
+      </div>
+    </div>
+  </template>
+  <template id="feretui-field-integer-filter">
+    <div class="field">
+      <label class="label">{{ label }}</label>
+      <div class="control">
+        <input
+          class="input"
+          type="number"
+          step="1"
+          name="value"
+          hx-get="/feretui/action/resource-filter?resource={{ Resource._code }}&mode=add&operator=like&name={{ name }}"
+          hx-target="#feretui-page-resource-{{ Resource._code }}"
+          hx-trigger="keyup[key=='Enter']"
+          _="on htmx:afterRequest set my value to ''"
+        >
+      </div>
+    </div>
+  </template>
+  <template id="feretui-field-integer-ro">
+    <div class="field">
+      {% if label %}
+      <label class="label">{{ label }}</label>
+      {% endif %}
+      <div class="control">
+        <input
+          class="input is-static"
+          type="integer"
+          step="1"
+          name="{{ name }}"
+          value="{{ value }}"
+          readonly
+        >
+      </div>
+    </div>
+  </template>
+</templates>

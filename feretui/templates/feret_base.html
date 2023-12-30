@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="{{ session.lang }}">
+  <head>
+    <meta charset=utf-8>
+    <meta name=viewport content="width=device-width,initial-scale=1">
+    <title>{% block title %}feret-ui{% endblock %}</title>
+    {% for css in feret.css_import %}
+      <link rel="stylesheet" href="{{ css }}" />
+    {% endfor %}
+    <link rel="stylesheet" href="/feretui/static/{{ feret.get_callback('feretui_session_theme')(feret, session) }}.css" />
+  </head>
+  <body class="has-navbar-fixed-top">
+    <nav class="navbar is-fixed-top"  role="navigation" aria-label="main navigation">
+      <div class="navbar-brand">
+        <a class="navbar-item"
+          hx-get="/feretui/action/goto-homepage"
+          hx-target="#feretui-body"
+          hx-swap="innerHTML"
+        >
+          <img src="/feretui/static/logo.png">
+        </a>
+        <a
+          role="button"
+          class="navbar-burger"
+          aria-label="menu"
+          aria-expanded="false"
+          data-target="feretui-app-header-burger"
+          _="on click toggle .is-active on me then toggle .is-active on #feretui-app-header-burger"
+        >
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </a>
+      </div>
+      <div id="feretui-app-header-burger" class="navbar-menu">
+        <div class="navbar-start">
+          {% for menu in feret.get_callback('feretui_navbar_header_left')(session) %}
+          <a 
+            class="navbar-item"
+            {% if menu.code %}
+            hx-get="/feretui/action/goto-{{ menu['code'] }}"
+            hx-target="#feretui-body"
+            hx-swap="innerHTML"
+            {% endif %}
+            {% if menu.url %}
+            href="{{ menu['url'] }}"
+            {% endif %}
+          >
+            {{ menu.label }}
+          </a>
+          {% endfor %}
+        </div>
+        <div class="navbar-end">
+          {% if not session.user %}
+            <div class="navbar-item">
+              <div class="buttons">
+                {% for menu in feret.get_callback('feretui_navbar_authentications')() %}
+                  <a 
+                    class="button {{ menu.class }}"
+                    hx-get="/feretui/action/goto-{{ menu.code }}"
+                    hx-target="#feretui-body"
+                    hx-swap="innerHTML"
+                  >
+                    <strong>
+                      {{ menu.label }}
+                    </strong>
+                  </a>
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
+          {% if session.user %}
+            <div class="navbar-item has-dropdown is-hoverable">
+              <a class="navbar-link">
+                {{ session.user }}
+              </a>
+              <div class="navbar-dropdown is-boxed is-right">
+                {% for menu in feret.get_callback('feretui_navbar_header_right')(session) %}
+                <a 
+                  class="navbar-item"
+                  {% if menu.code %}
+                  hx-get="/feretui/action/goto-{{ menu['code'] }}"
+                  hx-target="#feretui-body"
+                  hx-swap="innerHTML"
+                  {% endif %}
+                  {% if menu.url %}
+                  href="{{ menu['url'] }}"
+                  {% endif %}
+                >
+                  {{ menu.label }}
+                </a>
+                {% endfor %}
+                <hr class="navbar-divider">
+                <a
+                  class="navbar-item"
+                  hx-post="/feretui/action/logout"
+                >
+                  Log out
+                </a>
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </nav>
+    <div id="feretui-body" class="mt-4 mb-4" hx-boost="true">
+      <div hx-get="/feretui/action/render?{{ querystring }}" hx-trigger="load">
+      </div>
+    </div>
+    <footer class="footer">
+      <div class="content has-text-centered">
+        <p>
+          <strong>feretUI</strong> by Js Suzanne.
+        </p>
+      </div>
+    </footer>
+
+    {% for js in feret.js_import %}
+    <script src="{{ js }}"></script>
+    {% endfor %}
+
+  </body>
+</html>

@@ -1,0 +1,214 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: 0.0.1\n"
+"POT-Creation-Date: 2023-12-24T23:23:30.948940\n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Poedit 3.2.2\n"
+
+msgctxt "message:feretui.schema"
+msgid "The password should have {msg}."
+msgstr "Le mot de passe doit contenir {msg}."
+
+msgctxt "message:feretui.schema"
+msgid "more than {min_size} caractere"
+msgstr "plus de {min_size} caractères"
+
+msgctxt "message:feretui.schema"
+msgid "less than {max_size} caractere"
+msgstr "moins de {max_size} caractères"
+
+msgctxt "message:feretui.schema"
+msgid "with lowercase"
+msgstr "avec des minuscules"
+
+msgctxt "message:feretui.schema"
+msgid "without lowercase"
+msgstr "sans minuscule"
+
+msgctxt "message:feretui.schema"
+msgid "with uppercase"
+msgstr "avec des majuscules"
+
+msgctxt "message:feretui.schema"
+msgid "without uppercase"
+msgstr "sans majuscule"
+
+msgctxt "message:feretui.schema"
+msgid "with digits"
+msgstr "avec des chiffres"
+
+msgctxt "message:feretui.schema"
+msgid "without digits"
+msgstr "sans chiffre"
+
+msgctxt "message:feretui.schema"
+msgid "with symbols"
+msgstr "avec des caractères spéciaux"
+
+msgctxt "message:feretui.schema"
+msgid "without symbols"
+msgstr "sans caractères spéciaux"
+
+msgctxt "message:feretui.schema"
+msgid "with spaces"
+msgstr "avec des espaces"
+
+msgctxt "message:feretui.schema"
+msgid "without spaces"
+msgstr "sans espace"
+
+msgctxt "message:feretui.menu"
+msgid "Log in"
+msgstr "Se connecter"
+
+msgctxt "message:feretui.menu"
+msgid "Sign up"
+msgstr "S'enregistrer"
+
+msgctxt "message:feretui.menu"
+msgid "Homepage"
+msgstr "Page principale"
+
+msgctxt "template:feretui-page-404"
+msgid "Page not found"
+msgstr "Page non trouvée"
+
+msgctxt "template:feretui-page-404"
+msgid "The page \""
+msgstr "La page \""
+
+msgctxt "template:feretui-page-404"
+msgid "\" is not a declared page"
+msgstr "\" n'est pas déclarée"
+
+msgctxt "template:feretui-page-forbidden"
+msgid "This page is forbidden"
+msgstr "Cette page n'est pas autorisée"
+
+msgctxt "template:feretui-page-forbidden"
+msgid "The page \""
+msgstr "La page \""
+
+msgctxt "template:feretui-page-forbidden"
+msgid "\" is forbidden."
+msgstr "\" n'est pas autorisée"
+
+msgctxt "template:feretui-page-homepage"
+msgid "Welcome to the FeretUI's client"
+msgstr "Bienvenue sur le client FeretUI"
+
+msgctxt "template:feretui-page-homepage"
+msgid "Small and modular web client"
+msgstr "Petit et modulaire client web"
+
+msgctxt "template:feretui-page-pydantic-failed"
+msgid "Some fields are invalid"
+msgstr "Quelques champs sont invalids"
+
+msgctxt "template:feretui-page-login"
+msgid "Login"
+msgstr "Identifiant"
+
+msgctxt "template:feretui-page-login"
+msgid "Password"
+msgstr "Mot de passe"
+
+msgctxt "template:feretui-page-login"
+msgid "Log in"
+msgstr "Se connecter"
+
+msgctxt "template:feretui-page-signup"
+msgid "Register new user"
+msgstr "Enregistrer un nouveau utilisateur"
+
+msgctxt "template:feretui-page-signup"
+msgid "Login"
+msgstr "Identifiant"
+
+msgctxt "template:feretui-page-signup"
+msgid "Lang"
+msgstr "Langue"
+
+msgctxt "template:feretui-page-signup"
+msgid "Password"
+msgstr "Mot de passe"
+
+msgctxt "template:feretui-page-signup"
+msgid "Confirm the password"
+msgstr "Confirmer du mot de passe"
+
+msgctxt "template:feretui-page-signup"
+msgid "Sign up"
+msgstr "S'enregistrer"
+
+msgctxt "template:feretui-page-login-failed"
+msgid "The user is not existing or the password is wrong"
+msgstr "L'utilisateur n'existe pas ou le mot de passe est faux"
+
+msgctxt "template:feretui-page-signup-success"
+msgid "Signup done"
+msgstr "Enregistrer"
+
+msgctxt "template:feretui-page-signup-500"
+msgid "An obscure error raise on the server."
+msgstr "Une erreur inconnu a été levé"
+
+msgctxt "template:feretui-page-resource-pagination"
+msgid "Create"
+msgstr "Créer"
+
+msgctxt "template:feretui-page-resource-pagination"
+msgid "Previous page"
+msgstr "Page précédente"
+
+msgctxt "template:feretui-page-resource-pagination"
+msgid "Next page"
+msgstr "Page suivante"
+
+msgctxt "template:feretui-page-resource-filter"
+msgid "Filters"
+msgstr "Filtres"
+
+msgctxt "template:feretui-page-resource-new-buttons-top"
+msgid "Create"
+msgstr "Créer"
+
+msgctxt "template:feretui-page-resource-new-buttons-top"
+msgid "Cancel"
+msgstr "Annuler"
+
+msgctxt "template:feretui-page-resource-form-buttons-top"
+msgid "Create"
+msgstr "Créer"
+
+msgctxt "template:feretui-page-resource-form-buttons-top"
+msgid "Edit"
+msgstr "Modifier"
+
+msgctxt "template:feretui-page-resource-form-buttons-top"
+msgid "Delete"
+msgstr "Supprimer"
+
+msgctxt "template:feretui-page-resource-form-buttons-top:button:hx-confirm"
+msgid "Are you sure you wish to delete it?"
+msgstr "Êtes vous sur de vouloir supprimer cette entrée"
+
+msgctxt "template:feretui-page-resource-form-buttons-top"
+msgid "Return"
+msgstr "Retour"
+
+msgctxt "template:feretui-page-resource-edit-buttons-top"
+msgid "Update"
+msgstr "Modifier"
+
+msgctxt "template:feretui-page-resource-edit-buttons-top"
+msgid "Cancel"
+msgstr "Annuler"

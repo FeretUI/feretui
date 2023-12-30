@@ -1,0 +1,69 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "FeretUI"
+description = "litle admin UI"
+authors = [
+    { name = "Jean-Sébastien Suzanne", email = "js.suzanne@gmail.fr" },
+]
+version = "0.0.0"
+license = { text = "MPL2" }
+requires-python = ">=3.7"
+dependencies = [
+    'lxml',
+    'polib',
+    'jinja2',
+    'pydantic',
+    'pydantic-i18n',
+    'password-validator',
+]
+dynamic = ["readme"]
+keywords = [
+]
+classifiers = [
+    'Intended Audience :: Developers',
+    'Programming Language :: Python :: 3.7',
+    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: 3.12',
+    'Programming Language :: Python :: Implementation :: CPython',
+    "Topic :: Database",
+    'Topic :: Software Development',
+    'Topic :: Software Development :: Libraries :: Python Modules',
+    'License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)',
+]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.dynamic]
+readme = { file = ["README.rst", "doc/CHANGES.rst"] }
+
+[tool.setuptools.packages.find]
+include = [
+    "feretui*",
+]
+
+[project.optional-dependencies]
+pytest = [
+    'ruff',
+    'pytest',
+    'pytest-cov',
+]
+
+[project.entry-points."feretui"]
+anyblok-core = "anyblok.bloks.anyblok_core:AnyBlokCore"
+
+[tool.ruff]
+# Set the maximum line length to 79.
+line-length = 79
+
+[tool.ruff.lint]
+# Add the `line-too-long` rule to the enforced rule set. By default, Ruff omits rules that
+# overlap with the use of a formatter, like Black, but we can override this behavior by
+# explicitly adding the rule.
+select = ["B", "D", "E", "F", "I", "SIM", "UP"]
