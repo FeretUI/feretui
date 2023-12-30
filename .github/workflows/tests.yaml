@@ -25,6 +25,8 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Update pip
         run: pip install -U pip
+      - name: Install lcov
+        run: pip install coverage-lcov
       - name: Install FeretUI
         run: pip install .[test]
       - name: Run tests
