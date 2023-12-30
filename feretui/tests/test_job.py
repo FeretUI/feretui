@@ -5,8 +5,13 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License,
 # v. 2.0. If a copy of the MPL was not distributed with this file,You can
 # obtain one at http://mozilla.org/MPL/2.0/.
-"""Feretui.
+"""Unittest.
 
-Small web client to build an admin user interface without any link with a
-framework.
+with pytest.
 """
+import pytest  # noqa: F401
+
+
+def test_import_project():
+    """Test the github action with a simple import."""
+    import feretui  # noqa: F401
