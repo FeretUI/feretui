@@ -1,0 +1,15 @@
+name: Python linting
+on: [push, pull_request]
+jobs:
+  test:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.12'
+      - name: Install test
+        run: pip install .[test]
+      - name: Run ruff check
+        run: ruff check feretui
