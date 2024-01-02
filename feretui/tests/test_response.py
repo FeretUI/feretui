@@ -10,6 +10,7 @@
 with pytest.
 """
 import pytest  # noqa: F401
+
 from feretui.response import Response
 
 
