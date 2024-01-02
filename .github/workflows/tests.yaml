@@ -18,7 +18,7 @@ jobs:
       matrix:
         python-version: ['3.9', '3.10', '3.11', '3.12']
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
@@ -34,7 +34,7 @@ jobs:
       - name: Generate lcov
         run: coverage-lcov
       - name: Coveralls
-        uses: coverallsapp/github-action@1.1.3
+        uses: coverallsapp/github-action@2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           parallel: true
@@ -42,12 +42,13 @@ jobs:
           path-to-lcov: lcov.info
 
   finish:
-    needs: [test]
-    runs-on: ubuntu-20.04
+    needs: test
+    runs-on: ubuntu-latest
     steps:
       - name: Coveralls Finished
-        uses: coverallsapp/github-action@1.1.3
+        uses: coverallsapp/github-action@2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           parallel-finished: true
           path-to-lcov: lcov.info
+          format: lcov
