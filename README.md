@@ -36,28 +36,3 @@ pip install .
 ```
 
 Installation will add the ``feretui`` commands to the environment.
-
-## Running Tests
-
-To run framework tests with `pytest`:
-
-```
-pip install pytest
-py.test feretui
-```
-
-AnyBlok is tested continuously using `GitHub Action`
-
-## Contributing (hackers needed!)
-
-FeretUI is not ready for production usage, it must be
-improved and enriched.
-Feel free to fork, talk with core dev, and spread the word !
-
-## Author
-
-Jean-Sébastien Suzanne
-
-## Contributors
-
-* Jean-Sébastien Suzanne

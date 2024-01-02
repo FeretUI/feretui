@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "FeretUI"
-description = "small web client to build an admin interface or a little backoffice "
+description = "Small web client to build an admin interface or a little backoffice "
 authors = [
     { name = "Jean-Sébastien Suzanne", email = "js.suzanne@gmail.fr" },
 ]

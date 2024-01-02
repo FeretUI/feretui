@@ -14,12 +14,15 @@
 Welcome to FeretUI's documentation!
 ===================================
 
+.. automodule:: feretui
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
    tutorials.rst
    api.rst
+   contributing.rst
    CHANGES.rst
 
 

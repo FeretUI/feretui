@@ -11,5 +11,3 @@ FeretUI framework internals
 
 feretui module
 --------------
-
-.. automodule:: feretui
