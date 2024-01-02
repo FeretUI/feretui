@@ -26,7 +26,7 @@ jobs:
       - name: Update pip
         run: pip install -U pip
       - name: Install FeretUI
-        run: pip install .[test]
+        run: pip install -e .[test]
       - name: Run tests
         run: pytest --cov feretui --cov-report term-missing --cov-report lcov
       - name: Coveralls
@@ -35,7 +35,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           parallel: true
           flag-name: ${{ github.job }}
-          path-to-lcov: converage.lcov
+          path-to-lcov: coverage.lcov
 
   finish:
     needs: test
@@ -46,5 +46,5 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           parallel-finished: true
-          path-to-lcov: converage.lcov
+          path-to-lcov: coverage.lcov
           format: lcov
