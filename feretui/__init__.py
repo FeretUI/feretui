@@ -1,6 +1,6 @@
 # This file is a part of the FeretUI project
 #
-#    Copyright (C) 2023 Jean-Sebastien SUZANNE <js.suzanne@gmail.com>
+#    Copyright (C) 2023-2024 Jean-Sebastien SUZANNE <js.suzanne@gmail.com>
 #
 # This Source Code Form is subject to the terms of the Mozilla Public License,
 # v. 2.0. If a copy of the MPL was not distributed with this file,You can
@@ -23,6 +23,12 @@ a mistake, because that limit the possibility and force to have only entry
 point by the user interface. The rules as *required*, *readonly*, ... should
 be depending only on the user-interface. It is possible to define an interface
 based on more than one Model, or with another constraints.
+
+To isolate it about the web-server projects, This project add objects to do
+absctract with web server:
+
+* :class:`feretui.response.Response`: It is the class object used by FeretUI
+  to respond at the client query.
 
 ::
 

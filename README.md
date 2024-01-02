@@ -36,3 +36,17 @@ pip install .
 ```
 
 Installation will add the ``feretui`` commands to the environment.
+
+## Example with bottle
+
+```
+from bottle import run
+from feretui import FeretUI
+
+
+myferet = FeretUI()
+
+
+if __name__ == "__main__":
+    run(host="localhost", port=8080)
+```

@@ -13,3 +13,10 @@ feretui module
 --------------
 
 .. include:: feretui.rst
+
+
+feretui.response module
+-----------------------
+
+.. automodule:: feretui.response
+   :members:
