@@ -14,7 +14,7 @@
 Welcome to FeretUI's documentation!
 ===================================
 
-.. automodule:: feretui
+.. include:: feretui.rst
 
 .. toctree::
    :maxdepth: 2
