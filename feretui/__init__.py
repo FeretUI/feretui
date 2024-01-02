@@ -24,10 +24,12 @@ point by the user interface. The rules as *required*, *readonly*, ... should
 be depending only on the user-interface. It is possible to define an interface
 based on more than one Model, or with another constraints.
 
-```
-from feretui import FeretUI
+::
+
+    from feretui import FeretUI
 
 
-myferet = FeretUI()
-```
+    myferet = FeretUI()
+
+
 """

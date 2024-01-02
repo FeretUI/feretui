@@ -29,12 +29,11 @@ You can clone it, and do issue or pull requests.
 Running Tests
 -------------
 
-To run framework tests with `pytest`:
+To run framework tests with `pytest`::
 
-```
-pip install .[test]
-py.test feretui
-```
+    pip install .[test]
+    py.test feretui
+
 
 FeretUI is tested continuously using `GitHub Action`
 
