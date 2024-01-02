@@ -23,4 +23,4 @@ Installation via source distribution is via the ``pyproject.toml`` script::
 
 Installation will add the ``feretui`` commands to the environment.
 
-.. note:: FeretUI use Python version >= 3.7
+.. note:: FeretUI use Python version >= 3.9
