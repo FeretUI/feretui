@@ -29,10 +29,10 @@ class Session:
 
         class MySession(Session):
             pass
-
-    Attributes:
+    Attributes
 
     * [user: str = None] : User name of the session
+
     """
 
     def __init__(self):
