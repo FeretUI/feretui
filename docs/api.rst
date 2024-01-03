@@ -15,6 +15,13 @@ feretui module
 .. include:: feretui.rst
 
 
+feretui.request module
+----------------------
+
+.. automodule:: feretui.request
+   :members:
+
+
 feretui.response module
 -----------------------
 
@@ -26,4 +33,11 @@ feretui.session module
 ----------------------
 
 .. automodule:: feretui.session
+   :members:
+
+
+feretui.exceptions module
+-------------------------
+
+.. automodule:: feretui.exceptions
    :members:
