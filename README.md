@@ -41,10 +41,11 @@ Installation will add the ``feretui`` commands to the environment.
 
 ```
 from bottle import run
-from feretui import FeretUI
+from feretui import FeretUI, Session
 
 
 myferet = FeretUI()
+session = Session()
 
 
 if __name__ == "__main__":

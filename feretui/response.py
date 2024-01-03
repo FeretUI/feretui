@@ -65,7 +65,7 @@ class Response:
         status_code: int = 200,
         headers: dict[str, str] = None
     ):
-        """Fereuit response.
+        """FeretUI response.
 
         :param body: [''], response return to the web-serving.
         :type body: Any

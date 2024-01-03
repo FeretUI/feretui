@@ -15,3 +15,4 @@ CHANGELOG
 Main version of FeretUI, based on the POC
 
 * Added Response object
+* Added Session object

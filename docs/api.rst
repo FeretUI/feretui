@@ -20,3 +20,10 @@ feretui.response module
 
 .. automodule:: feretui.response
    :members:
+
+
+feretui.session module
+----------------------
+
+.. automodule:: feretui.session
+   :members:

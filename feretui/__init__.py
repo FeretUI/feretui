@@ -29,14 +29,19 @@ absctract with web server:
 
 * :class:`feretui.response.Response`: It is the class object used by FeretUI
   to respond at the client query.
+* :class:`feretui.session.Session`: It is the class object used by FeretUI
+  to define to represent an user session, it is not the Session of the
+  web-server.
 
 ::
 
-    from feretui import FeretUI
+    from feretui import FeretUI, Session
 
 
     myferet = FeretUI()
+    session = Session()
 
 
 """
 from feretui.response import Response  # noqa : F401
+from feretui.session import Session  # noqa : F401
