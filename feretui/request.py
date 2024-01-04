@@ -33,10 +33,10 @@ Example with bottle::
 """
 import json
 import urllib
+from typing import Any
 
 from feretui.exceptions import RequestError
 from feretui.session import Session
-from typing import Any
 
 
 class RequestMethod:
@@ -128,7 +128,7 @@ class Request:
 
         return f'{base_url}?{urllib.parse.urlencode(querystring, doseq=True)}'
 
-    def get_query_string_from_current_url(self) -> dict[str, str | list[str]]:
+    def get_query_string_from_current_url(self) -> dict[str, list[str]]:
         """Get the querystring from the current client URL.
 
         :return: The converted querystring.
