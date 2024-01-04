@@ -36,6 +36,7 @@ import urllib
 
 from feretui.exceptions import RequestError
 from feretui.session import Session
+from typing import Any
 
 
 class RequestMethod:
@@ -109,7 +110,7 @@ class Request:
     def get_url_from_dict(
         self,
         base_url: str = '/',
-        querystring: dict[str, str | list[str]] = None
+        querystring: dict[str, Any] = None
     ) -> str:
         """Return an url.
 
@@ -118,7 +119,7 @@ class Request:
         :param base_url: [/], the base url before the querystring.
         :type base_url: str
         :param querystring: [None], the querystring.
-        :type querystring: dict[str, str | list[str]]
+        :type querystring: dict[str, Any]
         :return: Return the URL.
         :rtype: str
         """
