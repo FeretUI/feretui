@@ -27,6 +27,8 @@ based on more than one Model, or with another constraints.
 To isolate it about the web-server projects, This project add objects to do
 absctract with web server:
 
+* :class:`feretui.request.Request`: It is the class object used by FeretUI
+  to represent web-server request.
 * :class:`feretui.response.Response`: It is the class object used by FeretUI
   to respond at the client query.
 * :class:`feretui.session.Session`: It is the class object used by FeretUI
@@ -41,7 +43,17 @@ absctract with web server:
     myferet = FeretUI()
     session = Session()
 
+    @route('an/url')
+    def do_something(request):
+        frequest = Request(
+            session=session,
+            method=Request.POST,
+            body=request.body.read(),
+            headers=dict(request.headers),
+        )
+        ...
 
 """
+from feretui.request import Request  # noqa : F401
 from feretui.response import Response  # noqa : F401
 from feretui.session import Session  # noqa : F401

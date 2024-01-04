@@ -14,5 +14,6 @@ CHANGELOG
 
 Main version of FeretUI, based on the POC
 
+* Added Request object
 * Added Response object
 * Added Session object
