@@ -6,8 +6,8 @@
 .. v. 2.0. If a copy of the MPL was not distributed with this file,You can
 .. obtain one at http://mozilla.org/MPL/2.0/.
 
-FeretUI framework internals
-===========================
+FeretUI client internals
+========================
 
 feretui module
 --------------
@@ -34,6 +34,14 @@ feretui.session module
 
 .. automodule:: feretui.session
    :members:
+
+
+feretui.translation module
+--------------------------
+
+.. automodule:: feretui.translation
+   :members:
+   :private-members:
 
 
 feretui.exceptions module

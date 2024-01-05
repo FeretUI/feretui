@@ -35,6 +35,15 @@ absctract with web server:
   to define to represent an user session, it is not the Session of the
   web-server.
 
+The client FeretUI add i18n mechanism. This mecanism can be declared with
+addon's name attribute. This attribute is used to extract the translation
+of FeretUI or an additionnal project. The translated object are:
+
+* :class:`feretui.translation.TranslatedMessage`
+
+To export the translation, the console script *export-feretui-catalog* extract
+all the translation messages in pot file.
+
 ::
 
     from feretui import FeretUI, Session
@@ -54,6 +63,7 @@ absctract with web server:
         ...
 
 """
+from feretui.feretui import FeretUI  # noqa : F401
 from feretui.request import Request  # noqa : F401
 from feretui.response import Response  # noqa : F401
 from feretui.session import Session  # noqa : F401
