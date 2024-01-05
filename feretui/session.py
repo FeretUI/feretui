@@ -29,12 +29,15 @@ class Session:
 
         class MySession(Session):
             pass
-    Attributes
 
+    Attributes
+    ----------
     * [user: str = None] : User name of the session
+    * [lang: str = 'en'] : The language use by the user session
 
     """
 
     def __init__(self):
         """FeretUI session."""
         self.user: str = None
+        self.lang: str = 'en'

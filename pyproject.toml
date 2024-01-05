@@ -54,6 +54,9 @@ test = [
     'pytest-cov',
 ]
 
+[project.scripts]
+export-feretui-catalog = "feretui:scripts.export_catalog"
+
 [tool.ruff]
 # Set the maximum line length to 79.
 line-length = 79
