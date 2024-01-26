@@ -100,7 +100,7 @@ class Request:
             except Exception:
                 self.body = {}
 
-        if not session:
+        if session is None:
             raise RequestError('the session is required')
 
         if not isinstance(session, Session):

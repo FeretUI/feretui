@@ -15,12 +15,16 @@ language with `PoEdit <https://poedit.net/>`_.
 The translated object are:
 
 * :class:`feretui.translation.TranslatedMessage`
+* :class:`feretui.translation.TranslatedTemplate`
 
 The Translation class have two methods to manipulate the catalogs:
 
 * :meth:`.Translation.export_catalog` : Export the catalog at a path
   for a specific addons
 * :meth:`.Translation.load_catalog` : Load catalog for a specific lang
+
+
+.. _POEntry: https://polib.readthedocs.io/en/latest/api.html#the-poentry-class
 """
 import inspect
 from datetime import datetime
@@ -55,6 +59,13 @@ class TranslatedMessage:
     * [msgid:str] : the translated string
     * [context:str] : the context in the catalog
     * [addons:str] : the addons of the message
+
+    :param message: the translated string
+    :type message: str
+    :param module: the module name where the message come from
+    :type module: str
+    :param addons: The addons where the message come from
+    :type addons: str
     """
 
     def __init__(
@@ -63,15 +74,7 @@ class TranslatedMessage:
         module: str,
         addons: str,
     ) -> "TranslatedMessage":
-        """TranslatedMessage class.
-
-        :param message: the translated string
-        :type message: str
-        :param module: the module name where the message come from
-        :type module: str
-        :param addons: The addons where the message come from
-        :type addons: str
-        """
+        """TranslatedMessage class."""
         self.msgid: str = message
         self.context: str = f'message:{module}'
         self.addons: str = addons
@@ -101,6 +104,48 @@ class TranslatedMessage:
         return str(self).format(**kwargs)
 
 
+class TranslatedTemplate:
+    """TranslatedTemplate class.
+
+    Declare a template file as translatable. The instance is used
+    to defined the template files where take the entries to export
+    in the catalog
+
+    ::
+
+        mytranslation = TranslatedTemplate(
+            'path/of/template.tmpl', 'my.addons')
+
+        Translation.add_translated_template(mytranslation)
+
+    To declare a TranslatedTemplate more easily, a helper exist on FeretUI
+    :meth:`feretui.feretui.FeretUI.import_templates_file`.
+
+    Attributes
+    ----------
+    * [path:str] : the template file path
+    * [addons:str] : the addons of the template file
+
+    :param template_path: the template file path
+    :type template_path: str
+    :param addons: The addons where the message come from
+    :type addons: str
+    """
+
+    def __init__(
+        self,
+        template_path: str,
+        addons: str = 'feretui'
+    ) -> "TranslatedTemplate":
+        """TranslatedMessage class."""
+        self.path: str = template_path
+        self.addons: str = addons
+
+    def __str__(self) -> str:
+        """Return the instance as a string."""
+        return f'<TranslatedTemplate {self.path} addons={self.addons}>'
+
+
 class TranslationLocal(local):
     """TranslationLocal class.
 
@@ -128,6 +173,9 @@ class Translation:
 
     messages: list[TranslatedMessage] = []
     """Translated messages"""
+
+    templates: list[TranslatedTemplate] = []
+    """Translated templates"""
 
     @classmethod
     def has_lang(cls, lang: str) -> bool:
@@ -168,7 +216,7 @@ class Translation:
         :param lang: The language code
         :type lang: str
         :param poentry: The poentry defined
-        :type poentry: POEntry
+        :type poentry: POEntry_
         """
         cls.langs.add(lang)
         cls.translations[
@@ -199,7 +247,7 @@ class Translation:
         :param message: The original message
         :type message: str
         :return: The poentry
-        :rtype: POEntry
+        :rtype: POEntry_
         """
         logger.debug('msgctxt : %r, msgid: %r', context, message)
         return POEntry(
@@ -221,12 +269,22 @@ class Translation:
         logger.debug(f'Translation : Added new message: {translated_message}')
 
     @classmethod
+    def add_translated_template(cls, template: TranslatedTemplate):
+        """Add in templates a TranslatedTemplate.
+
+        :param template: The template.
+        :type translated_message: :class:`TranslatedMessage`
+        """
+        Translation.templates.append(template)
+        logger.debug(f'Translation : Added new template : {template}')
+
+    @classmethod
     def export_catalog(
         cls,
         output_path: str,
         version: str,
         addons: str = None,
-    ):
+    ) -> None:
         """Export a catalog template.
 
         :param output_path: The path where write the catalog
@@ -236,6 +294,8 @@ class Translation:
         :param addons: The addons where the message come from
         :type addons: str
         """
+        from feretui.template import Template
+
         abspath = path.abspath(output_path)
         dirname = path.dirname(abspath)
         basename = path.basename(abspath)
@@ -248,11 +308,20 @@ class Translation:
             'Content-Transfer-Encoding': '8bit',
         }
         messages = cls.messages
+        templates = cls.templates
         if addons is not None:
             messages = filter(lambda x: x.addons == addons, messages)
+            templates = filter(lambda x: x.addons == addons, templates)
 
         for message in messages:
             po.append(cls.define(message.context, message.msgid))
+
+        tmpls = Template()
+        for template in templates:
+            with open(template.path) as fp:
+                tmpls.load_file(fp, ignore_missing_extend=True)
+
+        tmpls.export_catalog(po)
 
         po.save(path.join(dirname, basename))
 
