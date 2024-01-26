@@ -15,6 +15,12 @@ feretui module
 .. include:: feretui.rst
 
 
+feretui.feretui module
+----------------------
+.. automodule:: feretui.feretui
+   :members:
+
+
 feretui.request module
 ----------------------
 
@@ -34,6 +40,14 @@ feretui.session module
 
 .. automodule:: feretui.session
    :members:
+
+
+feretui.template module
+-----------------------
+
+.. automodule:: feretui.template
+   :members:
+   :private-members:
 
 
 feretui.translation module

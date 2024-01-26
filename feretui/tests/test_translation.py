@@ -14,7 +14,11 @@ from tempfile import NamedTemporaryFile
 import pytest  # noqa: F401
 
 from feretui.feretui import FeretUI
-from feretui.translation import Translation, translated_message
+from feretui.translation import (
+    TranslatedTemplate,
+    Translation,
+    translated_message,
+)
 
 
 class TestTranslation:
@@ -45,8 +49,26 @@ class TestTranslation:
         Translation.set_lang(lang='en')
 
     def test_export_load_catalog(self):
-        """Test export catalog. from FeretUI."""
+        """Test export and Load catalog. from FeretUI."""
         translated_message('My translation')
-        with NamedTemporaryFile() as fp:
-            FeretUI.export_catalog(fp.name, '0.0.1', 'feretui')
-            FeretUI.load_catalog(fp.name, 'fr')
+        t1 = b"""
+            <template id='test'>
+                <div>
+                    test text
+                    <div>{{ test }}</div>
+                    test tail
+                </div>
+                <div label="test label" />
+                <div hx-confirm="test hx-confirm" />
+            </template>
+        """
+
+        with NamedTemporaryFile() as fpt:
+            fpt.write(t1)
+            fpt.seek(0)
+            tt = TranslatedTemplate(fpt.name, addons='feretui')
+            Translation.add_translated_template(tt)
+
+            with NamedTemporaryFile() as fp:
+                FeretUI.export_catalog(fp.name, '0.0.1', 'feretui')
+                FeretUI.load_catalog(fp.name, 'fr')

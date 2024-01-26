@@ -11,6 +11,7 @@ Get the exceptions known by FeretUI:
 
 * :class:`.FeretUIError`
 * :class:`.RequestError`
+* :class:`.TemplateError`
 """
 
 
@@ -20,3 +21,7 @@ class FeretUIError(Exception):
 
 class RequestError(FeretUIError):
     """Exception raised by Request object."""
+
+
+class TemplateError(FeretUIError):
+    """Exception raised by Template object."""

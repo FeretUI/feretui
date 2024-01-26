@@ -27,19 +27,51 @@ based on more than one Model, or with another constraints.
 To isolate it about the web-server projects, This project add objects to do
 absctract with web server:
 
-* :class:`feretui.request.Request`: It is the class object used by FeretUI
+* :class:`feretui.request.Request` : It is the class object used by FeretUI
   to represent web-server request.
-* :class:`feretui.response.Response`: It is the class object used by FeretUI
+* :class:`feretui.response.Response` : It is the class object used by FeretUI
   to respond at the client query.
-* :class:`feretui.session.Session`: It is the class object used by FeretUI
+* :class:`feretui.session.Session` : It is the class object used by FeretUI
   to define to represent an user session, it is not the Session of the
   web-server.
+
+FeretUI include to mecanism of templating:
+
+* :class:`feretui.template.Template` : Import template by addons, the template
+  can be modified by another template file. They are compiled by id and
+  language. The compiled template are stored.
+* `jinja <https://jinja.palletsprojects.com/en/3.1.x/>`_.
+
+The both are used in the same time, the internal allow the modularity, and
+jinja allow the loop and setter the variable inside the template
+
+[my/template.tmpl] ::
+
+    <template id="my-template">
+      <ul>
+        {% for tag in tags %}
+        <li>{{ tag }}</li>
+        {% endfor %}
+      </ul>
+    </template>
+
+import of the template file ::
+
+    myferet.import_templates_file('my/template.tmpl')
+
+
+render the template ::
+
+    template_str = myferet.render_template(
+        session, 'my-template', tags=['foo', 'bar'])
+
 
 The client FeretUI add i18n mechanism. This mecanism can be declared with
 addon's name attribute. This attribute is used to extract the translation
 of FeretUI or an additionnal project. The translated object are:
 
 * :class:`feretui.translation.TranslatedMessage`
+* :class:`feretui.translation.TranslatedTemplate`
 
 To export the translation, the console script *export-feretui-catalog* extract
 all the translation messages in pot file.
