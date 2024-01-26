@@ -177,7 +177,7 @@ def _minify_text_and_tail(el: etree.Element) -> None:
         setattr(el, name, text)
 
 
-def get_translated_message(text: str | None) -> str | None:
+def get_translated_message(text: str | None) -> str:
     """Return the text to translate.
 
     If the text if link with a jinja command or whatever int the
