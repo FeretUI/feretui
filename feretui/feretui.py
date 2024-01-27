@@ -37,7 +37,7 @@ The static files can be added:
 
   the method call is :func:`.import_feretui_statics`.
 """
-import sys
+from importlib.metadata import entry_points
 from logging import getLogger
 from os.path import dirname, join
 
@@ -51,11 +51,6 @@ from feretui.translation import (
     TranslatedTemplate,
     Translation,
 )
-
-if sys.version_info < (3, 10):
-    from importlib_metadata import entry_points
-else:
-    from importlib.metadata import entry_points
 
 logger = getLogger(__name__)
 
