@@ -37,11 +37,11 @@ The static files can be added:
 
   the method call is :func:`.import_feretui_statics`.
 """
+import sys
 from logging import getLogger
 from os.path import dirname, join
 
 from jinja2 import Environment, PackageLoader, select_autoescape
-from pkg_resources import iter_entry_points
 
 from feretui.request import Request
 from feretui.response import Response
@@ -51,6 +51,11 @@ from feretui.translation import (
     TranslatedTemplate,
     Translation,
 )
+
+if sys.version_info < (3, 10):
+    from importlib_metadata import entry_points
+else:
+    from importlib.metadata import entry_points
 
 logger = getLogger(__name__)
 
@@ -198,7 +203,7 @@ class FeretUI:
 
         Here the method call is :func:`.import_feretui_statics`.
         """
-        for i in iter_entry_points('feretui.static'):
+        for i in entry_points(group='feretui.static'):
             logger.debug("Load the static from entrypoint: %s", i.name)
             i.load()(self)
 
