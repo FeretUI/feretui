@@ -121,9 +121,10 @@ For the xpath the expression attribute use
 .. _PoFile: https://polib.readthedocs.io/en/latest/api.html#polib.POFile
 """
 import re
+from collections.abc import Callable
 from copy import deepcopy
 from logging import getLogger
-from typing import IO, Callable
+from typing import IO
 
 from lxml import etree, html
 from polib import POFile
