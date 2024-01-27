@@ -18,7 +18,7 @@ from importlib.metadata import version
 from feretui.feretui import FeretUI
 
 
-def export_catalog():
+def export_catalog_for(feretui: FeretUI) -> None:
     """Console script function to export catalog."""
     parser = ArgumentParser(
         prog="Feretui.export_catalog",
@@ -34,4 +34,10 @@ def export_catalog():
     if version_ is None:
         version_ = version(args.addons)
 
-    FeretUI.export_catalog(args.output, version_, addons=args.addons)
+    feretui.export_catalog(args.output, version_, addons=args.addons)
+
+
+def export_catalog():
+    """Console script function to export catalog."""
+    myferet = FeretUI()
+    export_catalog_for(myferet)

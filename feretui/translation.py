@@ -30,10 +30,12 @@ import inspect
 from datetime import datetime
 from logging import getLogger
 from os import path
-from threading import local
 from typing import Any
 
 from polib import POEntry, POFile, pofile
+
+from feretui.exceptions import TranslationError
+from feretui.thread import local
 
 logger = getLogger(__name__)
 
@@ -85,8 +87,12 @@ class TranslatedMessage:
         the message depend of the language defined in the Translation class.
         If not language is defined then the raw string is returned.
         """
-        lang = Translation.get_lang()
-        msg = Translation.get(lang, self.context, self.msgid)
+        if local.feretui is None:
+            raise TranslationError('No feretui instance in local thread')
+
+        translation = local.feretui.translation
+        lang = translation.get_lang()
+        msg = translation.get(lang, self.context, self.msgid)
         return msg
 
     def format(self, **kwargs: dict[str, Any]) -> str:
@@ -145,50 +151,41 @@ class TranslatedTemplate:
         """Return the instance as a string."""
         return f'<TranslatedTemplate {self.path} addons={self.addons}>'
 
-    def __eq__(self, other: "TranslatedTemplate") -> bool:
-        """Verify if the path is the same.
-
-        :param other: The other object
-        :type other: :class:`.TranslatedTemplate`
-        :return: True if both have the same path
-        :rtype: bool
-        """
-        return self.path == other.path
-
-
-class TranslationLocal(local):
-    """TranslationLocal class.
-
-    It is a thread safe store point.
-    """
-
-    lang: str = 'en'
-    """The language code of the thread"""
-
 
 class Translation:
     """Translation class.
 
     This class is used to manipulate translation.
+
+    ::
+
+        myferet = FeretUI()
+        local.feretui = myferet
+
+        mytranslation = TranslatedMessage('My translation')
+        Translation.add_translated_message(mytranslation)
+
+        assert myferet.translation.get_lang() == 'en'
+        assert str(mytranslation) == 'My translation'
+        myferet.translation.set_lang('fr')
+        assert str(mytranslation) == 'Ma traduction'
+
+    .. warning::
+
+        The behaviour work with thread local
     """
-
-    local = TranslationLocal()
-    """A thread safe local store. [:class:`.TranslationLocal`]"""
-
-    langs: set = set()
-    """Language codes"""
-
-    translations: dict[tuple[str, str, str], str] = {}
-    """Local storage of the translation"""
 
     messages: list[TranslatedMessage] = []
     """Translated messages"""
 
-    templates: list[TranslatedTemplate] = []
-    """Translated templates"""
+    def __init__(self):
+        """Instance of the Translation class."""
+        self.langs: set = set()
+        self.translations: dict[tuple[str, str, str], str] = {}
+        self.templates: list[TranslatedTemplate] = []
+        """Translated templates"""
 
-    @classmethod
-    def has_lang(cls, lang: str) -> bool:
+    def has_lang(self, lang: str) -> bool:
         """Return True the lang is declared.
 
         :param lang: The language tested
@@ -196,31 +193,28 @@ class Translation:
         :return: The verification
         :rtype: bool
         """
-        return lang in cls.langs
+        return lang in self.langs
 
-    @classmethod
-    def set_lang(cls, lang: str = 'en') -> None:
+    def set_lang(self, lang: str = 'en') -> None:
         """Define the lang as the default language of this thread.
 
         :param lang: [en], The language code
         :type lang: str
         """
-        if lang not in cls.langs:
-            logger.warning(f"{lang} does not defined in {cls.langs}")
+        if lang not in self.langs:
+            logger.warning(f"{lang} does not defined in {self.langs}")
 
-        cls.local.lang = lang
+        local.lang = lang
 
-    @classmethod
-    def get_lang(cls) -> str:
+    def get_lang(self) -> str:
         """Return the default language code from local thread.
 
         :return: Language code.
         :rtype: str
         """
-        return cls.local.lang
+        return local.lang
 
-    @classmethod
-    def set(cls, lang: str, poentry: POEntry) -> None:
+    def set(self, lang: str, poentry: POEntry) -> None:
         """Add a new translation in translations.
 
         :param lang: The language code
@@ -228,13 +222,12 @@ class Translation:
         :param poentry: The poentry defined
         :type poentry: POEntry_
         """
-        cls.langs.add(lang)
-        cls.translations[
+        self.langs.add(lang)
+        self.translations[
             (lang, poentry.msgctxt, poentry.msgid)
         ] = poentry.msgstr if poentry.msgstr else poentry.msgid
 
-    @classmethod
-    def get(cls, lang: str, context: str, message: str) -> str:
+    def get(self, lang: str, context: str, message: str) -> str:
         """Get the translated message from translations.
 
         :param lang: The language code
@@ -246,10 +239,9 @@ class Translation:
         :return: The translated message
         :rtype: str
         """
-        return cls.translations.get((lang, context, message), message)
+        return self.translations.get((lang, context, message), message)
 
-    @classmethod
-    def define(cls, context: str, message: str) -> POEntry:
+    def define(self, context: str, message: str) -> POEntry:
         """Create a POEntry for a message.
 
         :param context: The context in the catalog
@@ -276,24 +268,21 @@ class Translation:
         :type translated_message: :class:`TranslatedMessage`
         """
         Translation.messages.append(translated_message)
-        logger.debug(f'Translation : Added new message: {translated_message}')
+        logger.debug(
+            f'Translation : Added new message: {translated_message.msgid}'
+        )
 
-    @classmethod
-    def add_translated_template(cls, template: TranslatedTemplate):
+    def add_translated_template(self, template: TranslatedTemplate):
         """Add in templates a TranslatedTemplate.
 
         :param template: The template.
         :type translated_message: :class:`TranslatedMessage`
         """
-        if template in Translation.templates:
-            return
-
-        Translation.templates.append(template)
+        self.templates.append(template)
         logger.debug(f'Translation : Added new template : {template}')
 
-    @classmethod
     def export_catalog(
-        cls,
+        self,
         output_path: str,
         version: str,
         addons: str = None,
@@ -320,16 +309,16 @@ class Translation:
             'Content-Type': 'text/plain; charset=utf-8',
             'Content-Transfer-Encoding': '8bit',
         }
-        messages = cls.messages
-        templates = cls.templates
+        messages = Translation.messages
+        templates = self.templates
         if addons is not None:
             messages = filter(lambda x: x.addons == addons, messages)
             templates = filter(lambda x: x.addons == addons, templates)
 
         for message in messages:
-            po.append(cls.define(message.context, message.msgid))
+            po.append(self.define(message.context, message.msgid))
 
-        tmpls = Template()
+        tmpls = Template(Translation())
         for template in templates:
             with open(template.path) as fp:
                 tmpls.load_file(fp, ignore_missing_extend=True)
@@ -338,8 +327,7 @@ class Translation:
 
         po.save(path.join(dirname, basename))
 
-    @classmethod
-    def load_catalog(cls, catalog_path: str, lang: str) -> None:
+    def load_catalog(self, catalog_path: str, lang: str) -> None:
         """Load a catalog in translations.
 
         :param catalog_path: Path of the catalog
@@ -349,7 +337,7 @@ class Translation:
         """
         po = pofile(catalog_path)
         for entry in po:
-            cls.set(lang, entry)
+            self.set(lang, entry)
 
 
 def translated_message(

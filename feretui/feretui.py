@@ -47,6 +47,7 @@ from feretui.request import Request
 from feretui.response import Response
 from feretui.session import Session
 from feretui.template import Template
+from feretui.thread import local
 from feretui.translation import (
     TranslatedTemplate,
     Translation,
@@ -144,6 +145,9 @@ class FeretUI:
         """
         self.base_url: str = base_url
 
+        # Translation for this instance
+        self.translation = Translation()
+
         self.jinja_env = Environment(
             loader=PackageLoader("feretui"),
             autoescape=select_autoescape()
@@ -151,7 +155,7 @@ class FeretUI:
 
         # List the template to use to generate the UI
         feretui_path = dirname(__file__)
-        self.template = Template()
+        self.template = Template(self.translation)
 
         self.import_templates_file(
             join(feretui_path, 'templates', 'feretui.tmpl')
@@ -172,6 +176,11 @@ class FeretUI:
         :return: Return the html page athrough a feretui Response
         :rtype: :class: `feretui.response.Response`
         """
+        # First put the instance of feretui and the request in
+        # the local thread to keep the information
+        local.feretui = self
+        local.request = request
+
         template = self.render_template(
             request.session,
             'feretui-client',
@@ -297,7 +306,7 @@ class FeretUI:
         :type addons: str
         """
         tt = TranslatedTemplate(template_path, addons=addons)
-        Translation.add_translated_template(tt)
+        self.translation.add_translated_template(tt)
         with open(template_path) as fp:
             self.template.load_file(fp)
 
@@ -340,9 +349,8 @@ class FeretUI:
         return template.render(feretui=self, session=session, **kwargs)
 
     # ---------- Translation ----------
-    @classmethod
     def export_catalog(
-        cls,
+        self,
         output_path: str,
         version: str,
         addons: str = None
@@ -361,10 +369,9 @@ class FeretUI:
         :param addons: The addons where the message come from
         :type addons: str
         """
-        Translation.export_catalog(output_path, version, addons=addons)
+        self.translation.export_catalog(output_path, version, addons=addons)
 
-    @classmethod
-    def load_catalog(cls, catalog_path: str, lang: str) -> None:
+    def load_catalog(self, catalog_path: str, lang: str) -> None:
         """Load a specific catalog for a language.
 
         ::
@@ -375,4 +382,4 @@ class FeretUI:
         :param lang: Language code
         :type lang: str
         """
-        Translation.load_catalog(catalog_path, lang)
+        self.translation.load_catalog(catalog_path, lang)
