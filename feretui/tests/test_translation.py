@@ -13,7 +13,9 @@ from tempfile import NamedTemporaryFile
 
 import pytest  # noqa: F401
 
+from feretui.exceptions import TranslationError
 from feretui.feretui import FeretUI
+from feretui.thread import local
 from feretui.translation import (
     TranslatedTemplate,
     Translation,
@@ -24,32 +26,50 @@ from feretui.translation import (
 class TestTranslation:
     """Test Translation."""
 
+    def test_translated_message_without_feretui(self):
+        """Test translated_message without feretui."""
+        local.feretui = None
+        mytranslation = translated_message('My translation')
+        with pytest.raises(TranslationError):
+            str(mytranslation)
+
     def test_translated_message_without_args(self):
         """Test translated_message without args."""
+        myferet = FeretUI()
+        local.feretui = myferet
+
         mytranslation = translated_message('My translation')
         assert str(mytranslation) == "My translation"
 
     def test_translated_message_with_args(self):
         """Test translated_message without args."""
+        myferet = FeretUI()
+        local.feretui = myferet
+
         mytranslation = translated_message('My translation {foo}')
         assert str(mytranslation) == "My translation {foo}"
         assert mytranslation.format(foo='bar') == "My translation bar"
 
     def test_has_langs(self):
         """Test has_lang."""
-        assert Translation.has_lang('a_lang') is False
-        Translation.langs.add('a_lang')
-        assert Translation.has_lang('a_lang') is True
+        translation = Translation()
+        assert translation.has_lang('a_lang') is False
+        translation.langs.add('a_lang')
+        assert translation.has_lang('a_lang') is True
 
     def test_lang_setter_and_getter(self):
         """Test setter and getter for the langs."""
-        assert Translation.get_lang() == 'en'
-        Translation.set_lang(lang='fr')
-        assert Translation.get_lang() == 'fr'
-        Translation.set_lang(lang='en')
+        translation = Translation()
+        assert translation.get_lang() == 'en'
+        translation.set_lang(lang='fr')
+        assert translation.get_lang() == 'fr'
+        translation.set_lang(lang='en')
 
     def test_export_load_catalog(self):
         """Test export and Load catalog. from FeretUI."""
+        myferet = FeretUI()
+        local.feretui = myferet
+
         translated_message('My translation')
         t1 = b"""
             <template id='test'>
@@ -67,8 +87,8 @@ class TestTranslation:
             fpt.write(t1)
             fpt.seek(0)
             tt = TranslatedTemplate(fpt.name, addons='feretui')
-            Translation.add_translated_template(tt)
+            myferet.translation.add_translated_template(tt)
 
             with NamedTemporaryFile() as fp:
-                FeretUI.export_catalog(fp.name, '0.0.1', 'feretui')
-                FeretUI.load_catalog(fp.name, 'fr')
+                myferet.export_catalog(fp.name, '0.0.1', 'feretui')
+                myferet.load_catalog(fp.name, 'fr')

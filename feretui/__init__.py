@@ -87,8 +87,8 @@ static in existing client
     :meth:`feretui.feretui.FeretUI.statics_from_entrypoint`.
 
 
-The client FeretUI add i18n mechanism. This mecanism can be declared with
-addon's name attribute. This attribute is used to extract the translation
+The client FeretUI add translation mechanism. This mecanism can be declared
+with addon's name attribute. This attribute is used to extract the translation
 of FeretUI or an additionnal project. The translated object are:
 
 * :class:`feretui.translation.TranslatedMessage`

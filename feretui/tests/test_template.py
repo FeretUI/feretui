@@ -13,6 +13,7 @@ from lxml import html
 
 from feretui.exceptions import TemplateError
 from feretui.template import Template
+from feretui.translation import Translation
 
 
 class TestTemplate:
@@ -21,7 +22,7 @@ class TestTemplate:
     @pytest.fixture(autouse=True)
     def init_template(self, request):
         """Fixture to get an empty Template instance."""
-        self.Template = Template()
+        self.Template = Template(Translation())
 
     def format_element(self, element):
         """Convert string."""

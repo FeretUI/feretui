@@ -263,12 +263,19 @@ class Template:
         internal store of the raw templates and inherits.
     * compiled [dict[lang: dict[id: HtmlElement_]]]:
         The compiled template, ready to use and store by lang.
+    * translation [:class:`feretui.translation.Translation`]:
+        instance of the translation for this instance of Template
     """
 
-    def __init__(self):
-        """Template class."""
+    def __init__(self, translation: Translation):
+        """Template class.
+
+        :param translation: instance of the translation mechanism
+        :type translation: :class:`feretui.translation.Translation`
+        """
         self.compiled: dict = {}
         self.known: dict[str, dict[str, html.HtmlElement]] = {}
+        self.translation: Translation = translation
 
     def get_template(
         self,
@@ -826,7 +833,7 @@ class Template:
                 if suffix:
                     context += ':' + suffix
 
-                entry = Translation.define(context, text)
+                entry = self.translation.define(context, text)
                 po.append(entry)
 
             return _callback
@@ -888,7 +895,8 @@ class Template:
         context = f'template:{name}'
         if suffix:
             context += ':' + suffix
-        return Translation.get(lang, context, text)
+
+        return self.translation.get(lang, context, text)
 
     def compile(self, lang='en') -> None:
         """Compile all the templates for a specific lang.
@@ -901,7 +909,7 @@ class Template:
 
     def copy(self) -> "Template":
         """Copy all the known templates."""
-        self_copy = Template()
+        self_copy = Template(Translation())
         for tmpl_name in self.known:
             self_copy.known[tmpl_name] = {
                 'tmpl': [x for x in self.known[tmpl_name]['tmpl']],

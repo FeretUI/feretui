@@ -14,3 +14,5 @@ exclude_lines =
     logger\.
     # exclude all import error of unloaded module
     except ImportError:
+    # exclude type checking
+    if TYPE_CHECKING:
