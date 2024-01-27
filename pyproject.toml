@@ -56,6 +56,9 @@ test = [
 [project.scripts]
 export-feretui-catalog = "feretui:scripts.export_catalog"
 
+[project.entry-points."feretui.static"]
+feretui = "feretui.feretui:import_feretui_statics"
+
 [tool.ruff]
 # Set the maximum line length to 79.
 line-length = 79

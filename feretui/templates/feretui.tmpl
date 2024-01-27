@@ -5,14 +5,57 @@
         <meta charset=utf-8>
         <meta name=viewport content="width=device-width,initial-scale=1">
         <title>FeretUI</title>
+        {% for css in feretui.css_import %}
+        <link rel="stylesheet" href="{{css}}" />
+        {% endfor %}
       </feretui-head>
-      <feretui-body>
-        <header>
-        </header>
-        Hello My feret
-        <footer>
-        </footer>
+      <feretui-body class="has-navbar-fixed-top">
+        <include template="feretui-client-header"/>
+        <div id="feretui-body" class="mt-4 mb-4" hx-boost="true">
+          Hello My feret
+        </div>
+        <include template="feretui-client-footer"/>
+        {% for js in feretui.js_import %}
+        <script src="{{js}}"></script>
+        {% endfor %}
       </feretui-body>
     </feretui-html>
+  </template>
+  <template id="feretui-client-header">
+    <nav class="navbar is-fixed-top"  role="navigation" aria-label="main navigation">
+      <div class="navbar-brand">
+        <a class="navbar-item"
+        >
+          <img src="{{feretui.get_image_url('logo.png')}}">
+        </a>
+        <a
+          role="button"
+          class="navbar-burger"
+          aria-label="menu"
+          aria-expanded="false"
+          data-target="feretui-app-header-burger"
+          _="on click toggle .is-active on me then toggle .is-active on #feretui-app-header-burger"
+        >
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </a>
+      </div>
+      <div id="feretui-app-header-burger" class="navbar-menu">
+        <div class="navbar-start">
+        </div>
+        <div class="navbar-end">
+        </div>
+      </div>
+    </nav>
+  </template>
+  <template id="feretui-client-footer">
+    <footer>
+      <div class="content has-text-centered">
+        <p>
+          <strong>feretUI</strong> by Js Suzanne.
+        </p>
+      </div>
+    </footer>
   </template>
 </templates>

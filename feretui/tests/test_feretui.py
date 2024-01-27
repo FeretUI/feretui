@@ -27,3 +27,11 @@ class TestFeretUI:
         request = Request(session=session)
         response = myferet.render(request)
         assert isinstance(response, Response)
+
+    def test_get_static_file_path(self):
+        """Test get_static_file_path."""
+        myferet = FeretUI()
+        assert (
+            myferet.get_static_file_path('bulma.css')
+            == myferet.statics['bulma.css']
+        )
