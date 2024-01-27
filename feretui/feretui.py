@@ -20,7 +20,25 @@ Each client are isolated.
 
     response = myferet.render(request)
 
+The static files can be added:
+
+* directly in the client with :meth:`.FeretUI.register_js_static`,
+  :meth:`.FeretUI.register_css_static` and
+  :meth:`.FeretUI.register_image_static`
+* with the entry point.
+
+  The declaration of the entryt point is done in the *pyproject.toml*
+  of your project
+
+  ::
+
+      [project.entry-points."feretui.static"]
+      feretui = "feretui.feretui:import_feretui_statics"
+
+  the method call is :func:`.import_feretui_statics`.
 """
+from importlib.metadata import entry_points
+from logging import getLogger
 from os.path import dirname, join
 
 from jinja2 import Environment, PackageLoader, select_autoescape
@@ -34,31 +52,98 @@ from feretui.translation import (
     Translation,
 )
 
+logger = getLogger(__name__)
+
+
+def import_feretui_statics(feretui: "FeretUI") -> None:
+    """Import the main static used by FeretUI client.
+
+    * javascript:
+
+        * `htmx <https://htmx.org/>`_
+        * `hyperscript <https://hyperscript.org/docs/>`_
+        * `json-enc <https://htmx.org/extensions/json-enc/>`_
+
+    * css:
+
+        * `bulma <https://bulma.io/>`_
+
+    * image:
+
+        * FeretUI logo.
+
+
+    :param feretui: Instance of the client.
+    :type fereui: :class:`.FeretUI`
+    """
+    feretui_path = dirname(__file__)
+    feretui.register_js_static(
+        'htmx.js',
+        join(feretui_path, 'static', 'htmx.1.9.10.js')
+    )
+    feretui.register_js_static(
+        'hyperscript.js',
+        join(feretui_path, 'static', 'hyperscript.0.9.12.js')
+    )
+    feretui.register_js_static(
+        'json-enc.js',
+        join(feretui_path, 'static', 'json-enc.js')
+    )
+    feretui.register_css_static(
+        'bulma.css',
+        join(feretui_path, 'static', 'bulma.0.9.4.css')
+    )
+    feretui.register_image_static(
+        'logo.png',
+        join(feretui_path, 'static', 'logo.png')
+    )
+
 
 class FeretUI:
     """Feretui class.
 
     Attributes
     ----------
+    * base_url[str] : The url for this client
     * jinja_env[Environment] : The environnement of jinja
     * template[:class: `feretui.template.Template`]: Templates load
+    * statics[dict[str, str]]: The static filepath on server stored by name
+    * css_import[list[str]] : List of the urls of the css to load
+    * js_import[list[str]] : List of the urls of the script javascript to load
+    * images[dict[str, str]] : List of the image and their url
 
     The instance provide methodes to use
 
     * Templating : Import and get the template, need for display the client.
 
-        * :meth:`.Feretui.import_templates_file`
-        * :meth:`.Feretui.render_template`
+        * :meth:`.FeretUI.import_templates_file`
+        * :meth:`.FeretUI.render_template`
+
+    * static files : Declare static file to import in the client.
+
+        * :meth:`.FeretUI.register_js_static`
+        * :meth:`.FeretUI.register_css_static`
+        * :meth:`.FeretUI.register_image_static`
 
     * Translations : Import and export the catalog
 
-        * :meth:`.Feretui.export_catalog`
-        * :meth:`.Feretui.load_catalog`
+        * :meth:`.FeretUI.export_catalog`
+        * :meth:`.FeretUI.load_catalog`
 
     """
 
-    def __init__(self):
-        """FeretUI class."""
+    CSS_IMPORT: dict[str, str] = {}
+    JS_IMPORT: dict[str, str] = {}
+    IMAGES: dict[str, str] = {}
+
+    def __init__(self, base_url: str = "/feretui"):
+        """FeretUI class.
+
+        :param base_url: The prefix of the url for all internal api
+        :type base_url: str
+        """
+        self.base_url: str = base_url
+
         self.jinja_env = Environment(
             loader=PackageLoader("feretui"),
             autoescape=select_autoescape()
@@ -71,6 +156,13 @@ class FeretUI:
         self.import_templates_file(
             join(feretui_path, 'templates', 'feretui.tmpl')
         )
+
+        # Static behaviours
+        self.statics: dict[str, str] = {}
+        self.css_import: list[str] = []
+        self.js_import: list[str] = []
+        self.images: dict[str, str] = {}
+        self.statics_from_entrypoint()
 
     def render(self, request: Request) -> Response:
         """Return the render of the main page.
@@ -91,6 +183,95 @@ class FeretUI:
         template = template.replace('feretui-head', 'head')
         template = template.replace('feretui-body', 'body')
         return Response(template)
+
+    # ---------- statics  ----------
+    def statics_from_entrypoint(self) -> None:
+        """Get the static from the entrypoints.
+
+        The declaration of the entryt point is done in the *pyproject.toml*
+        of your project
+
+        ::
+
+            [project.entry-points."feretui.static"]
+            feretui = "feretui.feretui:import_feretui_statics"
+
+        Here the method call is :func:`.import_feretui_statics`.
+        """
+        for i in entry_points(group='feretui.static'):
+            logger.debug("Load the static from entrypoint: %s", i.name)
+            i.load()(self)
+
+    def register_js_static(self, name: str, filepath: str) -> None:
+        """Register a javascript file to import in the client.
+
+        :param name: name of the file see in the html url
+        :type name: str
+        :param filepath: Path in server file system
+        :type filepath: str
+        """
+        if name in self.statics:
+            logger.warning('The js script %s is overwriting', name)
+        else:
+            url = f"{self.base_url}/static/{name}"
+            logger.debug('Add the js script %s', url)
+            self.js_import.append(url)
+
+        self.statics[name] = filepath
+
+    def register_css_static(self, name: str, filepath: str) -> None:
+        """Register a stylesheet file to import in the client.
+
+        :param name: name of the file see in the html url
+        :type name: str
+        :param filepath: Path in server file system
+        :type filepath: str
+        """
+        if name in self.statics:
+            logger.warning('The stylesheet %s is overwriting', name)
+        else:
+            url = f"{self.base_url}/static/{name}"
+            logger.debug('Add the stylesheet %s', url)
+            self.css_import.append(url)
+
+        self.statics[name] = filepath
+
+    def register_image_static(self, name: str, filepath: str) -> None:
+        """Register an image file to use it in the client.
+
+        :param name: name of the image see in the html url
+        :type name: str
+        :param filepath: Path in server file system
+        :type filepath: str
+        """
+        if name in self.statics:
+            logger.warning('The image %s is overwriting', name)
+        else:
+            url = f"{self.base_url}/static/{name}"
+            logger.debug('Add the image %s', url)
+            self.images[name] = url
+
+        self.statics[name] = filepath
+
+    def get_image_url(self, name: str) -> str:
+        """Get the url for a picture.
+
+        :param name: The name of the picture
+        :type name: str
+        :return: The url to get it
+        :rtype: str
+        """
+        return self.images[name]
+
+    def get_static_file_path(self, filename: str) -> str:
+        """Get the path in the filesystem for static file name.
+
+        :param name: The name of the static
+        :type name: str
+        :return: The filesystem path
+        :rtype: str
+        """
+        return self.statics.get(filename)
 
     # ---------- Templating  ----------
     def import_templates_file(
@@ -156,7 +337,7 @@ class FeretUI:
                 lang=session.lang,
             )
         )
-        return template.render(feret=self, session=session, **kwargs)
+        return template.render(feretui=self, session=session, **kwargs)
 
     # ---------- Translation ----------
     @classmethod

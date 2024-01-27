@@ -10,7 +10,7 @@ authors = [
 ]
 version = "0.0.1"
 license = { text = "MPL2" }
-requires-python = ">3.9"
+requires-python = ">=3.10"
 dependencies = [
     'lxml',
     'polib',
@@ -55,6 +55,9 @@ test = [
 
 [project.scripts]
 export-feretui-catalog = "feretui:scripts.export_catalog"
+
+[project.entry-points."feretui.static"]
+feretui = "feretui.feretui:import_feretui_statics"
 
 [tool.ruff]
 # Set the maximum line length to 79.

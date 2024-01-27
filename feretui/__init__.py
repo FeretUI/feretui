@@ -66,6 +66,27 @@ render the template ::
         session, 'my-template', tags=['foo', 'bar'])
 
 
+If the template need a static file (js, css, image), it is possible to add this
+static in existing client
+
+::
+
+    myferet.register_js_static('my-lib.js', 'path in the filesystem')
+    myferet.register_css_static('my-lib.css', 'path in the filesystem')
+    myferet.register_image_static('my-picture.png', 'path in the filesystem')
+
+
+.. note::
+
+    Python os lib give helper to find the path where the module is installed.
+
+.. note::
+
+    An existing entrypoint is called at during the initialisation of the
+    instance. In this entrypoint you may declare any static you need
+    :meth:`feretui.feretui.FeretUI.statics_from_entrypoint`.
+
+
 The client FeretUI add i18n mechanism. This mecanism can be declared with
 addon's name attribute. This attribute is used to extract the translation
 of FeretUI or an additionnal project. The translated object are:

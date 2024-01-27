@@ -49,7 +49,7 @@ import logging
 from os import path
 
 import redis
-from bottle import HTTPResponse, app, debug, request, route, run
+from bottle import HTTPResponse, app, debug, request, route, run, static_file
 from bottle_session import Session as BottleSession
 from bottle_session import SessionPlugin
 
@@ -123,6 +123,16 @@ def index(session):
         status=response.status_code,
         headers=response.headers
     )
+
+
+@route('/feretui/static/<filename>')
+def feretui_static_file(session, filename):
+    filepath = myferet.get_static_file_path(filename)
+    if filepath:
+        root, name = path.split(filepath)
+        return static_file(name, root)
+
+    return None
 
 
 if __name__ == "__main__":

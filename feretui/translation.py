@@ -145,6 +145,16 @@ class TranslatedTemplate:
         """Return the instance as a string."""
         return f'<TranslatedTemplate {self.path} addons={self.addons}>'
 
+    def __eq__(self, other: "TranslatedTemplate") -> bool:
+        """Verify if the path is the same.
+
+        :param other: The other object
+        :type other: :class:`.TranslatedTemplate`
+        :return: True if both have the same path
+        :rtype: bool
+        """
+        return self.path == other.path
+
 
 class TranslationLocal(local):
     """TranslationLocal class.
@@ -275,6 +285,9 @@ class Translation:
         :param template: The template.
         :type translated_message: :class:`TranslatedMessage`
         """
+        if template in Translation.templates:
+            return
+
         Translation.templates.append(template)
         logger.debug(f'Translation : Added new template : {template}')
 
