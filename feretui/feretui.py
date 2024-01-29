@@ -22,9 +22,10 @@ Each client are isolated.
 
 The static files, themes and templates can be added:
 
-* directly in the client with :meth:`.FeretUI.register_js_static`,
-  :meth:`.FeretUI.register_css_static`,
-  :meth:`.FeretUI.register_image_static`,
+* directly in the client with :meth:`.FeretUI.register_js`,
+  :meth:`.FeretUI.register_css`,
+  :meth:`.FeretUI.register_font`,
+  :meth:`.FeretUI.register_image`,
   :meth:`.FeretUI.register_theme` and
   :meth:`.FeretUI.register_template_file`
 * with the entry point.
@@ -72,6 +73,9 @@ def import_feretui_addons(feretui: "FeretUI") -> None:
     * css:
         * `bulma <https://bulma.io/>`_
 
+    * font
+        * `Fontawesome <https://fontawesome.com/>`_
+
     * image:
         * FeretUI logo.
 
@@ -88,27 +92,54 @@ def import_feretui_addons(feretui: "FeretUI") -> None:
     )
 
     # ---- JS ----
-    feretui.register_js_static(
+    feretui.register_js(
         'htmx.js',
         join(feretui_path, 'static', 'htmx.1.9.10.js')
     )
-    feretui.register_js_static(
+    feretui.register_js(
         'hyperscript.js',
         join(feretui_path, 'static', 'hyperscript.0.9.12.js')
     )
-    feretui.register_js_static(
+    feretui.register_js(
         'json-enc.js',
         join(feretui_path, 'static', 'json-enc.js')
     )
 
     # ---- CSS ----
-    feretui.register_css_static(
+    feretui.register_css(
         'bulma.css',
         join(feretui_path, 'static', 'bulma.0.9.4.css')
     )
+    feretui.register_css(
+        'fontawesome/css/all.css',
+        join(
+            feretui_path,
+            'static',
+            'fontawesome-free-6.5.1-web',
+            'css',
+            'all.min.css',
+        )
+    )
+
+    # ---- Font ----
+    for font in (
+        'fa-brands-400.ttf', 'fa-brands-400.woff2', 'fa-regular-400.ttf',
+        'fa-regular-400.woff2', 'fa-solid-900.ttf', 'fa-solid-900.woff2',
+        'fa-v4compatibility.ttf', 'fa-v4compatibility.woff2'
+    ):
+        feretui.register_font(
+            f'fontawesome/webfonts/{font}',
+            join(
+                feretui_path,
+                'static',
+                'fontawesome-free-6.5.1-web',
+                'webfonts',
+                font
+            )
+        )
 
     # ---- Images ----
-    feretui.register_image_static(
+    feretui.register_image(
         'logo.png',
         join(feretui_path, 'static', 'logo.png')
     )
@@ -153,6 +184,8 @@ class FeretUI:
     * css_import[list[str]] : List of the urls of the css to load
     * js_import[list[str]] : List of the urls of the script javascript to load
     * images[dict[str, str]] : List of the image and their url
+    * themes[dict[str, str]] : List of the theme and their url
+    * fonts[dict[str, str]] : List of the font and their url
 
     The instance provide methodes to use
 
@@ -163,9 +196,10 @@ class FeretUI:
 
     * static files : Declare static file to import in the client.
 
-        * :meth:`.FeretUI.register_js_static`
-        * :meth:`.FeretUI.register_css_static`
-        * :meth:`.FeretUI.register_image_static`
+        * :meth:`.FeretUI.register_js`
+        * :meth:`.FeretUI.register_css`
+        * :meth:`.FeretUI.register_font`
+        * :meth:`.FeretUI.register_image`
         * :meth:`.FeretUI.register_theme`
 
     * Translations : Import and export the catalog
@@ -204,6 +238,7 @@ class FeretUI:
         self.js_import: list[str] = []
         self.images: dict[str, str] = {}
         self.themes: dict[str, str] = {}
+        self.fonts: dict[str, str] = {}
 
         self.register_addons_from_entrypoint()
 
@@ -250,7 +285,7 @@ class FeretUI:
         return Response(template)
 
     # ---------- statics  ----------
-    def register_js_static(self, name: str, filepath: str) -> None:
+    def register_js(self, name: str, filepath: str) -> None:
         """Register a javascript file to import in the client.
 
         :param name: name of the file see in the html url
@@ -267,7 +302,7 @@ class FeretUI:
 
         self.statics[name] = filepath
 
-    def register_css_static(self, name: str, filepath: str) -> None:
+    def register_css(self, name: str, filepath: str) -> None:
         """Register a stylesheet file to import in the client.
 
         :param name: name of the file see in the html url
@@ -284,7 +319,7 @@ class FeretUI:
 
         self.statics[name] = filepath
 
-    def register_image_static(self, name: str, filepath: str) -> None:
+    def register_image(self, name: str, filepath: str) -> None:
         """Register an image file to use it in the client.
 
         :param name: name of the image see in the html url
@@ -315,6 +350,23 @@ class FeretUI:
             url = f"{self.base_url}/static/{name}"
             logger.debug('Add the available theme %s', url)
             self.themes[name] = url
+
+        self.statics[name] = filepath
+
+    def register_font(self, name: str, filepath: str) -> None:
+        """Register a theme file to use it in the client.
+
+        :param name: name of the font see in the html url
+        :type name: str
+        :param filepath: Path in server file system
+        :type filepath: str
+        """
+        if name in self.statics:
+            logger.warning('The font %s is overwriting', name)
+        else:
+            url = f"{self.base_url}/static/{name}"
+            logger.debug('Add the available font %s', url)
+            self.fonts[name] = url
 
         self.statics[name] = filepath
 

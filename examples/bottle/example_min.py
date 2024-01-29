@@ -79,9 +79,9 @@ def index(session):
     )
 
 
-@route('/feretui/static/<filename>')
-def feretui_static_file(session, filename):
-    filepath = myferet.get_static_file_path(filename)
+@route('/feretui/static/<filepath:path>')
+def feretui_static_file(session, filepath):
+    filepath = myferet.get_static_file_path(filepath)
     if filepath:
         root, name = path.split(filepath)
         return static_file(name, root)
