@@ -18,5 +18,6 @@ Main version of FeretUI, based on the POC
 * Added Response object
 * Added Session object
 * Added templating
+* Added themes
 * Added static file register
 * Added translation behaviours

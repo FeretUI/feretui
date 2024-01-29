@@ -57,7 +57,7 @@ jinja allow the loop and setter the variable inside the template
 
 import of the template file ::
 
-    myferet.import_templates_file('my/template.tmpl')
+    myferet.register_template_file('my/template.tmpl')
 
 
 render the template ::
@@ -84,7 +84,15 @@ static in existing client
 
     An existing entrypoint is called at during the initialisation of the
     instance. In this entrypoint you may declare any static you need
-    :meth:`feretui.feretui.FeretUI.statics_from_entrypoint`.
+    :meth:`feretui.feretui.FeretUI.register_addons_from_entrypoint`.
+
+FeretUI include theme mecanism base on
+`Bulma watch <https://jenil.github.io/bulmaswatch/>`_. It is easier to add your
+new theme file with :meth:`feretui.feretui.FeretUI.register_theme`.
+
+::
+
+    myferet.register_theme('my-theme', 'path in the filesystem')
 
 
 The client FeretUI add translation mechanism. This mecanism can be declared
