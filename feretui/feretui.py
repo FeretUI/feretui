@@ -20,11 +20,13 @@ Each client are isolated.
 
     response = myferet.render(request)
 
-The static files can be added:
+The static files, themes and templates can be added:
 
 * directly in the client with :meth:`.FeretUI.register_js_static`,
-  :meth:`.FeretUI.register_css_static` and
-  :meth:`.FeretUI.register_image_static`
+  :meth:`.FeretUI.register_css_static`,
+  :meth:`.FeretUI.register_image_static`,
+  :meth:`.FeretUI.register_theme` and
+  :meth:`.FeretUI.register_template_file`
 * with the entry point.
 
   The declaration of the entryt point is done in the *pyproject.toml*
@@ -32,10 +34,10 @@ The static files can be added:
 
   ::
 
-      [project.entry-points."feretui.static"]
-      feretui = "feretui.feretui:import_feretui_statics"
+      [project.entry-points."feretui.addons"]
+      feretui = "feretui.feretui:import_feretui_addons"
 
-  the method call is :func:`.import_feretui_statics`.
+  the method call is :func:`.import_feretui_addons`.
 """
 from importlib.metadata import entry_points
 from logging import getLogger
@@ -56,28 +58,36 @@ from feretui.translation import (
 logger = getLogger(__name__)
 
 
-def import_feretui_statics(feretui: "FeretUI") -> None:
+def import_feretui_addons(feretui: "FeretUI") -> None:
     """Import the main static used by FeretUI client.
 
-    * javascript:
+    * templates:
+        * feretui.tmpl
 
+    * javascript:
         * `htmx <https://htmx.org/>`_
         * `hyperscript <https://hyperscript.org/docs/>`_
         * `json-enc <https://htmx.org/extensions/json-enc/>`_
 
     * css:
-
         * `bulma <https://bulma.io/>`_
 
     * image:
-
         * FeretUI logo.
 
+    * `themes <https://jenil.github.io/bulmaswatch/>`_
 
     :param feretui: Instance of the client.
-    :type fereui: :class:`.FeretUI`
+    :type feretui: :class:`.FeretUI`
     """
     feretui_path = dirname(__file__)
+
+    # ---- Templates ----
+    feretui.register_template_file(
+        join(feretui_path, 'templates', 'feretui.tmpl')
+    )
+
+    # ---- JS ----
     feretui.register_js_static(
         'htmx.js',
         join(feretui_path, 'static', 'htmx.1.9.10.js')
@@ -90,14 +100,45 @@ def import_feretui_statics(feretui: "FeretUI") -> None:
         'json-enc.js',
         join(feretui_path, 'static', 'json-enc.js')
     )
+
+    # ---- CSS ----
     feretui.register_css_static(
         'bulma.css',
         join(feretui_path, 'static', 'bulma.0.9.4.css')
     )
+
+    # ---- Images ----
     feretui.register_image_static(
         'logo.png',
         join(feretui_path, 'static', 'logo.png')
     )
+
+    # ---- Themes ----
+    for theme in (
+        'cerulean', 'cyborg', 'default', 'journal', 'lumen', 'materia',
+        'nuclear', 'sandstone', 'slate', 'spacelab', 'united', 'cosmo',
+        'darkly', 'flatly', 'litera', 'lux', 'minty', 'pulse',
+        'simplex', 'solar', 'superhero', 'yeti',
+    ):
+        feretui.register_theme(
+            theme,
+            join(
+                feretui_path, 'static', 'themes', f'{theme}.min.css'
+            ),
+        )
+
+
+def callback_get_theme_url(feretui: "FeretUI", session: Session) -> str:
+    """Return the theme url in function of the session.
+
+    :param feretui: The instance of the client
+    :type feretui: :class:`.FeretUI`
+    :param session: The session of the user.
+    :type session: :class:`feretui.session.Session`
+    :return: the url to import stylesheep
+    :rtype: str
+    """
+    return feretui.themes.get(session.theme, feretui.themes['default'])
 
 
 class FeretUI:
@@ -117,7 +158,7 @@ class FeretUI:
 
     * Templating : Import and get the template, need for display the client.
 
-        * :meth:`.FeretUI.import_templates_file`
+        * :meth:`.FeretUI.register_template_file`
         * :meth:`.FeretUI.render_template`
 
     * static files : Declare static file to import in the client.
@@ -125,6 +166,7 @@ class FeretUI:
         * :meth:`.FeretUI.register_js_static`
         * :meth:`.FeretUI.register_css_static`
         * :meth:`.FeretUI.register_image_static`
+        * :meth:`.FeretUI.register_theme`
 
     * Translations : Import and export the catalog
 
@@ -154,19 +196,33 @@ class FeretUI:
         )
 
         # List the template to use to generate the UI
-        feretui_path = dirname(__file__)
         self.template = Template(self.translation)
-
-        self.import_templates_file(
-            join(feretui_path, 'templates', 'feretui.tmpl')
-        )
 
         # Static behaviours
         self.statics: dict[str, str] = {}
         self.css_import: list[str] = []
         self.js_import: list[str] = []
         self.images: dict[str, str] = {}
-        self.statics_from_entrypoint()
+        self.themes: dict[str, str] = {}
+
+        self.register_addons_from_entrypoint()
+
+    def register_addons_from_entrypoint(self) -> None:
+        """Get the static from the entrypoints.
+
+        The declaration of the entryt point is done in the *pyproject.toml*
+        of your project
+
+        ::
+
+            [project.entry-points."feretui.addons"]
+            feretui = "feretui.feretui:import_feretui_addons"
+
+        Here the method call is :func:`.import_feretui_addons`.
+        """
+        for i in entry_points(group='feretui.addons'):
+            logger.debug("Load the static from entrypoint: %s", i.name)
+            i.load()(self)
 
     def render(self, request: Request) -> Response:
         """Return the render of the main page.
@@ -194,23 +250,6 @@ class FeretUI:
         return Response(template)
 
     # ---------- statics  ----------
-    def statics_from_entrypoint(self) -> None:
-        """Get the static from the entrypoints.
-
-        The declaration of the entryt point is done in the *pyproject.toml*
-        of your project
-
-        ::
-
-            [project.entry-points."feretui.static"]
-            feretui = "feretui.feretui:import_feretui_statics"
-
-        Here the method call is :func:`.import_feretui_statics`.
-        """
-        for i in entry_points(group='feretui.static'):
-            logger.debug("Load the static from entrypoint: %s", i.name)
-            i.load()(self)
-
     def register_js_static(self, name: str, filepath: str) -> None:
         """Register a javascript file to import in the client.
 
@@ -262,6 +301,35 @@ class FeretUI:
 
         self.statics[name] = filepath
 
+    def register_theme(self, name: str, filepath: str) -> None:
+        """Register a theme file to use it in the client.
+
+        :param name: name of the theme see in the html url
+        :type name: str
+        :param filepath: Path in server file system
+        :type filepath: str
+        """
+        if name in self.statics:
+            logger.warning('The theme %s is overwriting', name)
+        else:
+            url = f"{self.base_url}/static/{name}"
+            logger.debug('Add the available theme %s', url)
+            self.themes[name] = url
+
+        self.statics[name] = filepath
+
+    def get_theme_url(self, session: Session) -> str:
+        """Return the theme url in function of the session.
+
+        :param feretui: The instance of the client
+        :type feretui: :class:`.FeretUI`
+        :param session: The session of the user.
+        :type session: :class:`feretui.session.Session`
+        :return: the url to import stylesheep
+        :rtype: str
+        """
+        return callback_get_theme_url(self, session)
+
     def get_image_url(self, name: str) -> str:
         """Get the url for a picture.
 
@@ -283,7 +351,7 @@ class FeretUI:
         return self.statics.get(filename)
 
     # ---------- Templating  ----------
-    def import_templates_file(
+    def register_template_file(
         self,
         template_path: str,
         addons: str = 'feretui'
@@ -297,7 +365,7 @@ class FeretUI:
 
         ::
 
-            myferet.import_templates_file('path/of/template.tmpl')
+            myferet.register_template_file('path/of/template.tmpl')
 
         :param template_path: The template file path to import the instance
                               of FeretUI

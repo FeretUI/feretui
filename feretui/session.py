@@ -34,6 +34,7 @@ class Session:
     ----------
     * [user: str = None] : User name of the session
     * [lang: str = 'en'] : The language use by the user session
+    * [theme: str = 'default'] : The ui theme use by the user session
 
     """
 
@@ -41,3 +42,4 @@ class Session:
         """FeretUI session."""
         self.user: str = None
         self.lang: str = 'en'
+        self.theme: str = 'default'

@@ -8,6 +8,7 @@
         {% for css in feretui.css_import %}
         <link rel="stylesheet" href="{{css}}" />
         {% endfor %}
+        <link rel="stylesheet" href="{{feretui.get_theme_url(session)}}" />
       </feretui-head>
       <feretui-body class="has-navbar-fixed-top">
         <include template="feretui-client-header"/>
