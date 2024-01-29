@@ -71,9 +71,9 @@ static in existing client
 
 ::
 
-    myferet.register_js_static('my-lib.js', 'path in the filesystem')
-    myferet.register_css_static('my-lib.css', 'path in the filesystem')
-    myferet.register_image_static('my-picture.png', 'path in the filesystem')
+    myferet.register_js('my-lib.js', 'path in the filesystem')
+    myferet.register_css('my-lib.css', 'path in the filesystem')
+    myferet.register_image('my-picture.png', 'path in the filesystem')
 
 
 .. note::

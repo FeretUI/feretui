@@ -125,7 +125,7 @@ def index(session):
     )
 
 
-@route('/feretui/static/<filename>')
+@route('/feretui/static/<filename:path>')
 def feretui_static_file(session, filename):
     filepath = myferet.get_static_file_path(filename)
     if filepath:
