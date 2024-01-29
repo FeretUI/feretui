@@ -21,3 +21,4 @@ Main version of FeretUI, based on the POC
 * Added themes
 * Added static file register
 * Added translation behaviours
+* Added callback behaviours

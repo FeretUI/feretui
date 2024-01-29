@@ -40,6 +40,7 @@ The static files, themes and templates can be added:
 
   the method call is :func:`.import_feretui_addons`.
 """
+from collections.abc import Callable
 from importlib.metadata import entry_points
 from logging import getLogger
 from os.path import dirname, join
@@ -158,8 +159,11 @@ def import_feretui_addons(feretui: "FeretUI") -> None:
             ),
         )
 
+    # ---- Callbacks ----
+    feretui.register_callback(get_theme_url)
 
-def callback_get_theme_url(feretui: "FeretUI", session: Session) -> str:
+
+def get_theme_url(feretui: "FeretUI", session: Session) -> str:
     """Return the theme url in function of the session.
 
     :param feretui: The instance of the client
@@ -186,24 +190,26 @@ class FeretUI:
     * images[dict[str, str]] : List of the image and their url
     * themes[dict[str, str]] : List of the theme and their url
     * fonts[dict[str, str]] : List of the font and their url
+    * callbacks[dict[str, Callable] : List of th exisinting callbacks
 
     The instance provide methodes to use
 
     * Templating : Import and get the template, need for display the client.
-
         * :meth:`.FeretUI.register_template_file`
         * :meth:`.FeretUI.render_template`
 
     * static files : Declare static file to import in the client.
-
         * :meth:`.FeretUI.register_js`
         * :meth:`.FeretUI.register_css`
         * :meth:`.FeretUI.register_font`
         * :meth:`.FeretUI.register_image`
         * :meth:`.FeretUI.register_theme`
 
-    * Translations : Import and export the catalog
+    * callback : callback used by the client.
+        * :meth:`.FeretUI.register_callback`
+        * :meth:`.FeretUI.get_callback`
 
+    * Translations : Import and export the catalog
         * :meth:`.FeretUI.export_catalog`
         * :meth:`.FeretUI.load_catalog`
 
@@ -239,6 +245,9 @@ class FeretUI:
         self.images: dict[str, str] = {}
         self.themes: dict[str, str] = {}
         self.fonts: dict[str, str] = {}
+
+        # callbacks
+        self.callbacks: dict[str, Callable] = {}
 
         self.register_addons_from_entrypoint()
 
@@ -380,7 +389,7 @@ class FeretUI:
         :return: the url to import stylesheep
         :rtype: str
         """
-        return callback_get_theme_url(self, session)
+        return self.get_callback('get_theme_url')(self, session)
 
     def get_image_url(self, name: str) -> str:
         """Get the url for a picture.
@@ -467,6 +476,48 @@ class FeretUI:
             )
         )
         return template.render(feretui=self, session=session, **kwargs)
+
+    # --- callback for internal used ---
+    def register_callback(
+        self,
+        func: Callable[..., ...]
+    ) -> Callable[..., ...]:
+        """Register a callback in the client.
+
+        ::
+
+            from feretui.thread import local
+
+            myferet.register_callback
+            def my_callback():
+                return local.request.session.user
+
+            feretui.get_callback('my_callback')()
+
+        :param func: The callback to store
+        :type func: Callable
+        :return: The callback to store
+        :rtype: Callable
+        """
+        if func.__name__ in self.callbacks:
+            logger.info(f'Overload callback {func.__name__}')
+
+        self.callbacks[func.__name__] = func
+        return func
+
+    def get_callback(self, name: str) -> Callable[..., ...]:
+        """Get the registered callback in the client.
+
+        ::
+
+            feretui.get_callback('my_callback')()
+
+        :param name: The name of the callback method
+        :type name: str
+        :return: The stored callback
+        :rtype: Callable
+        """
+        return self.callbacks[name]
 
     # ---------- Translation ----------
     def export_catalog(

@@ -123,6 +123,19 @@ all the translation messages in pot file.
         )
         ...
 
+
+Callback is used to overload some functionality in the other place that de
+declaration of the client class. It use full because It can be called in
+a scoped code. or defined for more than one client without Inherits it.
+
+::
+
+    myferet.register_callback
+    def get_theme_url(feretui, session):
+        if session.lang == 'fr':
+            return feretui.themes['darkly']
+
+        else feretui.themes[session.theme]
 """
 from feretui.feretui import FeretUI  # noqa : F401
 from feretui.request import Request  # noqa : F401
