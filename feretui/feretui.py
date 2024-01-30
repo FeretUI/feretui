@@ -159,19 +159,6 @@ def import_feretui_addons(feretui: "FeretUI") -> None:
         )
 
 
-def callback_get_theme_url(feretui: "FeretUI", session: Session) -> str:
-    """Return the theme url in function of the session.
-
-    :param feretui: The instance of the client
-    :type feretui: :class:`.FeretUI`
-    :param session: The session of the user.
-    :type session: :class:`feretui.session.Session`
-    :return: the url to import stylesheep
-    :rtype: str
-    """
-    return feretui.themes.get(session.theme, feretui.themes['default'])
-
-
 class FeretUI:
     """Feretui class.
 
@@ -380,7 +367,7 @@ class FeretUI:
         :return: the url to import stylesheep
         :rtype: str
         """
-        return callback_get_theme_url(self, session)
+        return self.themes.get(session.theme, self.themes['default'])
 
     def get_image_url(self, name: str) -> str:
         """Get the url for a picture.
