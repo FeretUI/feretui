@@ -39,3 +39,24 @@ class TranslationError(FeretUIError):
 
     Inherits :class:`.FeretUIError`.
     """
+
+
+class ActionError(FeretUIError):
+    """Exception raised by Request object.
+
+    Inherits :class:`.FeretUIError`.
+    """
+
+
+class UnexistingAction(ActionError):
+    """Exception raised by Request object.
+
+    Inherits :class:`.ActionError`.
+    """
+
+
+class ActionValidatorError(ActionError):
+    """Exception raised by Request object.
+
+    Inherits :class:`.ActionError`.
+    """

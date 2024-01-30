@@ -55,6 +55,8 @@ from feretui.translation import (
     TranslatedTemplate,
     Translation,
 )
+from typing import Callable
+from feretui.exceptions import UnexistingAction
 
 logger = getLogger(__name__)
 
@@ -85,11 +87,6 @@ def import_feretui_addons(feretui: "FeretUI") -> None:
     :type feretui: :class:`.FeretUI`
     """
     feretui_path = dirname(__file__)
-
-    # ---- Templates ----
-    feretui.register_template_file(
-        join(feretui_path, 'templates', 'feretui.tmpl')
-    )
 
     # ---- JS ----
     feretui.register_js(
@@ -177,20 +174,22 @@ class FeretUI:
     The instance provide methodes to use
 
     * Templating : Import and get the template, need for display the client.
-
         * :meth:`.FeretUI.register_template_file`
         * :meth:`.FeretUI.render_template`
 
-    * static files : Declare static file to import in the client.
-
+    * Static files : Declare static file to import in the client.
         * :meth:`.FeretUI.register_js`
         * :meth:`.FeretUI.register_css`
         * :meth:`.FeretUI.register_font`
         * :meth:`.FeretUI.register_image`
         * :meth:`.FeretUI.register_theme`
 
-    * Translations : Import and export the catalog
+    * Action : Declare action called by the web server api.
+        * :meth:`.FeretUI.register_action`
+        * :meth:`.FeretUI.get_action`
+        * :meth:`.FeretUI.do_action`
 
+    * Translations : Import and export the catalog
         * :meth:`.FeretUI.export_catalog`
         * :meth:`.FeretUI.load_catalog`
 
@@ -217,7 +216,11 @@ class FeretUI:
         )
 
         # List the template to use to generate the UI
+        feretui_path = dirname(__file__)
         self.template = Template(self.translation)
+        self.register_template_file(
+            join(feretui_path, 'templates', 'feretui.tmpl')
+        )
 
         # Static behaviours
         self.statics: dict[str, str] = {}
@@ -454,6 +457,33 @@ class FeretUI:
             )
         )
         return template.render(feretui=self, session=session, **kwargs)
+
+    # ---------- Templating  ----------
+    def register_action(
+        self,
+        func: Callable[["FeretUI", Request], Response]
+    ) -> Callable[["FeretUI", Request], Response]:
+        if func.__name__ in self.actions:
+            logger.info(f'Overload action {func.__name__}')
+
+        self.actions[func.__name__] = func
+        return func
+
+    def get_action(self, actionname: str) -> Callable[..., ...]:
+        if actionname not in self.actions:
+            raise UnexistingAction(actionname)
+
+        return self.actions[actionname]
+
+    def do_action(
+        self,
+        request: Request,
+        action: str
+    ) -> Response:
+        Translation.set_lang(request.session.lang)
+        cmd = action.split('-')
+        meth = self.get_action(cmd[0])
+        return meth(self, request, *cmd[1:])
 
     # ---------- Translation ----------
     def export_catalog(
