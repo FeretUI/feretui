@@ -97,7 +97,7 @@ def get_action(session, action):
         headers=dict(request.headers),
         session=session,
     )
-    response = myferet.do_action(frequest, action)
+    response = myferet.execute_action(frequest, action)
     return HTTPResponse(
         body=response.body,
         status=response.status_code,
@@ -113,7 +113,7 @@ def post_action(session, action):
         headers=dict(request.headers),
         session=session,
     )
-    response = myferet.do_action(frequest, action)
+    response = myferet.execute_action(frequest, action)
     return HTTPResponse(
         body=response.body,
         status=response.status_code,

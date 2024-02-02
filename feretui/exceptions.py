@@ -13,6 +13,9 @@ Get the exceptions known by FeretUI:
 * :class:`.RequestError`
 * :class:`.TemplateError`
 * :class:`.TranslationError`
+* :class:`.ActionError`
+* :class:`.UnexistingAction`
+* :class:`.ActionValidatorError`
 """
 
 

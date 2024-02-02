@@ -135,6 +135,38 @@ def feretui_static_file(session, filename):
     return None
 
 
+@route('/feretui/action/<action>', method=['GET'])
+def get_action(session, action):
+    frequest = Request(
+        method=Request.GET,
+        querystring=request.query_string,
+        headers=dict(request.headers),
+        session=session,
+    )
+    response = myferet.execute_action(frequest, action)
+    return HTTPResponse(
+        body=response.body,
+        status=response.status_code,
+        headers=response.headers
+    )
+
+
+@route('/feretui/action/<action>', method=['POST'])
+def post_action(session, action):
+    frequest = Request(
+        method=Request.POST,
+        body=request.body.read(),
+        headers=dict(request.headers),
+        session=session,
+    )
+    response = myferet.execute_action(frequest, action)
+    return HTTPResponse(
+        body=response.body,
+        status=response.status_code,
+        headers=response.headers
+    )
+
+
 if __name__ == "__main__":
     app = app()
     plugin = MySessionPlugin(cookie_lifetime=600)

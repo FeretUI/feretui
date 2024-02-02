@@ -95,6 +95,14 @@ new theme file with :meth:`feretui.feretui.FeretUI.register_theme`.
     myferet.register_theme('my-theme', 'path in the filesystem')
 
 
+FeretUI add Action mechanism. The actions are callbacks and take as arguments
+the request and the argument of the action.
+
+* :class:`feretui.FeretUI.register_action`: Decorator to register the callback
+  as an action.
+* :class:`feretui.FeretUI.execute_action`: Method to execute an action.
+
+
 The client FeretUI add translation mechanism. This mecanism can be declared
 with addon's name attribute. This attribute is used to extract the translation
 of FeretUI or an additionnal project. The translated object are:
@@ -121,7 +129,8 @@ all the translation messages in pot file.
             body=request.body.read(),
             headers=dict(request.headers),
         )
-        ...
+        response = myferet.execute_action(frequest, 'action-arg1-arg2')
+        return response.body
 
 """
 from feretui.feretui import FeretUI  # noqa : F401
