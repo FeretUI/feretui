@@ -218,6 +218,7 @@ class XPathDescription:
     :type action: str
     :param elements: the list of the node from the xpath
     :type elements: list[HtmlElement_]
+
     """
 
     def __init__(
@@ -265,6 +266,7 @@ class Template:
         The compiled template, ready to use and store by lang.
     * translation [:class:`feretui.translation.Translation`]:
         instance of the translation for this instance of Template
+
     """
 
     def __init__(self, translation: Translation):
@@ -731,12 +733,10 @@ class Template:
         elements = [deepcopy(x) for x in self.known[name]['tmpl']]
         for el in elements:
             for el_include in el.findall('.//include'):
-                index = 0
                 tmpl = self.compile_template(
                     lang, el_include.attrib['template'])
-                for child in tmpl.getchildren():
+                for index, child in enumerate(tmpl.getchildren()):
                     el_include.insert(index, deepcopy(child))
-                    index += 1
 
                 el_include.drop_tag()
 
