@@ -14,7 +14,7 @@ import pytest  # noqa: F401
 from feretui.session import Session
 
 
-def test_sesison():
+def test_session():
     """Test session."""
     session = Session()
     assert session.user is None

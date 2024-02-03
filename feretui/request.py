@@ -31,6 +31,7 @@ Example with bottle::
         )
         ...
 """
+import inspect
 import json
 import urllib
 from typing import Any
@@ -90,6 +91,9 @@ class Request:
         self.raw_querystring = querystring
         self.headers = headers
 
+        self.pydantic_body_validator = None
+        self.pydantic_querystring_validator = None
+
         self.query = {}
         if querystring:
             self.query = urllib.parse.parse_qs(querystring)
@@ -106,6 +110,34 @@ class Request:
         if not isinstance(session, Session):
             raise RequestError(
                 'the session must be an instance of FeretUI Session')
+
+    @property
+    def deserialized_body(self) -> dict:
+        if not self.body_validator:
+            raise RequestError(
+                'No schema validator defined for deserialize the body'
+            )
+
+        if inspect.isfunction(self.body_validator):
+            schema = self.body_validator(self)
+        else:
+            schema = self.body_validator
+
+        return schema(**self.body)
+
+    @property
+    def deserialized_querystring(self) -> dict:
+        if not self.query_string_validator:
+            raise RequestError(
+                'No schema validator defined for deserialize the querystring'
+            )
+
+        if inspect.isfunction(self.body_validator):
+            schema = self.body_validator(self)
+        else:
+            schema = self.body_validator
+
+        return schema(**self.query)
 
     def get_url_from_dict(
         self,

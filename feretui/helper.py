@@ -43,7 +43,7 @@ def action_validator(
 
         @myferet.register_action
         @action_validator(methods=[RequestMethod.POST])
-        def my_action(feretui, request, *myargs):
+        def my_action(feretui, request):
             return Response(...)
 
     .. note::
@@ -65,24 +65,16 @@ def action_validator(
     :return: a wrapper function:
     :rtype: Callable
     """
+    if methods is not None and not isinstance(methods, list):
+        methods = [methods]
+
     def wrapper_function(func):
         @wraps(func)
         def wrapper_call(
             feret: "FeretUI",
             request: Response,
-            *a
         ):
-            if (
-                methods is not None
-                and (
-                    (
-                        isinstance(methods, RequestMethod | str)
-                        and request.method != methods
-                    ) or (
-                        request.method not in methods
-                    )
-                )
-            ):
+            if methods is not None and request.method not in methods:
                 raise ActionValidatorError(
                     f"The received method is {request.method} "
                     f"but waiting method {methods}"
@@ -92,7 +84,13 @@ def action_validator(
             request.pydantic_querystring_validator = (
                 pydantic_querystring_validator
             )
-            return func(feret, request, *a)
+            response = func(feret, request)
+            if not isinstance(response, Response):
+                raise ActionValidatorError(
+                    f"The response '{response}' is not an instance of Response"
+                )
+
+            return response
 
         return wrapper_call
 
