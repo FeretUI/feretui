@@ -30,13 +30,23 @@ Example with bottle::
             headers=dict(request.headers),
         )
         ...
+
+.. _pydantic: https://docs.pydantic.dev/latest/
+.. _BaseModel: https://docs.pydantic.dev/latest/api/base_model/
 """
 import inspect
 import json
 import urllib
 from typing import Any
 
-from feretui.exceptions import RequestError
+from pydantic import BaseModel
+
+from feretui.exceptions import (
+    RequestBodyDeserializationError,
+    RequestNoSessionError,
+    RequestQueryStringDeserializationError,
+    RequestWrongSessionError,
+)
 from feretui.session import Session
 
 
@@ -59,7 +69,8 @@ class Request:
     :type querystring: str
     :param headers: [None]
     :type headers: dict[str, str]
-    :raise: :class:`feretui.exceptions.RequestError`
+    :exception: :class:`feretui.exceptions.RequestNoSessionError`
+    :exception: :class:`feretui.exceptions.RequestWrongSessionError`
     """
 
     DELETE = RequestMethod()
@@ -105,37 +116,74 @@ class Request:
                 self.body = {}
 
         if session is None:
-            raise RequestError('the session is required')
+            raise RequestNoSessionError('the session is required')
 
         if not isinstance(session, Session):
-            raise RequestError(
+            raise RequestWrongSessionError(
                 'the session must be an instance of FeretUI Session')
 
     @property
-    def deserialized_body(self) -> dict:
-        if not self.body_validator:
-            raise RequestError(
+    def deserialized_body(self) -> BaseModel:
+        """Get The body deserialized by pydantic_.
+
+        ::
+
+            class MyValidator(BaseModel):
+                foo: str
+
+            myrequest.pydantic_body_validator = MyValidator
+
+        .. note::
+
+            The validator is filled by the helper
+            :func:`feretui.helper.action_validator`
+
+        :return: Deserialized body
+        :rtype: BaseModel_
+        :exception: :class:`feretui.exceptions.RequestBodyDeserializationError`
+        """
+        if not self.pydantic_body_validator:
+            raise RequestBodyDeserializationError(
                 'No schema validator defined for deserialize the body'
             )
 
-        if inspect.isfunction(self.body_validator):
-            schema = self.body_validator(self)
+        if inspect.isfunction(self.pydantic_body_validator):
+            schema = self.pydantic_body_validator(self)
         else:
-            schema = self.body_validator
+            schema = self.pydantic_body_validator
 
         return schema(**self.body)
 
     @property
     def deserialized_querystring(self) -> dict:
-        if not self.query_string_validator:
-            raise RequestError(
+        """Get The query string deserialized by pydantic_.
+
+        ::
+
+            class MyValidator(BaseModel):
+                foo: str
+
+            myrequest.pydantic_querystring_validator = MyValidator
+
+        .. note::
+
+            The validator is filled by the helper
+            :func:`feretui.helper.action_validator`
+
+        :return: Deserialized query string
+        :rtype: BaseModel_
+        :exception:
+            :class:`feretui.exceptions.RequestQueryStringDeserializationError`
+        """
+        if not self.pydantic_querystring_validator:
+            raise RequestQueryStringDeserializationError(
                 'No schema validator defined for deserialize the querystring'
             )
 
-        if inspect.isfunction(self.body_validator):
-            schema = self.body_validator(self)
+        if inspect.isfunction(self.pydantic_querystring_validator):
+            schema = self.pydantic_querystring_validator(self)
         else:
-            schema = self.body_validator
+            schema = self.pydantic_querystring_validator
 
         return schema(**self.query)
 

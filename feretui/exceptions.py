@@ -11,6 +11,11 @@ Get the exceptions known by FeretUI:
 
 * :class:`.FeretUIError`
 * :class:`.RequestError`
+* :class:`.RequestSessionError`
+* :class:`.RequestNoSessionError`
+* :class:`.RequestWrongSessionError`
+* :class:`.RequestBodyDeserializationError`
+* :class:`.RequestQueryStringDeserializationError`
 * :class:`.TemplateError`
 * :class:`.TranslationError`
 * :class:`.ActionError`
@@ -30,6 +35,41 @@ class RequestError(FeretUIError):
     """
 
 
+class RequestSessionError(RequestError):
+    """Exception raised by Request object.
+
+    Inherits :class:`.RequestError`.
+    """
+
+
+class RequestNoSessionError(RequestSessionError):
+    """Exception raised by Request object.
+
+    Inherits :class:`.RequestSessionError`.
+    """
+
+
+class RequestWrongSessionError(RequestSessionError):
+    """Exception raised by Request object.
+
+    Inherits :class:`.RequestSessionError`.
+    """
+
+
+class RequestBodyDeserializationError(RequestError):
+    """Exception raised by Request object.
+
+    Inherits :class:`.RequestError`.
+    """
+
+
+class RequestQueryStringDeserializationError(RequestError):
+    """Exception raised by Request object.
+
+    Inherits :class:`.RequestError`.
+    """
+
+
 class TemplateError(FeretUIError):
     """Exception raised by Template object.
 
@@ -45,21 +85,21 @@ class TranslationError(FeretUIError):
 
 
 class ActionError(FeretUIError):
-    """Exception raised by Request object.
+    """Exception raised by action mecanism in FeretUI object.
 
     Inherits :class:`.FeretUIError`.
     """
 
 
 class UnexistingAction(ActionError):
-    """Exception raised by Request object.
+    """Exception raised by action mecanism in FeretUI object.
 
     Inherits :class:`.ActionError`.
     """
 
 
 class ActionValidatorError(ActionError):
-    """Exception raised by Request object.
+    """Exception raised by action mecanism in FeretUI object.
 
     Inherits :class:`.ActionError`.
     """

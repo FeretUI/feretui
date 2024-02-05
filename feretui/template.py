@@ -134,7 +134,6 @@ from feretui.translation import Translation
 
 logger = getLogger(__name__)
 
-"""Regex to indicate if the text is a command jinja"""
 JINJA_REGEXES = [
     "\{\{ [a-zA-Z0-9_()\.|, ']* \}\}",  # noqa W605
     "\{% set [a-zA-Z0-9_\[\]]* = [a-zA-Z0-9_()\.,']* %\}",  # noqa W605
@@ -146,6 +145,7 @@ JINJA_REGEXES = [
     "\{% for [a-zA-Z0-9_(), ]* in [a-zA-Z0-9_()\.'\[\]]* %\}",  # noqa W605
     "\{% endfor %\}",  # noqa W605
 ]
+"""Regex to indicate if the text is a command jinja"""
 
 
 def _minify_text_and_tail(el: etree.Element) -> None:
@@ -182,7 +182,7 @@ def get_translated_message(text: str | None) -> str | None:
     """Return the text to translate.
 
     If the text if link with a jinja command or whatever int the
-    :ref:`.JINJA_REGEXES`.
+    :func:`.JINJA_REGEXES`.
 
     :param text: The initiale text or jinja commande
     :type el: str
