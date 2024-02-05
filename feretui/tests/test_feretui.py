@@ -11,6 +11,7 @@ with pytest.
 """
 import pytest  # noqa: F401
 
+from feretui.exceptions import UnexistingAction
 from feretui.feretui import FeretUI
 from feretui.request import Request
 from feretui.response import Response
@@ -35,3 +36,24 @@ class TestFeretUI:
             myferet.get_static_file_path('bulma.css')
             == myferet.statics['bulma.css']
         )
+
+    def test_register_and_execute_action(self):
+        """Test get_static_file_path."""
+        myferet = FeretUI()
+        session = Session()
+        request = Request(session=session)
+
+        @myferet.register_action
+        def my_action(feretui, request):
+            return id(feretui)
+
+        assert myferet.execute_action(request, 'my_action') == id(myferet)
+
+    def test_execute_unexisting_action(self):
+        """Test get_static_file_path."""
+        myferet = FeretUI()
+        session = Session()
+        request = Request(session=session)
+
+        with pytest.raises(UnexistingAction):
+            myferet.execute_action(request, 'my_action')

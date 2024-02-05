@@ -134,7 +134,6 @@ from feretui.translation import Translation
 
 logger = getLogger(__name__)
 
-"""Regex to indicate if the text is a command jinja"""
 JINJA_REGEXES = [
     "\{\{ [a-zA-Z0-9_()\.|, ']* \}\}",  # noqa W605
     "\{% set [a-zA-Z0-9_\[\]]* = [a-zA-Z0-9_()\.,']* %\}",  # noqa W605
@@ -146,6 +145,7 @@ JINJA_REGEXES = [
     "\{% for [a-zA-Z0-9_(), ]* in [a-zA-Z0-9_()\.'\[\]]* %\}",  # noqa W605
     "\{% endfor %\}",  # noqa W605
 ]
+"""Regex to indicate if the text is a command jinja"""
 
 
 def _minify_text_and_tail(el: etree.Element) -> None:
@@ -182,7 +182,7 @@ def get_translated_message(text: str | None) -> str | None:
     """Return the text to translate.
 
     If the text if link with a jinja command or whatever int the
-    :ref:`.JINJA_REGEXES`.
+    :func:`.JINJA_REGEXES`.
 
     :param text: The initiale text or jinja commande
     :type el: str
@@ -218,6 +218,7 @@ class XPathDescription:
     :type action: str
     :param elements: the list of the node from the xpath
     :type elements: list[HtmlElement_]
+
     """
 
     def __init__(
@@ -265,6 +266,7 @@ class Template:
         The compiled template, ready to use and store by lang.
     * translation [:class:`feretui.translation.Translation`]:
         instance of the translation for this instance of Template
+
     """
 
     def __init__(self, translation: Translation):
@@ -731,12 +733,10 @@ class Template:
         elements = [deepcopy(x) for x in self.known[name]['tmpl']]
         for el in elements:
             for el_include in el.findall('.//include'):
-                index = 0
                 tmpl = self.compile_template(
                     lang, el_include.attrib['template'])
-                for child in tmpl.getchildren():
+                for index, child in enumerate(tmpl.getchildren()):
                     el_include.insert(index, deepcopy(child))
-                    index += 1
 
                 el_include.drop_tag()
 

@@ -40,12 +40,14 @@ The static files, themes and templates can be added:
 
   the method call is :func:`.import_feretui_addons`.
 """
+from collections.abc import Callable
 from importlib.metadata import entry_points
 from logging import getLogger
 from os.path import dirname, join
 
 from jinja2 import Environment, PackageLoader, select_autoescape
 
+from feretui.exceptions import UnexistingAction
 from feretui.request import Request
 from feretui.response import Response
 from feretui.session import Session
@@ -85,11 +87,6 @@ def import_feretui_addons(feretui: "FeretUI") -> None:
     :type feretui: :class:`.FeretUI`
     """
     feretui_path = dirname(__file__)
-
-    # ---- Templates ----
-    feretui.register_template_file(
-        join(feretui_path, 'templates', 'feretui.tmpl')
-    )
 
     # ---- JS ----
     feretui.register_js(
@@ -173,24 +170,26 @@ class FeretUI:
     * images[dict[str, str]] : List of the image and their url
     * themes[dict[str, str]] : List of the theme and their url
     * fonts[dict[str, str]] : List of the font and their url
+    * actions[dict[str, Callable]] : List of the action callables
 
     The instance provide methodes to use
 
     * Templating : Import and get the template, need for display the client.
-
         * :meth:`.FeretUI.register_template_file`
         * :meth:`.FeretUI.render_template`
 
-    * static files : Declare static file to import in the client.
-
+    * Static files : Declare static file to import in the client.
         * :meth:`.FeretUI.register_js`
         * :meth:`.FeretUI.register_css`
         * :meth:`.FeretUI.register_font`
         * :meth:`.FeretUI.register_image`
         * :meth:`.FeretUI.register_theme`
 
-    * Translations : Import and export the catalog
+    * Action : Declare action called by the web server api.
+        * :meth:`.FeretUI.register_action`
+        * :meth:`.FeretUI.execute_action`
 
+    * Translations : Import and export the catalog
         * :meth:`.FeretUI.export_catalog`
         * :meth:`.FeretUI.load_catalog`
 
@@ -217,7 +216,11 @@ class FeretUI:
         )
 
         # List the template to use to generate the UI
+        feretui_path = dirname(__file__)
         self.template = Template(self.translation)
+        self.register_template_file(
+            join(feretui_path, 'templates', 'feretui.tmpl')
+        )
 
         # Static behaviours
         self.statics: dict[str, str] = {}
@@ -226,6 +229,9 @@ class FeretUI:
         self.images: dict[str, str] = {}
         self.themes: dict[str, str] = {}
         self.fonts: dict[str, str] = {}
+
+        # Action
+        self.actions: dict[str, Callable[["FeretUI", Request], Response]] = {}
 
         self.register_addons_from_entrypoint()
 
@@ -454,6 +460,78 @@ class FeretUI:
             )
         )
         return template.render(feretui=self, session=session, **kwargs)
+
+    # ---------- Templating  ----------
+    def register_action(
+        self,
+        function: Callable[["FeretUI", Request], Response]
+    ) -> Callable[["FeretUI", Request], Response]:
+        """Register an action.
+
+        It is a Decorator to register an action need by the
+        client or the final project.
+
+        The action is a callable with two params:
+
+        * feretui [:class:`.FeretUI`] : The client instance.
+        * request [:class:`feretui.request.Request`] : The request
+
+        ::
+
+            @myferet.register_action
+            def my_action(feretui, request):
+                return Response(...)
+
+        :param function: The action callable to store
+        :type function: Callable[[:class:`.FeretUI`,
+                        :class:`feretui.request.Request`],
+                        :class:`feretui.response.Response`]
+        :return: The stored action callable
+        :rtype: Callable[[:class:`.FeretUI`,
+                :class:`feretui.request.Request`],
+                :class:`feretui.response.Response`]
+        """
+        if function.__name__ in self.actions:
+            logger.info(f'Overload action {function.__name__}')
+
+        self.actions[function.__name__] = function
+        return function
+
+    def execute_action(
+        self,
+        request: Request,
+        action_name: str
+    ) -> Response:
+        """Execute a stored action.
+
+        Get and execute the action stored in the client. The
+        parameters need for the good working of the action
+        must be passed by the body or the querystring from the
+        request.
+
+        ::
+
+            request = Request(...)
+            myferet.execute_action(request, 'my_action')
+
+        :param request: The feretui request from api.
+        :type request: :class:`feretui.request.Request`
+        :param action_name: The name of the action
+        :type action_name: str
+        :return: The result of the action
+        :rtype: :class:`feretui.response.Response`
+        """
+        if action_name not in self.actions:
+            raise UnexistingAction(action_name)
+
+        # First put the instance of feretui, the request and
+        # the lang in the local thread to keep the information
+        local.feretui = self
+        local.request = request
+        local.lang = request.session.lang
+
+        function = self.actions[action_name]
+        return function(self, request)
 
     # ---------- Translation ----------
     def export_catalog(

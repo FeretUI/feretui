@@ -50,6 +50,14 @@ feretui.template module
    :private-members:
 
 
+feretui.helper module
+---------------------
+
+.. automodule:: feretui.helper
+   :members:
+   :private-members:
+
+
 feretui.thread module
 ---------------------
 

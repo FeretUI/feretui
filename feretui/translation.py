@@ -68,6 +68,7 @@ class TranslatedMessage:
     :type module: str
     :param addons: The addons where the message come from
     :type addons: str
+    
     """
 
     def __init__(
@@ -136,6 +137,7 @@ class TranslatedTemplate:
     :type template_path: str
     :param addons: The addons where the message come from
     :type addons: str
+    
     """
 
     def __init__(
