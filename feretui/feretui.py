@@ -162,6 +162,7 @@ class FeretUI:
     Attributes
     ----------
     * base_url[str] : The url for this client
+    * title[str] : The title of the html head
     * jinja_env[Environment] : The environnement of jinja
     * template[:class: `feretui.template.Template`]: Templates load
     * statics[dict[str, str]]: The static filepath on server stored by name
@@ -199,13 +200,16 @@ class FeretUI:
     JS_IMPORT: dict[str, str] = {}
     IMAGES: dict[str, str] = {}
 
-    def __init__(self, base_url: str = "/feretui"):
+    def __init__(self, base_url: str = "/feretui", title: str = "FeretUI"):
         """FeretUI class.
 
         :param base_url: The prefix of the url for all internal api
         :type base_url: str
+        :param title: [FeretUI] The title in the html head
+        :type base_url: str
         """
         self.base_url: str = base_url
+        self.title: str = title
 
         # Translation for this instance
         self.translation = Translation()
@@ -275,7 +279,7 @@ class FeretUI:
         template = template.replace('feretui-html', 'html')
         template = template.replace('feretui-head', 'head')
         template = template.replace('feretui-body', 'body')
-        return Response(template)
+        return Response(f'<!DOCTYPE html5>\n{template}')
 
     # ---------- statics  ----------
     def register_js(self, name: str, filepath: str) -> None:

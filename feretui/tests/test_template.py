@@ -37,7 +37,14 @@ class TestTemplate:
         self.Template.load_file(f)
         assert (
             self.format_element(self.Template.known['test']['tmpl'][0]) ==
-            '<template id="test"><a><b1></b1><b2></b2></a></template>'
+            '<template id="test">\n'
+            ' <a>\n'
+            '  <b1>\n'
+            '  </b1>\n'
+            '  <b2>\n'
+            '  </b2>\n'
+            ' </a>\n'
+            '</template>\n'
         )
 
     def test_load_file_2(self):
@@ -52,7 +59,14 @@ class TestTemplate:
         self.Template.load_file(f)
         assert (
             self.format_element(self.Template.known['test']['tmpl'][0]) ==
-            '<template id="test"><a><b1></b1><b2></b2></a></template>'
+            '<template id="test">\n'
+            ' <a>\n'
+            '  <b1>\n'
+            '  </b1>\n'
+            '  <b2>\n'
+            '  </b2>\n'
+            ' </a>\n'
+            '</template>\n'
         )
 
     def test_load_file_3(self):
@@ -79,7 +93,14 @@ class TestTemplate:
         self.Template.load_template_from_str(t1)
         assert (
             self.format_element(self.Template.known['test']['tmpl'][0]) ==
-            '<template id="test"><a><b1></b1><b2></b2></a></template>'
+            '<template id="test">\n'
+            ' <a>\n'
+            '  <b1>\n'
+            '  </b1>\n'
+            '  <b2>\n'
+            '  </b2>\n'
+            ' </a>\n'
+            '</template>\n'
         )
 
     def test_load_template(self):
@@ -89,7 +110,14 @@ class TestTemplate:
         self.Template.load_template(et)
         assert (
             self.format_element(self.Template.known['test']['tmpl'][0]) ==
-            '<template id="test"><a><b1></b1><b2></b2></a></template>'
+            '<template id="test">\n'
+            ' <a>\n'
+            '  <b1>\n'
+            '  </b1>\n'
+            '  <b2>\n'
+            '  </b2>\n'
+            ' </a>\n'
+            '</template>\n'
         )
 
     def test_load_template_without_id_and_without_extend(self):
@@ -152,8 +180,14 @@ class TestTemplate:
         assert (
             self.format_element(self.Template.known['test']['tmpl'][0]) ==
             (
-                '<template id="test" rewrite="1"><a><c1></c1><c2></c2></a>'
-                '</template>'
+                '<template id="test" rewrite="1">\n'
+                ' <a>\n'
+                '  <c1>\n'
+                '  </c1>\n'
+                '  <c2>\n'
+                '  </c2>\n'
+                ' </a>\n'
+                '</template>\n'
             )
         )
 
@@ -194,8 +228,16 @@ class TestTemplate:
         assert (
             self.format_element(self.Template.compiled['en']['test']) ==
             (
-                '<template id="test"><a><b0></b0><b1></b1><b2></b2></a>'
-                '</template>'
+                '<template id="test">\n'
+                ' <a>\n'
+                '  <b0>\n'
+                '  </b0>\n'
+                '  <b1>\n'
+                '  </b1>\n'
+                '  <b2>\n'
+                '  </b2>\n'
+                ' </a>\n'
+                '</template>\n'
             )
         )
 
@@ -212,9 +254,16 @@ class TestTemplate:
         assert (
             self.format_element(self.Template.compiled['en']['test']) ==
             (
-                '<template id="test">'
-                '<a><b0></b0><b1></b1><b2></b2></a>'
-                '</template>'
+                '<template id="test">\n'
+                ' <a>\n'
+                '  <b0>\n'
+                '  </b0>\n'
+                '  <b1>\n'
+                '  </b1>\n'
+                '  <b2>\n'
+                '  </b2>\n'
+                ' </a>\n'
+                '</template>\n'
             )
         )
 
@@ -228,8 +277,16 @@ class TestTemplate:
         assert (
             self.format_element(self.Template.compiled['en']['test']) ==
             (
-                '<template id="test"><a><b1></b1><b2></b2><b3></b3></a>'
-                '</template>'
+                '<template id="test">\n'
+                ' <a>\n'
+                '  <b1>\n'
+                '  </b1>\n'
+                '  <b2>\n'
+                '  </b2>\n'
+                '  <b3>\n'
+                '  </b3>\n'
+                ' </a>\n'
+                '</template>\n'
             )
         )
 
@@ -246,8 +303,16 @@ class TestTemplate:
         assert (
             self.format_element(self.Template.compiled['en']['test']) ==
             (
-                '<template id="test"><a><b1></b1><b2></b2><b3></b3></a>'
-                '</template>'
+                '<template id="test">\n'
+                ' <a>\n'
+                '  <b1>\n'
+                '  </b1>\n'
+                '  <b2>\n'
+                '  </b2>\n'
+                '  <b3>\n'
+                '  </b3>\n'
+                ' </a>\n'
+                '</template>\n'
             )
         )
 
@@ -261,8 +326,16 @@ class TestTemplate:
         assert (
             self.format_element(self.Template.compiled['en']['test']) ==
             (
-                '<template id="test"><a><b1></b1><b2><c></c></b2></a>'
-                '</template>'
+                '<template id="test">\n'
+                ' <a>\n'
+                '  <b1>\n'
+                '  </b1>\n'
+                '  <b2>\n'
+                '   <c>\n'
+                '   </c>\n'
+                '  </b2>\n'
+                ' </a>\n'
+                '</template>\n'
             )
         )
 
@@ -275,7 +348,14 @@ class TestTemplate:
             'en', 'test', './/b2', True, [html.fromstring('<c/>')])
         assert (
             self.format_element(self.Template.compiled['en']['test']) ==
-            '<template id="test"><a><b1></b1><c></c></a></template>'
+            '<template id="test">\n'
+            ' <a>\n'
+            '  <b1>\n'
+            '  </b1>\n'
+            '  <c>\n'
+            '  </c>\n'
+            ' </a>\n'
+            '</template>\n'
         )
 
     def test_xpath_replace2(self):
@@ -290,7 +370,14 @@ class TestTemplate:
         self.Template.compile()
         assert (
             self.format_element(self.Template.compiled['en']['test']) ==
-            '<template id="test"><a><b1></b1><c></c></a></template>'
+            '<template id="test">\n'
+            ' <a>\n'
+            '  <b1>\n'
+            '  </b1>\n'
+            '  <c>\n'
+            '  </c>\n'
+            ' </a>\n'
+            '</template>\n'
         )
 
     def test_xpath_remove(self):
@@ -301,7 +388,12 @@ class TestTemplate:
         self.Template.xpath_remove('en', 'test', './/b2', True)
         assert (
             self.format_element(self.Template.compiled['en']['test']) ==
-            '<template id="test"><a><b1></b1></a></template>'
+            '<template id="test">\n'
+            ' <a>\n'
+            '  <b1>\n'
+            '  </b1>\n'
+            ' </a>\n'
+            '</template>\n'
         )
 
     def test_xpath_remove2(self):
@@ -316,7 +408,12 @@ class TestTemplate:
         self.Template.compile()
         assert (
             self.format_element(self.Template.compiled['en']['test']) ==
-            '<template id="test"><a><b1></b1></a></template>'
+            '<template id="test">\n'
+            ' <a>\n'
+            '  <b1>\n'
+            '  </b1>\n'
+            ' </a>\n'
+            '</template>\n'
         )
 
     def test_get_xpath_attributes(self):
@@ -341,8 +438,14 @@ class TestTemplate:
         assert (
             self.format_element(self.Template.compiled['en']['test']) ==
             (
-                '<template id="test"><a><b1></b1><b2 name="test"></b2></a>'
-                '</template>'
+                '<template id="test">\n'
+                ' <a>\n'
+                '  <b1>\n'
+                '  </b1>\n'
+                '  <b2 name="test">\n'
+                '  </b2>\n'
+                ' </a>\n'
+                '</template>\n'
             )
         )
 
@@ -361,8 +464,14 @@ class TestTemplate:
         assert (
             self.format_element(self.Template.compiled['en']['test']) ==
             (
-                '<template id="test"><a><b1></b1><b2 name="test"></b2></a>'
-                '</template>'
+                '<template id="test">\n'
+                ' <a>\n'
+                '  <b1>\n'
+                '  </b1>\n'
+                '  <b2 name="test">\n'
+                '  </b2>\n'
+                ' </a>\n'
+                '</template>\n'
             )
         )
 
@@ -404,11 +513,27 @@ class TestTemplate:
         self.Template.compile()
         assert (
             self.format_element(self.Template.compiled['en']['test']) ==
-            '<template id="test"><a><b1></b1><b2></b2></a></template>'
+            '<template id="test">\n'
+            ' <a>\n'
+            '  <b1>\n'
+            '  </b1>\n'
+            '  <b2>\n'
+            '  </b2>\n'
+            ' </a>\n'
+            '</template>\n'
         )
         assert (
             self.format_element(self.Template.compiled['en']['test2']) ==
-            '<template id="test2"><c><a><b1></b1><b2></b2></a></c></template>'
+            '<template id="test2">\n'
+            ' <c>\n'
+            '  <a>\n'
+            '   <b1>\n'
+            '   </b1>\n'
+            '   <b2>\n'
+            '   </b2>\n'
+            '  </a>\n'
+            ' </c>\n'
+            '</template>\n'
         )
 
     def test_get_template(self):
@@ -420,7 +545,25 @@ class TestTemplate:
         self.Template.compiled['en'] = {}
         self.Template.compiled['en']['test'] = html.fromstring(
             f'<template>{template}</template>')
-        assert self.Template.get_template('test') == template
+        assert (
+            self.Template.get_template('test') ==
+            '<a>\n'
+            ' <b1>\n'
+            ' </b1>\n'
+            ' <b2>\n'
+            ' </b2>\n'
+            '</a>\n'
+        )
+        assert self.Template.compiled_str["en"]["unicode"]["test"]
+        assert (
+            self.Template.get_template('test') ==
+            '<a>\n'
+            ' <b1>\n'
+            ' </b1>\n'
+            ' <b2>\n'
+            ' </b2>\n'
+            '</a>\n'
+        )
 
     def test_get_template_with_translation(self):
         """Test get template with translation."""
@@ -428,7 +571,9 @@ class TestTemplate:
         self.Template.load_template_from_str(template)
         assert (
             self.Template.get_template('test') ==
-            '<b1 label="test">test</b1>'
+            '<b1 label="test">\n'
+            ' test\n'
+            '</b1>\n'
         )
 
     def test_get_template_tostring_is_False(self):
@@ -451,7 +596,16 @@ class TestTemplate:
         self.Template.compile()
         assert (
             self.format_element(self.Template.compiled['en']['test']) ==
-            '<template id="test"><a><b1><c></c></b1><b2></b2></a></template>'
+            '<template id="test">\n'
+            ' <a>\n'
+            '  <b1>\n'
+            '   <c>\n'
+            '   </c>\n'
+            '  </b1>\n'
+            '  <b2>\n'
+            '  </b2>\n'
+            ' </a>\n'
+            '</template>\n'
         )
 
     def test_compile_with_extend_another_template(self):
@@ -467,11 +621,27 @@ class TestTemplate:
         self.Template.compile()
         assert (
             self.format_element(self.Template.compiled['en']['test']) ==
-            '<template id="test"><a><b1></b1><b2></b2></a></template>'
+            '<template id="test">\n'
+            ' <a>\n'
+            '  <b1>\n'
+            '  </b1>\n'
+            '  <b2>\n'
+            '  </b2>\n'
+            ' </a>\n'
+            '</template>\n'
         )
         assert (
             self.format_element(self.Template.compiled['en']['test2']) ==
-            '<template id="test2"><a><b1><c></c></b1><b2></b2></a></template>'
+            '<template id="test2">\n'
+            ' <a>\n'
+            '  <b1>\n'
+            '   <c>\n'
+            '   </c>\n'
+            '  </b1>\n'
+            '  <b2>\n'
+            '  </b2>\n'
+            ' </a>\n'
+            '</template>\n'
         )
 
     def test_compile_the_same_template_and_extend_it(self):
@@ -492,13 +662,32 @@ class TestTemplate:
         self.Template.compile()
         assert (
             self.format_element(self.Template.compiled['en']['test']) ==
-            '<template id="test"><a><b1></b1><b2><c></c></b2></a></template>'
+            '<template id="test">\n'
+            ' <a>\n'
+            '  <b1>\n'
+            '  </b1>\n'
+            '  <b2>\n'
+            '   <c>\n'
+            '   </c>\n'
+            '  </b2>\n'
+            ' </a>\n'
+            '</template>\n'
         )
         assert (
             self.format_element(self.Template.compiled['en']['test2']) ==
             (
-                '<template id="test2"><a><b1><c></c></b1><b2><c></c></b2></a>'
-                '</template>'
+                '<template id="test2">\n'
+                ' <a>\n'
+                '  <b1>\n'
+                '   <c>\n'
+                '   </c>\n'
+                '  </b1>\n'
+                '  <b2>\n'
+                '   <c>\n'
+                '   </c>\n'
+                '  </b2>\n'
+                ' </a>\n'
+                '</template>\n'
             )
         )
 
@@ -509,7 +698,15 @@ class TestTemplate:
         self.Template.load_template(et)
         assert (
             self.format_element(self.Template.known['test']['tmpl'][0]) ==
-            '<template id="test" test><a><b1></b1><b2></b2></a></template>')
+            '<template id="test" test>\n'
+            ' <a>\n'
+            '  <b1>\n'
+            '  </b1>\n'
+            '  <b2>\n'
+            '  </b2>\n'
+            ' </a>\n'
+            '</template>\n'
+        )
 
     def test_html_no_ending_tag(self):
         """Test with not ending tag."""
@@ -517,8 +714,14 @@ class TestTemplate:
             '<template id="test"><a><b1></a></template>')
         self.Template.load_template(et)
         assert (
-            self.format_element(self.Template.known['test']['tmpl'][0]) ==
-            '<template id="test"><a><b1></b1></a></template>'
+            self.format_element(self.Template.known['test']['tmpl'][0]) == (
+                '<template id="test">\n'
+                ' <a>\n'
+                '  <b1>\n'
+                '  </b1>\n'
+                ' </a>\n'
+                '</template>\n'
+            )
         )
 
     def test_copy(self):

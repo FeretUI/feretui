@@ -18,6 +18,7 @@ dependencies = [
     'pydantic',
     'pydantic-i18n',
     'password-validator',
+    'BeautifulSoup4',
 ]
 dynamic = ["readme"]
 keywords = [
