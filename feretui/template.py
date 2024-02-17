@@ -126,6 +126,7 @@ from copy import deepcopy
 from logging import getLogger
 from typing import IO
 
+from bs4 import BeautifulSoup, UnicodeDammit
 from lxml import etree, html
 from polib import POFile
 
@@ -133,6 +134,7 @@ from feretui.exceptions import TemplateError
 from feretui.translation import Translation
 
 logger = getLogger(__name__)
+
 
 JINJA_REGEXES = [
     "\{\{ [a-zA-Z0-9_()\.|, ']* \}\}",  # noqa W605
@@ -146,6 +148,24 @@ JINJA_REGEXES = [
     "\{% endfor %\}",  # noqa W605
 ]
 """Regex to indicate if the text is a command jinja"""
+
+
+def decode_html(html_string: str) -> str:
+    """Convert html string to html string markup.
+
+    :param html_string: The html to convert
+    :type html: str
+    :return: The converted html
+    :rtype: str[unicode]
+    :exception: UnicodeDecodeError
+    """
+    converted = UnicodeDammit(html_string)
+    if not converted.unicode_markup:
+        raise UnicodeDecodeError(  # pragma: no cover
+            "Failed to detect encoding, tried [%s]",
+            ', '.join(converted.tried_encodings))
+
+    return converted.unicode_markup
 
 
 def _minify_text_and_tail(el: etree.Element) -> None:
@@ -264,6 +284,8 @@ class Template:
         internal store of the raw templates and inherits.
     * compiled [dict[lang: dict[id: HtmlElement_]]]:
         The compiled template, ready to use and store by lang.
+    * compiled_str [dict[lang: dict[encoding: dict[id: HtmlElement_]]]]:
+        The compiled encoded template, ready to use and store by lang.
     * translation [:class:`feretui.translation.Translation`]:
         instance of the translation for this instance of Template
 
@@ -276,6 +298,7 @@ class Template:
         :type translation: :class:`feretui.translation.Translation`
         """
         self.compiled: dict = {}
+        self.compiled_str: dict = {}
         self.known: dict[str, dict[str, html.HtmlElement]] = {}
         self.translation: Translation = translation
 
@@ -301,13 +324,26 @@ class Template:
         :return: The compiled template in the defined **lang**.
         :rtype: HtmlElement_ or str
         """
+        if (
+            tostring
+            and lang in self.compiled_str
+            and encoding in self.compiled_str[lang]
+            and name in self.compiled_str[lang][encoding]
+        ):
+            return self.compiled_str[lang][encoding][name]
+
         if lang not in self.compiled:
             self.compile(lang=lang)
 
         tmpl = deepcopy(self.compiled[lang][name])[0]
 
         if tostring:
-            return self.tostring(tmpl, encoding)
+            tmpl_str = self.tostring(tmpl, encoding)
+            compiled_str_lang = self.compiled_str.setdefault(lang, {})
+            compiled_str_lang_encoding = compiled_str_lang.setdefault(
+                encoding, {})
+            compiled_str_lang_encoding[name] = tmpl_str
+            return tmpl_str
 
         return tmpl
 
@@ -325,7 +361,11 @@ class Template:
         :return: the template in string mode
         :rtype: bytes or str
         """
-        return html.tostring(template, encoding=encoding)
+        soup = BeautifulSoup(
+            etree.tostring(template, encoding=encoding),
+            "html.parser"
+        )
+        return soup.prettify(formatter="html5")
 
     def load_file(
         self,
@@ -353,7 +393,7 @@ class Template:
             el = openedfile.read()
             # the operator ?= are cut, then I replace them before
             # to save the operator in get_template
-            element = html.fromstring(el)
+            element = html.fromstring(decode_html(el))
         except Exception:  # pragma: no cover
             logger.error('error durring load of %r', openedfile)
             raise
@@ -439,7 +479,7 @@ class Template:
         :param template: The template to load.
         :type template: str
         """
-        el = html.fromstring(template)
+        el = html.fromstring(decode_html(template))
         self.load_template(el)
 
     def get_xpath(self, element: html.HtmlElement) -> list[XPathDescription]:

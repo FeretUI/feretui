@@ -1,55 +1,59 @@
 <templates>
   <template id="feretui-client">
-    <feretui-html>
+    <!DOCTYPE html>
+    <feretui-html lang="{{ session.lang }}">
       <feretui-head>
         <meta charset=utf-8>
         <meta name=viewport content="width=device-width,initial-scale=1">
-        <title>FeretUI</title>
-        <link rel="icon" type="image/png" href="{{feretui.get_image_url('logo.png')}}">
+        <title>{{ feretui.title }}</title>
+        <link rel="icon" type="image/png" href="{{ feretui.get_image_url('logo.png') }}">
         {% for css in feretui.css_import %}
-        <link rel="stylesheet" href="{{css}}" />
+        <link rel="stylesheet" href="{{ css }}" />
         {% endfor %}
-        <link rel="stylesheet" href="{{feretui.get_theme_url(session)}}" />
+        <link rel="stylesheet" href="{{ feretui.get_theme_url(session) }}" />
       </feretui-head>
       <feretui-body class="has-navbar-fixed-top">
         <include template="feretui-client-header"/>
         <div id="feretui-body" class="mt-4 mb-4" hx-boost="true">
-          Hello My feret <i class="fa-regular fa-face-smile"></i>
+          Hello My feret <i class="fa-regular fa-face-smile"/>
         </div>
         <include template="feretui-client-footer"/>
         {% for js in feretui.js_import %}
-        <script src="{{js}}"></script>
+        <script src="{{ js }}"></script>
         {% endfor %}
       </feretui-body>
     </feretui-html>
   </template>
   <template id="feretui-client-header">
-    <nav class="navbar is-fixed-top"  role="navigation" aria-label="main navigation">
-      <div class="navbar-brand">
-        <a class="navbar-item"
-        >
-          <img src="{{feretui.get_image_url('logo.png')}}">
-        </a>
-        <a
-          role="button"
-          class="navbar-burger"
-          aria-label="menu"
-          aria-expanded="false"
-          data-target="feretui-app-header-burger"
-          _="on click toggle .is-active on me then toggle .is-active on #feretui-app-header-burger"
-        >
-          <span aria-hidden="true"></span>
-          <span aria-hidden="true"></span>
-          <span aria-hidden="true"></span>
-        </a>
-      </div>
-      <div id="feretui-app-header-burger" class="navbar-menu">
-        <div class="navbar-start">
+    <header>
+      <nav class="navbar is-fixed-top"  role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+          <a class="navbar-item"
+          >
+            <img src="{{ feretui.get_image_url('logo.png') }}" alt="{{ feretui.title }}">
+          </a>
+          <a
+            id="feretui-app-header-burger-button"
+            role="button"
+            class="navbar-burger"
+            aria-label="menu"
+            aria-expanded="false"
+            data-target="feretui-app-header-burger"
+            _="on click toggle .is-active on me then toggle .is-active on #feretui-app-header-burger"
+          >
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+          </a>
         </div>
-        <div class="navbar-end">
+        <div id="feretui-app-header-burger" class="navbar-menu">
+          <div class="navbar-start">
+          </div>
+          <div class="navbar-end">
+          </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+    </header>
   </template>
   <template id="feretui-client-footer">
     <footer>
