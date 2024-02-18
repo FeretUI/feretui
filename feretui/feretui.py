@@ -57,6 +57,8 @@ from feretui.translation import (
     TranslatedTemplate,
     Translation,
 )
+from feretui.pages import page_404, page_forbidden, homepage
+from feretui.actions import goto, render
 
 logger = getLogger(__name__)
 
@@ -225,6 +227,9 @@ class FeretUI:
         self.register_template_file(
             join(feretui_path, 'templates', 'feretui.tmpl')
         )
+        self.register_template_file(
+            join(feretui_path, 'templates', 'pages.tmpl')
+        )
 
         # Static behaviours
         self.statics: dict[str, str] = {}
@@ -234,8 +239,19 @@ class FeretUI:
         self.themes: dict[str, str] = {}
         self.fonts: dict[str, str] = {}
 
-        # Action
+        # Actions
         self.actions: dict[str, Callable[["FeretUI", Request], Response]] = {}
+        self.register_action(render)
+        self.register_action(goto)
+
+        # Pages
+        self.pages: dict[str, Callable[
+            ["FeretUI", Session, dict], Response]
+        ] = {
+            '404': page_404,  # because a function can not be called 404
+        }
+        self.register_page()(page_forbidden)
+        self.register_page()(homepage)
 
         self.register_addons_from_entrypoint()
 
@@ -465,7 +481,7 @@ class FeretUI:
         )
         return template.render(feretui=self, session=session, **kwargs)
 
-    # ---------- Templating  ----------
+    # ---------- Action  ----------
     def register_action(
         self,
         function: Callable[["FeretUI", Request], Response]
@@ -536,6 +552,28 @@ class FeretUI:
 
         function = self.actions[action_name]
         return function(self, request)
+
+    # ---------- Page  ----------
+    def register_page(self, template=None):
+        if template:
+            self.template.load_template_from_str(template)
+
+        def register_page_callback(
+            func: Callable[["FeretUI", Session, dict], str],
+        ) -> Callable[["FeretUI", Session, dict], str]:
+            if func.__name__ in self.pages:
+                logger.info(f'Overload page {func.__name__}')
+
+            self.pages[func.__name__] = func
+            return func
+
+        return register_page_callback
+
+    def get_page(self, pagename: str) -> Callable[..., ...]:
+        if pagename not in self.pages:
+            return self.get_page('404')
+
+        return self.pages[pagename]
 
     # ---------- Translation ----------
     def export_catalog(

@@ -217,3 +217,13 @@ class Request:
         url = self.headers['Hx-Current-Url']
         url = urllib.parse.urlparse(url)
         return urllib.parse.parse_qs(url.query)
+
+    def get_base_url_from_current_url(self) -> dict[str, list[str]]:
+        """Get the querystring from the current client URL.
+
+        :return: The converted querystring.
+        :rtype: dict[str, list[str]]
+        """
+        url = self.headers['Hx-Current-Url']
+        url = urllib.parse.urlparse(url)
+        return url.path
