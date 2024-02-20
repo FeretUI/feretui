@@ -8,21 +8,14 @@ if TYPE_CHECKING:
 
 def page_404(feretui: "FeretUI", session: Session, options: dict):
     page = options.get('page', '')
-    if isinstance(page, list):
-        page = page[0]
-
     return feretui.render_template(session, 'feretui-page-404', page=page)
 
 
 def page_forbidden(feret: "FeretUI", session: Session, options: dict):
     page = options.get('page', '')
-    if isinstance(page, list):
-        page = page[0]
-
     return feret.render_template(
         session, 'feretui-page-forbidden', page=page)
 
 
 def homepage(feret: "FeretUI", session, options):
-    print("                                                ldf                                                       ")
     return feret.render_template(session, 'feretui-page-homepage')

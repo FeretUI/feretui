@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING
 
+from feretui.exceptions import ActionError
 from feretui.helper import action_validator
 from feretui.request import Request
 from feretui.response import Response
@@ -25,6 +26,9 @@ def goto(
     request: Request,
 ) -> str:
     options = request.query.copy()
+    if 'page' not in options:
+        raise ActionError('page in the query string is missing')
+
     page = options['page'][0]
     # WARN: options can be modified by the page
     body = feret.get_page(page)(feret, request.session, options)

@@ -142,16 +142,48 @@ class TranslatedTemplate:
 
     def __init__(
         self,
-        template_path: str,
         addons: str = 'feretui',
     ) -> "TranslatedTemplate":
         """TranslatedMessage class."""
-        self.path: str = template_path
         self.addons: str = addons
 
     def __str__(self) -> str:
         """Return the instance as a string."""
-        return f'<TranslatedTemplate {self.path} addons={self.addons}>'
+        return (
+            f'<{self.__class__.__name__} {getattr(self, "path", "")} '
+            f'addons={self.addons}>'
+        )
+
+
+class TranslatedFileTemplate(TranslatedTemplate):
+
+    def __init__(
+        self,
+        template_path: str,
+        addons: str = 'feretui',
+    ) -> "TranslatedTemplate":
+        """TranslatedMessage class."""
+        super().__init__(addons=addons)
+        self.path: str = template_path
+
+    def load(self, template):
+        with open(self.path) as fp:
+            template.load_file(fp, ignore_missing_extend=True)
+
+
+class TranslatedPageTemplate(TranslatedTemplate):
+
+    def __init__(
+        self,
+        template: str,
+        addons: str = 'feretui',
+    ) -> "TranslatedTemplate":
+        """TranslatedMessage class."""
+        super().__init__(addons=addons)
+        self.template: str = template
+
+    def load(self, template):
+        template.load_template_from_str(self.template)
 
 
 class Translation:
@@ -322,8 +354,7 @@ class Translation:
 
         tmpls = Template(Translation())
         for template in templates:
-            with open(template.path) as fp:
-                tmpls.load_file(fp, ignore_missing_extend=True)
+            template.load(tmpls)
 
         tmpls.export_catalog(po)
 

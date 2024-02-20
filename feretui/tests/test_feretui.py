@@ -16,6 +16,7 @@ from feretui.feretui import FeretUI
 from feretui.request import Request
 from feretui.response import Response
 from feretui.session import Session
+from feretui.pages import homepage, page_404
 
 
 class TestFeretUI:
@@ -57,3 +58,46 @@ class TestFeretUI:
 
         with pytest.raises(UnexistingAction):
             myferet.execute_action(request, 'my_action')
+
+    def test_register_page(self):
+        def page(myferet, mysession):
+            pass
+
+        myferet = FeretUI()
+
+        myferet.register_page()(page)
+        assert myferet.pages['page'] is page
+
+    def test_register_page_with_name(self):
+        def page(myferet, mysession):
+            pass
+
+        myferet = FeretUI()
+
+        myferet.register_page(name='mypage')(page)
+        assert myferet.pages['mypage'] is page
+
+    def test_register_page_with_template(self):
+        def page(myferet, mysession):
+            pass
+
+        myferet = FeretUI()
+        session = Session()
+
+        myferet.register_page(
+            template="""
+                <template id="test">
+                  <div>test</div>
+                </template>
+            """
+        )(page)
+        assert myferet.pages['page'] is page
+        assert myferet.render_template(session, 'test')
+
+    def test_get_page(self):
+        myferet = FeretUI()
+        assert myferet.get_page('homepage') is homepage
+
+    def test_get_page_404(self):
+        myferet = FeretUI()
+        assert myferet.get_page('homepage2') is page_404

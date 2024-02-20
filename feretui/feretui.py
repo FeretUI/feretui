@@ -56,7 +56,8 @@ from feretui.session import Session
 from feretui.template import Template
 from feretui.thread import local
 from feretui.translation import (
-    TranslatedTemplate,
+    TranslatedFileTemplate,
+    TranslatedPageTemplate,
     Translation,
 )
 
@@ -438,7 +439,7 @@ class FeretUI:
         :param addons: The addons where the message come from
         :type addons: str
         """
-        tt = TranslatedTemplate(template_path, addons=addons)
+        tt = TranslatedFileTemplate(template_path, addons=addons)
         self.translation.add_translated_template(tt)
         with open(template_path) as fp:
             self.template.load_file(fp)
@@ -554,17 +555,23 @@ class FeretUI:
         return function(self, request)
 
     # ---------- Page  ----------
-    def register_page(self, template=None):
+    def register_page(self, name=None, template=None, addons='feretui'):
         if template:
+            tt = TranslatedPageTemplate(template, addons=addons)
+            self.translation.add_translated_template(tt)
             self.template.load_template_from_str(template)
+
+        default_name = name
 
         def register_page_callback(
             func: Callable[["FeretUI", Session, dict], str],
         ) -> Callable[["FeretUI", Session, dict], str]:
-            if func.__name__ in self.pages:
-                logger.info(f'Overload page {func.__name__}')
+            name = default_name if default_name else func.__name__
 
-            self.pages[func.__name__] = func
+            if name in self.pages:
+                logger.info(f'Overload page {func.name}')
+
+            self.pages[name] = func
             return func
 
         return register_page_callback

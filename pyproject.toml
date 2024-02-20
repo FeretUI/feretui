@@ -15,10 +15,9 @@ dependencies = [
     'lxml',
     'polib',
     'jinja2',
-    'pydantic',
-    'pydantic-i18n',
     'password-validator',
     'BeautifulSoup4',
+    'WTForms',
 ]
 dynamic = ["readme"]
 keywords = [
@@ -66,8 +65,7 @@ export-feretui-catalog = "feretui:scripts.export_catalog"
 feretui = "feretui.feretui:import_feretui_addons"
 
 [tool.ruff]
-# Set the maximum line length to 79.
-line-length = 79
+line-length = 80
 exclude = [
     ".direnv",
     ".eggs",
@@ -114,6 +112,6 @@ exclude_lines = [
 ]
 
 [tool.pytest.ini_options]
-line-length = 79
-addopts = "feretui --cov=feretui --cov-report=term-missing --cov-fail-under=100"
+line-length = 80
+addopts = "--cov=feretui --cov-report=term-missing --cov-fail-under=100"
 collect_ignore_glob = ["feretui/tests/"]

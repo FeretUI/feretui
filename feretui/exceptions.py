@@ -14,8 +14,6 @@ Get the exceptions known by FeretUI:
 * :class:`.RequestSessionError`
 * :class:`.RequestNoSessionError`
 * :class:`.RequestWrongSessionError`
-* :class:`.RequestBodyDeserializationError`
-* :class:`.RequestQueryStringDeserializationError`
 * :class:`.TemplateError`
 * :class:`.TranslationError`
 * :class:`.ActionError`
@@ -53,20 +51,6 @@ class RequestWrongSessionError(RequestSessionError):
     """Exception raised by Request object.
 
     Inherits :class:`.RequestSessionError`.
-    """
-
-
-class RequestBodyDeserializationError(RequestError):
-    """Exception raised by Request object.
-
-    Inherits :class:`.RequestError`.
-    """
-
-
-class RequestQueryStringDeserializationError(RequestError):
-    """Exception raised by Request object.
-
-    Inherits :class:`.RequestError`.
     """
 
 
