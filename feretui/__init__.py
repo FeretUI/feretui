@@ -138,3 +138,6 @@ from feretui.request import Request  # noqa : F401
 from feretui.response import Response  # noqa : F401
 from feretui.session import Session  # noqa : F401
 from feretui.helper import action_validator  # noqa : F401
+
+def aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa(plop):
+    print(plop)

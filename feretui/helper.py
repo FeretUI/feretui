@@ -77,7 +77,7 @@ def action_validator(
             if methods is not None and request.method not in methods:
                 raise ActionValidatorError(
                     f"The received method is {request.method} "
-                    f"but waiting method {methods}"
+                    f"but waiting method {methods}",
                 )
 
             request.pydantic_body_validator = pydantic_body_validator
@@ -87,7 +87,7 @@ def action_validator(
             response = func(feret, request)
             if not isinstance(response, Response):
                 raise ActionValidatorError(
-                    f"The response '{response}' is not an instance of Response"
+                    f"The response '{response}' is not an instance of Response",
                 )
 
             return response

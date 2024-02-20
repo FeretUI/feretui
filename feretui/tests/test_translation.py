@@ -17,7 +17,8 @@ from feretui.exceptions import TranslationError
 from feretui.feretui import FeretUI
 from feretui.thread import local
 from feretui.translation import (
-    TranslatedTemplate,
+    TranslatedPageTemplate,
+    TranslatedFileTemplate,
     Translation,
     translated_message,
 )
@@ -82,12 +83,17 @@ class TestTranslation:
                 <div hx-confirm="test hx-confirm" />
             </template>
         """
+        t2 = b"<template id='test2' extend='test'/>"
 
         with NamedTemporaryFile() as fpt:
             fpt.write(t1)
             fpt.seek(0)
-            tt = TranslatedTemplate(fpt.name, addons='feretui')
-            myferet.translation.add_translated_template(tt)
+            myferet.translation.add_translated_template(
+                TranslatedFileTemplate(fpt.name, addons='feretui')
+            )
+            myferet.translation.add_translated_template(
+                TranslatedPageTemplate(t2, addons='feretui')
+            )
 
             with NamedTemporaryFile() as fp:
                 myferet.export_catalog(fp.name, '0.0.1', 'feretui')

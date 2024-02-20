@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 @action_validator(methods=[Request.GET])
 def render(
     feret: "FeretUI",
-    request: Request
+    request: Request,
 ) -> str:
     page = request.query.get('page', ['homepage'])[0]
     return Response(
@@ -34,5 +34,5 @@ def goto(
         body,
         headers={
             'HX-Push-Url': url,
-        }
+        },
     )

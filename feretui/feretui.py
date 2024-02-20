@@ -47,7 +47,9 @@ from os.path import dirname, join
 
 from jinja2 import Environment, PackageLoader, select_autoescape
 
+from feretui.actions import goto, render
 from feretui.exceptions import UnexistingAction
+from feretui.pages import homepage, page_404, page_forbidden
 from feretui.request import Request
 from feretui.response import Response
 from feretui.session import Session
@@ -57,8 +59,6 @@ from feretui.translation import (
     TranslatedTemplate,
     Translation,
 )
-from feretui.pages import page_404, page_forbidden, homepage
-from feretui.actions import goto, render
 
 logger = getLogger(__name__)
 
@@ -93,21 +93,21 @@ def import_feretui_addons(feretui: "FeretUI") -> None:
     # ---- JS ----
     feretui.register_js(
         'htmx.js',
-        join(feretui_path, 'static', 'htmx.1.9.10.js')
+        join(feretui_path, 'static', 'htmx.1.9.10.js'),
     )
     feretui.register_js(
         'hyperscript.js',
-        join(feretui_path, 'static', 'hyperscript.0.9.12.js')
+        join(feretui_path, 'static', 'hyperscript.0.9.12.js'),
     )
     feretui.register_js(
         'json-enc.js',
-        join(feretui_path, 'static', 'json-enc.js')
+        join(feretui_path, 'static', 'json-enc.js'),
     )
 
     # ---- CSS ----
     feretui.register_css(
         'bulma.css',
-        join(feretui_path, 'static', 'bulma.0.9.4.css')
+        join(feretui_path, 'static', 'bulma.0.9.4.css'),
     )
     feretui.register_css(
         'fontawesome/css/all.css',
@@ -117,14 +117,14 @@ def import_feretui_addons(feretui: "FeretUI") -> None:
             'fontawesome-free-6.5.1-web',
             'css',
             'all.min.css',
-        )
+        ),
     )
 
     # ---- Font ----
     for font in (
         'fa-brands-400.ttf', 'fa-brands-400.woff2', 'fa-regular-400.ttf',
         'fa-regular-400.woff2', 'fa-solid-900.ttf', 'fa-solid-900.woff2',
-        'fa-v4compatibility.ttf', 'fa-v4compatibility.woff2'
+        'fa-v4compatibility.ttf', 'fa-v4compatibility.woff2',
     ):
         feretui.register_font(
             f'fontawesome/webfonts/{font}',
@@ -133,14 +133,14 @@ def import_feretui_addons(feretui: "FeretUI") -> None:
                 'static',
                 'fontawesome-free-6.5.1-web',
                 'webfonts',
-                font
-            )
+                font,
+            ),
         )
 
     # ---- Images ----
     feretui.register_image(
         'logo.png',
-        join(feretui_path, 'static', 'logo.png')
+        join(feretui_path, 'static', 'logo.png'),
     )
 
     # ---- Themes ----
@@ -153,7 +153,7 @@ def import_feretui_addons(feretui: "FeretUI") -> None:
         feretui.register_theme(
             theme,
             join(
-                feretui_path, 'static', 'themes', f'{theme}.min.css'
+                feretui_path, 'static', 'themes', f'{theme}.min.css',
             ),
         )
 
@@ -218,17 +218,17 @@ class FeretUI:
 
         self.jinja_env = Environment(
             loader=PackageLoader("feretui"),
-            autoescape=select_autoescape()
+            autoescape=select_autoescape(),
         )
 
         # List the template to use to generate the UI
         feretui_path = dirname(__file__)
         self.template = Template(self.translation)
         self.register_template_file(
-            join(feretui_path, 'templates', 'feretui.tmpl')
+            join(feretui_path, 'templates', 'feretui.tmpl'),
         )
         self.register_template_file(
-            join(feretui_path, 'templates', 'pages.tmpl')
+            join(feretui_path, 'templates', 'pages.tmpl'),
         )
 
         # Static behaviours
@@ -246,7 +246,7 @@ class FeretUI:
 
         # Pages
         self.pages: dict[str, Callable[
-            ["FeretUI", Session, dict], Response]
+            ["FeretUI", Session, dict], Response],
         ] = {
             '404': page_404,  # because a function can not be called 404
         }
@@ -419,7 +419,7 @@ class FeretUI:
     def register_template_file(
         self,
         template_path: str,
-        addons: str = 'feretui'
+        addons: str = 'feretui',
     ) -> None:
         """Import a template file in FeretUI.
 
@@ -447,7 +447,7 @@ class FeretUI:
         self,
         session: Session,
         template_id: str,
-        **kwargs
+        **kwargs,
     ) -> str:
         """Get a compiled template.
 
@@ -477,14 +477,14 @@ class FeretUI:
             self.template.get_template(
                 template_id,
                 lang=session.lang,
-            )
+            ),
         )
         return template.render(feretui=self, session=session, **kwargs)
 
     # ---------- Action  ----------
     def register_action(
         self,
-        function: Callable[["FeretUI", Request], Response]
+        function: Callable[["FeretUI", Request], Response],
     ) -> Callable[["FeretUI", Request], Response]:
         """Register an action.
 
@@ -520,7 +520,7 @@ class FeretUI:
     def execute_action(
         self,
         request: Request,
-        action_name: str
+        action_name: str,
     ) -> Response:
         """Execute a stored action.
 
@@ -580,7 +580,7 @@ class FeretUI:
         self,
         output_path: str,
         version: str,
-        addons: str = None
+        addons: str = None,
     ) -> None:
         """Export the catalog at the POT format.
 

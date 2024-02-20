@@ -68,7 +68,7 @@ class TranslatedMessage:
     :type module: str
     :param addons: The addons where the message come from
     :type addons: str
-    
+
     """
 
     def __init__(
@@ -137,13 +137,13 @@ class TranslatedTemplate:
     :type template_path: str
     :param addons: The addons where the message come from
     :type addons: str
-    
+
     """
 
     def __init__(
         self,
         template_path: str,
-        addons: str = 'feretui'
+        addons: str = 'feretui',
     ) -> "TranslatedTemplate":
         """TranslatedMessage class."""
         self.path: str = template_path
@@ -262,7 +262,7 @@ class Translation:
 
     @classmethod
     def add_translated_message(
-        cls, translated_message: TranslatedMessage
+        cls, translated_message: TranslatedMessage,
     ) -> None:
         """Add in messages a TranslatedMessage.
 
@@ -271,7 +271,7 @@ class Translation:
         """
         Translation.messages.append(translated_message)
         logger.debug(
-            f'Translation : Added new message: {translated_message.msgid}'
+            f'Translation : Added new message: {translated_message.msgid}',
         )
 
     def add_translated_template(self, template: TranslatedTemplate):
@@ -344,7 +344,7 @@ class Translation:
 
 def translated_message(
     message: str,
-    addons: str = 'feretui'
+    addons: str = 'feretui',
 ) -> TranslatedMessage:
     """Help to define TranslatedMessage.
 

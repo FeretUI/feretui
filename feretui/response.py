@@ -63,7 +63,7 @@ class Response:
         body: Any = '',
         content_type: str = 'text/html',
         status_code: int = 200,
-        headers: dict[str, str] = None
+        headers: dict[str, str] = None,
     ):
         """FeretUI response.
 

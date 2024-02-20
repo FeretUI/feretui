@@ -246,7 +246,7 @@ class XPathDescription:
         expression: str = None,
         mult: bool = None,
         action: str = None,
-        elements: list[html.HtmlElement] = None
+        elements: list[html.HtmlElement] = None,
     ):
         """Xpath description object.
 
@@ -307,7 +307,7 @@ class Template:
         name: str,
         lang: str = 'en',
         tostring: bool = True,
-        encoding: str = "unicode"
+        encoding: str = "unicode",
     ) -> html.HtmlElement | str:
         """Return a specific template.
 
@@ -350,7 +350,7 @@ class Template:
     def tostring(
         self,
         template: html.HtmlElement,
-        encoding: str
+        encoding: str,
     ) -> str | bytes:
         """Return the template as a string.
 
@@ -363,7 +363,7 @@ class Template:
         """
         soup = BeautifulSoup(
             etree.tostring(template, encoding=encoding),
-            "html.parser"
+            "html.parser",
         )
         return soup.prettify(formatter="html5")
 
@@ -411,19 +411,19 @@ class Template:
                 else:
                     raise TemplateError(
                         f"Only 'template' can be loaded not {_element.tag} "
-                        f"in the file {openedfile}"
+                        f"in the file {openedfile}",
                     )
 
         else:
             raise TemplateError(
                 "Only 'template' or 'templates' can be loaded not "
-                f"{element.tag} in the file {openedfile}"
+                f"{element.tag} in the file {openedfile}",
             )
 
     def load_template(
         self,
         element: html.HtmlElement,
-        ignore_missing_extend: bool = False
+        ignore_missing_extend: bool = False,
     ) -> None:
         """Load one specific template.
 
@@ -456,7 +456,7 @@ class Template:
                     else:
                         raise TemplateError(
                             "Extend an unexisting template "
-                            f"{html.tostring(element)}"
+                            f"{html.tostring(element)}",
                         )
 
                 name = extend
@@ -464,7 +464,7 @@ class Template:
         if not name:
             raise TemplateError(
                 "No template id or extend attrinute found %r"
-                f"{html.tostring(element)}"
+                f"{html.tostring(element)}",
             )
 
         els = [element] + element.findall('.//*')
@@ -496,7 +496,7 @@ class Template:
                 expression=el.attrib.get('expression', '/'),
                 mult=bool(eval(el.attrib.get('mult', 'False'))),
                 action=el.attrib.get('action', 'insert'),
-                elements=el.getchildren()
+                elements=el.getchildren(),
             ))
 
         return res
@@ -506,7 +506,7 @@ class Template:
         lang: str,
         name: str,
         expression: str,
-        mult: bool
+        mult: bool,
     ) -> list[html.HtmlElement]:
         """Apply the xpath on template id and get nodes.
 
@@ -534,7 +534,7 @@ class Template:
         name: str,
         expression: str,
         mult: bool,
-        elements: list[html.HtmlElement]
+        elements: list[html.HtmlElement],
     ) -> None:
         """Apply a xpath with action="insertInside".
 
@@ -569,7 +569,7 @@ class Template:
         name: str,
         expression: str,
         mult: bool,
-        elements: list[html.HtmlElement]
+        elements: list[html.HtmlElement],
     ) -> None:
         """Apply a xpath with action="insertBefore".
 
@@ -606,7 +606,7 @@ class Template:
         name: str,
         expression: str,
         mult: bool,
-        elements: list[html.HtmlElement]
+        elements: list[html.HtmlElement],
     ) -> None:
         """Apply a xpath with action="insertAfter".
 
@@ -671,7 +671,7 @@ class Template:
         name: str,
         expression: str,
         mult: bool,
-        elements: list[html.HtmlElement]
+        elements: list[html.HtmlElement],
     ) -> None:
         """Apply a xpath with action="replace".
 
@@ -709,7 +709,7 @@ class Template:
         name: str,
         expression: str,
         mult: bool,
-        attributes: dict[str, str]
+        attributes: dict[str, str],
     ) -> None:
         """Apply a xpath with action="attributes".
 
@@ -740,7 +740,7 @@ class Template:
 
     def get_xpath_attributes(
         self,
-        elements: list[html.HtmlElement]
+        elements: list[html.HtmlElement],
     ) -> list[dict[str, str]]:
         """Find and return the attibutes in the xpath.
 
@@ -786,7 +786,7 @@ class Template:
         self,
         description: XPathDescription,
         lang: str,
-        name: str
+        name: str,
     ) -> None:
         """Apply the xpath from XPathDescription.
 
@@ -885,7 +885,7 @@ class Template:
     def compile_template_i18n(
         self,
         tmpl: html.HtmlElement,
-        action_callback: Callable[[str, str], None]
+        action_callback: Callable[[str, str], None],
     ) -> None:
         """Compile the translation for a node.
 
@@ -917,7 +917,7 @@ class Template:
         lang: str,
         name: str,
         text: str,
-        suffix: str
+        suffix: str,
     ) -> str:
         """Get the translation.
 

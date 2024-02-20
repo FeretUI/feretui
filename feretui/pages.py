@@ -23,5 +23,6 @@ def page_forbidden(feret: "FeretUI", session: Session, options: dict):
         session, 'feretui-page-forbidden', page=page)
 
 
-def homepage(feret: "FeretUI", session: Session, options: dict):
+def homepage(feret: "FeretUI", session, options):
+    print("                                                ldf                                                       ")
     return feret.render_template(session, 'feretui-page-homepage')
