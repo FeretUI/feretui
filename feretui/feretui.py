@@ -48,7 +48,7 @@ from os.path import dirname, join
 from jinja2 import Environment, PackageLoader, select_autoescape
 
 from feretui.actions import goto, render
-from feretui.exceptions import UnexistingAction
+from feretui.exceptions import UnexistingActionError
 from feretui.pages import homepage, page_404, page_forbidden
 from feretui.request import Request
 from feretui.response import Response
@@ -248,10 +248,9 @@ class FeretUI:
         # Pages
         self.pages: dict[str, Callable[
             ["FeretUI", Session, dict], Response],
-        ] = {
-            '404': page_404,  # because a function can not be called 404
-        }
-        self.register_page()(page_forbidden)
+        ] = {}
+        self.register_page(name='404')(page_404)
+        self.register_page(name='forbidden')(page_forbidden)
         self.register_page()(homepage)
 
         self.register_addons_from_entrypoint()
@@ -543,7 +542,7 @@ class FeretUI:
         :rtype: :class:`feretui.response.Response`
         """
         if action_name not in self.actions:
-            raise UnexistingAction(action_name)
+            raise UnexistingActionError(action_name)
 
         # First put the instance of feretui, the request and
         # the lang in the local thread to keep the information
@@ -569,7 +568,7 @@ class FeretUI:
             name = default_name if default_name else func.__name__
 
             if name in self.pages:
-                logger.info(f'Overload page {func.name}')
+                logger.info(f'Overload page {name}')
 
             self.pages[name] = func
             return func

@@ -13,6 +13,7 @@ project.
 * :func:`.action_validator`: Decorator to validate the call of the action
   callback
 """
+from collections.abc import Callable
 from functools import wraps
 from typing import TYPE_CHECKING
 
@@ -51,12 +52,12 @@ def action_validator(
     if methods is not None and not isinstance(methods, list):
         methods = [methods]
 
-    def wrapper_function(func):
+    def wrapper_function(func: Callable) -> Callable:
         @wraps(func)
         def wrapper_call(
             feret: "FeretUI",
             request: Response,
-        ):
+        ) -> Response:
             if methods is not None and request.method not in methods:
                 raise ActionValidatorError(
                     f"The received method is {request.method} "

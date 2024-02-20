@@ -11,7 +11,7 @@ with pytest.
 """
 import pytest  # noqa: F401
 
-from feretui.exceptions import UnexistingAction
+from feretui.exceptions import UnexistingActionError
 from feretui.feretui import FeretUI
 from feretui.request import Request
 from feretui.response import Response
@@ -56,7 +56,7 @@ class TestFeretUI:
         session = Session()
         request = Request(session=session)
 
-        with pytest.raises(UnexistingAction):
+        with pytest.raises(UnexistingActionError):
             myferet.execute_action(request, 'my_action')
 
     def test_register_page(self):

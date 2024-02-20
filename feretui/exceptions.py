@@ -17,7 +17,7 @@ Get the exceptions known by FeretUI:
 * :class:`.TemplateError`
 * :class:`.TranslationError`
 * :class:`.ActionError`
-* :class:`.UnexistingAction`
+* :class:`.UnexistingActionError`
 * :class:`.ActionValidatorError`
 """
 
@@ -75,7 +75,7 @@ class ActionError(FeretUIError):
     """
 
 
-class UnexistingAction(ActionError):
+class UnexistingActionError(ActionError):
     """Exception raised by action mecanism in FeretUI object.
 
     Inherits :class:`.ActionError`.

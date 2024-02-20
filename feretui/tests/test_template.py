@@ -223,7 +223,7 @@ class TestTemplate:
         self.Template.compiled['en'] = {}
         self.Template.compiled['en']['test'] = html.fromstring(
             '<template id="test"><a><b1/><b2/></a></template>')
-        self.Template.xpath_insertBefore(
+        self.Template.xpath_insert_before(
             'en', 'test', './/b1', True, [html.fromstring('<b0/>')])
         assert (
             self.format_element(self.Template.compiled['en']['test']) ==
@@ -272,7 +272,7 @@ class TestTemplate:
         self.Template.compiled['en'] = {}
         self.Template.compiled['en']['test'] = html.fromstring(
             '<template id="test"><a><b1/><b2/></a></template>')
-        self.Template.xpath_insertAfter(
+        self.Template.xpath_insert_after(
             'en', 'test', './/b2', True, [html.fromstring('<b3/>')])
         assert (
             self.format_element(self.Template.compiled['en']['test']) ==
@@ -321,7 +321,7 @@ class TestTemplate:
         self.Template.compiled['en'] = {}
         self.Template.compiled['en']['test'] = html.fromstring(
             '<template id="test"><a><b1/><b2/></a></template>')
-        self.Template.xpath_insertInside(
+        self.Template.xpath_insert_inside(
             'en', 'test', './/b2', True, [html.fromstring('<c/>')])
         assert (
             self.format_element(self.Template.compiled['en']['test']) ==

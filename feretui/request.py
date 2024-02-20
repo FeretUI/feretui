@@ -77,13 +77,13 @@ class Request:
     """PUT request method"""
 
     def __init__(
-        self,
+        self: "Request",
         session: Session,
         method: RequestMethod = POST,
         body: str = None,
         querystring: str = None,
         headers: dict[str, str] = None,
-    ):
+    ) -> "Request":
         """Request object."""
         if headers is None:
             headers = {}
@@ -112,7 +112,7 @@ class Request:
                 'the session must be an instance of FeretUI Session')
 
     def get_url_from_dict(
-        self,
+        self: "Request",
         base_url: str = '/',
         querystring: dict[str, Any] = None,
     ) -> str:
@@ -132,7 +132,9 @@ class Request:
 
         return f'{base_url}?{urllib.parse.urlencode(querystring, doseq=True)}'
 
-    def get_query_string_from_current_url(self) -> dict[str, list[str]]:
+    def get_query_string_from_current_url(
+        self: "Request",
+    ) -> dict[str, list[str]]:
         """Get the querystring from the current client URL.
 
         :return: The converted querystring.
@@ -142,7 +144,7 @@ class Request:
         url = urllib.parse.urlparse(url)
         return urllib.parse.parse_qs(url.query)
 
-    def get_base_url_from_current_url(self) -> dict[str, list[str]]:
+    def get_base_url_from_current_url(self: "Request") -> dict[str, list[str]]:
         """Get the querystring from the current client URL.
 
         :return: The converted querystring.

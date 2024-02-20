@@ -31,11 +31,15 @@ from datetime import datetime
 from logging import getLogger
 from os import path
 from typing import Any
+from typing import TYPE_CHECKING
 
 from polib import POEntry, POFile, pofile
 
 from feretui.exceptions import TranslationError
 from feretui.thread import local
+
+if TYPE_CHECKING:
+    from feretui.template import Template
 
 logger = getLogger(__name__)
 
@@ -72,7 +76,7 @@ class TranslatedMessage:
     """
 
     def __init__(
-        self,
+        self: "TranslatedMessage",
         message: str,
         module: str,
         addons: str,
@@ -82,7 +86,7 @@ class TranslatedMessage:
         self.context: str = f'message:{module}'
         self.addons: str = addons
 
-    def __str__(self) -> str:
+    def __str__(self: "TranslatedMessage") -> str:
         """Return the translated message.
 
         the message depend of the language defined in the Translation class.
@@ -93,10 +97,9 @@ class TranslatedMessage:
 
         translation = local.feretui.translation
         lang = translation.get_lang()
-        msg = translation.get(lang, self.context, self.msgid)
-        return msg
+        return translation.get(lang, self.context, self.msgid)
 
-    def format(self, **kwargs: dict[str, Any]) -> str:
+    def format(self: "TranslatedMessage", **kwargs: dict[str, Any]) -> str:
         """Return the translated message with some arguments.
 
         ::
@@ -120,8 +123,7 @@ class TranslatedTemplate:
 
     ::
 
-        mytranslation = TranslatedTemplate(
-            'path/of/template.tmpl', 'my.addons')
+        mytranslation = TranslatedTemplate('my.addons')
 
         Translation.add_translated_template(mytranslation)
 
@@ -141,18 +143,27 @@ class TranslatedTemplate:
     """
 
     def __init__(
-        self,
+        self: "TranslatedTemplate",
         addons: str = 'feretui',
     ) -> "TranslatedTemplate":
         """TranslatedMessage class."""
         self.addons: str = addons
 
-    def __str__(self) -> str:
+    def __str__(self: "TranslatedTemplate") -> str:
         """Return the instance as a string."""
         return (
             f'<{self.__class__.__name__} {getattr(self, "path", "")} '
             f'addons={self.addons}>'
         )
+
+    def load(self, template: "Template") -> None:  # pragma: no cover
+        """Load the template in the template instance.
+
+        :param template: template instance
+        :type template: :class:`feretui.template.Template`
+        :exceptions: TranslationError
+        """
+        raise TranslationError("This method must be overwriting")
 
 
 class TranslatedFileTemplate(TranslatedTemplate):

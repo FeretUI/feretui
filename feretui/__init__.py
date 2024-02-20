@@ -102,6 +102,11 @@ the request and the argument of the action.
   as an action.
 * :class:`feretui.FeretUI.execute_action`: Method to execute an action.
 
+FeretUI allow to add page mecanisme. The page are function and take as
+arguments the session and the querystring or the body.
+
+* :class:`feretui.FeretUI.register_page`: Decorator to register the page
+* :class:`feretui.FeretUI.get_page`: Method to return the page function.
 
 The client FeretUI add translation mechanism. This mecanism can be declared
 with addon's name attribute. This attribute is used to extract the translation

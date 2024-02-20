@@ -50,6 +50,22 @@ feretui.template module
    :private-members:
 
 
+feretui.actions module
+----------------------
+
+.. automodule:: feretui.actions
+   :members:
+   :private-members:
+
+
+feretui.pages module
+--------------------
+
+.. automodule:: feretui.pages
+   :members:
+   :private-members:
+
+
 feretui.helper module
 ---------------------
 

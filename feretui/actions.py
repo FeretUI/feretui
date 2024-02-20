@@ -1,3 +1,19 @@
+# This file is a part of the FeretUI project
+#
+#    Copyright (C) 2024 Jean-Sebastien SUZANNE <js.suzanne@gmail.com>
+#
+# This Source Code Form is subject to the terms of the Mozilla Public License,
+# v. 2.0. If a copy of the MPL was not distributed with this file,You can
+# obtain one at http://mozilla.org/MPL/2.0/.
+"""Module feretui.actions.
+
+The actions is called by the :meth:`feretui.feretui.FeretUI.execute_action`.
+
+The availlable actions are:
+
+* :func:`.render`.
+* :func:`.goto`.
+"""
 from typing import TYPE_CHECKING
 
 from feretui.exceptions import ActionError
@@ -11,27 +27,49 @@ if TYPE_CHECKING:
 
 @action_validator(methods=[Request.GET])
 def render(
-    feret: "FeretUI",
+    feretui: "FeretUI",
     request: Request,
 ) -> str:
+    """Render the page.
+
+    the page is an entry in the query string of the request.
+
+    :param feretui: The feretui client
+    :type feretui: :class:`feretui.feretui.FeretUI`
+    :param request: The request
+    :type request: :class:`feretui.request.Request`
+    :return: The page to display
+    :rtype: :class:`feretui.response.Response`
+    """
     page = request.query.get('page', ['homepage'])[0]
     return Response(
-        feret.get_page(page)(feret, request.session, request.query),
+        feretui.get_page(page)(feretui, request.session, request.query),
     )
 
 
 @action_validator(methods=[Request.GET])
 def goto(
-    feret: "FeretUI",
+    feretui: "FeretUI",
     request: Request,
 ) -> str:
+    """Render the page and change the url in the browser.
+
+    the page is an entry in the query string of the request.
+
+    :param feretui: The feretui client
+    :type feretui: :class:`feretui.feretui.FeretUI`
+    :param request: The request
+    :type request: :class:`feretui.request.Request`
+    :return: The page to display
+    :rtype: :class:`feretui.response.Response`
+    """
     options = request.query.copy()
     if 'page' not in options:
         raise ActionError('page in the query string is missing')
 
     page = options['page'][0]
     # WARN: options can be modified by the page
-    body = feret.get_page(page)(feret, request.session, options)
+    body = feretui.get_page(page)(feretui, request.session, options)
     base_url = request.get_base_url_from_current_url()
     url = request.get_url_from_dict(base_url=base_url, querystring=options)
     return Response(
