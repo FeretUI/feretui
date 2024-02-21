@@ -16,6 +16,7 @@ Get the exceptions known by FeretUI:
 * :class:`.RequestWrongSessionError`
 * :class:`.TemplateError`
 * :class:`.TranslationError`
+* :class:`.PageError`
 * :class:`.ActionError`
 * :class:`.UnexistingActionError`
 * :class:`.ActionValidatorError`
@@ -63,6 +64,13 @@ class TemplateError(FeretUIError):
 
 class TranslationError(FeretUIError):
     """Exception raised by Translation object.
+
+    Inherits :class:`.FeretUIError`.
+    """
+
+
+class PageError(FeretUIError):
+    """Exception raised by page mecanism in FeretUI object.
 
     Inherits :class:`.FeretUIError`.
     """

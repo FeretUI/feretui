@@ -40,16 +40,16 @@ The static files, themes and templates can be added:
 
   the method call is :func:`.import_feretui_addons`.
 """
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from importlib.metadata import entry_points
 from logging import getLogger
-from os.path import dirname, join
+from pathlib import Path
 
 from jinja2 import Environment, PackageLoader, select_autoescape
 
 from feretui.actions import goto, render
 from feretui.exceptions import UnexistingActionError
-from feretui.pages import homepage, page_404, page_forbidden
+from feretui.pages import homepage, page_404, page_forbidden, static_page
 from feretui.request import Request
 from feretui.response import Response
 from feretui.session import Session
@@ -89,30 +89,30 @@ def import_feretui_addons(feretui: "FeretUI") -> None:
     :param feretui: Instance of the client.
     :type feretui: :class:`.FeretUI`
     """
-    feretui_path = dirname(__file__)
+    feretui_path = Path(__file__).parent
 
     # ---- JS ----
     feretui.register_js(
         'htmx.js',
-        join(feretui_path, 'static', 'htmx.1.9.10.js'),
+        Path(feretui_path, 'static', 'htmx.1.9.10.js'),
     )
     feretui.register_js(
         'hyperscript.js',
-        join(feretui_path, 'static', 'hyperscript.0.9.12.js'),
+        Path(feretui_path, 'static', 'hyperscript.0.9.12.js'),
     )
     feretui.register_js(
         'json-enc.js',
-        join(feretui_path, 'static', 'json-enc.js'),
+        Path(feretui_path, 'static', 'json-enc.js'),
     )
 
     # ---- CSS ----
     feretui.register_css(
         'bulma.css',
-        join(feretui_path, 'static', 'bulma.0.9.4.css'),
+        Path(feretui_path, 'static', 'bulma.0.9.4.css'),
     )
     feretui.register_css(
         'fontawesome/css/all.css',
-        join(
+        Path(
             feretui_path,
             'static',
             'fontawesome-free-6.5.1-web',
@@ -129,7 +129,7 @@ def import_feretui_addons(feretui: "FeretUI") -> None:
     ):
         feretui.register_font(
             f'fontawesome/webfonts/{font}',
-            join(
+            Path(
                 feretui_path,
                 'static',
                 'fontawesome-free-6.5.1-web',
@@ -141,7 +141,7 @@ def import_feretui_addons(feretui: "FeretUI") -> None:
     # ---- Images ----
     feretui.register_image(
         'logo.png',
-        join(feretui_path, 'static', 'logo.png'),
+        Path(feretui_path, 'static', 'logo.png'),
     )
 
     # ---- Themes ----
@@ -153,7 +153,7 @@ def import_feretui_addons(feretui: "FeretUI") -> None:
     ):
         feretui.register_theme(
             theme,
-            join(
+            Path(
                 feretui_path, 'static', 'themes', f'{theme}.min.css',
             ),
         )
@@ -175,6 +175,7 @@ class FeretUI:
     * themes[dict[str, str]] : List of the theme and their url
     * fonts[dict[str, str]] : List of the font and their url
     * actions[dict[str, Callable]] : List of the action callables
+    * pages[dict[str, Callable]] : List of the pages
 
     The instance provide methodes to use
 
@@ -193,6 +194,11 @@ class FeretUI:
         * :meth:`.FeretUI.register_action`
         * :meth:`.FeretUI.execute_action`
 
+    * Page : Declare page called to render inside html body main
+        * :meth:`.FeretUI.register_page`
+        * :meth:`.FeretUI.register_static_page`
+        * :meth:`.FeretUI.get_page`
+
     * Translations : Import and export the catalog
         * :meth:`.FeretUI.export_catalog`
         * :meth:`.FeretUI.load_catalog`
@@ -203,7 +209,11 @@ class FeretUI:
     JS_IMPORT: dict[str, str] = {}
     IMAGES: dict[str, str] = {}
 
-    def __init__(self, base_url: str = "/feretui", title: str = "FeretUI"):
+    def __init__(
+        self: "FeretUI",
+        base_url: str = "/feretui",
+        title: str = "FeretUI",
+    ) -> "FeretUI":
         """FeretUI class.
 
         :param base_url: The prefix of the url for all internal api
@@ -223,13 +233,13 @@ class FeretUI:
         )
 
         # List the template to use to generate the UI
-        feretui_path = dirname(__file__)
+        feretui_path = Path(__file__).parent
         self.template = Template(self.translation)
         self.register_template_file(
-            join(feretui_path, 'templates', 'feretui.tmpl'),
+            Path(feretui_path, 'templates', 'feretui.tmpl'),
         )
         self.register_template_file(
-            join(feretui_path, 'templates', 'pages.tmpl'),
+            Path(feretui_path, 'templates', 'pages.tmpl'),
         )
 
         # Static behaviours
@@ -255,7 +265,7 @@ class FeretUI:
 
         self.register_addons_from_entrypoint()
 
-    def register_addons_from_entrypoint(self) -> None:
+    def register_addons_from_entrypoint(self: "FeretUI") -> None:
         """Get the static from the entrypoints.
 
         The declaration of the entryt point is done in the *pyproject.toml*
@@ -272,7 +282,7 @@ class FeretUI:
             logger.debug("Load the static from entrypoint: %s", i.name)
             i.load()(self)
 
-    def render(self, request: Request) -> Response:
+    def render(self: "FeretUI", request: Request) -> Response:
         """Return the render of the main page.
 
         :param request: The feretui request
@@ -298,7 +308,7 @@ class FeretUI:
         return Response(f'<!DOCTYPE html5>\n{template}')
 
     # ---------- statics  ----------
-    def register_js(self, name: str, filepath: str) -> None:
+    def register_js(self: "FeretUI", name: str, filepath: str) -> None:
         """Register a javascript file to import in the client.
 
         :param name: name of the file see in the html url
@@ -315,7 +325,7 @@ class FeretUI:
 
         self.statics[name] = filepath
 
-    def register_css(self, name: str, filepath: str) -> None:
+    def register_css(self: "FeretUI", name: str, filepath: str) -> None:
         """Register a stylesheet file to import in the client.
 
         :param name: name of the file see in the html url
@@ -332,7 +342,7 @@ class FeretUI:
 
         self.statics[name] = filepath
 
-    def register_image(self, name: str, filepath: str) -> None:
+    def register_image(self: "FeretUI", name: str, filepath: str) -> None:
         """Register an image file to use it in the client.
 
         :param name: name of the image see in the html url
@@ -349,7 +359,7 @@ class FeretUI:
 
         self.statics[name] = filepath
 
-    def register_theme(self, name: str, filepath: str) -> None:
+    def register_theme(self: "FeretUI", name: str, filepath: str) -> None:
         """Register a theme file to use it in the client.
 
         :param name: name of the theme see in the html url
@@ -366,7 +376,7 @@ class FeretUI:
 
         self.statics[name] = filepath
 
-    def register_font(self, name: str, filepath: str) -> None:
+    def register_font(self: "FeretUI", name: str, filepath: str) -> None:
         """Register a theme file to use it in the client.
 
         :param name: name of the font see in the html url
@@ -383,7 +393,7 @@ class FeretUI:
 
         self.statics[name] = filepath
 
-    def get_theme_url(self, session: Session) -> str:
+    def get_theme_url(self: "FeretUI", session: Session) -> str:
         """Return the theme url in function of the session.
 
         :param feretui: The instance of the client
@@ -395,7 +405,7 @@ class FeretUI:
         """
         return self.themes.get(session.theme, self.themes['default'])
 
-    def get_image_url(self, name: str) -> str:
+    def get_image_url(self: "FeretUI", name: str) -> str:
         """Get the url for a picture.
 
         :param name: The name of the picture
@@ -405,7 +415,7 @@ class FeretUI:
         """
         return self.images[name]
 
-    def get_static_file_path(self, filename: str) -> str:
+    def get_static_file_path(self: "FeretUI", filename: str) -> str:
         """Get the path in the filesystem for static file name.
 
         :param name: The name of the static
@@ -417,7 +427,7 @@ class FeretUI:
 
     # ---------- Templating  ----------
     def register_template_file(
-        self,
+        self: "FeretUI",
         template_path: str,
         addons: str = 'feretui',
     ) -> None:
@@ -440,14 +450,44 @@ class FeretUI:
         """
         tt = TranslatedFileTemplate(template_path, addons=addons)
         self.translation.add_translated_template(tt)
-        with open(template_path) as fp:
+        with Path(template_path).open() as fp:
             self.template.load_file(fp)
 
+    def register_template_from_str(
+        self: "FeretUI",
+        template: str,
+        addons: str = 'feretui',
+    ) -> None:
+        """Import a template string in FeretUI.
+
+        The template string is imported in :class:`feretui.template.Template`,
+        and it is declared in the :class:`feretui.translation.Translation`.
+
+        It is possible to load more than one template string.
+
+        ::
+
+            myferet.register_template_from_str('''
+                <template id="my-template">
+                    ...
+                </template>
+            ''')
+
+        :param template: The template to import the instance
+                         of FeretUI
+        :type template: str
+        :param addons: The addons where the message come from
+        :type addons: str
+        """
+        tt = TranslatedPageTemplate(template, addons=addons)
+        self.translation.add_translated_template(tt)
+        self.template.load_template_from_str(template)
+
     def render_template(
-        self,
+        self: "FeretUI",
         session: Session,
         template_id: str,
-        **kwargs,
+        **kwargs,  # noqa: ANN003
     ) -> str:
         """Get a compiled template.
 
@@ -483,7 +523,7 @@ class FeretUI:
 
     # ---------- Action  ----------
     def register_action(
-        self,
+        self: "FeretUI",
         function: Callable[["FeretUI", Request], Response],
     ) -> Callable[["FeretUI", Request], Response]:
         """Register an action.
@@ -512,13 +552,13 @@ class FeretUI:
                 :class:`feretui.response.Response`]
         """
         if function.__name__ in self.actions:
-            logger.info(f'Overload action {function.__name__}')
+            logger.info('Overload action %r', function.__name__)
 
         self.actions[function.__name__] = function
         return function
 
     def execute_action(
-        self,
+        self: "FeretUI",
         request: Request,
         action_name: str,
     ) -> Response:
@@ -554,11 +594,69 @@ class FeretUI:
         return function(self, request)
 
     # ---------- Page  ----------
-    def register_page(self, name=None, template=None, addons='feretui'):
-        if template:
-            tt = TranslatedPageTemplate(template, addons=addons)
-            self.translation.add_translated_template(tt)
-            self.template.load_template_from_str(template)
+    def register_page(
+        self: "FeretUI",
+        name: str = None,
+        templates: Iterable[str] = None,
+        addons: str = 'feretui',
+    ) -> Callable:
+        """Register a page.
+
+        This is a decorator to register a page.
+
+        A page is a function :
+
+        * Params
+
+          * FeretUI
+          * Session
+          * dict
+
+        * return the strof the html page
+
+        ::
+
+            @myferet.register_page()
+            def my_page(feretui, session, options):
+                return ...
+
+        By default the name is the name of the decorated callable.
+        but this nae can be overritting
+
+        ::
+
+            @myferet.register_page(name='my_page')
+            def _my_page(feretui, session, options):
+                return ...
+
+        If need, the templates can be passed in the decorator and
+        are added in the templates librairy
+
+        ::
+
+            @myferet.register_page(template=[
+                '''
+                    <template id="...">
+                        ...
+                    </template>
+                '''
+            ])
+            def my_page(feretui, session, options):
+                return ...
+
+
+        :param name: The name of the pages stored in FeretUI.pages
+        :type name: str
+        :param templates: The str of the template to load
+        :type templates: list[str]
+        :param addons: The addons where the message come from
+        :type addons: str
+        :return: Return a decorator
+        :rtype: Callable
+        """
+        if isinstance(templates, Iterable):
+            for template in templates:
+                self.register_template_from_str(template, addons=addons)
 
         default_name = name
 
@@ -568,14 +666,85 @@ class FeretUI:
             name = default_name if default_name else func.__name__
 
             if name in self.pages:
-                logger.info(f'Overload page {name}')
+                logger.info('Overload page %r', name)
 
             self.pages[name] = func
             return func
 
         return register_page_callback
 
-    def get_page(self, pagename: str) -> Callable[..., ...]:
+    def register_static_page(
+        self: "FeretUI",
+        name: str,
+        template: str,
+        templates: Iterable[str] = None,
+        addons: str = 'feretui',
+    ) -> None:
+        """Register a page.
+
+        This method register the page template and the callable to serve it
+        without additionnal callable.
+
+        ::
+
+            myferet.register_static_page('my-page', '<div>My Page</div>')
+
+
+        If need, the templates can be passed in the decorator and
+        are added in the templates librairy
+
+        ::
+
+            myferet.register_static_page(
+                'my-page',
+                '<div>My Page</div>',
+                template=[
+                    '''
+                        <template id="...">
+                            ...
+                        </template>
+                    '''
+                ]
+            )
+
+        :param name: The name of the pages stored in FeretUI.pages
+        :type name: str
+        :param templates: The str of the additionnal templates to load
+        :type templates: Iterable[str]
+        :param addons: The addons where the message come from
+        :type addons: str
+        """
+        if templates is None:
+            templates = []
+        if not isinstance(templates, list) and isinstance(templates, Iterable):
+            templates = list(templates)
+
+        templates.append(f'<template id="{name}">{template}</template>')
+        self.register_page(
+            name=name,
+            templates=templates,
+            addons=addons,
+        )(
+            static_page(name),
+        )
+
+    def get_page(
+        self: "FeretUI",
+        pagename: str,
+    ) -> Callable[["FeretUI", Session, dict], str]:
+        """Return the page callable.
+
+        ::
+
+            myferet.get_page('my-page')
+
+        :param pagename: The name of the page
+        :type pagename: str
+        :return: the callable
+        :rtype: Callable[
+            [:class:`.FeretUI`, :class:`feretui.session.Session`, dict],
+            str]
+        """
         if pagename not in self.pages:
             return self.get_page('404')
 
@@ -583,7 +752,7 @@ class FeretUI:
 
     # ---------- Translation ----------
     def export_catalog(
-        self,
+        self: "FeretUI",
         output_path: str,
         version: str,
         addons: str = None,
@@ -604,7 +773,7 @@ class FeretUI:
         """
         self.translation.export_catalog(output_path, version, addons=addons)
 
-    def load_catalog(self, catalog_path: str, lang: str) -> None:
+    def load_catalog(self: "FeretUI", catalog_path: str, lang: str) -> None:
         """Load a specific catalog for a language.
 
         ::

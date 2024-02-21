@@ -17,6 +17,7 @@ from feretui.exceptions import TranslationError
 from feretui.feretui import FeretUI
 from feretui.thread import local
 from feretui.translation import (
+    TranslatedTemplate,
     TranslatedPageTemplate,
     TranslatedFileTemplate,
     Translation,
@@ -50,6 +51,24 @@ class TestTranslation:
         mytranslation = translated_message('My translation {foo}')
         assert str(mytranslation) == "My translation {foo}"
         assert mytranslation.format(foo='bar') == "My translation bar"
+
+    def test_translated_template(self):
+        """Test translated_message without feretui."""
+        local.feretui = None
+        mytranslation = TranslatedTemplate()
+        assert str(mytranslation)
+
+    def test_translated_file_template(self):
+        """Test translated_message without feretui."""
+        local.feretui = None
+        mytranslation = TranslatedFileTemplate('/path/of/template')
+        assert str(mytranslation)
+
+    def test_translated_page_template(self):
+        """Test translated_message without feretui."""
+        local.feretui = None
+        mytranslation = TranslatedPageTemplate('template')
+        assert str(mytranslation)
 
     def test_has_langs(self):
         """Test has_lang."""

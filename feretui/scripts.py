@@ -37,7 +37,7 @@ def export_catalog_for(feretui: FeretUI) -> None:
     feretui.export_catalog(args.output, version_, addons=args.addons)
 
 
-def export_catalog():
+def export_catalog() -> None:
     """Console script function to export catalog."""
     myferet = FeretUI()
     export_catalog_for(myferet)
