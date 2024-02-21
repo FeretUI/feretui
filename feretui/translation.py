@@ -208,7 +208,7 @@ class TranslatedFileTemplate(TranslatedTemplate):
         :param template: template instance
         :type template: :class:`feretui.template.Template`
         """
-        with Path.open(self.path) as fp:
+        with Path(self.path).open() as fp:
             template.load_file(fp, ignore_missing_extend=True)
 
 
