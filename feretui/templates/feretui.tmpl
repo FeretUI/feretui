@@ -14,9 +14,12 @@
       </feretui-head>
       <feretui-body class="has-navbar-fixed-top">
         <include template="feretui-client-header"/>
-        <div id="feretui-body" class="mt-4 mb-4" hx-boost="true">
-          Hello My feret <i class="fa-regular fa-face-smile"/>
-        </div>
+        <main>
+          <div id="feretui-body" class="mt-4 mb-4" hx-boost="true">
+            <div hx-get="{{ feretui.base_url }}/action/render?{{ querystring }}" hx-trigger="load">
+            </div>
+          </div>
+        </main>
         <include template="feretui-client-footer"/>
         {% for js in feretui.js_import %}
         <script src="{{ js }}"></script>
@@ -29,6 +32,9 @@
       <nav class="navbar is-fixed-top"  role="navigation" aria-label="main navigation">
         <div class="navbar-brand">
           <a class="navbar-item"
+              hx-get="{{ feretui.base_url }}/action/goto?page=homepage"
+              hx-target="#feretui-body"
+              hx-swap="innerHTML"
           >
             <img src="{{ feretui.get_image_url('logo.png') }}" alt="{{ feretui.title }}">
           </a>

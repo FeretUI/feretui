@@ -10,7 +10,6 @@
 with pytest.
 """
 import pytest  # noqa: F401
-from pydantic import BaseModel
 
 from feretui.exceptions import ActionValidatorError
 from feretui.feretui import FeretUI
@@ -76,37 +75,3 @@ class TestActionValidator:
 
         with pytest.raises(ActionValidatorError):
             myferet.execute_action(request, 'my_action')
-
-    def test_pydantic_body_validator(self):
-        """Test session."""
-        myferet = FeretUI()
-        session = Session()
-        request = Request(session=session)
-
-        class MyValidator(BaseModel):
-            test: str
-
-        @myferet.register_action
-        @action_validator(pydantic_body_validator=MyValidator)
-        def my_action(feretui, request):
-            assert request.pydantic_body_validator is MyValidator
-            return Response('True')
-
-        myferet.execute_action(request, 'my_action')
-
-    def test_pydantic_querystring_validator(self):
-        """Test session."""
-        myferet = FeretUI()
-        session = Session()
-        request = Request(session=session)
-
-        class MyValidator(BaseModel):
-            test: str
-
-        @myferet.register_action
-        @action_validator(pydantic_querystring_validator=MyValidator)
-        def my_action(feretui, request):
-            assert request.pydantic_querystring_validator is MyValidator
-            return Response('True')
-
-        myferet.execute_action(request, 'my_action')

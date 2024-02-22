@@ -12,13 +12,10 @@ project.
 
 * :func:`.action_validator`: Decorator to validate the call of the action
   callback
-
-.. _BaseModel: https://docs.pydantic.dev/latest/api/base_model/
 """
+from collections.abc import Callable
 from functools import wraps
 from typing import TYPE_CHECKING
-
-from pydantic import BaseModel
 
 from feretui.exceptions import ActionValidatorError
 from feretui.request import RequestMethod
@@ -30,14 +27,8 @@ if TYPE_CHECKING:
 
 def action_validator(
     methods: list[RequestMethod] = None,
-    pydantic_body_validator: BaseModel = None,
-    pydantic_querystring_validator: BaseModel = None,
 ) -> Response:
     """Validate the action callback.
-
-    This helper add a validation during the execution of the action. The
-    validation could be done on the request method or with pydantic on
-    the querystring or body.
 
     ::
 
@@ -55,39 +46,28 @@ def action_validator(
                     be called with any request method, else allow only the
                     defined request methods.
     :type methods: list[:class:`feretui.request.RequestMethod`]
-    :param pydantic_body_validator: A validator class to validate and
-                                    format the body of the request.
-    :type pydantic_body_validator: BaseModel_
-    :param pydantic_querystring_validator: A validator class to validate and
-                                           format the querystring from the
-                                           request.
-    :type pydantic_querystring_validator: BaseModel_
     :return: a wrapper function:
     :rtype: Callable
     """
     if methods is not None and not isinstance(methods, list):
         methods = [methods]
 
-    def wrapper_function(func):
+    def wrapper_function(func: Callable) -> Callable:
         @wraps(func)
         def wrapper_call(
             feret: "FeretUI",
             request: Response,
-        ):
+        ) -> Response:
             if methods is not None and request.method not in methods:
                 raise ActionValidatorError(
                     f"The received method is {request.method} "
-                    f"but waiting method {methods}"
+                    f"but waiting method {methods}",
                 )
 
-            request.pydantic_body_validator = pydantic_body_validator
-            request.pydantic_querystring_validator = (
-                pydantic_querystring_validator
-            )
             response = func(feret, request)
             if not isinstance(response, Response):
                 raise ActionValidatorError(
-                    f"The response '{response}' is not an instance of Response"
+                    f"The response '{response}' is not an instance of Response",
                 )
 
             return response

@@ -14,12 +14,11 @@ Get the exceptions known by FeretUI:
 * :class:`.RequestSessionError`
 * :class:`.RequestNoSessionError`
 * :class:`.RequestWrongSessionError`
-* :class:`.RequestBodyDeserializationError`
-* :class:`.RequestQueryStringDeserializationError`
 * :class:`.TemplateError`
 * :class:`.TranslationError`
+* :class:`.PageError`
 * :class:`.ActionError`
-* :class:`.UnexistingAction`
+* :class:`.UnexistingActionError`
 * :class:`.ActionValidatorError`
 """
 
@@ -56,20 +55,6 @@ class RequestWrongSessionError(RequestSessionError):
     """
 
 
-class RequestBodyDeserializationError(RequestError):
-    """Exception raised by Request object.
-
-    Inherits :class:`.RequestError`.
-    """
-
-
-class RequestQueryStringDeserializationError(RequestError):
-    """Exception raised by Request object.
-
-    Inherits :class:`.RequestError`.
-    """
-
-
 class TemplateError(FeretUIError):
     """Exception raised by Template object.
 
@@ -84,6 +69,13 @@ class TranslationError(FeretUIError):
     """
 
 
+class PageError(FeretUIError):
+    """Exception raised by page mecanism in FeretUI object.
+
+    Inherits :class:`.FeretUIError`.
+    """
+
+
 class ActionError(FeretUIError):
     """Exception raised by action mecanism in FeretUI object.
 
@@ -91,7 +83,7 @@ class ActionError(FeretUIError):
     """
 
 
-class UnexistingAction(ActionError):
+class UnexistingActionError(ActionError):
     """Exception raised by action mecanism in FeretUI object.
 
     Inherits :class:`.ActionError`.

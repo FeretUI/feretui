@@ -11,11 +11,12 @@ with pytest.
 """
 import pytest  # noqa: F401
 
-from feretui.exceptions import UnexistingAction
+from feretui.exceptions import UnexistingActionError
 from feretui.feretui import FeretUI
 from feretui.request import Request
 from feretui.response import Response
 from feretui.session import Session
+from feretui.pages import homepage, page_404
 
 
 class TestFeretUI:
@@ -55,5 +56,76 @@ class TestFeretUI:
         session = Session()
         request = Request(session=session)
 
-        with pytest.raises(UnexistingAction):
+        with pytest.raises(UnexistingActionError):
             myferet.execute_action(request, 'my_action')
+
+    def test_register_page(self):
+        def page(myferet, mysession):
+            pass
+
+        myferet = FeretUI()
+
+        myferet.register_page()(page)
+        assert myferet.pages['page'] is page
+
+    def test_register_page_with_name(self):
+        def page(myferet, mysession):
+            pass
+
+        myferet = FeretUI()
+
+        myferet.register_page(name='mypage')(page)
+        assert myferet.pages['mypage'] is page
+
+    def test_register_page_with_template(self):
+        def page(myferet, mysession):
+            pass
+
+        myferet = FeretUI()
+        session = Session()
+
+        myferet.register_page(
+            templates=["""
+                <template id="test">
+                  <div>test</div>
+                </template>
+            """]
+        )(page)
+        assert myferet.pages['page'] is page
+        assert myferet.render_template(session, 'test')
+
+    def test_register_static_page(self):
+        def page(myferet, mysession):
+            pass
+
+        myferet = FeretUI()
+        session = Session()
+
+        myferet.register_static_page('my-static-page', "<div>test</div>")
+        assert myferet.pages['my-static-page']
+        assert myferet.render_template(session, 'my-static-page')
+        assert myferet.get_page('my-static-page')(myferet, session, {})
+
+    def test_register_static_page2(self):
+        def page(myferet, mysession):
+            pass
+
+        myferet = FeretUI()
+        session = Session()
+
+        myferet.register_static_page(
+            'my-static-page',
+            "<div>test</div>",
+            templates=('<template id="test"><div>Test</div></template>',)
+        )
+        assert myferet.pages['my-static-page']
+        assert myferet.render_template(session, 'my-static-page')
+        assert myferet.get_page('my-static-page')(myferet, session, {})
+
+    def test_get_page(self):
+        myferet = FeretUI()
+        assert myferet.get_page('homepage') is homepage
+
+    def test_get_page_404(self):
+        myferet = FeretUI()
+        assert myferet.get_page('homepage2') is page_404

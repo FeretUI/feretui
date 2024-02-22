@@ -32,7 +32,6 @@ Example with bottle::
         )
 
 """
-from typing import Any
 
 
 class Response:
@@ -59,12 +58,12 @@ class Response:
     """
 
     def __init__(
-        self,
-        body: Any = '',
+        self: "Response",
+        body: str | None = '',
         content_type: str = 'text/html',
         status_code: int = 200,
-        headers: dict[str, str] = None
-    ):
+        headers: dict[str, str] = None,
+    ) -> "Response":
         """FeretUI response.
 
         :param body: [''], response return to the web-serving.

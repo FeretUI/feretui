@@ -38,7 +38,7 @@ class Session:
 
     """
 
-    def __init__(self):
+    def __init__(self: "Session") -> "Session":
         """FeretUI session."""
         self.user: str = None
         self.lang: str = 'en'

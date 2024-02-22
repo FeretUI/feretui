@@ -15,10 +15,9 @@ dependencies = [
     'lxml',
     'polib',
     'jinja2',
-    'pydantic',
-    'pydantic-i18n',
     'password-validator',
     'BeautifulSoup4',
+    'WTForms',
 ]
 dynamic = ["readme"]
 keywords = [
@@ -52,6 +51,11 @@ test = [
     'ruff',
     'pytest',
     'pytest-cov',
+    'pyupgrade',
+    'flake8-type-checking',
+    'perflint',
+    'flake8-logging',
+    'flake8-bandit',
 ]
 
 [project.scripts]
@@ -61,11 +65,53 @@ export-feretui-catalog = "feretui:scripts.export_catalog"
 feretui = "feretui.feretui:import_feretui_addons"
 
 [tool.ruff]
-# Set the maximum line length to 79.
-line-length = 79
+line-length = 80
+exclude = [
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".pyenv",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "venv",
+    "feretui/tests"
+]
 
 [tool.ruff.lint]
 # Add the `line-too-long` rule to the enforced rule set. By default, Ruff omits rules that
 # overlap with the use of a formatter, like Black, but we can override this behavior by
 # explicitly adding the rule.
-select = ["B", "D", "E", "F", "I", "SIM", "UP"]
+select = ["ANN", "ARG", "B", "C4", "C90", "COM", "CPY", "D", "E", "F", "FIX", "G", "I", "LOG", "N", "PERF", "PTH", "RET", "RSE", "S", "SIM", "TD", "TID", "TCH", "UP", "W", "YTT"]
+
+[tool.ruff.format]
+# Prefer single quotes over double quotes.
+quote-style = "double"
+indent-style = "space"
+
+[tool.coverage.run]
+omit = [
+    "feretui/scripts.py",
+    "*/tests/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "logger.",
+    "except ImportError:",
+    "if TYPE_CHECKING:",
+]
+
+[tool.pytest.ini_options]
+line-length = 80
+addopts = "--cov=feretui --cov-report=term-missing --cov-fail-under=100"
+collect_ignore_glob = ["feretui/tests/"]

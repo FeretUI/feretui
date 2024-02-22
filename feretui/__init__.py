@@ -102,6 +102,46 @@ the request and the argument of the action.
   as an action.
 * :class:`feretui.FeretUI.execute_action`: Method to execute an action.
 
+FeretUI allow to add page mecanisme. The page are function and take as
+arguments the session and the querystring or the body.
+
+* :class:`feretui.FeretUI.register_page`: Decorator to register the page
+* :class:`feretui.FeretUI.register_static_page`: Declare a static page
+* :class:`feretui.FeretUI.get_page`: Method to return the page function.
+
+::
+
+    @myferet.register_page(
+        name='my-page',
+        template='''
+            <template id="my-page">
+                <div>My page</div>
+            </template>
+        '''
+    )
+    def my_page(feretui, session, option):
+        return feretui.render_template(session, 'my-page')
+
+
+In the case of the fully static page.
+
+::
+
+    myferet.register_static_page(
+        'my-static-page',
+        '''
+            <div>...</div>
+        '''
+    )
+
+or
+
+::
+
+    from feretui.pages import static_page
+
+    myferet.register_page(name='my-page')(static_page('my-page-id))
+
 
 The client FeretUI add translation mechanism. This mecanism can be declared
 with addon's name attribute. This attribute is used to extract the translation
@@ -109,6 +149,8 @@ of FeretUI or an additionnal project. The translated object are:
 
 * :class:`feretui.translation.TranslatedMessage`
 * :class:`feretui.translation.TranslatedTemplate`
+* :class:`feretui.translation.TranslatedFileTemplate`
+* :class:`feretui.translation.TranslatedStringTemplate`
 
 To export the translation, the console script *export-feretui-catalog* extract
 all the translation messages in pot file.

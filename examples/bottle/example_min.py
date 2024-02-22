@@ -63,6 +63,22 @@ class MySession(Session, BottleSession):
 myferet = FeretUI()
 
 
+# /?page=hello
+myferet.register_static_page(
+    'hello',
+    '''
+    <div class="container">
+      <div class="content">
+        <h1>Hello my feret</h1>
+        <p>
+          Welcome
+        </p>
+      </div>
+    </div>
+    '''
+)
+
+
 @route('/')
 def index(session):
     frequest = Request(

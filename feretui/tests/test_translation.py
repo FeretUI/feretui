@@ -18,6 +18,8 @@ from feretui.feretui import FeretUI
 from feretui.thread import local
 from feretui.translation import (
     TranslatedTemplate,
+    TranslatedStringTemplate,
+    TranslatedFileTemplate,
     Translation,
     translated_message,
 )
@@ -49,6 +51,24 @@ class TestTranslation:
         mytranslation = translated_message('My translation {foo}')
         assert str(mytranslation) == "My translation {foo}"
         assert mytranslation.format(foo='bar') == "My translation bar"
+
+    def test_translated_template(self):
+        """Test translated_message without feretui."""
+        local.feretui = None
+        mytranslation = TranslatedTemplate()
+        assert str(mytranslation)
+
+    def test_translated_file_template(self):
+        """Test translated_message without feretui."""
+        local.feretui = None
+        mytranslation = TranslatedFileTemplate('/path/of/template')
+        assert str(mytranslation)
+
+    def test_translated_page_template(self):
+        """Test translated_message without feretui."""
+        local.feretui = None
+        mytranslation = TranslatedStringTemplate('template')
+        assert str(mytranslation)
 
     def test_has_langs(self):
         """Test has_lang."""
@@ -82,12 +102,17 @@ class TestTranslation:
                 <div hx-confirm="test hx-confirm" />
             </template>
         """
+        t2 = b"<template id='test2' extend='test'/>"
 
         with NamedTemporaryFile() as fpt:
             fpt.write(t1)
             fpt.seek(0)
-            tt = TranslatedTemplate(fpt.name, addons='feretui')
-            myferet.translation.add_translated_template(tt)
+            myferet.translation.add_translated_template(
+                TranslatedFileTemplate(fpt.name, addons='feretui')
+            )
+            myferet.translation.add_translated_template(
+                TranslatedStringTemplate(t2, addons='feretui')
+            )
 
             with NamedTemporaryFile() as fp:
                 myferet.export_catalog(fp.name, '0.0.1', 'feretui')
