@@ -57,7 +57,7 @@ from feretui.template import Template
 from feretui.thread import local
 from feretui.translation import (
     TranslatedFileTemplate,
-    TranslatedPageTemplate,
+    TranslatedStringTemplate,
     Translation,
 )
 
@@ -479,7 +479,7 @@ class FeretUI:
         :param addons: The addons where the message come from
         :type addons: str
         """
-        tt = TranslatedPageTemplate(template, addons=addons)
+        tt = TranslatedStringTemplate(template, addons=addons)
         self.translation.add_translated_template(tt)
         self.template.load_template_from_str(template)
 

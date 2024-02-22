@@ -18,7 +18,7 @@ from feretui.feretui import FeretUI
 from feretui.thread import local
 from feretui.translation import (
     TranslatedTemplate,
-    TranslatedPageTemplate,
+    TranslatedStringTemplate,
     TranslatedFileTemplate,
     Translation,
     translated_message,
@@ -67,7 +67,7 @@ class TestTranslation:
     def test_translated_page_template(self):
         """Test translated_message without feretui."""
         local.feretui = None
-        mytranslation = TranslatedPageTemplate('template')
+        mytranslation = TranslatedStringTemplate('template')
         assert str(mytranslation)
 
     def test_has_langs(self):
@@ -111,7 +111,7 @@ class TestTranslation:
                 TranslatedFileTemplate(fpt.name, addons='feretui')
             )
             myferet.translation.add_translated_template(
-                TranslatedPageTemplate(t2, addons='feretui')
+                TranslatedStringTemplate(t2, addons='feretui')
             )
 
             with NamedTemporaryFile() as fp:

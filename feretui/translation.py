@@ -17,7 +17,7 @@ The translated object are:
 * :class:`feretui.translation.TranslatedMessage`
 * :class:`feretui.translation.TranslatedTemplate`
 * :class:`feretui.translation.TranslatedFileTemplate`
-* :class:`feretui.translation.TranslatedPageTemplate`
+* :class:`feretui.translation.TranslatedStringTemplate`
 
 The Translation class have two methods to manipulate the catalogs:
 
@@ -212,8 +212,8 @@ class TranslatedFileTemplate(TranslatedTemplate):
             template.load_file(fp, ignore_missing_extend=True)
 
 
-class TranslatedPageTemplate(TranslatedTemplate):
-    """TranslatedPageTemplate class.
+class TranslatedStringTemplate(TranslatedTemplate):
+    """TranslatedStringTemplate class.
 
     Declare a template str as translatable. The instance is used
     to defined the template str where take the entries to export
@@ -221,7 +221,7 @@ class TranslatedPageTemplate(TranslatedTemplate):
 
     ::
 
-        mytranslation = TranslatedPageTemplate(
+        mytranslation = TranslatedStringTemplate(
             '''
               <template id="my-teplate">
                  ...
@@ -232,7 +232,7 @@ class TranslatedPageTemplate(TranslatedTemplate):
 
         Translation.add_translated_template(mytranslation)
 
-    To declare a TranslatedPageTemplate more easily, a helper exist on
+    To declare a TranslatedStringTemplate more easily, a helper exist on
     FeretUI :meth:`feretui.feretui.FeretUI.register_page`.
 
     Attributes
@@ -248,15 +248,15 @@ class TranslatedPageTemplate(TranslatedTemplate):
     """
 
     def __init__(
-        self: "TranslatedPageTemplate",
+        self: "TranslatedStringTemplate",
         template: str,
         addons: str = 'feretui',
-    ) -> "TranslatedPageTemplate":
-        """TranslatedPageTemplate class."""
+    ) -> "TranslatedStringTemplate":
+        """TranslatedStringTemplate class."""
         super().__init__(addons=addons)
         self.template: str = template
 
-    def load(self: "TranslatedPageTemplate", template: "Template") -> None:
+    def load(self: "TranslatedStringTemplate", template: "Template") -> None:
         """Load the template in the template instance.
 
         :param template: template instance

@@ -150,7 +150,7 @@ of FeretUI or an additionnal project. The translated object are:
 * :class:`feretui.translation.TranslatedMessage`
 * :class:`feretui.translation.TranslatedTemplate`
 * :class:`feretui.translation.TranslatedFileTemplate`
-* :class:`feretui.translation.TranslatedPageTemplate`
+* :class:`feretui.translation.TranslatedStringTemplate`
 
 To export the translation, the console script *export-feretui-catalog* extract
 all the translation messages in pot file.
