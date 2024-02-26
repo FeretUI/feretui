@@ -48,7 +48,8 @@ from pathlib import Path
 from jinja2 import Environment, PackageLoader, select_autoescape
 
 from feretui.actions import goto, render
-from feretui.exceptions import UnexistingActionError
+from feretui.exceptions import MenuError, UnexistingActionError
+from feretui.menus import ChildrenMenu, ToolBarDividerMenu, ToolBarMenu
 from feretui.pages import homepage, page_404, page_forbidden, static_page
 from feretui.request import Request
 from feretui.response import Response
@@ -57,6 +58,7 @@ from feretui.template import Template
 from feretui.thread import local
 from feretui.translation import (
     TranslatedFileTemplate,
+    TranslatedMenu,
     TranslatedStringTemplate,
     Translation,
 )
@@ -77,6 +79,7 @@ def import_feretui_addons(feretui: "FeretUI") -> None:
 
     * css:
         * `bulma <https://bulma.io/>`_
+        * `bulma-tooltip <>`_
 
     * font
         * `Fontawesome <https://fontawesome.com/>`_
@@ -109,6 +112,10 @@ def import_feretui_addons(feretui: "FeretUI") -> None:
     feretui.register_css(
         'bulma.css',
         Path(feretui_path, 'static', 'bulma.0.9.4.css'),
+    )
+    feretui.register_css(
+        'bulma-tooltip.css',
+        Path(feretui_path, 'static', 'bulma-tooltip.1.2.0.min.css'),
     )
     feretui.register_css(
         'fontawesome/css/all.css',
@@ -241,6 +248,9 @@ class FeretUI:
         self.register_template_file(
             Path(feretui_path, 'templates', 'pages.tmpl'),
         )
+        self.register_template_file(
+            Path(feretui_path, 'templates', 'menus.tmpl'),
+        )
 
         # Static behaviours
         self.statics: dict[str, str] = {}
@@ -249,6 +259,10 @@ class FeretUI:
         self.images: dict[str, str] = {}
         self.themes: dict[str, str] = {}
         self.fonts: dict[str, str] = {}
+        self.menus: dict[str, list[ToolBarMenu]] = {
+            'left': [],
+            'right': [],
+        }
 
         # Actions
         self.actions: dict[str, Callable[["FeretUI", Request], Response]] = {}
@@ -749,6 +763,30 @@ class FeretUI:
             return self.get_page('404')
 
         return self.pages[pagename]
+
+    # ---------- Menus ----------
+    def _register_toolbar_menus(self, position, menus):
+        def add_translation(menu):
+            self.translation.add_translated_menu(
+                TranslatedMenu(menu),
+            )
+            if isinstance(menu, ChildrenMenu):
+                for submenu in menu.children:
+                    if not isinstance(submenu, ToolBarDividerMenu):
+                        add_translation(submenu)
+
+        for menu in menus:
+            if isinstance(menu, ToolBarDividerMenu):
+                raise MenuError(f"You can't register {menu}")
+
+            add_translation(menu)
+            self.menus[position].append(menu)
+
+    def register_toolbar_left_menus(self, menus):
+        self._register_toolbar_menus('left', menus)
+
+    def register_toolbar_right_menus(self, menus):
+        self._register_toolbar_menus('right', menus)
 
     # ---------- Translation ----------
     def export_catalog(

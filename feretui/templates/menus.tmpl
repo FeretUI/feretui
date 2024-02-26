@@ -1,0 +1,38 @@
+<templates>
+  <template id="toolbar-menu">
+    <a 
+      class="{{ html_class }}"
+      data-tooltip="{{ tooltip }}"
+      hx-get="{{ url }}"
+      hx-target="#feretui-body"
+      hx-swap="innerHTML"
+    >
+      <strong>{{ label }}</strong>
+    </a>
+  </template>
+  <template id="toolbar-dropdown-menu">
+    <div 
+      class="{{ html_class }}"
+      data-tooltip="{{ tooltip }}"
+    >
+      <a class="navbar-link">{{ label }}</a>
+      <div class="navbar-dropdown">
+        {% for child in children %}
+        {{ child.render(feretui, session) | safe }}
+        {% endfor %}
+      </div>
+    </div>
+  </template>
+  <template id="toolbar-divider-menu">
+    <hr class="navbar-divider">
+  </template>
+  <template id="toolbar-url-menu">
+    <a 
+      class="{{ html_class }}"
+      data-tooltip="{{ tooltip }}"
+      href="{{ url }}"
+    >
+      <strong>{{ label }}</strong>
+    </a>
+  </template>
+</templates>

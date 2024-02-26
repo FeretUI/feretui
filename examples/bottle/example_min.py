@@ -7,7 +7,7 @@ from bottle import HTTPResponse, app, debug, request, route, run, static_file
 from bottle_session import Session as BottleSession
 from bottle_session import SessionPlugin
 
-from feretui import FeretUI, Request, Session
+from feretui import FeretUI, Request, Session, ToolBarDropDownMenu, ToolBarMenu
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -58,6 +58,7 @@ class MySession(Session, BottleSession):
             cookie_secure,
             cookie_httponly
         )
+        self.theme = "minty"
 
 
 myferet = FeretUI()
@@ -77,6 +78,14 @@ myferet.register_static_page(
     </div>
     '''
 )
+myferet.register_toolbar_left_menus([
+    ToolBarDropDownMenu('My left menu', children=[
+        ToolBarMenu('Hello', page='hello', tooltip="Go to the hello page"),
+    ]),
+])
+myferet.register_toolbar_right_menus([
+    ToolBarMenu('Hello', page='hello', tooltip="Go to the hello page"),
+])
 
 
 @route('/')

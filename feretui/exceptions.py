@@ -20,6 +20,7 @@ Get the exceptions known by FeretUI:
 * :class:`.ActionError`
 * :class:`.UnexistingActionError`
 * :class:`.ActionValidatorError`
+* :class:`.MenuError`
 """
 
 
@@ -94,4 +95,11 @@ class ActionValidatorError(ActionError):
     """Exception raised by action mecanism in FeretUI object.
 
     Inherits :class:`.ActionError`.
+    """
+
+
+class MenuError(FeretUIError):
+    """Exception raised by menu mecanism in FeretUI object.
+
+    Inherits :class:`.FeretUIError`.
     """

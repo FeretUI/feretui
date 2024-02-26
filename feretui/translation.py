@@ -37,6 +37,7 @@ from typing import TYPE_CHECKING, Any
 from polib import POEntry, POFile, pofile
 
 from feretui.exceptions import TranslationError
+from feretui.menus import ToolBarMenu
 from feretui.thread import local
 
 if TYPE_CHECKING:
@@ -265,12 +266,34 @@ class TranslatedStringTemplate(TranslatedTemplate):
         template.load_template_from_str(self.template)
 
 
+class TranslatedMenu:
+    def __init__(
+        self: "TranslatedMenu",
+        menu: ToolBarMenu,
+        addons: str = 'feretui',
+    ) -> "TranslatedMenu":
+        """TranslatedMenu class."""
+        self.menu: str = menu
+        self.addons: str = addons
+
+    def __str__(self: "TranslatedTemplate") -> str:
+        """Return the instance as a string."""
+        return f'<TranslatedMenu {self.menu} addons={self.addons}>'
+
+    def export_catalog(self, translation, po):
+        po.append(translation.define(
+            f'{self.menu.context}:label', self.menu.label))
+        if self.menu.tooltip:
+            po.append(translation.define(
+                f'{self.menu.context}:tooltip', self.menu.tooltip))
+
+
 class Translation:
     """Translation class.
 
     This class is used to manipulate translation.
 
-    ::
+    example with TranslatedMessage::
 
         myferet = FeretUI()
         local.feretui = myferet
@@ -296,7 +319,7 @@ class Translation:
         self.langs: set = set()
         self.translations: dict[tuple[str, str, str], str] = {}
         self.templates: list[TranslatedTemplate] = []
-        """Translated templates"""
+        self.menus: list[TranslatedMenu] = []
 
     def has_lang(self: "Translation", lang: str) -> bool:
         """Return True the lang is declared.
@@ -393,10 +416,22 @@ class Translation:
         """Add in templates a TranslatedTemplate.
 
         :param template: The template.
-        :type translated_message: :class:`TranslatedMessage`
+        :type template: :class:`TranslatedMessage`
         """
         self.templates.append(template)
         logger.debug('Translation : Added new template : %s', template)
+
+    def add_translated_menu(
+        self: "Translation",
+        menu: TranslatedMenu,
+    ) -> None:
+        """Add in menus a TranslatedMenu.
+
+        :param menu: The menu.
+        :type menu: :class:`TranslatedMenu`
+        """
+        self.menus.append(menu)
+        logger.debug('Translation : Added new menu : %s', menu)
 
     def export_catalog(
         self: "Translation",
@@ -425,9 +460,12 @@ class Translation:
         }
         messages = Translation.messages
         templates = self.templates
+        menus = self.menus
+
         if addons is not None:
             messages = filter(lambda x: x.addons == addons, messages)
             templates = filter(lambda x: x.addons == addons, templates)
+            menus = filter(lambda x: x.addons == addons, menus)
 
         for message in messages:
             po.append(self.define(message.context, message.msgid))
@@ -437,6 +475,9 @@ class Translation:
             template.load(tmpls)
 
         tmpls.export_catalog(po)
+
+        for menu in menus:
+            menu.export_catalog(self, po)
 
         po.save(Path(output_path).resolve())
 

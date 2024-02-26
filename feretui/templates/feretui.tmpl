@@ -11,6 +11,7 @@
         <link rel="stylesheet" href="{{ css }}" />
         {% endfor %}
         <link rel="stylesheet" href="{{ feretui.get_theme_url(session) }}" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@creativebulma/bulma-tooltip@1.2.0/dist/bulma-tooltip.min.css">
       </feretui-head>
       <feretui-body class="has-navbar-fixed-top">
         <include template="feretui-client-header"/>
@@ -31,12 +32,17 @@
     <header>
       <nav class="navbar is-fixed-top"  role="navigation" aria-label="main navigation">
         <div class="navbar-brand">
-          <a class="navbar-item"
-              hx-get="{{ feretui.base_url }}/action/goto?page=homepage"
-              hx-target="#feretui-body"
-              hx-swap="innerHTML"
+          <a 
+            class="navbar-item has-tooltip-right has-tooltip-arrow"
+            data-tooltip="Go to the homepage"
+            hx-get="{{ feretui.base_url }}/action/goto?page=homepage"
+            hx-target="#feretui-body"
+            hx-swap="innerHTML"
           >
-            <img src="{{ feretui.get_image_url('logo.png') }}" alt="{{ feretui.title }}">
+            <img 
+              src="{{ feretui.get_image_url('logo.png') }}"
+              alt="{{ feretui.title }}"
+            >
           </a>
           <a
             id="feretui-app-header-burger-button"
@@ -54,8 +60,18 @@
         </div>
         <div id="feretui-app-header-burger" class="navbar-menu">
           <div class="navbar-start">
+            {% for menu in feretui.menus.left %}
+              {% if menu.is_visible(session) %}
+                {{ menu.render(feretui, session) | safe }}
+              {% endif %}
+            {% endfor %}
           </div>
           <div class="navbar-end">
+            {% for menu in feretui.menus.right %}
+              {% if menu.is_visible(session) %}
+                {{ menu.render(feretui, session) | safe }}
+              {% endif %}
+            {% endfor %}
           </div>
         </div>
       </nav>

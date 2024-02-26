@@ -112,6 +112,4 @@ exclude_lines = [
 ]
 
 [tool.pytest.ini_options]
-line-length = 80
 addopts = "--cov=feretui --cov-report=term-missing --cov-fail-under=100"
-collect_ignore_glob = ["feretui/tests/"]
