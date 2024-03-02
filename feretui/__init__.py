@@ -143,6 +143,41 @@ or
     myferet.register_page(name='my-page')(static_page('my-page-id))
 
 
+To display the page a menu mecanism exist to call the render method of the
+page.
+
+::
+
+    myferet.register_toolbar_right_menus([
+        ToolBarMenu(
+            'My static page',
+            page='my-static-page',
+            tooltip="Go to my static page"
+        ),
+    ])
+
+They are two main type of menu:
+
+* Toolbar: Renderer in the toolbar
+
+  * :class:`feretui.menus.ToolBarMenu`: Simple menu
+  * :class:`feretui.menus.ToolBarDropDownMenu`: Dropdown menu
+  * :class:`feretui.menus.ToolBarDividerMenu`: Séparator in dropdown menu
+  * :class:`feretui.menus.ToolBarUrlMenu`: Link to another url.
+* Aside: rendere in the aside-menu page
+
+  * :class:`feretui.menus.AsideMenu`: Simple menu
+  * :class:`feretui.menus.AsideHeaderMenu`: Display a title and take sub menu.
+  * :class:`feretui.menus.AsideUrlMenu`: Link to another url.
+
+The helpers to register or get them are:
+
+* :meth:`feretui.feretui.FeretUI.register_toolbar_left_menus`.
+* :meth:`feretui.feretui.FeretUI.register_toolbar_right_menus`.
+* :meth:`feretui.feretui.FeretUI.register_aside_menus`.
+* :meth:`feretui.feretui.FeretUI.get_aside_menus`.
+
+
 The client FeretUI add translation mechanism. This mecanism can be declared
 with addon's name attribute. This attribute is used to extract the translation
 of FeretUI or an additionnal project. The translated object are:
@@ -151,6 +186,7 @@ of FeretUI or an additionnal project. The translated object are:
 * :class:`feretui.translation.TranslatedTemplate`
 * :class:`feretui.translation.TranslatedFileTemplate`
 * :class:`feretui.translation.TranslatedStringTemplate`
+* :class:`feretui.translation.TranslatedMenu`
 
 To export the translation, the console script *export-feretui-catalog* extract
 all the translation messages in pot file.
@@ -182,6 +218,9 @@ from feretui.menus import (  # noqa : F401
     ToolBarDropDownMenu,
     ToolBarDividerMenu,
     ToolBarUrlMenu,
+    AsideMenu,
+    AsideHeaderMenu,
+    AsideUrlMenu,
 )
 from feretui.request import Request  # noqa : F401
 from feretui.response import Response  # noqa : F401

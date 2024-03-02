@@ -1,24 +1,28 @@
 <templates>
   <template id="toolbar-menu">
     <a 
-      class="{{ html_class }}"
-      data-tooltip="{{ tooltip }}"
+      class="navbar-item"
       hx-get="{{ url }}"
       hx-target="#feretui-body"
       hx-swap="innerHTML"
     >
+      <include template="feretui-icon" />
       <strong>{{ label }}</strong>
+      <include template="feretui-tooltip" />
     </a>
   </template>
   <template id="toolbar-dropdown-menu">
-    <div 
-      class="{{ html_class }}"
-      data-tooltip="{{ tooltip }}"
-    >
-      <a class="navbar-link">{{ label }}</a>
+    <div class="navbar-item has-dropdown is-hoverable">
+      <a class="navbar-link">
+        <include template="feretui-icon" />
+        <strong>{{ label }}</strong>
+        <include template="feretui-tooltip" />
+      </a>
       <div class="navbar-dropdown">
         {% for child in children %}
-        {{ child.render(feretui, session) | safe }}
+          {% if child.is_visible(session) %}
+            {{ child.render(feretui, session) | safe }}
+          {% endif %}
         {% endfor %}
       </div>
     </div>
@@ -27,12 +31,48 @@
     <hr class="navbar-divider">
   </template>
   <template id="toolbar-url-menu">
+    <a class="navbar-item" href="{{ url }}">
+      <include template="feretui-icon" />
+      <strong>{{ label }}</strong>
+      <include template="feretui-tooltip" />
+    </a>
+  </template>
+  <template id="aside-menu">
     <a 
-      class="{{ html_class }}"
-      data-tooltip="{{ tooltip }}"
+      class="menu-label"
+      hx-get="{{ url }}"
+      hx-target="#feretui-aside-body"
+      hx-swap="innerHTML"
+    >
+      <include template="feretui-icon" />
+      <span>{{ label }}</span>
+      <include template="feretui-tooltip" />
+    </a>
+  </template>
+  <template id="aside-header-menu">
+    <div>
+      <p class="menu-label">
+        <include template="feretui-icon" />
+        <span><strong>{{ label }}</strong></span>
+        <include template="feretui-tooltip" />
+      </p>
+      <ul>
+        {% for child in children %}
+          {% if child.is_visible(session) %}
+            <li>{{ child.render(feretui, session) | safe }}</li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+    </div>
+  </template>
+  <template id="aside-url-menu">
+    <a 
+      class="menu-label"
       href="{{ url }}"
     >
-      <strong>{{ label }}</strong>
+      <include template="feretui-icon" />
+      <span>{{ label }}</span>
+      <include template="feretui-tooltip" />
     </a>
   </template>
 </templates>

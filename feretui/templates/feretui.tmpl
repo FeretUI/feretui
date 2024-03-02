@@ -86,4 +86,27 @@
       </div>
     </footer>
   </template>
+  <template id="feretui-tooltip">
+    <span>
+      {% if tooltip %}
+      <span 
+        class="ml-0 icon has-tooltip-bottom has-tooltip-arrow"
+        data-tooltip="{{ tooltip }}"
+      >
+        <i class="fa-solid fa-circle-info is-small"></i>
+      </span>
+      {% endif %}
+    </span>
+  </template>
+  <template id="feretui-icon">
+    <span>
+      {% if icon %}
+      <span 
+        class="ml-0 mr-0 icon"
+      >
+        <i class="{{ icon }}"></i>
+      </span>
+      {% endif %}
+    </span>
+  </template>
 </templates>

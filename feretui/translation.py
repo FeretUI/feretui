@@ -18,6 +18,7 @@ The translated object are:
 * :class:`feretui.translation.TranslatedTemplate`
 * :class:`feretui.translation.TranslatedFileTemplate`
 * :class:`feretui.translation.TranslatedStringTemplate`
+* :class:`feretui.translation.TranslatedMenu`
 
 The Translation class have two methods to manipulate the catalogs:
 
@@ -37,7 +38,7 @@ from typing import TYPE_CHECKING, Any
 from polib import POEntry, POFile, pofile
 
 from feretui.exceptions import TranslationError
-from feretui.menus import ToolBarMenu
+from feretui.menus import Menu
 from feretui.thread import local
 
 if TYPE_CHECKING:
@@ -177,7 +178,7 @@ class TranslatedFileTemplate(TranslatedTemplate):
             'my.addons'
         )
 
-        Translation.add_translated_template(mytranslation)
+        translation.add_translated_template(mytranslation)
 
     To declare a TranslatedFileTemplate more easily, a helper exist on
     FeretUI :meth:`feretui.feretui.FeretUI.import_templates_file`.
@@ -231,7 +232,7 @@ class TranslatedStringTemplate(TranslatedTemplate):
             'my.addons'
         )
 
-        Translation.add_translated_template(mytranslation)
+        translation.add_translated_template(mytranslation)
 
     To declare a TranslatedStringTemplate more easily, a helper exist on
     FeretUI :meth:`feretui.feretui.FeretUI.register_page`.
@@ -267,20 +268,60 @@ class TranslatedStringTemplate(TranslatedTemplate):
 
 
 class TranslatedMenu:
+    """TranslatedMenu class.
+
+    Declare a menu as translatable. The instance is used
+    to defined the menu targeted to be exported in the catalog
+
+    ::
+
+        mytranslatedmenu = TranslatedMenu(mymenu, 'my.addons')
+        translation.add_translated_menu(mytranslation)
+
+    To declare a TranslatedMenu more easily, The helpers exist on
+    FeretUI :
+
+    * :meth:`feretui.feretui.FeretUI.register_toolbar_left_menus`.
+    * :meth:`feretui.feretui.FeretUI.register_toolbar_right_menus`.
+    * :meth:`feretui.feretui.FeretUI.register_aside_menus`.
+
+    Attributes
+    ----------
+    * [menu:Menu] : the menu to translated
+    * [addons:str] : the addons of the template file
+
+    :param menu: the menu to translate
+    :type menu: :class:`feretui.menus.Menu`
+    :param addons: The addons where the message come from
+    :type addons: str
+
+    """
+
     def __init__(
         self: "TranslatedMenu",
-        menu: ToolBarMenu,
+        menu: Menu,
         addons: str = 'feretui',
     ) -> "TranslatedMenu":
         """TranslatedMenu class."""
-        self.menu: str = menu
+        self.menu: Menu = menu
         self.addons: str = addons
 
     def __str__(self: "TranslatedTemplate") -> str:
         """Return the instance as a string."""
         return f'<TranslatedMenu {self.menu} addons={self.addons}>'
 
-    def export_catalog(self, translation, po):
+    def export_catalog(
+        self: "TranslatedMenu",
+        translation: "Translation",
+        po: POFile,
+    ) -> None:
+        """Export the menu translation in the catalog.
+
+        :param translation: The translation instance to add also inside it.
+        :type translation: :class:`.Translation`
+        :param po: The catalog instance
+        :type po: PoFile_
+        """
         po.append(translation.define(
             f'{self.menu.context}:label', self.menu.label))
         if self.menu.tooltip:

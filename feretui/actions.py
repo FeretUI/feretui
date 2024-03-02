@@ -56,6 +56,10 @@ def goto(
 
     the page is an entry in the query string of the request.
 
+    If *in-aside* is in the querystring, It is mean that the page
+    is rendering inside the page aside-menu and the url to push have to
+    keep this information.
+
     :param feretui: The feretui client
     :type feretui: :class:`feretui.feretui.FeretUI`
     :param request: The request
@@ -71,6 +75,13 @@ def goto(
     # WARN: options can be modified by the page
     body = feretui.get_page(page)(feretui, request.session, options)
     base_url = request.get_base_url_from_current_url()
+    if options.get('in-aside'):
+        options.update({
+            'in-aside': [],
+            'page': ['aside-menu'],
+            'aside': options['in-aside'],
+            'aside_page': [page],
+        })
     url = request.get_url_from_dict(base_url=base_url, querystring=options)
     return Response(
         body,

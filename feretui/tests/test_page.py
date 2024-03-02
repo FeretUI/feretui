@@ -1,7 +1,16 @@
+# This file is a part of the FeretUI project
+#
+#    Copyright (C) 2024 Jean-Sebastien SUZANNE <js.suzanne@gmail.com>
+#
+# This Source Code Form is subject to the terms of the Mozilla Public License,
+# v. 2.0. If a copy of the MPL was not distributed with this file,You can
+# obtain one at http://mozilla.org/MPL/2.0/.
 import pytest
 from feretui.exceptions import PageError
 from feretui.feretui import FeretUI
-from feretui.pages import page_404, page_forbidden, homepage, static_page
+from feretui.pages import (
+    aside_menu, page_404, page_forbidden, homepage, static_page
+)
 from feretui.session import Session
 
 
@@ -43,3 +52,15 @@ class TestPage:
         session = Session()
         with pytest.raises(PageError):
             static_page('my-static_page')(myferet, session, {})
+
+    def test_aside(self):
+        myferet = FeretUI()
+        session = Session()
+        res = aside_menu(myferet, session, {'aside': ['test']})
+        assert res
+
+    def test_aside_without_requiremend(self):
+        myferet = FeretUI()
+        session = Session()
+        with pytest.raises(PageError):
+            aside_menu(myferet, session, {})

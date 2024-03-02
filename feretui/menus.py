@@ -1,10 +1,18 @@
+# This file is a part of the FeretUI project
+#
+#    Copyright (C) 2024 Jean-Sebastien SUZANNE <js.suzanne@gmail.com>
+#
+# This Source Code Form is subject to the terms of the Mozilla Public License,
+# v. 2.0. If a copy of the MPL was not distributed with this file,You can
+# obtain one at http://mozilla.org/MPL/2.0/.
 from feretui.exceptions import MenuError
 from feretui.thread import local
 
 
 class Menu:
+    template_id = None
 
-    def __init__(self, label, tooltip=None, **querystring):
+    def __init__(self, label, icon=None, tooltip=None, **querystring):
         if not querystring:
             raise MenuError(f'{self.__class__.__name__} must have querystring')
 
@@ -13,6 +21,7 @@ class Menu:
                 raise MenuError('The querystring entries must be string')
 
         self.label = label
+        self.icon = icon
         self.tooltip = tooltip
         self.querystring = querystring
         self.context = 'menu:'
@@ -22,15 +31,6 @@ class Menu:
 
     def is_visible(self, session):
         return True
-
-    def get_html_class(self, html_class, position="bottom"):
-        if self.tooltip:
-            html_class.extend([
-                f"has-tooltip-{position}",
-                "has-tooltip-arrow",
-            ])
-
-        return ' '.join(html_class)
 
     def get_label(self, feretui) -> str:
         lang = local.lang
@@ -51,14 +51,50 @@ class Menu:
             self.tooltip,
         )
 
+    def get_url(self, feretui, querystring):
+        return local.request.get_url_from_dict(
+            base_url=f'{ feretui.base_url }/action/goto',
+            querystring=querystring,
+        )
+
+    def render(self, feretui, session):
+        return feretui.render_template(
+            session,
+            self.template_id,
+            label=self.get_label(feretui),
+            tooltip=self.get_tooltip(feretui),
+            icon=self.icon,
+            url=self.get_url(feretui, self.querystring),
+        )
+
 
 class ChildrenMenu:
 
     def __init__(self, children):
+        if not children:
+            raise MenuError(f'{self.__class__.__name__} must have children')
+
         self.children = children
+
+    def render(self, feretui, session):
+        return feretui.render_template(
+            session,
+            self.template_id,
+            label=self.get_label(feretui),
+            tooltip=self.get_tooltip(feretui),
+            icon=self.icon,
+            children=self.children,
+        )
+
+
+class UrlMenu:
+
+    def get_url(self, feretui, querystring):
+        return querystring['url']
 
 
 class ToolBarMenu(Menu):
+    template_id = 'toolbar-menu'
 
     def __init__(self, label, tooltip=None, **querystring):
         super().__init__(label, tooltip=tooltip, **querystring)
@@ -67,50 +103,16 @@ class ToolBarMenu(Menu):
             for key, value in self.querystring.items()
         )
 
-    def get_url(self, feretui):
-        return local.request.get_url_from_dict(
-            base_url=f'{ feretui.base_url }/action/goto',
-            querystring=self.querystring,
-        )
-
-    def render(self, feretui, session):
-        html_class = self.get_html_class(["navbar-item"])
-        return feretui.render_template(
-            session,
-            'toolbar-menu',
-            label=self.get_label(feretui),
-            html_class=html_class,
-            tooltip=self.get_tooltip(feretui),
-            url=self.get_url(feretui),
-        )
-
 
 class ToolBarDropDownMenu(ChildrenMenu, ToolBarMenu):
+    template_id = 'toolbar-dropdown-menu'
 
     def __init__(self, label, children=None, **querystring):
-        if not children:
-            raise MenuError('ToolBarDropDownMenu must have children')
-
+        ToolBarMenu.__init__(self, label, type='dropdown', **querystring)
+        ChildrenMenu.__init__(self, children)
         for child in children:
             if isinstance(child, ToolBarDropDownMenu):
                 raise MenuError('ToolBarDropDownMenu menu can not be cascaded')
-
-        ToolBarMenu.__init__(self, label, type='dropdown', **querystring)
-        ChildrenMenu.__init__(self, children)
-
-    def render(self, feretui, session):
-        html_class = self.get_html_class(
-            ["navbar-item", "has-dropdown", "is-hoverable"],
-            position="right",
-        )
-        return feretui.render_template(
-            session,
-            'toolbar-dropdown-menu',
-            label=self.get_label(feretui),
-            html_class=html_class,
-            tooltip=self.get_tooltip(feretui),
-            children=self.children,
-        )
 
 
 class ToolBarDividerMenu(ToolBarMenu):
@@ -123,21 +125,40 @@ class ToolBarDividerMenu(ToolBarMenu):
         return feretui.render_template(session, 'toolbar-divider-menu')
 
 
-class ToolBarUrlMenu(ToolBarMenu):
+class ToolBarUrlMenu(UrlMenu, ToolBarMenu):
+    template_id = 'toolbar-url-menu'
 
-    def __init__(self, label, url, tooltip=None):
-        super().__init__(label, url=url, tooltip=tooltip)
+    def __init__(self, label, url, **kw):
+        super().__init__(label, url=url, **kw)
 
-    def get_url(self, feretui):
-        return self.querystring['url']
 
-    def render(self, feretui, session):
-        html_class = self.get_html_class(["navbar-item"])
-        return feretui.render_template(
-            session,
-            'toolbar-url-menu',
-            label=self.get_label(feretui),
-            html_class=html_class,
-            tooltip=self.get_tooltip(feretui),
-            url=self.get_url(feretui),
+class AsideMenu(Menu):
+    template_id = 'aside-menu'
+
+    def __init__(self, label, tooltip=None, **querystring):
+        super().__init__(label, tooltip=tooltip, **querystring)
+        self.context = 'menu:aside:' + ':'.join(
+            f'{key}:{value}'
+            for key, value in self.querystring.items()
         )
+        self.aside = ''
+
+    def get_url(self, feretui, querystring):
+        querystring = querystring.copy()
+        querystring['in-aside'] = [self.aside]
+        return super().get_url(feretui, querystring)
+
+
+class AsideHeaderMenu(ChildrenMenu, AsideMenu):
+    template_id = 'aside-header-menu'
+
+    def __init__(self, label, children=None, **querystring):
+        AsideMenu.__init__(self, label, type='header', **querystring)
+        ChildrenMenu.__init__(self, children)
+
+
+class AsideUrlMenu(UrlMenu, AsideMenu):
+    template_id = 'aside-url-menu'
+
+    def __init__(self, label, url, **kw):
+        super().__init__(label, url=url, **kw)
