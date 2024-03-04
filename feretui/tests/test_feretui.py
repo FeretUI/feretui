@@ -11,12 +11,16 @@ with pytest.
 """
 import pytest  # noqa: F401
 
-from feretui.exceptions import UnexistingActionError
+from feretui.exceptions import MenuError, UnexistingActionError
 from feretui.feretui import FeretUI
+from feretui.menus import (
+    AsideMenu, AsideHeaderMenu, Menu, ToolBarDividerMenu,
+    ToolBarDropDownMenu, ToolBarMenu
+)
+from feretui.pages import homepage, page_404
 from feretui.request import Request
 from feretui.response import Response
 from feretui.session import Session
-from feretui.pages import homepage, page_404
 
 
 class TestFeretUI:
@@ -129,3 +133,114 @@ class TestFeretUI:
     def test_get_page_404(self):
         myferet = FeretUI()
         assert myferet.get_page('homepage2') is page_404
+
+    def test_register_toolbar_left_menus_1(self):
+        myferet = FeretUI()
+        myferet.register_toolbar_left_menus([ToolBarMenu('Test', page='test')])
+        assert len(myferet.menus['left']) == 1
+        assert len(myferet.translation.menus) == 1
+
+    def test_register_toolbar_left_menus_2(self):
+        myferet = FeretUI()
+        myferet.register_toolbar_left_menus([
+            ToolBarMenu('Test', page='test'),
+            ToolBarMenu('Test', page='test'),
+        ])
+        assert len(myferet.menus['left']) == 2
+        assert len(myferet.translation.menus) == 2
+
+    def test_register_toolbar_left_menus_with_not_ToolbarMenu(self):
+        myferet = FeretUI()
+        with pytest.raises(MenuError):
+            myferet.register_toolbar_left_menus([Menu('Test', page='test')])
+
+    def test_register_toolbar_left_menus_divider(self):
+        myferet = FeretUI()
+        with pytest.raises(MenuError):
+            myferet.register_toolbar_left_menus([ToolBarDividerMenu()])
+
+    def test_register_toolbar_left_menus_dropdown(self):
+        myferet = FeretUI()
+        myferet.register_toolbar_left_menus([
+            ToolBarDropDownMenu(
+                'Test', children=[ToolBarMenu('Test', page='test')]),
+        ])
+        assert len(myferet.menus['left']) == 1
+        assert len(myferet.translation.menus) == 2
+
+    def test_register_toolbar_right_menus_1(self):
+        myferet = FeretUI()
+        myferet.register_toolbar_right_menus(
+            [ToolBarMenu('Test', page='test')])
+        assert len(myferet.menus['right']) == 1
+        assert len(myferet.translation.menus) == 1
+
+    def test_register_toolbar_right_menus_2(self):
+        myferet = FeretUI()
+        myferet.register_toolbar_right_menus([
+            ToolBarMenu('Test', page='test'),
+            ToolBarMenu('Test', page='test'),
+        ])
+        assert len(myferet.menus['right']) == 2
+        assert len(myferet.translation.menus) == 2
+
+    def test_register_toolbar_right_menus_with_not_ToolbarMenu(self):
+        myferet = FeretUI()
+        with pytest.raises(MenuError):
+            myferet.register_toolbar_right_menus([Menu('Test', page='test')])
+
+    def test_register_toolbar_right_menus_divider(self):
+        myferet = FeretUI()
+        with pytest.raises(MenuError):
+            myferet.register_toolbar_right_menus([ToolBarDividerMenu()])
+
+    def test_register_toolbar_right_menus_dropdown(self):
+        myferet = FeretUI()
+        myferet.register_toolbar_right_menus([
+            ToolBarDropDownMenu('Test', children=[
+                ToolBarMenu('Test', page='test'),
+            ]),
+        ])
+        assert len(myferet.menus['right']) == 1
+        assert len(myferet.translation.menus) == 2
+
+    def test_register_aside_menus_1(self):
+        myferet = FeretUI()
+        myferet.register_aside_menus(
+            'my-aside',
+            [AsideMenu('Test', page='test')])
+        assert len(myferet.asides['my-aside']) == 1
+        assert len(myferet.translation.menus) == 1
+
+    def test_register_aside_menus_2(self):
+        myferet = FeretUI()
+        myferet.register_aside_menus(
+            'my-aside',
+            [
+                AsideMenu('Test', page='test'),
+                AsideMenu('Test', page='test'),
+            ],
+        )
+        assert len(myferet.asides['my-aside']) == 2
+        assert len(myferet.translation.menus) == 2
+
+    def test_register_aside_menus_with_not_AsideMenu(self):
+        myferet = FeretUI()
+        with pytest.raises(MenuError):
+            myferet.register_aside_menus(
+                'my-aside',
+                [Menu('Test', page='test')],
+            )
+
+    def test_register_aside_menus_header(self):
+        myferet = FeretUI()
+        myferet.register_aside_menus(
+            'my-aside',
+            [
+                AsideHeaderMenu('Test', [
+                    AsideMenu('Test', page='test'),
+                ])
+            ],
+        )
+        assert len(myferet.asides['my-aside']) == 1
+        assert len(myferet.translation.menus) == 2

@@ -34,4 +34,30 @@
       </div>
     </div>
   </template>
+  <template id="feretui-page-aside">
+    <div class="columns">
+      <div class="column is-narrow footer pt-5 pb-5">
+        <aside class="menu">
+          <ul class="menu-list">
+          {% for menu in menus %}
+            {% if menu.is_visible(session) %}
+              <li>
+                {{ menu.render(feretui, session) | safe }}
+              </li>
+            {% endif %}
+          {% endfor %}
+          </ul>
+        </aside>
+      </div>
+      <div class="column">
+        <div id="feretui-aside-body">
+          <div 
+            hx-get="{{ feretui.base_url }}/action/render?{{ querystring }}"
+            hx-trigger="load"
+          >
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
 </templates>

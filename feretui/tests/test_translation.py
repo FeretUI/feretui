@@ -15,13 +15,15 @@ import pytest  # noqa: F401
 
 from feretui.exceptions import TranslationError
 from feretui.feretui import FeretUI
+from feretui.menus import ToolBarMenu
 from feretui.thread import local
 from feretui.translation import (
-    TranslatedTemplate,
-    TranslatedStringTemplate,
     TranslatedFileTemplate,
-    Translation,
+    TranslatedStringTemplate,
+    TranslatedMenu,
+    TranslatedTemplate,
     translated_message,
+    Translation,
 )
 
 
@@ -70,6 +72,12 @@ class TestTranslation:
         mytranslation = TranslatedStringTemplate('template')
         assert str(mytranslation)
 
+    def test_translated_menu(self):
+        """Test translated_message without feretui."""
+        local.feretui = None
+        mytranslation = TranslatedMenu(ToolBarMenu('Test', page='test'))
+        assert str(mytranslation)
+
     def test_has_langs(self):
         """Test has_lang."""
         translation = Translation()
@@ -91,6 +99,13 @@ class TestTranslation:
         local.feretui = myferet
 
         translated_message('My translation')
+        myferet.translation.add_translated_menu(
+            TranslatedMenu(
+                ToolBarMenu('Test', page='test', tooltip='Test'))
+        )
+        myferet.translation.add_translated_menu(
+            TranslatedMenu(ToolBarMenu('Test', page='test')),
+        )
         t1 = b"""
             <template id='test'>
                 <div>

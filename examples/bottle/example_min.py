@@ -7,7 +7,15 @@ from bottle import HTTPResponse, app, debug, request, route, run, static_file
 from bottle_session import Session as BottleSession
 from bottle_session import SessionPlugin
 
-from feretui import FeretUI, Request, Session
+from feretui import (
+    AsideHeaderMenu,
+    AsideMenu,
+    FeretUI,
+    Request,
+    Session,
+    ToolBarDropDownMenu,
+    ToolBarMenu,
+)
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -31,7 +39,7 @@ class MySessionPlugin(SessionPlugin):
                 self.cookie_name,
                 self.cookie_lifetime,
                 self.cookie_secure,
-                self.cookie_httponly
+                self.cookie_httponly,
             )
             rv = callback(*args, **kwargs)
             return rv
@@ -47,7 +55,7 @@ class MySession(Session, BottleSession):
         cookie_name='bottle.session',
         cookie_lifetime=None,
         cookie_secure=False,
-        cookie_httponly=False
+        cookie_httponly=False,
     ):
         Session.__init__(self)
         BottleSession.__init__(
@@ -56,8 +64,9 @@ class MySession(Session, BottleSession):
             cookie_name,
             cookie_lifetime,
             cookie_secure,
-            cookie_httponly
+            cookie_httponly,
         )
+        self.theme = "minty"
 
 
 myferet = FeretUI()
@@ -70,13 +79,42 @@ myferet.register_static_page(
     <div class="container">
       <div class="content">
         <h1>Hello my feret</h1>
-        <p>
-          Welcome
-        </p>
+        <p>Welcome</p>
       </div>
     </div>
-    '''
+    ''',
 )
+
+
+# /?page=foo
+myferet.register_static_page(
+    'foo',
+    '''
+    <div class="container">
+      <div class="content">
+        Bar
+      </div>
+    </div>
+    ''',
+)
+myferet.register_aside_menus('aside1', [
+    AsideHeaderMenu('My aside menu', children=[
+        AsideMenu('Hello', page='hello', tooltip="Hello"),
+        AsideMenu('Foo', page='foo', icon="fa-solid fa-ghost"),
+    ]),
+])
+myferet.register_toolbar_left_menus([
+    ToolBarDropDownMenu('My left menu', children=[
+        ToolBarMenu(
+            'Hello', page="aside-menu", aside="aside1", aside_page='hello',
+            tooltip="Go to the hello page",
+        ),
+        ToolBarMenu(
+            'Foo', page="aside-menu", aside="aside1", aside_page='foo',
+            icon="fa-solid fa-ghost",
+        ),
+    ]),
+])
 
 
 @route('/')
@@ -91,7 +129,7 @@ def index(session):
     return HTTPResponse(
         body=response.body,
         status=response.status_code,
-        headers=response.headers
+        headers=response.headers,
     )
 
 
@@ -117,7 +155,7 @@ def get_action(session, action):
     return HTTPResponse(
         body=response.body,
         status=response.status_code,
-        headers=response.headers
+        headers=response.headers,
     )
 
 
@@ -133,7 +171,7 @@ def post_action(session, action):
     return HTTPResponse(
         body=response.body,
         status=response.status_code,
-        headers=response.headers
+        headers=response.headers,
     )
 
 

@@ -48,8 +48,20 @@ from pathlib import Path
 from jinja2 import Environment, PackageLoader, select_autoescape
 
 from feretui.actions import goto, render
-from feretui.exceptions import UnexistingActionError
-from feretui.pages import homepage, page_404, page_forbidden, static_page
+from feretui.exceptions import MenuError, UnexistingActionError
+from feretui.menus import (
+    AsideMenu,
+    ChildrenMenu,
+    ToolBarDividerMenu,
+    ToolBarMenu,
+)
+from feretui.pages import (
+    aside_menu,
+    homepage,
+    page_404,
+    page_forbidden,
+    static_page,
+)
 from feretui.request import Request
 from feretui.response import Response
 from feretui.session import Session
@@ -57,6 +69,7 @@ from feretui.template import Template
 from feretui.thread import local
 from feretui.translation import (
     TranslatedFileTemplate,
+    TranslatedMenu,
     TranslatedStringTemplate,
     Translation,
 )
@@ -77,6 +90,7 @@ def import_feretui_addons(feretui: "FeretUI") -> None:
 
     * css:
         * `bulma <https://bulma.io/>`_
+        * `bulma-tooltip <https://bulma-tooltip.netlify.app/get-started/>`_
 
     * font
         * `Fontawesome <https://fontawesome.com/>`_
@@ -109,6 +123,10 @@ def import_feretui_addons(feretui: "FeretUI") -> None:
     feretui.register_css(
         'bulma.css',
         Path(feretui_path, 'static', 'bulma.0.9.4.css'),
+    )
+    feretui.register_css(
+        'bulma-tooltip.css',
+        Path(feretui_path, 'static', 'bulma-tooltip.1.2.0.min.css'),
     )
     feretui.register_css(
         'fontawesome/css/all.css',
@@ -176,6 +194,10 @@ class FeretUI:
     * fonts[dict[str, str]] : List of the font and their url
     * actions[dict[str, Callable]] : List of the action callables
     * pages[dict[str, Callable]] : List of the pages
+    * menus[dict[str, :class:`feretui.menus.ToolBarMenu`]] : the key are left
+      or right the value are instances of the menu.
+    * asides[dict[str, :class:`feretui.menus.AsideMenu`]] : The key is the
+      code for the aside-menu page, the values are the instance of the menu.
 
     The instance provide methodes to use
 
@@ -198,6 +220,11 @@ class FeretUI:
         * :meth:`.FeretUI.register_page`
         * :meth:`.FeretUI.register_static_page`
         * :meth:`.FeretUI.get_page`
+
+    * Menu : Declare the menus registered in the feretui instance
+        * :meth:`.FeretUI.register_toolbar_left_menus`
+        * :meth:`.FeretUI.register_toolbar_right_menus`
+        * :meth:`.FeretUI.register_aside_menus`
 
     * Translations : Import and export the catalog
         * :meth:`.FeretUI.export_catalog`
@@ -241,6 +268,9 @@ class FeretUI:
         self.register_template_file(
             Path(feretui_path, 'templates', 'pages.tmpl'),
         )
+        self.register_template_file(
+            Path(feretui_path, 'templates', 'menus.tmpl'),
+        )
 
         # Static behaviours
         self.statics: dict[str, str] = {}
@@ -249,6 +279,11 @@ class FeretUI:
         self.images: dict[str, str] = {}
         self.themes: dict[str, str] = {}
         self.fonts: dict[str, str] = {}
+        self.menus: dict[str, list[ToolBarMenu]] = {
+            'left': [],
+            'right': [],
+        }
+        self.asides: dict[str, list[AsideMenu]] = {}
 
         # Actions
         self.actions: dict[str, Callable[["FeretUI", Request], Response]] = {}
@@ -262,6 +297,7 @@ class FeretUI:
         self.register_page(name='404')(page_404)
         self.register_page(name='forbidden')(page_forbidden)
         self.register_page()(homepage)
+        self.register_page('aside-menu')(aside_menu)
 
         self.register_addons_from_entrypoint()
 
@@ -749,6 +785,117 @@ class FeretUI:
             return self.get_page('404')
 
         return self.pages[pagename]
+
+    # ---------- Menus ----------
+    def _register_toolbar_menus(
+        self: "FeretUI",
+        position: str,
+        menus: list[ToolBarMenu],
+    ) -> None:
+        def add_translation(menu: ToolBarMenu) -> None:
+            self.translation.add_translated_menu(
+                TranslatedMenu(menu),
+            )
+            if isinstance(menu, ChildrenMenu):
+                for submenu in menu.children:
+                    if not isinstance(submenu, ToolBarDividerMenu):
+                        add_translation(submenu)
+
+        for menu in menus:
+            if not isinstance(menu, ToolBarMenu):
+                raise MenuError(f"{menu} is not a toolbar menu")
+
+            if isinstance(menu, ToolBarDividerMenu):
+                raise MenuError(f"You can't register {menu}")
+
+            add_translation(menu)
+            self.menus[position].append(menu)
+
+    def register_toolbar_left_menus(
+        self: "FeretUI",
+        menus: list[ToolBarMenu],
+    ) -> None:
+        """Register a menu in the left part of the toolbar.
+
+        ::
+
+            myferet.register_toolbar_left_menus([
+                ToolBarMenu(...),
+            ])
+
+        :param menus: The menus to register
+        :type menus: list[:class:`feretui.menus.ToolBarMenu`]
+        :exception: MenuError
+        """
+        self._register_toolbar_menus('left', menus)
+
+    def register_toolbar_right_menus(
+        self: "FeretUI",
+        menus: list[ToolBarMenu],
+    ) -> None:
+        """Register a menu in the right part of the toolbar.
+
+        ::
+
+            myferet.register_toolbar_right_menus([
+                ToolBarMenu(...),
+            ])
+
+        :param menus: The menus to register
+        :type menus: list[:class:`feretui.menus.ToolBarMenu`]
+        :exception: MenuError
+        """
+        self._register_toolbar_menus('right', menus)
+
+    def register_aside_menus(
+        self: "FeretUI",
+        code: str,
+        menus: list[AsideMenu],
+    ) -> None:
+        """Register a menu in an aside page.
+
+        ::
+
+            myferet.register_aside_menus(
+                'my-aside', [
+                    AsideMenu(...),
+                ],
+            )
+
+        :param code: The code of the aside
+        :type code: str
+        :param menus: The menus to register
+        :type menus: list[:class:`feretui.menus.AsideMenu`]
+        :exception: MenuError
+        """
+        asides = self.asides.setdefault(code, [])
+
+        def register_menu(menu: AsideMenu) -> None:
+            menu.aside = code
+            self.translation.add_translated_menu(
+                TranslatedMenu(menu),
+            )
+            if isinstance(menu, ChildrenMenu):
+                for submenu in menu.children:
+                    if not isinstance(submenu, ToolBarDividerMenu):
+                        register_menu(submenu)
+
+        for menu in menus:
+            if not isinstance(menu, AsideMenu):
+                raise MenuError(f"{menu} is not an aside menu")
+
+            register_menu(menu)
+            asides.append(menu)
+
+    def get_aside_menus(self: "FeretUI", code: str) -> list[AsideMenu]:
+        """Return the aside menus link with the code.
+
+        :param code: The code of the aside
+        :type code: str
+        :return: The menus to render
+        :rtype: list[:class:`feretui.menus.AsideMenu`
+        """
+        return self.asides.setdefault(code, [])
 
     # ---------- Translation ----------
     def export_catalog(

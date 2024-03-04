@@ -37,3 +37,21 @@ class TestAction:
         request = Request(method=Request.GET, session=session)
         with pytest.raises(ActionError):
             goto(myferet, request)
+
+    def test_goto_with_in_aside(self):
+        myferet = FeretUI()
+        session = Session()
+        request = Request(
+            method=Request.GET,
+            session=session,
+            querystring="in-aside=test&page=homepage",
+            headers={
+                'Hx-Current-Url': '/'
+            }
+        )
+        res = goto(myferet, request)
+        assert res.body == homepage(myferet, session, {})
+        assert (
+            res.headers['HX-Push-Url']
+            == "/?page=aside-menu&aside=test&aside_page=homepage"
+        )

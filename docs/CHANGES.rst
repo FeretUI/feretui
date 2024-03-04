@@ -1,6 +1,6 @@
 .. This file is a part of the FeretUI project
 ..
-..    Copyright (C) 2023-2024 Jean-Sebastien SUZANNE <js.suzanne@gmail.com>
+..    Copyright (C) 2024 Jean-Sebastien SUZANNE <js.suzanne@gmail.com>
 ..
 .. This Source Code Form is subject to the terms of the Mozilla Public License,
 .. v. 2.0. If a copy of the MPL was not distributed with this file,You can
@@ -14,12 +14,13 @@ CHANGELOG
 
 Main version of FeretUI, based on the POC
 
-* Added action callbacks mechanism.
-* Added page callbacks mechanism.
 * Added Request object
 * Added Response object
 * Added Session object
 * Added templating
-* Added themes
+* Added actions callbacks mechanism.
+* Added pages callbacks mechanism.
+* Added menus
 * Added static file register
+* Added themes
 * Added translation behaviours

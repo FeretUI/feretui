@@ -915,7 +915,7 @@ class Template:
             tmpl.tail = action_callback(tail)
 
         for key in (set(tmpl.attrib.keys()).intersection(
-            {"label", "hx-confirm"})
+            {"label", "hx-confirm", "data-tooltip"})
         ):
             tmpl.attrib[key] = action_callback(
                 tmpl.attrib[key], suffix=f'{tmpl.tag}:{key}')
