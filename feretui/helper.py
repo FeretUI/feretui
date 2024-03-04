@@ -20,9 +20,55 @@ from typing import TYPE_CHECKING
 from feretui.exceptions import ActionValidatorError
 from feretui.request import RequestMethod
 from feretui.response import Response
+from feretui.session import Session
 
 if TYPE_CHECKING:
     from feretui.feretui import FeretUI
+
+
+def authenticated_or_404(func):
+    @wraps(func)
+    def wrap(feret: "FeretUI", session: Session, options: dict):
+        if session.user:
+            return func(feret, session, options)
+
+        return feret.get_page('404')(feret, session, options)
+
+    return wrap
+
+
+def authenticated_or_login(func):
+    @wraps(func)
+    def wrap(feret: "FeretUI", session: Session, options: dict):
+        if session.user:
+            return func(feret, session, options)
+
+        page = feret.get_callback('feretui_default_authentication')()
+        return feret.get_page(page)(feret, session, options)
+
+    return wrap
+
+
+def authenticated_or_forbidden(func):
+    @wraps(func)
+    def wrap(feret: "FeretUI", session: Session, options: dict):
+        if session.user:
+            return func(feret, session, options)
+
+        return feret.get_page('forbidden')(feret, session, options)
+
+    return wrap
+
+
+def unauthenticated_or_forbidden(func):
+    @wraps(func)
+    def wrap(feret: "FeretUI", session: Session, options: dict):
+        if not session.user:
+            return func(feret, session, options)
+
+        return feret.get_page('forbidden')(feret, session, options)
+
+    return wrap
 
 
 def action_validator(

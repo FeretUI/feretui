@@ -31,6 +31,8 @@ from typing import TYPE_CHECKING
 from feretui.exceptions import PageError
 from feretui.session import Session
 
+from feretui.helper import unauthenticated_or_forbidden
+
 if TYPE_CHECKING:
     from feretui.feretui import FeretUI
 
@@ -145,3 +147,13 @@ def aside_menu(
         menus=menus,
         querystring=urllib.parse.urlencode(options, doseq=True),
     )
+
+
+@unauthenticated_or_forbidden
+def page_login(feret: "FeretUI", session: Session, options: dict):
+    return feret.load_page_template(session, 'feretui-page-login')
+
+
+@unauthenticated_or_forbidden
+def page_signup(feret: "FeretUI", session: Session, options: dict):
+    return feret.load_page_template(session, 'feretui-page-signup')

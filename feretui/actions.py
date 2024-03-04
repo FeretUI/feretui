@@ -89,3 +89,89 @@ def goto(
             'HX-Push-Url': url,
         },
     )
+
+
+@action_validator(methods=[Request.POST])
+def action_login_password(
+    feret: "FeretUI",
+    request: Request
+) -> str:
+    try:
+        request.session.login(**dict(request.deserialized_body))
+        qs = request.get_query_string_from_current_url()
+        if qs.get('page') == ['login']:
+            headers = {
+                'HX-Redirect': '/?page=homepage',
+            }
+        else:
+            headers = {
+                'HX-Refresh': 'true',
+            }
+
+        return Response('', headers=headers)
+    except ValidationError as e:
+        return Response(
+            feret.load_page_template(
+                request.session,
+                'feretui-page-pydantic-failed',
+                errors=format_errors(e.errors()),
+            )
+        )
+    except Exception:
+        return Response(
+            feret.load_page_template(
+                request.session,
+                'feretui-page-login-failed'
+            )
+        )
+
+
+@action_validator(methods=[Request.POST])
+def action_login_signup(
+    feret: "FeretUI",
+    request: Request
+) -> str:
+    try:
+        redirect = request.session.signup(**dict(request.deserialized_body))
+        if redirect:
+            qs = request.get_query_string_from_current_url()
+            if qs.get('page') == ['login']:
+                headers = {
+                    'HX-Redirect': '/?page=homepage',
+                }
+            else:
+                headers = {
+                    'HX-Refresh': 'true',
+                }
+        else:
+            headers = {}
+
+        return Response(
+            feret.load_page_template(
+                request.session,
+                'feretui-page-signup-success',
+            ),
+            headers=headers
+        )
+    except ValidationError as e:
+        return Response(
+            feret.load_page_template(
+                request.session,
+                'feretui-page-pydantic-failed',
+                errors=format_errors(e.errors()),
+            )
+        )
+    except Exception:
+        return Response(
+            feret.load_page_template(
+                request.session,
+                'feretui-page-error-500'
+            )
+        )
+
+
+@action_validator(methods=[Request.POST])
+def action_logout(feret: "FeretUI", request: Request) -> str:
+    request.session.logout()
+    url = request.get_url_from_dict({})
+    return Response('', headers={'HX-Redirect': url})
