@@ -2,19 +2,12 @@ import pytest
 from feretui.exceptions import ActionError
 from feretui.feretui import FeretUI
 from feretui.session import Session
-from feretui.actions import render, goto
+from feretui.actions import goto
 from feretui.pages import homepage
 from feretui.request import Request
 
 
 class TestAction:
-
-    def test_render(self):
-        myferet = FeretUI()
-        session = Session()
-        request = Request(method=Request.GET, session=session)
-        res = render(myferet, request)
-        assert res.body == homepage(myferet, session, {})
 
     def test_goto(self):
         myferet = FeretUI()
