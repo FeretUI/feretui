@@ -164,6 +164,10 @@ They are two main type of menu:
   * :class:`feretui.menus.ToolBarDropDownMenu`: Dropdown menu
   * :class:`feretui.menus.ToolBarDividerMenu`: Séparator in dropdown menu
   * :class:`feretui.menus.ToolBarUrlMenu`: Link to another url.
+  * :class:`feretui.menus.ToolBarButtonMenu`: Simple button menu
+  * :class:`feretui.menus.ToolBarButtonsMenu`: Define a group of buttons
+  * :class:`feretui.menus.ToolBarButtonUrlMenu`: Link to another url. in a
+    button
 * Aside: rendere in the aside-menu page
 
   * :class:`feretui.menus.AsideMenu`: Simple menu
@@ -214,6 +218,9 @@ all the translation messages in pot file.
 from feretui.feretui import FeretUI  # noqa : F401
 from feretui.helper import action_validator  # noqa : F401
 from feretui.menus import (  # noqa : F401
+    ToolBarButtonMenu,
+    ToolBarButtonsMenu,
+    ToolBarButtonUrlMenu,
     ToolBarMenu,
     ToolBarDropDownMenu,
     ToolBarDividerMenu,

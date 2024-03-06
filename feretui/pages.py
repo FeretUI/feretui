@@ -24,9 +24,10 @@ The availlable pages are:
 * :func:`.page_forbidden`.
 * :func:`.homepage`.
 """
-import urllib
 from collections.abc import Callable
 from typing import TYPE_CHECKING
+
+from markupsafe import Markup
 
 from feretui.exceptions import PageError
 from feretui.session import Session
@@ -135,13 +136,12 @@ def aside_menu(
     if 'aside' not in options:
         raise PageError('The aside parameter is required in the querystring')
 
-    options = options.copy()  # don't modify the main options
     menus = feretui.get_aside_menus(options['aside'][0])
-    options['page'] = options.pop('aside_page', ['homepage'])[0]
+    page = options.get('aside_page', ['homepage'])[0]
 
     return feretui.render_template(
         session,
         'feretui-page-aside',
         menus=menus,
-        querystring=urllib.parse.urlencode(options, doseq=True),
+        page=Markup(feretui.get_page(page)(feretui, session, options)),
     )

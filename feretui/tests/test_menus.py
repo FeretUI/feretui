@@ -16,6 +16,9 @@ from feretui.menus import (
     ToolBarDropDownMenu,
     ToolBarMenu,
     ToolBarUrlMenu,
+    ToolBarButtonsMenu,
+    ToolBarButtonMenu,
+    ToolBarButtonUrlMenu,
 )
 from feretui.session import Session
 from feretui.request import Request
@@ -217,6 +220,137 @@ class TestMenu:
             tooltip='Test',
         ).render(myferet, session) == (
             '<a class="navbar-item" href="https://feretui.readthedocs.io/en/latest/">\n'
+            ' <span>\n'
+            '  \n'
+            ' </span>\n'
+            ' <strong>\n'
+            '  Test\n'
+            ' </strong>\n'
+            ' <span>\n'
+            '  \n'
+            '  <span class="ml-0 icon has-tooltip-bottom has-tooltip-arrow" data-tooltip="Test">\n'
+            '   <i class="fa-solid fa-circle-info is-small">\n'
+            '   </i>\n'
+            '  </span>\n'
+            '  \n'
+            ' </span>\n'
+            '</a>'
+        )
+
+    def test_ToolBarButtonsMenu(self):
+        myferet = FeretUI()
+        session = Session()
+        request = Request(session=session)
+        local.request = request
+        assert ToolBarButtonsMenu(
+            [ToolBarButtonMenu('Test', page='test')]
+        ).render(myferet, session) == (
+            '<div class="navbar-item">\n'
+            ' <div class="buttons">\n'
+            '  \n'
+            '          \n'
+            '            <a class="button None" hx-get="/feretui/action/goto?page=test" hx-swap="innerHTML" hx-target="#feretui-body">\n'
+            ' <span>\n'
+            '  \n'
+            ' </span>\n'
+            ' <strong>\n'
+            '  Test\n'
+            ' </strong>\n'
+            ' <span>\n'
+            '  \n'
+            ' </span>\n'
+            '</a>\n'
+            '          \n'
+            '        \n'
+            ' </div>\n'
+            '</div>'
+        )
+
+    def test_ToolBarButtonsMenu_cascad(self):
+        with pytest.raises(MenuError):
+            ToolBarButtonsMenu([
+                ToolBarButtonsMenu([
+                    ToolBarButtonMenu('Test', page='test')
+                ])
+            ])
+
+    def test_ToolBarButtonMenu(self):
+        myferet = FeretUI()
+        session = Session()
+        request = Request(session=session)
+        local.request = request
+        assert ToolBarButtonMenu('Test', page='test').render(myferet, session) == (
+                '<a class="button None" hx-get="/feretui/action/goto?page=test" hx-swap="innerHTML" hx-target="#feretui-body">\n'
+                ' <span>\n'
+                '  \n'
+                ' </span>\n'
+                ' <strong>\n'
+                '  Test\n'
+                ' </strong>\n'
+                ' <span>\n'
+                '  \n'
+                ' </span>\n'
+                '</a>'
+        )
+
+    def test_ToolBarButtonMenu_tooltip(self):
+        myferet = FeretUI()
+        session = Session()
+        request = Request(session=session)
+        local.request = request
+        assert ToolBarButtonMenu(
+            'Test', page='test', tooltip="Test").render(myferet, session) == (
+                '<a class="button None" hx-get="/feretui/action/goto?page=test" hx-swap="innerHTML" hx-target="#feretui-body">\n'
+                ' <span>\n'
+                '  \n'
+                ' </span>\n'
+                ' <strong>\n'
+                '  Test\n'
+                ' </strong>\n'
+                ' <span>\n'
+                '  \n'
+                '  <span class="ml-0 icon has-tooltip-bottom has-tooltip-arrow" data-tooltip="Test">\n'
+                '   <i class="fa-solid fa-circle-info is-small">\n'
+                '   </i>\n'
+                '  </span>\n'
+                '  \n'
+                ' </span>\n'
+                '</a>'
+            )
+
+    def test_ToolBarButtonMenu_with_children_kwargs(self):
+        with pytest.raises(MenuError):
+            ToolBarButtonMenu('Test', page='test', children=[])
+
+    def test_ToolBarButtonUrlMenu(self):
+        myferet = FeretUI()
+        session = Session()
+        assert ToolBarButtonUrlMenu(
+            'Test',
+            'https://feretui.readthedocs.io/en/latest/',
+        ).render(myferet, session) == (
+            '<a class="button None" href="https://feretui.readthedocs.io/en/latest/">\n'
+            ' <span>\n'
+            '  \n'
+            ' </span>\n'
+            ' <strong>\n'
+            '  Test\n'
+            ' </strong>\n'
+            ' <span>\n'
+            '  \n'
+            ' </span>\n'
+            '</a>'
+        )
+
+    def test_ToolBarButtonUrlMenu_tooltip(self):
+        myferet = FeretUI()
+        session = Session()
+        assert ToolBarButtonUrlMenu(
+            'Test',
+            'https://feretui.readthedocs.io/en/latest/',
+            tooltip='Test',
+        ).render(myferet, session) == (
+            '<a class="button None" href="https://feretui.readthedocs.io/en/latest/">\n'
             ' <span>\n'
             '  \n'
             ' </span>\n'

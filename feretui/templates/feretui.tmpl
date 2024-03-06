@@ -17,8 +17,7 @@
         <include template="feretui-client-header"/>
         <main>
           <div id="feretui-body" class="mt-4 mb-4" hx-boost="true">
-            <div hx-get="{{ feretui.base_url }}/action/render?{{ querystring }}" hx-trigger="load">
-            </div>
+            {{ page }}
           </div>
         </main>
         <include template="feretui-client-footer"/>
@@ -62,14 +61,14 @@
           <div class="navbar-start">
             {% for menu in feretui.menus.left %}
               {% if menu.is_visible(session) %}
-                {{ menu.render(feretui, session) | safe }}
+                {{ menu.render(feretui, session) }}
               {% endif %}
             {% endfor %}
           </div>
           <div class="navbar-end">
             {% for menu in feretui.menus.right %}
               {% if menu.is_visible(session) %}
-                {{ menu.render(feretui, session) | safe }}
+                {{ menu.render(feretui, session) }}
               {% endif %}
             {% endfor %}
           </div>

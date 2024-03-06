@@ -46,8 +46,9 @@ from logging import getLogger
 from pathlib import Path
 
 from jinja2 import Environment, PackageLoader, select_autoescape
+from markupsafe import Markup
 
-from feretui.actions import goto, render
+from feretui.actions import goto
 from feretui.exceptions import MenuError, UnexistingActionError
 from feretui.menus import (
     AsideMenu,
@@ -287,7 +288,6 @@ class FeretUI:
 
         # Actions
         self.actions: dict[str, Callable[["FeretUI", Request], Response]] = {}
-        self.register_action(render)
         self.register_action(goto)
 
         # Pages
@@ -330,11 +330,16 @@ class FeretUI:
         # the local thread to keep the information
         local.feretui = self
         local.request = request
+        local.lang = request.session.lang
+
+        page = request.query.get('page', ['homepage'])[0]
 
         template = self.render_template(
             request.session,
             'feretui-client',
-            querystring=request.raw_querystring,
+            page=Markup(self.get_page(page)(
+                self, request.session, request.query,
+            )),
         )
         # lxml remove the tags html, head and body. So in template
         # they are named feretui-html, feretui-head, feretui-body
