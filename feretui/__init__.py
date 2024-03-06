@@ -168,6 +168,7 @@ They are two main type of menu:
   * :class:`feretui.menus.ToolBarButtonsMenu`: Define a group of buttons
   * :class:`feretui.menus.ToolBarButtonUrlMenu`: Link to another url. in a
     button
+    
 * Aside: rendere in the aside-menu page
 
   * :class:`feretui.menus.AsideMenu`: Simple menu

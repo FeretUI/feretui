@@ -24,6 +24,7 @@ The availlable pages are:
 * :func:`.page_forbidden`.
 * :func:`.homepage`.
 """
+import urllib
 from collections.abc import Callable
 from typing import TYPE_CHECKING
 
