@@ -21,7 +21,7 @@
       <div class="navbar-dropdown">
         {% for child in children %}
           {% if child.is_visible(session) %}
-            {{ child.render(feretui, session) | safe }}
+            {{ child.render(feretui, session) }}
           {% endif %}
         {% endfor %}
       </div>
@@ -54,7 +54,7 @@
       <div class="buttons">
         {% for child in children %}
           {% if child.is_visible(session) %}
-            {{ child.render(feretui, session) | safe }}
+            {{ child.render(feretui, session) }}
           {% endif %}
         {% endfor %}
       </div>
@@ -89,7 +89,7 @@
       <ul>
         {% for child in children %}
           {% if child.is_visible(session) %}
-            <li>{{ child.render(feretui, session) | safe }}</li>
+            <li>{{ child.render(feretui, session) }}</li>
           {% endif %}
         {% endfor %}
       </ul>

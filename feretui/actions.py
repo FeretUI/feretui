@@ -11,42 +11,20 @@ The actions is called by the :meth:`feretui.feretui.FeretUI.execute_action`.
 
 The availlable actions are:
 
-* :func:`.render`.
 * :func:`.goto`.
 """
 from typing import TYPE_CHECKING
 
+from multidict import MultiDict
+
 from feretui.exceptions import ActionError
 from feretui.helper import action_validator
+from feretui.pages import login
 from feretui.request import Request
 from feretui.response import Response
-from feretui.pages import login
-from multidict import MultiDict
 
 if TYPE_CHECKING:
     from feretui.feretui import FeretUI
-
-
-@action_validator(methods=[Request.GET])
-def render(
-    feretui: "FeretUI",
-    request: Request,
-) -> str:
-    """Render the page.
-
-    the page is an entry in the query string of the request.
-
-    :param feretui: The feretui client
-    :type feretui: :class:`feretui.feretui.FeretUI`
-    :param request: The request
-    :type request: :class:`feretui.request.Request`
-    :return: The page to display
-    :rtype: :class:`feretui.response.Response`
-    """
-    page = request.query.get('page', ['homepage'])[0]
-    return Response(
-        feretui.get_page(page)(feretui, request.session, request.query),
-    )
 
 
 @action_validator(methods=[Request.GET])
@@ -96,7 +74,7 @@ def goto(
 @action_validator(methods=[Request.POST])
 def login_password(
     feret: "FeretUI",
-    request: Request
+    request: Request,
 ) -> str:
     form = request.session.LoginForm(MultiDict(**request.body))
     if form.validate():
@@ -119,7 +97,7 @@ def login_password(
 @action_validator(methods=[Request.POST])
 def action_login_signup(
     feret: "FeretUI",
-    request: Request
+    request: Request,
 ) -> str:
     try:
         redirect = request.session.signup(**dict(request.deserialized_body))
@@ -141,7 +119,7 @@ def action_login_signup(
                 request.session,
                 'feretui-page-signup-success',
             ),
-            headers=headers
+            headers=headers,
         )
     except ValidationError as e:
         return Response(
@@ -149,14 +127,14 @@ def action_login_signup(
                 request.session,
                 'feretui-page-pydantic-failed',
                 errors=format_errors(e.errors()),
-            )
+            ),
         )
     except Exception:
         return Response(
             feret.load_page_template(
                 request.session,
-                'feretui-page-error-500'
-            )
+                'feretui-page-error-500',
+            ),
         )
 
 

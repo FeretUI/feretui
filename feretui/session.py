@@ -17,9 +17,9 @@ The session can be overwritting by the developper::
 
     session = Session()
 """
-from wtforms import Form, StringField, PasswordField
+from wtforms import Form, PasswordField, StringField
 from wtforms.validators import InputRequired
-from wtforms.widgets import TextInput, PasswordInput
+from wtforms.widgets import PasswordInput, TextInput
 
 
 class WrapInput:
@@ -28,8 +28,9 @@ class WrapInput:
         self.widget = widget
 
     def __call__(self, field, **kwargs):
-        from feretui.thread import local
         from markupsafe import Markup
+
+        from feretui.thread import local
 
         myferet = local.feretui
         session = local.request.session
@@ -80,7 +81,7 @@ class Session:
         login = FeretUIStringField(validators=[InputRequired()])
         password = PasswordField(
             validators=[InputRequired()],
-            widget=WrapInput(PasswordInput())
+            widget=WrapInput(PasswordInput()),
         )
 
     def __init__(self: "Session") -> "Session":

@@ -18,13 +18,15 @@ The menus are splited in two groups.
   * :class:`.ToolBarDropDownMenu`
   * :class:`.ToolBarUrlMenu`
   * :class:`.ToolBarDividerMenu`
+  * :class:`.ToolBarButtonMenu`
+  * :class:`.ToolBarButtonsMenu`
+  * :class:`.ToolBarButtonUrlMenu`
 
 * Aside: The menu is display in the aside-menu page
 
   * :class:`.AsideMenu`
   * :class:`.AsideHeaderMenu`
   * :class:`.AsideUrlMenu`
-
 
 ::
 
@@ -57,6 +59,8 @@ The menus are splited in two groups.
 
 """
 from typing import TYPE_CHECKING
+
+from markupsafe import Markup
 
 from feretui.exceptions import MenuError
 from feretui.session import Session
@@ -197,14 +201,14 @@ class Menu:
         :return: The html
         :rtype: str
         """
-        return feretui.render_template(
+        return Markup(feretui.render_template(
             session,
             self.template_id,
             label=self.get_label(feretui),
             tooltip=self.get_tooltip(feretui),
             icon=self.icon,
             url=self.get_url(feretui, self.querystring),
-        )
+        ))
 
 
 class ChildrenMenu:
@@ -237,14 +241,14 @@ class ChildrenMenu:
         :return: The html
         :rtype: str
         """
-        return feretui.render_template(
+        return Markup(feretui.render_template(
             session,
             self.template_id,
             label=self.get_label(feretui),
             tooltip=self.get_tooltip(feretui),
             icon=self.icon,
             children=self.children,
-        )
+        ))
 
 
 class UrlMenu:
@@ -352,7 +356,7 @@ class ToolBarDividerMenu(ToolBarMenu):
         :return: The html
         :rtype: str
         """
-        return feretui.render_template(session, self.template_id)
+        return Markup(feretui.render_template(session, self.template_id))
 
 
 class ToolBarUrlMenu(UrlMenu, ToolBarMenu):
@@ -391,14 +395,31 @@ class ToolBarUrlMenu(UrlMenu, ToolBarMenu):
 
 
 class ToolBarButtonMenu(Menu):
+    """Menu class for the toolbar.
+
+    ::
+
+        menu = ToolBarButtonMenu('My label')
+        if menu.is_visible(session):
+            menu.render(myferet, session)
+
+    """
+
     template_id = 'toolbar-button-menu'
 
     def __init__(
-        self: "ToolBarMenu",
+        self: "ToolBarButtonMenu",
         label: str,
         css_class: str = None,
         **kwargs: dict[str, str],
     ) -> None:
+        """Call the Menu constructor and update the context.
+
+        see :class:`.Menu`
+
+        :param css_class: CCS class name to add at the button
+        :type css_class: str
+        """
         super().__init__(label, **kwargs)
         self.css_class = css_class
         self.context = 'menu:toolbar:button:' + ':'.join(
@@ -406,7 +427,11 @@ class ToolBarButtonMenu(Menu):
             for key, value in self.querystring.items()
         )
 
-    def render(self: "Menu", feretui: "FeretUI", session: Session) -> str:
+    def render(
+        self: "ToolBarButtonMenu",
+        feretui: "FeretUI",
+        session: Session,
+    ) -> str:
         """Return the html of the menu.
 
         :param feretui: The feretui client instance.
@@ -416,7 +441,7 @@ class ToolBarButtonMenu(Menu):
         :return: The html
         :rtype: str
         """
-        return feretui.render_template(
+        return Markup(feretui.render_template(
             session,
             self.template_id,
             label=self.get_label(feretui),
@@ -424,14 +449,26 @@ class ToolBarButtonMenu(Menu):
             icon=self.icon,
             url=self.get_url(feretui, self.querystring),
             css_class=self.css_class,
-        )
+        ))
 
 
 class ToolBarButtonsMenu(ChildrenMenu, ToolBarButtonMenu):
+    """Menu class for the toolbar.
+
+    ::
+
+        menu = ToolBarButtonMenu([
+            ToolBarButtonMenu('My label'),
+        ])
+        if menu.is_visible(session):
+            menu.render(myferet, session)
+
+    """
+
     template_id = 'toolbar-buttons-menu'
 
     def __init__(
-        self: "ToolBarDropDownMenu",
+        self: "ToolBarButtonsMenu",
         children: ToolBarMenu,
     ) -> None:
         """Construct the dropdown menu.
@@ -445,8 +482,40 @@ class ToolBarButtonsMenu(ChildrenMenu, ToolBarButtonMenu):
                 raise MenuError('ToolBarButtonsMenu menu can not be cascaded')
 
 
-class ToolBarButtonUrlMenu(ToolBarButtonMenu, ToolBarUrlMenu):
+class ToolBarButtonUrlMenu(UrlMenu, ToolBarButtonMenu):
+    """Menu class for the toolbar.
+
+    ::
+
+        menu = ToolBarButtonUrlMenu('My label')
+        if menu.is_visible(session):
+            menu.render(myferet, session)
+
+    """
+
     template_id = 'toolbar-button-url-menu'
+
+    def __init__(
+        self: "ToolBarButtonUrlMenu",
+        label: str,
+        url: str,
+        **kw: dict[str, str],
+    ) -> None:
+        """Call the menu constructor and update the context.
+
+        see :class:`.menu`
+
+        :param label: the label of the menu
+        :type label: str
+        :param url: the http url
+        :type url: str
+        :param icon: the icon html class used in the render
+        :type icon: str
+        :param tooltip: the tooltip, it is a helper to understand the role
+                        of the menu
+        :type tooltip: str
+        """
+        super().__init__(label, url=url, **kw)
 
 
 class AsideMenu(Menu):
@@ -531,7 +600,7 @@ class AsideUrlMenu(UrlMenu, AsideMenu):
 
     ::
 
-        menu = ToolBarUrlMenu('My label', url="https://bulma.io")
+        menu = AsideUrlMenu('My label', url="https://bulma.io")
         if menu.is_visible(session):
             menu.render(myferet, session)
     """

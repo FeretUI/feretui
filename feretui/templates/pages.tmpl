@@ -42,7 +42,7 @@
           {% for menu in menus %}
             {% if menu.is_visible(session) %}
               <li>
-                {{ menu.render(feretui, session) | safe }}
+                {{ menu.render(feretui, session) }}
               </li>
             {% endif %}
           {% endfor %}
@@ -51,11 +51,7 @@
       </div>
       <div class="column">
         <div id="feretui-aside-body">
-          <div 
-            hx-get="{{ feretui.base_url }}/action/render?{{ querystring }}"
-            hx-trigger="load"
-          >
-          </div>
+          {{ page }}
         </div>
       </div>
     </div>
