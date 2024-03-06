@@ -60,4 +60,38 @@
       </div>
     </div>
   </template>
+  <template id="feretui-input-field">
+    <div class="field">
+      <label class="label">{{ label }}</label>
+      <div class="control">
+        {{ widget }}
+      </div>
+      {% if error %}
+      <p class="help is-danger">{{ error }}</p>
+      {% endif %}
+    </div>
+  </template>
+  <template id="feretui-page-login">
+      <form
+        hx-post="/feretui/action/login_password"
+        hx-swap="outerHTML"
+        hx-trigger="submit"
+        hx-ext='json-enc'
+      >
+        <div class="container">
+          <div class="has-text-centered">
+            {{ form.login(autocomplete="username") }}
+            {{ form.password(autocomplete="current-password") }}
+            <div class="buttons">
+              <button 
+                class="button is-primary is-fullwidth" 
+                type="submit" 
+              >
+                Log in
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+  </template>
 </templates>

@@ -20,6 +20,8 @@ from feretui.exceptions import ActionError
 from feretui.helper import action_validator
 from feretui.request import Request
 from feretui.response import Response
+from feretui.pages import login
+from multidict import MultiDict
 
 if TYPE_CHECKING:
     from feretui.feretui import FeretUI
@@ -92,12 +94,13 @@ def goto(
 
 
 @action_validator(methods=[Request.POST])
-def action_login_password(
+def login_password(
     feret: "FeretUI",
     request: Request
 ) -> str:
-    try:
-        request.session.login(**dict(request.deserialized_body))
+    form = request.session.LoginForm(MultiDict(**request.body))
+    if form.validate():
+        request.session.login(**form.data)
         qs = request.get_query_string_from_current_url()
         if qs.get('page') == ['login']:
             headers = {
@@ -109,21 +112,8 @@ def action_login_password(
             }
 
         return Response('', headers=headers)
-    except ValidationError as e:
-        return Response(
-            feret.load_page_template(
-                request.session,
-                'feretui-page-pydantic-failed',
-                errors=format_errors(e.errors()),
-            )
-        )
-    except Exception:
-        return Response(
-            feret.load_page_template(
-                request.session,
-                'feretui-page-login-failed'
-            )
-        )
+
+    return Response(login(feret, request.session, {'form': form}))
 
 
 @action_validator(methods=[Request.POST])

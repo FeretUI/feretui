@@ -37,6 +37,36 @@
       <include template="feretui-tooltip" />
     </a>
   </template>
+  <template id="toolbar-button-menu">
+    <a 
+      class="button {{ css_class }}"
+      hx-get="{{ url }}"
+      hx-target="#feretui-body"
+      hx-swap="innerHTML"
+    >
+      <include template="feretui-icon" />
+      <strong>{{ label }}</strong>
+      <include template="feretui-tooltip" />
+    </a>
+  </template>
+  <template id="toolbar-buttons-menu">
+    <div class="navbar-item">
+      <div class="buttons">
+        {% for child in children %}
+          {% if child.is_visible(session) %}
+            {{ child.render(feretui, session) | safe }}
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  </template>
+  <template id="toolbar-button-url-menu">
+    <a class="button {{ css_class }}" href="{{ url }}">
+      <include template="feretui-icon" />
+      <strong>{{ label }}</strong>
+      <include template="feretui-tooltip" />
+    </a>
+  </template>
   <template id="aside-menu">
     <a 
       class="menu-label"

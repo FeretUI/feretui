@@ -47,11 +47,13 @@ from pathlib import Path
 
 from jinja2 import Environment, PackageLoader, select_autoescape
 
-from feretui.actions import goto, render
+from feretui.actions import goto, render, login_password
 from feretui.exceptions import MenuError, UnexistingActionError
 from feretui.menus import (
     AsideMenu,
     ChildrenMenu,
+    ToolBarButtonMenu,
+    ToolBarButtonsMenu,
     ToolBarDividerMenu,
     ToolBarMenu,
 )
@@ -61,6 +63,7 @@ from feretui.pages import (
     page_404,
     page_forbidden,
     static_page,
+    login,
 )
 from feretui.request import Request
 from feretui.response import Response
@@ -279,16 +282,24 @@ class FeretUI:
         self.images: dict[str, str] = {}
         self.themes: dict[str, str] = {}
         self.fonts: dict[str, str] = {}
+
+        # Menus
         self.menus: dict[str, list[ToolBarMenu]] = {
             'left': [],
             'right': [],
+            'user': [],
         }
         self.asides: dict[str, list[AsideMenu]] = {}
+        self.auth: ToolBarButtonMenu = None
+        self.register_auth_menus([
+            ToolBarButtonMenu('Log In', page='login')
+        ])
 
         # Actions
         self.actions: dict[str, Callable[["FeretUI", Request], Response]] = {}
         self.register_action(render)
         self.register_action(goto)
+        self.register_action(login_password)
 
         # Pages
         self.pages: dict[str, Callable[
@@ -298,6 +309,7 @@ class FeretUI:
         self.register_page(name='forbidden')(page_forbidden)
         self.register_page()(homepage)
         self.register_page('aside-menu')(aside_menu)
+        self.register_page()(login)
 
         self.register_addons_from_entrypoint()
 
@@ -886,6 +898,12 @@ class FeretUI:
 
             register_menu(menu)
             asides.append(menu)
+
+    def register_auth_menus(self, menus):
+        self.auth = ToolBarButtonsMenu(menus)
+
+    def register_user_menus(self, menus):
+        self._register_toolbar_menus('user', menus)
 
     def get_aside_menus(self: "FeretUI", code: str) -> list[AsideMenu]:
         """Return the aside menus link with the code.

@@ -15,9 +15,11 @@ dependencies = [
     'lxml',
     'polib',
     'jinja2',
-    'password-validator',
     'BeautifulSoup4',
     'WTForms',
+    'WTForms-Components',
+    'password-validator',
+    'multidict',
 ]
 dynamic = ["readme"]
 keywords = [

@@ -72,6 +72,29 @@
                 {{ menu.render(feretui, session) | safe }}
               {% endif %}
             {% endfor %}
+            {% if not session.user %}
+            {{ feretui.auth.render(feretui, session) | safe }}
+            {% else %}
+            <div class="navbar-item has-dropdown is-hoverable">
+              <a class="navbar-link">
+                {{ session.user }}
+              </a>
+              <div class="navbar-dropdown is-boxed is-right">
+                {% for menu in feretui.menus.user %}
+                  {% if menu.is_visible(session) %}
+                    {{ menu.render(feretui, session) | safe }}
+                  {% endif %}
+                {% endfor %}
+                <hr class="navbar-divider">
+                <a
+                  class="navbar-item"
+                  hx-post="/feretui/action/logout"
+                >
+                  Log out
+                </a>
+              </div>
+            </div>
+            {% endif %}
           </div>
         </div>
       </nav>

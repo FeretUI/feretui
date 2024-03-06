@@ -390,6 +390,65 @@ class ToolBarUrlMenu(UrlMenu, ToolBarMenu):
         super().__init__(label, url=url, **kw)
 
 
+class ToolBarButtonMenu(Menu):
+    template_id = 'toolbar-button-menu'
+
+    def __init__(
+        self: "ToolBarMenu",
+        label: str,
+        css_class: str = None,
+        **kwargs: dict[str, str],
+    ) -> None:
+        super().__init__(label, **kwargs)
+        self.css_class = css_class
+        self.context = 'menu:toolbar:button:' + ':'.join(
+            f'{key}:{value}'
+            for key, value in self.querystring.items()
+        )
+
+    def render(self: "Menu", feretui: "FeretUI", session: Session) -> str:
+        """Return the html of the menu.
+
+        :param feretui: The feretui client instance.
+        :type feretui: :class:`feretui.feretui.FeretUI`
+        :param session: The session of the user
+        :type session: :class:`feretui.session.Session`
+        :return: The html
+        :rtype: str
+        """
+        return feretui.render_template(
+            session,
+            self.template_id,
+            label=self.get_label(feretui),
+            tooltip=self.get_tooltip(feretui),
+            icon=self.icon,
+            url=self.get_url(feretui, self.querystring),
+            css_class=self.css_class,
+        )
+
+
+class ToolBarButtonsMenu(ChildrenMenu, ToolBarButtonMenu):
+    template_id = 'toolbar-buttons-menu'
+
+    def __init__(
+        self: "ToolBarDropDownMenu",
+        children: ToolBarMenu,
+    ) -> None:
+        """Construct the dropdown menu.
+
+        Inherits of ToolbarMenu and ChildrenMenu
+        """
+        ToolBarButtonMenu.__init__(self, None, type='buttons')
+        ChildrenMenu.__init__(self, children)
+        for child in children:
+            if isinstance(child, ChildrenMenu):
+                raise MenuError('ToolBarButtonsMenu menu can not be cascaded')
+
+
+class ToolBarButtonUrlMenu(ToolBarButtonMenu, ToolBarUrlMenu):
+    template_id = 'toolbar-button-url-menu'
+
+
 class AsideMenu(Menu):
     """Menu class for the aside menu page.
 

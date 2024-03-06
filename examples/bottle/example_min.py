@@ -13,6 +13,7 @@ from feretui import (
     FeretUI,
     Request,
     Session,
+    ToolBarButtonMenu,
     ToolBarDropDownMenu,
     ToolBarMenu,
 )
@@ -70,6 +71,12 @@ class MySession(Session, BottleSession):
 
 
 myferet = FeretUI()
+
+
+myferet.register_auth_menus([
+    ToolBarButtonMenu('Sign Up', page='signup', css_class="is-info"),
+    ToolBarButtonMenu('Log In', page='login'),
+])
 
 
 # /?page=hello
