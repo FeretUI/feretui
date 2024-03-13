@@ -12,32 +12,35 @@ with pytest.
 from tempfile import NamedTemporaryFile
 
 import pytest  # noqa: F401
+from wtforms import StringField
 
 from feretui.exceptions import TranslationError
 from feretui.feretui import FeretUI
+from feretui.form import FeretUIForm
 from feretui.menus import ToolBarMenu
 from feretui.thread import local
 from feretui.translation import (
     TranslatedFileTemplate,
-    TranslatedStringTemplate,
+    TranslatedForm,
     TranslatedMenu,
+    TranslatedStringTemplate,
     TranslatedTemplate,
-    translated_message,
     Translation,
+    translated_message,
 )
 
 
 class TestTranslation:
     """Test Translation."""
 
-    def test_translated_message_without_feretui(self):
+    def test_translated_message_without_feretui(self) -> None:
         """Test translated_message without feretui."""
         local.feretui = None
         mytranslation = translated_message('My translation')
         with pytest.raises(TranslationError):
             str(mytranslation)
 
-    def test_translated_message_without_args(self):
+    def test_translated_message_without_args(self) -> None:
         """Test translated_message without args."""
         myferet = FeretUI()
         local.feretui = myferet
@@ -45,7 +48,7 @@ class TestTranslation:
         mytranslation = translated_message('My translation')
         assert str(mytranslation) == "My translation"
 
-    def test_translated_message_with_args(self):
+    def test_translated_message_with_args(self) -> None:
         """Test translated_message without args."""
         myferet = FeretUI()
         local.feretui = myferet
@@ -54,38 +57,45 @@ class TestTranslation:
         assert str(mytranslation) == "My translation {foo}"
         assert mytranslation.format(foo='bar') == "My translation bar"
 
-    def test_translated_template(self):
+    def test_translated_template(self) -> None:
         """Test translated_message without feretui."""
         local.feretui = None
         mytranslation = TranslatedTemplate()
         assert str(mytranslation)
 
-    def test_translated_file_template(self):
+    def test_translated_file_template(self) -> None:
         """Test translated_message without feretui."""
         local.feretui = None
         mytranslation = TranslatedFileTemplate('/path/of/template')
         assert str(mytranslation)
 
-    def test_translated_page_template(self):
+    def test_translated_page_template(self) -> None:
         """Test translated_message without feretui."""
         local.feretui = None
         mytranslation = TranslatedStringTemplate('template')
         assert str(mytranslation)
 
-    def test_translated_menu(self):
+    def test_translated_menu(self) -> None:
         """Test translated_message without feretui."""
         local.feretui = None
         mytranslation = TranslatedMenu(ToolBarMenu('Test', page='test'))
         assert str(mytranslation)
 
-    def test_has_langs(self):
+    def test_translated_form(self) -> None:
+        """Test translated_message without feretui."""
+        local.feretui = None
+
+        mytranslation = TranslatedForm(FeretUIForm)
+        assert str(mytranslation)
+
+    def test_has_langs(self) -> None:
         """Test has_lang."""
         translation = Translation()
         assert translation.has_lang('a_lang') is False
         translation.langs.add('a_lang')
         assert translation.has_lang('a_lang') is True
 
-    def test_lang_setter_and_getter(self):
+    def test_lang_setter_and_getter(self) -> None:
         """Test setter and getter for the langs."""
         translation = Translation()
         assert translation.get_lang() == 'en'
@@ -93,7 +103,7 @@ class TestTranslation:
         assert translation.get_lang() == 'fr'
         translation.set_lang(lang='en')
 
-    def test_export_load_catalog(self):
+    def test_export_load_catalog(self) -> None:
         """Test export and Load catalog. from FeretUI."""
         myferet = FeretUI()
         local.feretui = myferet
@@ -101,7 +111,7 @@ class TestTranslation:
         translated_message('My translation')
         myferet.translation.add_translated_menu(
             TranslatedMenu(
-                ToolBarMenu('Test', page='test', tooltip='Test'))
+                ToolBarMenu('Test', page='test', tooltip='Test')),
         )
         myferet.translation.add_translated_menu(
             TranslatedMenu(ToolBarMenu('Test', page='test')),
@@ -119,14 +129,19 @@ class TestTranslation:
         """
         t2 = b"<template id='test2' extend='test'/>"
 
+        class MyForm(FeretUIForm):
+            name = StringField()
+
+        myferet.translation.add_translated_form(MyForm)
+
         with NamedTemporaryFile() as fpt:
             fpt.write(t1)
             fpt.seek(0)
             myferet.translation.add_translated_template(
-                TranslatedFileTemplate(fpt.name, addons='feretui')
+                TranslatedFileTemplate(fpt.name, addons='feretui'),
             )
             myferet.translation.add_translated_template(
-                TranslatedStringTemplate(t2, addons='feretui')
+                TranslatedStringTemplate(t2, addons='feretui'),
             )
 
             with NamedTemporaryFile() as fp:

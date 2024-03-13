@@ -6,45 +6,46 @@
 # v. 2.0. If a copy of the MPL was not distributed with this file,You can
 # obtain one at http://mozilla.org/MPL/2.0/.
 import pytest
+
 from feretui.exceptions import MenuError
 from feretui.feretui import FeretUI
 from feretui.menus import (
     AsideHeaderMenu,
     AsideMenu,
     AsideUrlMenu,
+    ToolBarButtonMenu,
+    ToolBarButtonsMenu,
+    ToolBarButtonUrlMenu,
     ToolBarDividerMenu,
     ToolBarDropDownMenu,
     ToolBarMenu,
     ToolBarUrlMenu,
-    ToolBarButtonsMenu,
-    ToolBarButtonMenu,
-    ToolBarButtonUrlMenu,
 )
-from feretui.session import Session
 from feretui.request import Request
+from feretui.session import Session
 from feretui.thread import local
 
 
 class TestMenu:
 
-    def test_ToolBarDividerMenu(self):
+    def test_ToolBarDividerMenu(self) -> None:
         myferet = FeretUI()
         session = Session()
         assert ToolBarDividerMenu().render(
             myferet, session) == '<hr class="navbar-divider">'
 
-    def test_ToolBarDropDownMenu_without_children(self):
+    def test_ToolBarDropDownMenu_without_children(self) -> None:
         with pytest.raises(MenuError):
             ToolBarDropDownMenu('Test')
 
-    def test_ToolBarDropDownMenu(self):
+    def test_ToolBarDropDownMenu(self) -> None:
         myferet = FeretUI()
         session = Session()
         request = Request(session=session)
         local.request = request
         assert ToolBarDropDownMenu(
             'Test',
-            children=[ToolBarMenu('Test', page='test')]
+            children=[ToolBarMenu('Test', page='test')],
         ).render(myferet, session) == (
             '<div class="navbar-item has-dropdown is-hoverable">\n'
             ' <a class="navbar-link">\n'
@@ -78,7 +79,7 @@ class TestMenu:
             '</div>'
         )
 
-    def test_ToolBarDropDownMenu_tooltip(self):
+    def test_ToolBarDropDownMenu_tooltip(self) -> None:
         myferet = FeretUI()
         session = Session()
         request = Request(session=session)
@@ -86,7 +87,7 @@ class TestMenu:
         assert ToolBarDropDownMenu(
             'Test',
             tooltip='Test',
-            children=[ToolBarMenu('Test', page='test')]
+            children=[ToolBarMenu('Test', page='test')],
         ).render(myferet, session) == (
             '<div class="navbar-item has-dropdown is-hoverable">\n'
             ' <a class="navbar-link">\n'
@@ -125,7 +126,7 @@ class TestMenu:
             '</div>'
         )
 
-    def test_ToolBarDropDownMenu_cascad(self):
+    def test_ToolBarDropDownMenu_cascad(self) -> None:
         with pytest.raises(MenuError):
             ToolBarDropDownMenu(
                 'Test',
@@ -133,17 +134,17 @@ class TestMenu:
                     ToolBarDropDownMenu(
                         'Test',
                         children=[
-                            ToolBarMenu('Test', page='test')
-                        ]
-                    )
-                ]
+                            ToolBarMenu('Test', page='test'),
+                        ],
+                    ),
+                ],
             )
 
-    def test_ToolBarMenu_without_qs(self):
+    def test_ToolBarMenu_without_qs(self) -> None:
         with pytest.raises(MenuError):
             ToolBarMenu('Test')
 
-    def test_ToolBarMenu(self):
+    def test_ToolBarMenu(self) -> None:
         myferet = FeretUI()
         session = Session()
         request = Request(session=session)
@@ -162,7 +163,7 @@ class TestMenu:
             '</a>'
         )
 
-    def test_ToolBarMenu_tooltip(self):
+    def test_ToolBarMenu_tooltip(self) -> None:
         myferet = FeretUI()
         session = Session()
         request = Request(session=session)
@@ -187,11 +188,11 @@ class TestMenu:
                 '</a>'
             )
 
-    def test_ToolBarMenu_with_children_kwargs(self):
+    def test_ToolBarMenu_with_children_kwargs(self) -> None:
         with pytest.raises(MenuError):
             ToolBarMenu('Test', page='test', children=[])
 
-    def test_ToolBarUrlMenu(self):
+    def test_ToolBarUrlMenu(self) -> None:
         myferet = FeretUI()
         session = Session()
         assert ToolBarUrlMenu(
@@ -211,7 +212,7 @@ class TestMenu:
             '</a>'
         )
 
-    def test_ToolBarUrlMenu_tooltip(self):
+    def test_ToolBarUrlMenu_tooltip(self) -> None:
         myferet = FeretUI()
         session = Session()
         assert ToolBarUrlMenu(
@@ -237,13 +238,13 @@ class TestMenu:
             '</a>'
         )
 
-    def test_ToolBarButtonsMenu(self):
+    def test_ToolBarButtonsMenu(self) -> None:
         myferet = FeretUI()
         session = Session()
         request = Request(session=session)
         local.request = request
         assert ToolBarButtonsMenu(
-            [ToolBarButtonMenu('Test', page='test')]
+            [ToolBarButtonMenu('Test', page='test')],
         ).render(myferet, session) == (
             '<div class="navbar-item">\n'
             ' <div class="buttons">\n'
@@ -266,15 +267,15 @@ class TestMenu:
             '</div>'
         )
 
-    def test_ToolBarButtonsMenu_cascad(self):
+    def test_ToolBarButtonsMenu_cascad(self) -> None:
         with pytest.raises(MenuError):
             ToolBarButtonsMenu([
                 ToolBarButtonsMenu([
-                    ToolBarButtonMenu('Test', page='test')
-                ])
+                    ToolBarButtonMenu('Test', page='test'),
+                ]),
             ])
 
-    def test_ToolBarButtonMenu(self):
+    def test_ToolBarButtonMenu(self) -> None:
         myferet = FeretUI()
         session = Session()
         request = Request(session=session)
@@ -293,7 +294,7 @@ class TestMenu:
                 '</a>'
         )
 
-    def test_ToolBarButtonMenu_tooltip(self):
+    def test_ToolBarButtonMenu_tooltip(self) -> None:
         myferet = FeretUI()
         session = Session()
         request = Request(session=session)
@@ -318,11 +319,11 @@ class TestMenu:
                 '</a>'
             )
 
-    def test_ToolBarButtonMenu_with_children_kwargs(self):
+    def test_ToolBarButtonMenu_with_children_kwargs(self) -> None:
         with pytest.raises(MenuError):
             ToolBarButtonMenu('Test', page='test', children=[])
 
-    def test_ToolBarButtonUrlMenu(self):
+    def test_ToolBarButtonUrlMenu(self) -> None:
         myferet = FeretUI()
         session = Session()
         assert ToolBarButtonUrlMenu(
@@ -342,7 +343,7 @@ class TestMenu:
             '</a>'
         )
 
-    def test_ToolBarButtonUrlMenu_tooltip(self):
+    def test_ToolBarButtonUrlMenu_tooltip(self) -> None:
         myferet = FeretUI()
         session = Session()
         assert ToolBarButtonUrlMenu(
@@ -368,18 +369,18 @@ class TestMenu:
             '</a>'
         )
 
-    def test_AsideHeaderMenu_without_children(self):
+    def test_AsideHeaderMenu_without_children(self) -> None:
         with pytest.raises(MenuError):
             AsideHeaderMenu('Test')
 
-    def test_AsideHeaderMenu(self):
+    def test_AsideHeaderMenu(self) -> None:
         myferet = FeretUI()
         session = Session()
         request = Request(session=session)
         local.request = request
         assert AsideHeaderMenu(
             'Test',
-            children=[AsideMenu('Test', page='test')]
+            children=[AsideMenu('Test', page='test')],
         ).render(myferet, session) == (
             '<div>\n'
             ' <p class="menu-label">\n'
@@ -417,7 +418,7 @@ class TestMenu:
             '</div>'
         )
 
-    def test_AsideHeaderMenu_tooltip(self):
+    def test_AsideHeaderMenu_tooltip(self) -> None:
         myferet = FeretUI()
         session = Session()
         request = Request(session=session)
@@ -425,7 +426,7 @@ class TestMenu:
         assert AsideHeaderMenu(
             'Test',
             tooltip='Test',
-            children=[AsideMenu('Test', page='test')]
+            children=[AsideMenu('Test', page='test')],
         ).render(myferet, session) == (
             '<div>\n'
             ' <p class="menu-label">\n'
@@ -468,7 +469,7 @@ class TestMenu:
             '</div>'
         )
 
-    def test_AsideHeaderMenu_cascade(self):
+    def test_AsideHeaderMenu_cascade(self) -> None:
         myferet = FeretUI()
         session = Session()
         assert AsideHeaderMenu(
@@ -476,9 +477,9 @@ class TestMenu:
             children=[
                 AsideHeaderMenu(
                     'Test',
-                    children=[AsideMenu('Test', page='test')]
-                )
-            ]
+                    children=[AsideMenu('Test', page='test')],
+                ),
+            ],
         ).render(myferet, session) == (
             '<div>\n'
             ' <p class="menu-label">\n'
@@ -539,11 +540,11 @@ class TestMenu:
             '</div>'
         )
 
-    def test_AsideMenu_without_qs(self):
+    def test_AsideMenu_without_qs(self) -> None:
         with pytest.raises(MenuError):
             AsideMenu('Test')
 
-    def test_AsideMenu(self):
+    def test_AsideMenu(self) -> None:
         myferet = FeretUI()
         session = Session()
         request = Request(session=session)
@@ -562,13 +563,13 @@ class TestMenu:
             '</a>'
         )
 
-    def test_AsideMenu_tooltip(self):
+    def test_AsideMenu_tooltip(self) -> None:
         myferet = FeretUI()
         session = Session()
         request = Request(session=session)
         local.request = request
         assert AsideMenu(
-            'Test', page='test', tooltip="Test"
+            'Test', page='test', tooltip="Test",
         ).render(myferet, session) == (
             '<a class="menu-label" hx-get="/feretui/action/goto?page=test&amp;in-aside=" hx-swap="innerHTML" hx-target="#feretui-aside-body">\n'
             ' <span>\n'
@@ -588,11 +589,11 @@ class TestMenu:
             '</a>'
         )
 
-    def test_AsideMenu_with_children_kwargs(self):
+    def test_AsideMenu_with_children_kwargs(self) -> None:
         with pytest.raises(MenuError):
             AsideMenu('Test', page='test', children=[])
 
-    def test_AsideUrlMenu(self):
+    def test_AsideUrlMenu(self) -> None:
         myferet = FeretUI()
         session = Session()
         assert AsideUrlMenu(
@@ -612,7 +613,7 @@ class TestMenu:
             '</a>'
         )
 
-    def test_AsideUrlMenu_tooltip(self):
+    def test_AsideUrlMenu_tooltip(self) -> None:
         myferet = FeretUI()
         session = Session()
         assert AsideUrlMenu(

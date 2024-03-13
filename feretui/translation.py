@@ -404,7 +404,7 @@ class Translation:
             (lang, poentry.msgctxt, poentry.msgid)
         ] = poentry.msgstr if poentry.msgstr else poentry.msgid
 
-    def get(self: "Translation", lang: str, context: str, message: str) -> str:
+    def get(self: "Translation", lang: str, context: str, message: str, message_as_default=True) -> str:
         """Get the translated message from translations.
 
         :param lang: The language code
@@ -416,7 +416,7 @@ class Translation:
         :return: The translated message
         :rtype: str
         """
-        return self.translations.get((lang, context, message), message)
+        return self.translations.get((lang, context, message), message if message_as_default else None)
 
     def define(self: "Translation", context: str, message: str) -> POEntry:
         """Create a POEntry for a message.
