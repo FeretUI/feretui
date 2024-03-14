@@ -262,7 +262,7 @@ class TestFeretUI:
     def test_register_form(self) -> None:
         myferet = FeretUI()
 
-        @myferet.register_form
+        @myferet.register_form()
         class MyForm(FeretUIForm):
             pass
 

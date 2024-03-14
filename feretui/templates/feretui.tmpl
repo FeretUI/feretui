@@ -110,7 +110,7 @@
   </template>
   <template id="feretui-input-field">
     <div class="field">
-      <label class="label">{{ label }}</label>
+      {{ label(class="label") }}
       <div class="control">
         {{ widget }}
       </div>
@@ -125,7 +125,7 @@
     <div class="field">
       <label class="checkbox">
         {{ widget }}
-        {{ label }}
+        {{ label.text }}
       </label>
       {% if errors %}
       <p class="help is-danger">

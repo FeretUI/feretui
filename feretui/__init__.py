@@ -183,15 +183,26 @@ The helpers to register or get them are:
 * :meth:`feretui.feretui.FeretUI.get_aside_menus`.
 
 
+The client FeretUI add WTForm mecanism. The goal is to display easily
+formulaire in the pages and validate the entry in the actions.
+
+To link the form with the translation and the bulma renderer you must inherit
+:class:`feretui.form.FeretUIForm`.
+
+If you need to register a password you must use the validator
+:class:`feretui.form.Password`
+
+
 The client FeretUI add translation mechanism. This mecanism can be declared
 with addon's name attribute. This attribute is used to extract the translation
 of FeretUI or an additionnal project. The translated object are:
 
 * :class:`feretui.translation.TranslatedMessage`
-* :class:`feretui.translation.TranslatedTemplate`
 * :class:`feretui.translation.TranslatedFileTemplate`
-* :class:`feretui.translation.TranslatedStringTemplate`
+* :class:`feretui.translation.TranslatedForm`
 * :class:`feretui.translation.TranslatedMenu`
+* :class:`feretui.translation.TranslatedStringTemplate`
+* :class:`feretui.translation.TranslatedTemplate`
 
 To export the translation, the console script *export-feretui-catalog* extract
 all the translation messages in pot file.
@@ -217,7 +228,7 @@ all the translation messages in pot file.
 
 """
 from feretui.feretui import FeretUI  # noqa : F401
-from feretui.form import FeretUIForm  # noqa : F401
+from feretui.form import FeretUIForm, Password  # noqa : F401
 from feretui.helper import action_validator  # noqa : F401
 from feretui.menus import (  # noqa : F401
     ToolBarButtonMenu,

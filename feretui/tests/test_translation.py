@@ -132,7 +132,7 @@ class TestTranslation:
         class MyForm(FeretUIForm):
             name = StringField()
 
-        myferet.translation.add_translated_form(MyForm)
+        myferet.translation.add_translated_form(TranslatedForm(MyForm))
 
         with NamedTemporaryFile() as fpt:
             fpt.write(t1)

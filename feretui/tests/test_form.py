@@ -5,11 +5,14 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License,
 # v. 2.0. If a copy of the MPL was not distributed with this file,You can
 # obtain one at http://mozilla.org/MPL/2.0/.
+from pathlib import Path
+
 import pytest
 from multidict import MultiDict
 from wtforms import BooleanField, StringField
 from wtforms.validators import InputRequired, Length, ValidationError
 
+import feretui
 from feretui.feretui import FeretUI
 from feretui.form import FeretUIForm, Password
 from feretui.request import Request
@@ -45,7 +48,16 @@ class TestForm:
             name = StringField()
 
         myform = MyForm()
-        assert myform.name() == ''
+        assert myform.name() == (
+            '<div class="field">\n'
+            ' <label class="label" for="name">Name</label>\n'
+            ' <div class="control">\n'
+            '  <input class="input " id="name" name="name" type="text" '
+            'value="">\n'
+            ' </div>\n'
+            ' \n'
+            '</div>'
+        )
 
     def test_form_render_field_translation(self) -> None:
         myferet = FeretUI()
@@ -62,7 +74,16 @@ class TestForm:
             ('fr', f'form:{MyForm.__module__}:{MyForm.__name__}', 'Name')
         ] = 'Nom'
         myform = MyForm()
-        assert myform.name() == ''
+        assert myform.name() == (
+            '<div class="field">\n'
+            ' <label class="label" for="name">Nom</label>\n'
+            ' <div class="control">\n'
+            '  <input class="input " id="name" name="name" type="text" '
+            'value="">\n'
+            ' </div>\n'
+            ' \n'
+            '</div>'
+        )
 
     def test_form_render_field_render_kw(self) -> None:
         myferet = FeretUI()
@@ -76,7 +97,16 @@ class TestForm:
             name = StringField(render_kw={'foo': 'bar'})
 
         myform = MyForm()
-        assert myform.name() == ''
+        assert myform.name() == (
+            '<div class="field">\n'
+            ' <label class="label" for="name">Name</label>\n'
+            ' <div class="control">\n'
+            '  <input class="input " foo="bar" id="name" name="name" '
+            'type="text" value="">\n'
+            ' </div>\n'
+            ' \n'
+            '</div>'
+        )
 
     def test_form_render_field_with_errors(self) -> None:
         myferet = FeretUI()
@@ -91,7 +121,20 @@ class TestForm:
 
         myform = MyForm()
         myform.validate()
-        assert myform.name() == ''
+        assert myform.name() == (
+            '<div class="field">\n'
+            ' <label class="label" for="name">Name</label>\n'
+            ' <div class="control">\n'
+            '  <input class="input is-danger " id="name" name="name" required '
+            'type="text" value="">\n'
+            ' </div>\n'
+            ' \n'
+            ' <p class="help is-danger">\n'
+            '  This field is required.\n'
+            ' </p>\n'
+            ' \n'
+            '</div>'
+        )
 
     def test_form_render_field_required(self) -> None:
         myferet = FeretUI()
@@ -106,7 +149,51 @@ class TestForm:
 
         myform = MyForm(MultiDict(name='test'))
         myform.validate()
-        assert myform.name() == ''
+        assert myform.name() == (
+            '<div class="field">\n'
+            ' <label class="label" for="name">Name</label>\n'
+            ' <div class="control">\n'
+            '  <input class="input is-link " id="name" name="name" required '
+            'type="text" value="test">\n'
+            ' </div>\n'
+            ' \n'
+            '</div>'
+        )
+
+    def test_form_render_field_password(self) -> None:
+        myferet = FeretUI()
+
+        path = Path(feretui.__file__).parent
+        path = path / 'locale' / 'fr.po'
+        myferet.load_catalog(path, 'fr')
+
+        local.feretui = myferet
+        session = Session()
+        request = Request(session=session)
+        local.request = request
+        local.lang = 'fr'
+
+        class MyForm(FeretUIForm):
+            password = StringField(validators=[Password()])
+
+        myform = MyForm()
+        myform.validate()
+        assert myform.password() == (
+            '<div class="field">\n'
+            ' <label class="label" for="password">Password</label>\n'
+            ' <div class="control">\n'
+            '  <input class="input is-danger " id="password" name="password" '
+            'type="text" value="">\n'
+            ' </div>\n'
+            ' \n'
+            ' <p class="help is-danger">\n'
+            '  Le mot de passe doit contenir plus de 12 caractères, avec des '
+            'minuscules, avec des majuscules, avec des chiffres, avec des '
+            'caractères spéciaux, sans espaces.\n'
+            ' </p>\n'
+            ' \n'
+            '</div>'
+        )
 
     def test_form_render_field_length_1(self) -> None:
         myferet = FeretUI()
@@ -121,7 +208,20 @@ class TestForm:
 
         myform = MyForm(MultiDict(name='test'))
         myform.validate()
-        assert myform.name() == ''
+        assert myform.name() == (
+            '<div class="field">\n'
+            ' <label class="label" for="name">Name</label>\n'
+            ' <div class="control">\n'
+            '  <input class="input is-danger " id="name" maxlength="1" '
+            'name="name" type="text" value="test">\n'
+            ' </div>\n'
+            ' \n'
+            ' <p class="help is-danger">\n'
+            '  Field cannot be longer than 1 character.\n'
+            ' </p>\n'
+            ' \n'
+            '</div>'
+        )
 
     def test_form_render_field_length_2(self) -> None:
         myferet = FeretUI()
@@ -136,7 +236,20 @@ class TestForm:
 
         myform = MyForm(MultiDict(name='test'))
         myform.validate()
-        assert myform.name() == ''
+        assert myform.name() == (
+            '<div class="field">\n'
+            ' <label class="label" for="name">Name</label>\n'
+            ' <div class="control">\n'
+            '  <input class="input is-danger " id="name" maxlength="0" '
+            'name="name" type="text" value="test">\n'
+            ' </div>\n'
+            ' \n'
+            ' <p class="help is-danger">\n'
+            '  Field cannot be longer than 0 characters.\n'
+            ' </p>\n'
+            ' \n'
+            '</div>'
+        )
 
     def test_form_render_bool(self) -> None:
         myferet = FeretUI()
@@ -150,7 +263,15 @@ class TestForm:
             test = BooleanField()
 
         myform = MyForm()
-        assert myform.test() == ''
+        assert myform.test() == (
+            '<div class="field">\n'
+            ' <label class="checkbox">\n'
+            '  <input id="test" name="test" type="checkbox" value="y">\n'
+            '        Test\n'
+            ' </label>\n'
+            ' \n'
+            '</div>'
+        )
 
     def test_add_translation(self) -> None:
         FeretUIForm.register_translation('One test')

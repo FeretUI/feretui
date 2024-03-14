@@ -3,13 +3,19 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.0.1\n"
 "POT-Creation-Date: 2024-03-14T11:14:40.631639\n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Poedit 3.2.2\n"
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Not a valid integer value."
-msgstr ""
+msgstr "N'est pas un entier."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Not a valid decimal value."
@@ -49,10 +55,6 @@ msgstr ""
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Invalid choice(s): one or more data inputs could not be coerced."
-msgstr ""
-
-msgctxt "form:feretui.form:FeretUIForm"
-msgid "Choices cannot be None."
 msgstr ""
 
 msgctxt "form:feretui.form:FeretUIForm"
@@ -125,10 +127,6 @@ msgstr ""
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Number must be between %(min)s and %(max)s."
-msgstr ""
-
-msgctxt "form:feretui.form:FeretUIForm"
-msgid "This field is required."
 msgstr ""
 
 msgctxt "form:feretui.form:FeretUIForm"
@@ -240,76 +238,72 @@ msgid "Time must be between %(min)s and %(max)s."
 msgstr ""
 
 msgctxt "form:feretui.form:FeretUIForm"
-msgid "Invalid email address."
-msgstr ""
-
-msgctxt "form:feretui.form:FeretUIForm"
 msgid "This field contains invalid JSON"
-msgstr ""
+msgstr "Ce champs contient un JSON invalide"
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "The password should have {msg}."
-msgstr ""
+msgstr "Le mot de passe doit contenir {msg}."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "more than {min_size} caractere"
-msgstr ""
+msgstr "plus de {min_size} caractères"
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "less than {max_size} caractere"
-msgstr ""
+msgstr "moins de {max_size} caractères"
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "with lowercase"
-msgstr ""
+msgstr "avec des minuscules"
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "without lowercase"
-msgstr ""
+msgstr "sans minuscules"
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "with uppercase"
-msgstr ""
+msgstr "avec des majuscules"
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "without uppercase"
-msgstr ""
+msgstr "sans majuscules"
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "with digits"
-msgstr ""
+msgstr "avec des chiffres"
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "without digits"
-msgstr ""
+msgstr "sans chiffres"
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "with symbols"
-msgstr ""
+msgstr "avec des caractères spéciaux"
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "without symbols"
-msgstr ""
+msgstr "sans caractères spéciaux"
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "with spaces"
-msgstr ""
+msgstr "avec des espaces"
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "without spaces"
-msgstr ""
+msgstr "sans espaces"
 
 msgctxt "template:feretui-client-header:a:data-tooltip"
 msgid "Go to the homepage"
-msgstr ""
+msgstr "Aller à la page d'accueil"
 
 msgctxt "template:feretui-client-footer"
 msgid "feretUI"
-msgstr ""
+msgstr "FeretUI"
 
 msgctxt "template:feretui-client-footer"
 msgid "by Js Suzanne."
-msgstr ""
+msgstr "par Jean-Sébastien Suzanne."
 
 msgctxt "template:feretui-tooltip:span:data-tooltip"
 msgid "{{ tooltip }}"
@@ -317,31 +311,31 @@ msgstr ""
 
 msgctxt "template:feretui-page-404"
 msgid "Page not found"
-msgstr ""
+msgstr "Page non trouvée"
 
 msgctxt "template:feretui-page-404"
 msgid "The page \""
-msgstr ""
+msgstr "La page \""
 
 msgctxt "template:feretui-page-404"
 msgid "\" is not a declared page"
-msgstr ""
+msgstr "\" n'est pas déclarée"
 
 msgctxt "template:feretui-page-forbidden"
 msgid "This page is forbidden"
-msgstr ""
+msgstr "Cette page n'est pas autorisée"
 
 msgctxt "template:feretui-page-forbidden"
 msgid "The page \""
-msgstr ""
+msgstr "La page \""
 
 msgctxt "template:feretui-page-forbidden"
 msgid "\" is forbidden."
-msgstr ""
+msgstr "\" n'est pas autorisée."
 
 msgctxt "template:feretui-page-homepage"
 msgid "Welcome to the FeretUI's client"
-msgstr ""
+msgstr "Bienvenue sur le client FeretUI"
 
 msgctxt "template:feretui-page-homepage"
 msgid "Small and modular web client to administrate your service"

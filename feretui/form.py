@@ -60,13 +60,15 @@ class FormTranslations:
         translation = local.feretui.translation
         lang = local.lang
         for form_cls in self.form.__class__.__mro__:
-            context = f'form:{form_cls.__module__}:{form_cls.__name__}'
-
-            res = translation.get(
-                lang, context, string, message_as_default=False)
-
-            if res is not None:
-                return res
+            if hasattr(form_cls, 'get_context'):
+                res = translation.get(
+                    lang,
+                    form_cls.get_context(),
+                    string,
+                    message_as_default=False,
+                )
+                if res is not None:
+                    return res
 
         return string
 
@@ -84,10 +86,81 @@ class FeretUIForm(Form):
         RadioField: wrap_bool,
     }
     DEFAULT_WRAPPER = wrap_input
+    TRANSLATED_MESSAGES = [
+        # From WTForms
+        "Not a valid integer value.",
+        "Not a valid decimal value.",
+        "Not a valid float value.",
+        "Not a valid datetime value.",
+        "Not a valid date value.",
+        "Not a valid time value.",
+        "Not a valid week value.",
+        "Invalid Choice: could not coerce.",
+        "Choices cannot be None.",
+        "Not a valid choice.",
+        "Invalid choice(s): one or more data inputs could not be coerced.",
+        "Choices cannot be None.",
+        "'%(value)s' is not a valid choice for this field.",
+        "'%(value)s' are not valid choices for this field.",
+        "Invalid CSRF Token.",
+        "CSRF token missing.",
+        "CSRF failed.",
+        "CSRF token expired.",
+        "Invalid field name '%s'.",
+        "Field must be equal to %(other_name)s.",
+        "Field must be at least %(min)d character long.",
+        "Field must be at least %(min)d characters long.",
+        "Field cannot be longer than %(max)d character.",
+        "Field cannot be longer than %(max)d characters.",
+        "Field must be exactly %(max)d character long.",
+        "Field must be exactly %(max)d characters long.",
+        "Field must be between %(min)d and %(max)d characters long.",
+        "Number must be at least %(min)s.",
+        "Number must be at most %(max)s.",
+        "Number must be between %(min)s and %(max)s.",
+        "This field is required.",
+        "This field is required.",
+        "Invalid input.",
+        "Invalid email address.",
+        "Invalid IP address.",
+        "Invalid Mac address.",
+        "Invalid URL.",
+        "Invalid UUID.",
+        "Invalid value, must be one of: %(values)s.",
+        "Invalid value, can't be any of: %(values)s.",
+        "This field cannot be edited",
+        "This field is disabled and cannot have a value",
+        # From WTForms Components
+        'Not a valid time.',
+        'Not a valid decimal range value',
+        'Not a valid float range value',
+        'Not a valid int range value',
+        'Not a valid date range value',
+        'Not a valid datetime range value',
+        'Not a valid choice',
+        'Not a valid color.',
+        'Invalid choice(s): one or more data inputs could not be coerced',
+        "'%(value)s' is not a valid choice for this field",
+        'Date must be greater than %(min)s.',
+        'Date must be less than %(max)s.',
+        'Date must be between %(min)s and %(max)s.',
+        'Time must be greater than %(min)s.',
+        'Time must be less than %(max)s.',
+        'Time must be between %(min)s and %(max)s.',
+        'Invalid email address.',
+        'This field contains invalid JSON',
+    ]
 
     @classmethod
-    def register_translation(cls, txt) -> None:
-        pass
+    def register_translation(cls, message) -> None:
+        if message not in FeretUIForm.TRANSLATED_MESSAGES:
+            FeretUIForm.TRANSLATED_MESSAGES.append(message)
+
+        return message
+
+    @classmethod
+    def get_context(cls) -> str:
+        return f'form:{cls.__module__}:{cls.__name__}'
 
     class Meta:
 
@@ -107,32 +180,24 @@ class FeretUIForm(Form):
             return FormTranslations(form)
 
 
-PasswordInvalid = 'The password should have {msg}.'
-FeretUIForm.register_translation(PasswordInvalid)
-PasswordMinSize = 'more than {min_size} caractere'
-FeretUIForm.register_translation(PasswordMinSize)
-PasswordMaxSize = 'less than {max_size} caractere'
-FeretUIForm.register_translation(PasswordMaxSize)
-PasswordWithLowerCase = 'with lowercase'
-FeretUIForm.register_translation(PasswordWithLowerCase)
-PasswordWithoutLowerCase = 'without lowercase'
-FeretUIForm.register_translation(PasswordWithoutLowerCase)
-PasswordWithUpperCase = 'with uppercase'
-FeretUIForm.register_translation(PasswordWithUpperCase)
-PasswordWithoutUpperCase = 'without uppercase'
-FeretUIForm.register_translation(PasswordWithoutUpperCase)
-PasswordWithDigits = 'with digits'
-FeretUIForm.register_translation(PasswordWithDigits)
-PasswordWithoutDigits = 'without digits'
-FeretUIForm.register_translation(PasswordWithoutDigits)
-PasswordWithSymbols = 'with symbols'
-FeretUIForm.register_translation(PasswordWithSymbols)
-PasswordWithoutSymbols = 'without symbols'
-FeretUIForm.register_translation(PasswordWithoutSymbols)
-PasswordWithSpaces = 'with spaces'
-FeretUIForm.register_translation(PasswordWithSpaces)
-PasswordWithoutSpaces = 'without spaces'
-FeretUIForm.register_translation(PasswordWithoutSpaces)
+PasswordInvalid = FeretUIForm.register_translation(
+    'The password should have {msg}.')
+PasswordMinSize = FeretUIForm.register_translation(
+    'more than {min_size} caractere')
+PasswordMaxSize = FeretUIForm.register_translation(
+    'less than {max_size} caractere')
+PasswordWithLowerCase = FeretUIForm.register_translation('with lowercase')
+PasswordWithoutLowerCase = FeretUIForm.register_translation(
+    'without lowercase')
+PasswordWithUpperCase = FeretUIForm.register_translation('with uppercase')
+PasswordWithoutUpperCase = FeretUIForm.register_translation(
+    'without uppercase')
+PasswordWithDigits = FeretUIForm.register_translation('with digits')
+PasswordWithoutDigits = FeretUIForm.register_translation('without digits')
+PasswordWithSymbols = FeretUIForm.register_translation('with symbols')
+PasswordWithoutSymbols = FeretUIForm.register_translation('without symbols')
+PasswordWithSpaces = FeretUIForm.register_translation('with spaces')
+PasswordWithoutSpaces = FeretUIForm.register_translation('without spaces')
 
 
 class Password:
