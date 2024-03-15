@@ -5,9 +5,11 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License,
 # v. 2.0. If a copy of the MPL was not distributed with this file,You can
 # obtain one at http://mozilla.org/MPL/2.0/.
+from typing import Any
+
 from markupsafe import Markup
 from password_validator import PasswordValidator
-from wtforms.fields import BooleanField, RadioField
+from wtforms.fields import BooleanField, Field, RadioField
 from wtforms.form import Form
 from wtforms.validators import InputRequired, ValidationError
 from wtforms.widgets.core import clean_key
@@ -15,17 +17,26 @@ from wtforms.widgets.core import clean_key
 from feretui.thread import local
 
 
-def wrap_input(field, **kwargs):
+def wrap_input(field: Field, **kwargs: dict) -> Markup:
+    """Render input field.
+
+    :param field: The field to validate
+    :type field: Field_
+    :return: The renderer of the widget as html.
+    :rtype: Markup_
+    """
     myferet = local.feretui
     session = local.request.session
 
     input_class = ["input"]
+    required = False
     if field.errors:
         input_class.append("is-danger")
     else:
         for validator in field.validators:
             if isinstance(validator, InputRequired):
                 input_class.append("is-link")
+                required = True
 
     c = kwargs.pop('class', '') or kwargs.pop('class_', '')
     kwargs['class'] = '{} {}'.format(' '.join(input_class), c)
@@ -34,11 +45,20 @@ def wrap_input(field, **kwargs):
         "feretui-input-field",
         label=field.label,
         widget=field.widget(field, **kwargs),
+        required=required,
+        tooltip=field.gettext(field.description),
         errors=field.errors,
     ))
 
 
-def wrap_bool(field, **kwargs):
+def wrap_bool(field: "Field", **kwargs: dict) -> Markup:
+    """Render boolean field.
+
+    :param field: The field to validate
+    :type field: Field_
+    :return: The renderer of the widget as html.
+    :rtype: Markup_
+    """
     myferet = local.feretui
     session = local.request.session
 
@@ -47,16 +67,20 @@ def wrap_bool(field, **kwargs):
         "feretui-bool-field",
         label=field.label,
         widget=field.widget(field, **kwargs),
+        tooltip=field.gettext(field.description),
         errors=field.errors,
     ))
 
 
 class FormTranslations:
+    """Class who did the link between Form and FeretUI translations."""
 
-    def __init__(self, form) -> None:
+    def __init__(self: "FormTranslations", form: "FeretUIForm") -> None:
+        """FormTranslations class."""
         self.form = form
 
-    def gettext(self, string):
+    def gettext(self: "FormTranslations", string: str) -> str:
+        """Return the translation."""
         translation = local.feretui.translation
         lang = local.lang
         for form_cls in self.form.__class__.__mro__:
@@ -72,7 +96,13 @@ class FormTranslations:
 
         return string
 
-    def ngettext(self, singular, plural, n):
+    def ngettext(
+        self: "FormTranslations",
+        singular: str,
+        plural: str,
+        n: int,
+    ) -> str:
+        """Return the translation."""
         if n == 1:
             return self.gettext(singular)
 
@@ -80,6 +110,22 @@ class FormTranslations:
 
 
 class FeretUIForm(Form):
+    """Form base class.
+
+    The goal is to give at the Form used by FeretUI the behaviour like:
+
+    * translation
+    * bulma renderer
+
+    It is not required to used it. If the translation or the renderer is not
+    automaticly done by FeretUI.
+
+    ::
+
+        class MyForm(FeretUIForm):
+            name = StringField()
+
+    """
 
     WRAPPERS = {
         BooleanField: wrap_bool,
@@ -99,7 +145,6 @@ class FeretUIForm(Form):
         "Choices cannot be None.",
         "Not a valid choice.",
         "Invalid choice(s): one or more data inputs could not be coerced.",
-        "Choices cannot be None.",
         "'%(value)s' is not a valid choice for this field.",
         "'%(value)s' are not valid choices for this field.",
         "Invalid CSRF Token.",
@@ -118,7 +163,6 @@ class FeretUIForm(Form):
         "Number must be at least %(min)s.",
         "Number must be at most %(max)s.",
         "Number must be between %(min)s and %(max)s.",
-        "This field is required.",
         "This field is required.",
         "Invalid input.",
         "Invalid email address.",
@@ -147,24 +191,43 @@ class FeretUIForm(Form):
         'Time must be greater than %(min)s.',
         'Time must be less than %(max)s.',
         'Time must be between %(min)s and %(max)s.',
-        'Invalid email address.',
         'This field contains invalid JSON',
     ]
 
     @classmethod
-    def register_translation(cls, message) -> None:
+    def register_translation(cls: "FeretUIForm", message: str) -> str:
+        """Register a translation come from validator.
+
+        Some text is defined in the validator or WTForm_ addons. They
+        can not be export easily. This register give the possibility for
+        the devloper to define their.
+        """
         if message not in FeretUIForm.TRANSLATED_MESSAGES:
             FeretUIForm.TRANSLATED_MESSAGES.append(message)
 
         return message
 
     @classmethod
-    def get_context(cls) -> str:
+    def get_context(cls: "FeretUIForm") -> str:
+        """Return the context for the translation."""
         return f'form:{cls.__module__}:{cls.__name__}'
 
     class Meta:
+        """Meta class.
 
-        def render_field(self, field, render_kw):
+        Added
+        * Translation
+        * Bulma render
+        """
+
+        def render_field(self: Any, field: Field, render_kw: dict) -> Markup:
+            """Render the field.
+
+            :param field: The field to render
+            :type field: Field_
+            :return: The renderer of the widget as html.
+            :rtype: Markup_
+            """
             render_kw = {clean_key(k): v for k, v in render_kw.items()}
 
             other_kw = getattr(field, "render_kw", None)
@@ -176,7 +239,17 @@ class FeretUIForm(Form):
                 field.__class__, FeretUIForm.DEFAULT_WRAPPER)
             return wrapper(field, **render_kw)
 
-        def get_translations(self, form):
+        def get_translations(
+            self: Any,
+            form: "FeretUIForm",
+        ) -> FormTranslations:
+            """Return Translation class.
+
+            :param form: The form instance
+            :type form: :class:`.FeretUIForm`
+            :return: The translation class to link feretui translation.
+            :rtype: :class:`.FormTranslations`
+            """
             return FormTranslations(form)
 
 
@@ -192,6 +265,8 @@ PasswordWithoutLowerCase = FeretUIForm.register_translation(
 PasswordWithUpperCase = FeretUIForm.register_translation('with uppercase')
 PasswordWithoutUpperCase = FeretUIForm.register_translation(
     'without uppercase')
+PasswordWithLetters = FeretUIForm.register_translation('with letters')
+PasswordWithoutLetters = FeretUIForm.register_translation('without letters')
 PasswordWithDigits = FeretUIForm.register_translation('with digits')
 PasswordWithoutDigits = FeretUIForm.register_translation('without digits')
 PasswordWithSymbols = FeretUIForm.register_translation('with symbols')
@@ -201,16 +276,72 @@ PasswordWithoutSpaces = FeretUIForm.register_translation('without spaces')
 
 
 class Password:
+    """Password validator.
+
+    It is a generic validator for WTForm_. It is based on the library
+    `password-validator
+    <https://github.com/tarunbatra/password-validator-python>`_.
+
+    ::
+
+        class MyForm(Form):
+            password = PasswordField(validators=[Password()])
+
+    :param min_size: The minimal size of the password. If None then
+                     no minimal size.
+    :type min_size: int
+    :param max_size: The maximal size. If None then no maximal size.
+    :type max_size: int
+    :param has_lowercase: If True the password must have one or more
+                          lowercase.
+                          If False the password must not have any
+                          lowercase
+                          If None no rule on the lowercase
+    :type has_lowercase: bool
+    :param has_uppercase: If True the password must have one or more
+                          uppercase.
+                          If False the password must not have any
+                          uppercase
+                          If None no rule on the uppercase
+    :type has_uppercase: bool
+    :param has_letters: If True the password must have one or more
+                        letters.
+                        If False the password must not have any
+                        letters
+                        If None no rule on the letters
+    :type has_letters: bool
+    :param has_digits: If True the password must have one or more
+                       digits.
+                       If False the password must not have any
+                       digits
+                       If None no rule on the digits
+    :type has_digits: bool
+    :param has_symbols: If True the password must have one or more
+                        symbols.
+                        If False the password must not have any
+                        symbols
+                        If None no rule on the symbols
+    :type has_symbols: bool
+    :param has_spaces: If True the password must have one or more
+                       spaces.
+                       If False the password must not have any
+                       spaces
+                       If None no rule on the spaces
+    :type has_spaces: bool
+    """
+
     def __init__(
-        self,
+        self: "Password",
         min_size: int = 12,
         max_size: int = None,
         has_lowercase: bool = True,
         has_uppercase: bool = True,
+        has_letters: bool = True,
         has_digits: bool = True,
         has_symbols: bool = True,
         has_spaces: bool = False,
     ) -> None:
+        """Password class."""
         self.schema = PasswordValidator()
         self.waiting = []
         if min_size:
@@ -227,72 +358,40 @@ class Password:
                 {"max_size": max_size},
             ))
 
-        if has_lowercase:
-            self.schema.has().lowercase()
-            self.waiting.append((
-                PasswordWithLowerCase,
-                {},
-            ))
-        else:
-            self.schema.has().no().lowercase()
-            self.waiting.append((
-                PasswordWithoutLowerCase,
-                {},
-            ))
+        for has, attr, true_msg, false_msg in (
+            (has_lowercase, 'lowercase', PasswordWithLowerCase,
+             PasswordWithoutLowerCase),
+            (has_uppercase, 'uppercase', PasswordWithUpperCase,
+             PasswordWithoutUpperCase),
+            (has_letters, 'letters', PasswordWithLetters,
+             PasswordWithoutLetters),
+            (has_digits, 'digits', PasswordWithDigits,
+             PasswordWithoutDigits),
+            (has_symbols, 'symbols', PasswordWithSymbols,
+             PasswordWithoutSymbols),
+            (has_spaces, 'spaces', PasswordWithSpaces,
+             PasswordWithoutSpaces),
+        ):
+            if has is True:
+                getattr(self.schema.has(), attr)()
+                self.waiting.append((true_msg, {}))
+            elif has is False:
+                getattr(self.schema.has(), attr)()
+                self.waiting.append((false_msg, {}))
 
-        if has_uppercase:
-            self.schema.has().uppercase()
-            self.waiting.append((
-                PasswordWithUpperCase,
-                {},
-            ))
-        else:
-            self.schema.has().no().uppercase()
-            self.waiting.append((
-                PasswordWithoutUpperCase,
-                {},
-            ))
+    def __call__(
+        self: "PasswordWithoutSpaces",
+        form: Form,  # noqa: ARG002
+        field: Field,
+    ) -> None:
+        """Validate if the field is a valid password.
 
-        if has_digits:
-            self.schema.has().digits()
-            self.waiting.append((
-                PasswordWithDigits,
-                {},
-            ))
-        else:
-            self.schema.has().no().digits()
-            self.waiting.append((
-                PasswordWithoutDigits,
-                {},
-            ))
-
-        if has_symbols:
-            self.schema.has().symbols()
-            self.waiting.append((
-                PasswordWithSymbols,
-                {},
-            ))
-        else:
-            self.schema.has().no().symbols()
-            self.waiting.append((
-                PasswordWithoutSymbols,
-                {},
-            ))
-
-        if has_spaces:
-            self.schema.has().spaces()
-            self.waiting.append((
-                PasswordWithSpaces,
-                {},
-            ))
-        else:
-            self.schema.has().no().spaces()
-            self.waiting.append((
-                PasswordWithoutSpaces,
-                {},
-            ))
-
-    def __call__(self, form, field):
+        :param form: A WTForm
+        :type form: Form_
+        :param field: The field to validate
+        :type field: Field_
+        :exception': ValidationError_
+        """
         if not self.schema.validate(field.data):
             msg = field.gettext(PasswordInvalid).format(
                 msg=', '.join(

@@ -35,6 +35,8 @@ import json
 import urllib
 from typing import Any
 
+from multidict import MultiDict
+
 from feretui.exceptions import (
     RequestNoSessionError,
     RequestWrongSessionError,
@@ -100,7 +102,7 @@ class Request:
 
         if self.raw_body:
             try:
-                self.body = json.loads(self.raw_body)
+                self.body = MultiDict(json.loads(self.raw_body))
             except Exception:
                 self.body = {}
 

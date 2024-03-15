@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: 0.0.1\n"
-"POT-Creation-Date: 2024-03-14T11:14:40.631639\n"
+"POT-Creation-Date: 2024-03-15T22:27:21.141910\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -49,10 +49,6 @@ msgstr ""
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Invalid choice(s): one or more data inputs could not be coerced."
-msgstr ""
-
-msgctxt "form:feretui.form:FeretUIForm"
-msgid "Choices cannot be None."
 msgstr ""
 
 msgctxt "form:feretui.form:FeretUIForm"
@@ -125,10 +121,6 @@ msgstr ""
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Number must be between %(min)s and %(max)s."
-msgstr ""
-
-msgctxt "form:feretui.form:FeretUIForm"
-msgid "This field is required."
 msgstr ""
 
 msgctxt "form:feretui.form:FeretUIForm"
@@ -240,10 +232,6 @@ msgid "Time must be between %(min)s and %(max)s."
 msgstr ""
 
 msgctxt "form:feretui.form:FeretUIForm"
-msgid "Invalid email address."
-msgstr ""
-
-msgctxt "form:feretui.form:FeretUIForm"
 msgid "This field contains invalid JSON"
 msgstr ""
 
@@ -276,6 +264,14 @@ msgid "without uppercase"
 msgstr ""
 
 msgctxt "form:feretui.form:FeretUIForm"
+msgid "with letters"
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "without letters"
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
 msgid "with digits"
 msgstr ""
 
@@ -304,7 +300,7 @@ msgid "Go to the homepage"
 msgstr ""
 
 msgctxt "template:feretui-client-footer"
-msgid "feretUI"
+msgid "FeretUI"
 msgstr ""
 
 msgctxt "template:feretui-client-footer"
@@ -313,6 +309,18 @@ msgstr ""
 
 msgctxt "template:feretui-tooltip:span:data-tooltip"
 msgid "{{ tooltip }}"
+msgstr ""
+
+msgctxt "template:feretui-input-field"
+msgid "("
+msgstr ""
+
+msgctxt "template:feretui-input-field"
+msgid "required"
+msgstr ""
+
+msgctxt "template:feretui-input-field"
+msgid ")"
 msgstr ""
 
 msgctxt "template:feretui-page-404"

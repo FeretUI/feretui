@@ -14,7 +14,11 @@ from tempfile import NamedTemporaryFile
 import pytest  # noqa: F401
 from wtforms import StringField
 
-from feretui.exceptions import TranslationError
+from feretui.exceptions import (
+    TranslationError,
+    TranslationFormError,
+    TranslationMenuError,
+)
 from feretui.feretui import FeretUI
 from feretui.form import FeretUIForm
 from feretui.menus import ToolBarMenu
@@ -81,12 +85,28 @@ class TestTranslation:
         mytranslation = TranslatedMenu(ToolBarMenu('Test', page='test'))
         assert str(mytranslation)
 
+    def test_translated_menu_not_a_menu(self) -> None:
+        """Test translated_message without feretui."""
+        local.feretui = None
+        with pytest.raises(TranslationMenuError):
+            TranslatedMenu(None)
+
     def test_translated_form(self) -> None:
         """Test translated_message without feretui."""
         local.feretui = None
 
         mytranslation = TranslatedForm(FeretUIForm)
         assert str(mytranslation)
+
+    def test_translated_form_not_a_form(self) -> None:
+        """Test translated_message without feretui."""
+        local.feretui = None
+
+        class A:
+            pass
+
+        with pytest.raises(TranslationFormError):
+            TranslatedForm(A)
 
     def test_has_langs(self) -> None:
         """Test has_lang."""
@@ -130,7 +150,7 @@ class TestTranslation:
         t2 = b"<template id='test2' extend='test'/>"
 
         class MyForm(FeretUIForm):
-            name = StringField()
+            name = StringField(description='My name')
 
         myferet.translation.add_translated_form(TranslatedForm(MyForm))
 
@@ -147,3 +167,10 @@ class TestTranslation:
             with NamedTemporaryFile() as fp:
                 myferet.export_catalog(fp.name, '0.0.1', 'feretui')
                 myferet.load_catalog(fp.name, 'fr')
+
+    def test_load_internal_catalog_fr(self) -> None:
+        myferet = FeretUI()
+        myferet.load_internal_catalog('fr')
+        assert myferet.translation.get(
+            'fr', "template:feretui-input-field", 'required',
+        ) == 'requis'

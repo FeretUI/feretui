@@ -50,7 +50,13 @@ class TestForm:
         myform = MyForm()
         assert myform.name() == (
             '<div class="field">\n'
-            ' <label class="label" for="name">Name</label>\n'
+            ' <label class="label" for="name">\n'
+            '  Name\n'
+            '        \n'
+            '  <span>\n'
+            '   \n'
+            '  </span>\n'
+            ' </label>\n'
             ' <div class="control">\n'
             '  <input class="input " id="name" name="name" type="text" '
             'value="">\n'
@@ -76,7 +82,13 @@ class TestForm:
         myform = MyForm()
         assert myform.name() == (
             '<div class="field">\n'
-            ' <label class="label" for="name">Nom</label>\n'
+            ' <label class="label" for="name">\n'
+            '  Nom\n'
+            '        \n'
+            '  <span>\n'
+            '   \n'
+            '  </span>\n'
+            ' </label>\n'
             ' <div class="control">\n'
             '  <input class="input " id="name" name="name" type="text" '
             'value="">\n'
@@ -99,7 +111,13 @@ class TestForm:
         myform = MyForm()
         assert myform.name() == (
             '<div class="field">\n'
-            ' <label class="label" for="name">Name</label>\n'
+            ' <label class="label" for="name">\n'
+            '  Name\n'
+            '        \n'
+            '  <span>\n'
+            '   \n'
+            '  </span>\n'
+            ' </label>\n'
             ' <div class="control">\n'
             '  <input class="input " foo="bar" id="name" name="name" '
             'type="text" value="">\n'
@@ -123,7 +141,13 @@ class TestForm:
         myform.validate()
         assert myform.name() == (
             '<div class="field">\n'
-            ' <label class="label" for="name">Name</label>\n'
+            ' <label class="label" for="name">\n'
+            '  Name\n'
+            '        \n'
+            '  <span>\n'
+            '   \n'
+            '  </span>\n'
+            ' </label>\n'
             ' <div class="control">\n'
             '  <input class="input is-danger " id="name" name="name" required '
             'type="text" value="">\n'
@@ -151,7 +175,21 @@ class TestForm:
         myform.validate()
         assert myform.name() == (
             '<div class="field">\n'
-            ' <label class="label" for="name">Name</label>\n'
+            ' <label class="label" for="name">\n'
+            '  Name\n'
+            '        \n'
+            '  <span class="content is-small">\n'
+            '   (\n'
+            '   <span class="has-text-link">\n'
+            '    required\n'
+            '   </span>\n'
+            '   )\n'
+            '  </span>\n'
+            '  \n'
+            '  <span>\n'
+            '   \n'
+            '  </span>\n'
+            ' </label>\n'
             ' <div class="control">\n'
             '  <input class="input is-link " id="name" name="name" required '
             'type="text" value="test">\n'
@@ -180,7 +218,13 @@ class TestForm:
         myform.validate()
         assert myform.password() == (
             '<div class="field">\n'
-            ' <label class="label" for="password">Password</label>\n'
+            ' <label class="label" for="password">\n'
+            '  Password\n'
+            '        \n'
+            '  <span>\n'
+            '   \n'
+            '  </span>\n'
+            ' </label>\n'
             ' <div class="control">\n'
             '  <input class="input is-danger " id="password" name="password" '
             'type="text" value="">\n'
@@ -188,8 +232,8 @@ class TestForm:
             ' \n'
             ' <p class="help is-danger">\n'
             '  Le mot de passe doit contenir plus de 12 caractères, avec des '
-            'minuscules, avec des majuscules, avec des chiffres, avec des '
-            'caractères spéciaux, sans espaces.\n'
+            'minuscules, avec des majuscules, avec des lettres, avec des '
+            'chiffres, avec des caractères spéciaux, sans espaces.\n'
             ' </p>\n'
             ' \n'
             '</div>'
@@ -210,7 +254,13 @@ class TestForm:
         myform.validate()
         assert myform.name() == (
             '<div class="field">\n'
-            ' <label class="label" for="name">Name</label>\n'
+            ' <label class="label" for="name">\n'
+            '  Name\n'
+            '        \n'
+            '  <span>\n'
+            '   \n'
+            '  </span>\n'
+            ' </label>\n'
             ' <div class="control">\n'
             '  <input class="input is-danger " id="name" maxlength="1" '
             'name="name" type="text" value="test">\n'
@@ -238,7 +288,13 @@ class TestForm:
         myform.validate()
         assert myform.name() == (
             '<div class="field">\n'
-            ' <label class="label" for="name">Name</label>\n'
+            ' <label class="label" for="name">\n'
+            '  Name\n'
+            '        \n'
+            '  <span>\n'
+            '   \n'
+            '  </span>\n'
+            ' </label>\n'
             ' <div class="control">\n'
             '  <input class="input is-danger " id="name" maxlength="0" '
             'name="name" type="text" value="test">\n'
@@ -265,9 +321,43 @@ class TestForm:
         myform = MyForm()
         assert myform.test() == (
             '<div class="field">\n'
-            ' <label class="checkbox">\n'
+            ' <label class="checkbox" for="test">\n'
             '  <input id="test" name="test" type="checkbox" value="y">\n'
             '        Test\n'
+            '  <span>\n'
+            '   \n'
+            '  </span>\n'
+            ' </label>\n'
+            ' \n'
+            '</div>'
+        )
+
+    def test_form_render_bool_description(self) -> None:
+        myferet = FeretUI()
+        local.feretui = myferet
+        session = Session()
+        request = Request(session=session)
+        local.request = request
+        local.lang = 'en'
+
+        class MyForm(FeretUIForm):
+            test = BooleanField(description="Test")
+
+        myform = MyForm()
+        assert myform.test() == (
+            '<div class="field">\n'
+            ' <label class="checkbox" for="test">\n'
+            '  <input id="test" name="test" type="checkbox" value="y">\n'
+            '        Test\n'
+            '  <span>\n'
+            '   \n'
+            '   <span class="ml-0 icon has-tooltip-bottom has-tooltip-arrow" '
+            'data-tooltip="Test">\n'
+            '    <i class="fa-solid fa-circle-info is-small">\n'
+            '    </i>\n'
+            '   </span>\n'
+            '   \n'
+            '  </span>\n'
             ' </label>\n'
             ' \n'
             '</div>'
@@ -291,6 +381,7 @@ class TestForm:
             max_size=14,
             has_lowercase=False,
             has_uppercase=False,
+            has_letters=False,
             has_digits=False,
             has_symbols=False,
             has_spaces=True,

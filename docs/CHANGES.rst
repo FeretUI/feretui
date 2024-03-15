@@ -20,6 +20,7 @@ Main version of FeretUI, based on the POC
 * Added templating
 * Added actions callbacks mechanism.
 * Added pages callbacks mechanism.
+* Added WTForm 
 * Added menus
 * Added static file register
 * Added themes

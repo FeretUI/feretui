@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: 0.0.1\n"
-"POT-Creation-Date: 2024-03-14T11:14:40.631639\n"
+"POT-Creation-Date: 2024-03-15T22:27:21.141910\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -15,27 +15,27 @@ msgstr ""
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Not a valid integer value."
-msgstr "N'est pas un entier."
+msgstr "N'est pas un entier valide."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Not a valid decimal value."
-msgstr ""
+msgstr "N'est pas un nombre valide."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Not a valid float value."
-msgstr ""
+msgstr "N'est pas un nombre valide."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Not a valid datetime value."
-msgstr ""
+msgstr "N'est pas une date / heure valide."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Not a valid date value."
-msgstr ""
+msgstr "N'est pas une date valide."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Not a valid time value."
-msgstr ""
+msgstr "N'est pas une heure valide."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Not a valid week value."
@@ -270,6 +270,14 @@ msgid "without uppercase"
 msgstr "sans majuscules"
 
 msgctxt "form:feretui.form:FeretUIForm"
+msgid "with letters"
+msgstr "avec des lettres"
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "without letters"
+msgstr "sans lettres"
+
+msgctxt "form:feretui.form:FeretUIForm"
 msgid "with digits"
 msgstr "avec des chiffres"
 
@@ -298,7 +306,7 @@ msgid "Go to the homepage"
 msgstr "Aller à la page d'accueil"
 
 msgctxt "template:feretui-client-footer"
-msgid "feretUI"
+msgid "FeretUI"
 msgstr "FeretUI"
 
 msgctxt "template:feretui-client-footer"
@@ -307,6 +315,18 @@ msgstr "par Jean-Sébastien Suzanne."
 
 msgctxt "template:feretui-tooltip:span:data-tooltip"
 msgid "{{ tooltip }}"
+msgstr ""
+
+msgctxt "template:feretui-input-field"
+msgid "("
+msgstr ""
+
+msgctxt "template:feretui-input-field"
+msgid "required"
+msgstr "requis"
+
+msgctxt "template:feretui-input-field"
+msgid ")"
 msgstr ""
 
 msgctxt "template:feretui-page-404"

@@ -80,7 +80,7 @@
     <footer>
       <div class="content has-text-centered">
         <p>
-          <strong>feretUI</strong>by Js Suzanne.
+          <strong>FeretUI</strong>by Js Suzanne.
         </p>
       </div>
     </footer>
@@ -110,7 +110,19 @@
   </template>
   <template id="feretui-input-field">
     <div class="field">
-      {{ label(class="label") }}
+      <label for="{{ label.field_id }}" class="label">
+        {{ label.text }}
+        {% if required %}
+        <span class="content is-small">
+        (
+          <span class="has-text-link">
+            required
+          </span>
+        )
+        </span>
+        {% endif %}
+        <include template="feretui-tooltip" />
+      </label>
       <div class="control">
         {{ widget }}
       </div>
@@ -123,9 +135,10 @@
   </template>
   <template id="feretui-bool-field">
     <div class="field">
-      <label class="checkbox">
+      <label for="{{ label.field_id }}" class="checkbox">
         {{ widget }}
         {{ label.text }}
+        <include template="feretui-tooltip" />
       </label>
       {% if errors %}
       <p class="help is-danger">

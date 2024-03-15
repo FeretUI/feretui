@@ -38,7 +38,11 @@ from typing import TYPE_CHECKING, Any
 
 from polib import POEntry, POFile, pofile
 
-from feretui.exceptions import TranslationError
+from feretui.exceptions import (
+    TranslationError,
+    TranslationFormError,
+    TranslationMenuError,
+)
 from feretui.form import FeretUIForm
 from feretui.menus import Menu
 from feretui.thread import local
@@ -305,6 +309,9 @@ class TranslatedMenu:
         addons: str = 'feretui',
     ) -> "TranslatedMenu":
         """TranslatedMenu class."""
+        if not isinstance(menu, Menu):
+            raise TranslationMenuError(f"{menu} must be an instance of Menu")
+
         self.menu: Menu = menu
         self.addons: str = addons
 
@@ -365,6 +372,10 @@ class TranslatedForm:
         addons: str = 'feretui',
     ) -> None:
         """TranslatedForm class."""
+        if not issubclass(form, FeretUIForm):
+            raise TranslationFormError(
+                f"{form} must be a sub class of FeretUI")
+
         self.form: FeretUIForm = form
         self.addons: str = addons
 
@@ -391,6 +402,11 @@ class TranslatedForm:
                 context,
                 field.label.text,
             ))
+            if field.description:
+                po.append(translation.define(
+                    context,
+                    field.description,
+                ))
 
 
 class Translation:

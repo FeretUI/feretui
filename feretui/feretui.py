@@ -960,6 +960,7 @@ class FeretUI:
             self.translation.add_translated_form(
                 TranslatedForm(form, addons=addons),
             )
+            return form
 
         return _register_form
 
@@ -998,3 +999,15 @@ class FeretUI:
         :type lang: str
         """
         self.translation.load_catalog(catalog_path, lang)
+
+    def load_internal_catalog(self: "FeretUI", lang: str) -> None:
+        """Load a specific catalog for a language defined by feretui.
+
+        ::
+            FeretUI.load_internal_catalog('fr')
+
+        :param lang: Language code
+        :type lang: str
+        """
+        catalog_path = Path(__file__).parent / 'locale' / f'{lang}.po'
+        self.load_catalog(catalog_path, lang)
