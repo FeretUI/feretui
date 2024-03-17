@@ -48,7 +48,7 @@ from pathlib import Path
 from jinja2 import Environment, PackageLoader, select_autoescape
 from markupsafe import Markup
 
-from feretui.actions import goto, login_password
+from feretui.actions import goto, login_password, login_signup, logout
 from feretui.exceptions import MenuError, UnexistingActionError
 from feretui.form import FeretUIForm
 from feretui.menus import (
@@ -65,6 +65,7 @@ from feretui.pages import (
     login,
     page_404,
     page_forbidden,
+    signup,
     static_page,
 )
 from feretui.request import Request
@@ -309,6 +310,8 @@ class FeretUI:
         self.actions: dict[str, Callable[["FeretUI", Request], Response]] = {}
         self.register_action(goto)
         self.register_action(login_password)
+        self.register_action(login_signup)
+        self.register_action(logout)
 
         # Pages
         self.pages: dict[str, Callable[
@@ -319,6 +322,7 @@ class FeretUI:
         self.register_page()(homepage)
         self.register_page('aside-menu')(aside_menu)
         self.register_page()(login)
+        self.register_page()(signup)
 
         self.register_addons_from_entrypoint()
 
@@ -338,6 +342,12 @@ class FeretUI:
         for i in entry_points(group='feretui.addons'):
             logger.debug("Load the static from entrypoint: %s", i.name)
             i.load()(self)
+
+    def get_langs(self):
+        return [
+            ('en', 'English'),
+            ('fr', 'Francais'),
+        ]
 
     def render(self: "FeretUI", request: Request) -> Response:
         """Return the render of the main page.

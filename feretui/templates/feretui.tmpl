@@ -79,12 +79,14 @@
                 {{ session.user }}
               </a>
               <div class="navbar-dropdown is-boxed is-right">
-                {% for menu in feretui.menus.user %}
-                  {% if menu.is_visible(session) %}
-                    {{ menu.render(feretui, session) | safe }}
-                  {% endif %}
-                {% endfor %}
-                <hr class="navbar-divider">
+                {% if feretui.menus.user %}
+                  {% for menu in feretui.menus.user %}
+                    {% if menu.is_visible(session) %}
+                      {{ menu.render(feretui, session) | safe }}
+                    {% endif %}
+                  {% endfor %}
+                  <hr class="navbar-divider">
+                {% endif %}
                 <a
                   class="navbar-item"
                   hx-post="/feretui/action/logout"
@@ -169,5 +171,33 @@
       </p>
       {% endif %}
     </div>
+  </template>
+  <template id="feretui-radio-field">
+    <div class="field">
+      <label for="{{ label.field_id }}" class="label">
+        {{ label.text }}
+        {% if required %}
+        <span class="content is-small">
+        (
+          <span class="has-text-link">
+            required
+          </span>
+        )
+        </span>
+        {% endif %}
+        <include template="feretui-tooltip" />
+      </label>
+      <div class="control">
+        {{ widget }}
+      </div>
+      {% if errors %}
+      <p class="help is-danger">
+        {{ errors | join(', ')  }}
+      </p>
+      {% endif %}
+    </div>
+  </template>
+  <template id="feretui-radio-option">
+    <span>{{ widget }}</span>
   </template>
 </templates>

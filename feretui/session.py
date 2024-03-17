@@ -17,10 +17,33 @@ The session can be overwritting by the developper::
 
     session = Session()
 """
-from wtforms import PasswordField, StringField
-from wtforms.validators import InputRequired
+from wtforms import PasswordField, RadioField, StringField
+from wtforms.validators import EqualTo, InputRequired
 
-from feretui.form import FeretUIForm
+from feretui.form import FeretUIForm, Password
+from feretui.thread import local
+
+
+class LoginForm(FeretUIForm):
+    login = StringField(validators=[InputRequired()])
+    password = PasswordField(validators=[InputRequired()])
+
+
+def get_langs():
+    return local.feretui.get_langs()
+
+
+class SignUpForm(FeretUIForm):
+    login = StringField(validators=[InputRequired()])
+    lang = RadioField(
+        'Language',
+        choices=get_langs,
+        validators=[InputRequired()],
+    )
+    password = PasswordField(validators=[Password()])
+    password_confirm = PasswordField(
+        validators=[InputRequired(), EqualTo('password')],
+    )
 
 
 class Session:
@@ -42,9 +65,8 @@ class Session:
 
     """
 
-    class LoginForm(FeretUIForm):
-        login = StringField(validators=[InputRequired()])
-        password = PasswordField(validators=[InputRequired()])
+    LoginForm: FeretUIForm = LoginForm
+    SignUpForm: FeretUIForm = SignUpForm
 
     def __init__(self: "Session") -> "Session":
         """FeretUI session."""
@@ -54,3 +76,14 @@ class Session:
 
     def login(self, login=None, password=None) -> None:
         self.user = login
+
+    def logout(self) -> None:
+        self.user = None
+
+    def signup(self, **kwargs) -> None:
+        self.user = kwargs['login']
+        for key, value in kwargs.items():
+            if key in ('login', 'password', 'password_confirm'):
+                continue
+
+            setattr(self, key, value)

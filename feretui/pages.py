@@ -149,11 +149,12 @@ def aside_menu(
 
 
 @unauthenticated_or_forbidden
-def login(feret: "FeretUI", session: Session, options: dict):
+def login(feretui: "FeretUI", session: Session, options: dict):
     form = options.get('form', session.LoginForm())
-    return feret.render_template(session, 'feretui-page-login', form=form)
+    return feretui.render_template(session, 'feretui-page-login', form=form)
 
 
 @unauthenticated_or_forbidden
-def page_signup(feret: "FeretUI", session: Session, options: dict):
-    return feret.load_page_template(session, 'feretui-page-signup')
+def signup(feretui: "FeretUI", session: Session, options: dict):
+    form = options.get('form', session.SignUpForm())
+    return feretui.render_template(session, 'feretui-page-signup', form=form)

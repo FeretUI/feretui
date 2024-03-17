@@ -79,4 +79,37 @@
         </div>
       </form>
   </template>
+  <template id="feretui-page-signup">
+    <form
+      hx-post="/feretui/action/login_signup"
+      hx-swap="outerHTML"
+      hx-trigger="submit"
+      hx-ext='json-enc'
+    >
+      <div class="container">
+        <h1 class="title">Register a new user</h1>
+        <div id="feretui-signup-field-login">
+          {{ form.login(autocomplete="username") }}
+        </div>
+        <div id="feretui-signup-field-lang">
+          {{ form.lang }}
+        </div>
+        <div id="feretui-signup-field-password">
+          {{ form.password(autocomplete="current-password") }}
+        </div>
+        <div id="feretui-signup-field-password2">
+          {{ form.password_confirm(autocomplete="current-password") }}
+        </div>
+        <br/>
+        <div class="buttons">
+          <button 
+            class="button is-primary is-fullwidth" 
+            type="submit" 
+          >
+            Sign up
+          </button>
+        </div>
+      </div>
+    </form>
+  </template>
 </templates>

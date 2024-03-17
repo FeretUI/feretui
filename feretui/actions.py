@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING
 
 from feretui.exceptions import ActionError
 from feretui.helper import action_validator
-from feretui.pages import login
+from feretui.pages import login, signup
 from feretui.request import Request
 from feretui.response import Response
 
@@ -93,15 +93,16 @@ def login_password(
 
 
 @action_validator(methods=[Request.POST])
-def action_login_signup(
+def login_signup(
     feret: "FeretUI",
     request: Request,
 ) -> str:
-    try:
-        redirect = request.session.signup(**dict(request.deserialized_body))
+    form = request.session.SignUpForm(request.body)
+    if form.validate():
+        redirect = request.session.signup(**form.data)
         if redirect:
             qs = request.get_query_string_from_current_url()
-            if qs.get('page') == ['login']:
+            if qs.get('page') == ['signup']:
                 headers = {
                     'HX-Redirect': '/?page=homepage',
                 }
@@ -109,35 +110,15 @@ def action_login_signup(
                 headers = {
                     'HX-Refresh': 'true',
                 }
-        else:
-            headers = {}
 
-        return Response(
-            feret.load_page_template(
-                request.session,
-                'feretui-page-signup-success',
-            ),
-            headers=headers,
-        )
-    except ValidationError as e:
-        return Response(
-            feret.load_page_template(
-                request.session,
-                'feretui-page-pydantic-failed',
-                errors=format_errors(e.errors()),
-            ),
-        )
-    except Exception:
-        return Response(
-            feret.load_page_template(
-                request.session,
-                'feretui-page-error-500',
-            ),
-        )
+            return Response('', headers=headers)
+
+    return Response(signup(feret, request.session, {'form': form}))
 
 
 @action_validator(methods=[Request.POST])
-def action_logout(feret: "FeretUI", request: Request) -> str:
+def logout(feret: "FeretUI", request: Request) -> str:
     request.session.logout()
-    url = request.get_url_from_dict({})
+    base_url = request.get_base_url_from_current_url()
+    url = request.get_url_from_dict(base_url=base_url, querystring={})
     return Response('', headers={'HX-Redirect': url})
