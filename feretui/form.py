@@ -25,10 +25,10 @@ from typing import Any
 
 from markupsafe import Markup
 from password_validator import PasswordValidator
-from wtforms.fields import BooleanField, Field, RadioField
+from wtforms.fields import BooleanField, Field, RadioField, SelectFieldBase
 from wtforms.form import Form
 from wtforms.validators import InputRequired, ValidationError
-from wtforms.widgets.core import clean_key
+from wtforms.widgets.core import RadioInput, clean_key
 
 from feretui.thread import local
 
@@ -41,7 +41,7 @@ def wrap_input(field: Field, **kwargs: dict) -> Markup:
     :return: The renderer of the widget as html.
     :rtype: Markup_
     """
-    myferet = local.feretui
+    feretui = local.feretui
     session = local.request.session
 
     input_class = ["input"]
@@ -56,7 +56,7 @@ def wrap_input(field: Field, **kwargs: dict) -> Markup:
 
     c = kwargs.pop('class', '') or kwargs.pop('class_', '')
     kwargs['class'] = '{} {}'.format(' '.join(input_class), c)
-    return Markup(myferet.render_template(
+    return Markup(feretui.render_template(
         session,
         "feretui-input-field",
         label=field.label,
@@ -75,16 +75,64 @@ def wrap_bool(field: "Field", **kwargs: dict) -> Markup:
     :return: The renderer of the widget as html.
     :rtype: Markup_
     """
-    myferet = local.feretui
+    feretui = local.feretui
     session = local.request.session
 
-    return Markup(myferet.render_template(
+    return Markup(feretui.render_template(
         session,
         "feretui-bool-field",
         label=field.label,
         widget=field.widget(field, **kwargs),
         tooltip=field.gettext(field.description),
         errors=field.errors,
+    ))
+
+
+def wrap_radio(field: "Field", **kwargs: dict) -> Markup:
+    """Render radio field.
+
+    :param field: The field to validate
+    :type field: Field_
+    :return: The renderer of the widget as html.
+    :rtype: Markup_
+    """
+    feretui = local.feretui
+    session = local.request.session
+
+    required = False
+    for validator in field.validators:
+        if isinstance(validator, InputRequired):
+            required = True
+
+    return Markup(feretui.render_template(
+        session,
+        "feretui-radio-field",
+        label=field.label,
+        widget=field.widget(field, **kwargs),
+        required=required,
+        tooltip=field.gettext(field.description),
+        errors=field.errors,
+    ))
+
+
+def wrap_option(field: "Field", **kwargs: dict) -> Markup:
+    """Render option from select/radio field.
+
+    :param field: The field to validate
+    :type field: Field_
+    :return: The renderer of the widget as html.
+    :rtype: Markup_
+    """
+    if not isinstance(field.widget, RadioInput):
+        return field.widget(field, **kwargs)
+
+    feretui = local.feretui
+    session = local.request.session
+
+    return Markup(feretui.render_template(
+        session,
+        "feretui-radio-option",
+        widget=field.widget(field, class_="radio", **kwargs),
     ))
 
 
@@ -145,7 +193,8 @@ class FeretUIForm(Form):
 
     WRAPPERS = {
         BooleanField: wrap_bool,
-        RadioField: wrap_bool,
+        RadioField: wrap_radio,
+        SelectFieldBase._Option: wrap_option,
     }
     DEFAULT_WRAPPER = wrap_input
     TRANSLATED_MESSAGES = [
@@ -291,7 +340,7 @@ PasswordWithSpaces = FeretUIForm.register_translation('with spaces')
 PasswordWithoutSpaces = FeretUIForm.register_translation('without spaces')
 
 
-class Password:
+class Password(InputRequired):
     """Password validator.
 
     It is a generic validator for WTForms_. It is based on the library
@@ -392,7 +441,7 @@ class Password:
                 getattr(self.schema.has(), attr)()
                 self.waiting.append((true_msg, {}))
             elif has is False:
-                getattr(self.schema.has(), attr)()
+                getattr(self.schema.has().no(), attr)()
                 self.waiting.append((false_msg, {}))
 
     def __call__(
