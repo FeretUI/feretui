@@ -17,45 +17,10 @@ The session can be overwritting by the developper::
 
     session = Session()
 """
-from wtforms import Form, PasswordField, StringField
+from wtforms import PasswordField, StringField
 from wtforms.validators import InputRequired
-from wtforms.widgets import PasswordInput, TextInput
 
-
-class WrapInput:
-    def __init__(self, widget):
-        super(WrapInput, self).__init__()
-        self.widget = widget
-
-    def __call__(self, field, **kwargs):
-        from markupsafe import Markup
-
-        from feretui.thread import local
-
-        myferet = local.feretui
-        session = local.request.session
-
-        input_class = ["input"]
-        if field.errors:
-            input_class.append("is-danger")
-        else:
-            for validator in field.validators:
-                if isinstance(validator, InputRequired):
-                    input_class.append("is-link")
-
-        c = kwargs.pop('class', '') or kwargs.pop('class_', '')
-        kwargs['class'] = '%s %s' % (' '.join(input_class), c)
-        return Markup(myferet.render_template(
-            session,
-            "feretui-input-field",
-            label=field.label,
-            widget=self.widget(field, **kwargs),
-            error=', '.join(field.errors),
-        ))
-
-
-class FeretUIStringField(StringField):
-    widget = WrapInput(TextInput())
+from feretui.form import FeretUIForm
 
 
 class Session:
@@ -77,12 +42,9 @@ class Session:
 
     """
 
-    class LoginForm(Form):
-        login = FeretUIStringField(validators=[InputRequired()])
-        password = PasswordField(
-            validators=[InputRequired()],
-            widget=WrapInput(PasswordInput()),
-        )
+    class LoginForm(FeretUIForm):
+        login = StringField(validators=[InputRequired()])
+        password = PasswordField(validators=[InputRequired()])
 
     def __init__(self: "Session") -> "Session":
         """FeretUI session."""
@@ -90,5 +52,5 @@ class Session:
         self.lang: str = 'en'
         self.theme: str = 'default'
 
-    def login(self, login=None, password=None):
+    def login(self, login=None, password=None) -> None:
         self.user = login

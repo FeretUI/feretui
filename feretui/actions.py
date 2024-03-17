@@ -15,8 +15,6 @@ The availlable actions are:
 """
 from typing import TYPE_CHECKING
 
-from multidict import MultiDict
-
 from feretui.exceptions import ActionError
 from feretui.helper import action_validator
 from feretui.pages import login
@@ -76,7 +74,7 @@ def login_password(
     feret: "FeretUI",
     request: Request,
 ) -> str:
-    form = request.session.LoginForm(MultiDict(**request.body))
+    form = request.session.LoginForm(request.body)
     if form.validate():
         request.session.login(**form.data)
         qs = request.get_query_string_from_current_url()

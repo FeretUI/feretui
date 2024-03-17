@@ -942,10 +942,10 @@ class FeretUI:
             register_menu(menu)
             asides.append(menu)
 
-    def register_auth_menus(self, menus):
+    def register_auth_menus(self, menus) -> None:
         self.auth = ToolBarButtonsMenu(menus)
 
-    def register_user_menus(self, menus):
+    def register_user_menus(self, menus) -> None:
         self._register_toolbar_menus('user', menus)
 
     def get_aside_menus(self: "FeretUI", code: str) -> list[AsideMenu]:

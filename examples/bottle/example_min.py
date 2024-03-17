@@ -11,15 +11,12 @@ from feretui import (
     AsideHeaderMenu,
     AsideMenu,
     FeretUI,
-    FeretUIForm,
     Request,
     Session,
     ToolBarButtonMenu,
     ToolBarDropDownMenu,
     ToolBarMenu,
 )
-from wtforms import StringField, BooleanField
-from wtforms.validators import InputRequired
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -45,8 +42,7 @@ class MySessionPlugin(SessionPlugin):
                 self.cookie_secure,
                 self.cookie_httponly,
             )
-            rv = callback(*args, **kwargs)
-            return rv
+            return callback(*args, **kwargs)
 
         return wrapper
 
@@ -60,7 +56,7 @@ class MySession(Session, BottleSession):
         cookie_lifetime=None,
         cookie_secure=False,
         cookie_httponly=False,
-    ):
+    ) -> None:
         Session.__init__(self)
         BottleSession.__init__(
             self,
@@ -78,15 +74,6 @@ myferet = FeretUI()
 myferet.load_internal_catalog('fr')
 
 
-@myferet.register_form()
-class HelloForm(FeretUIForm):
-    name = StringField(
-        validators=[InputRequired()],
-        description="PLop"
-    )
-    mybool = BooleanField(description='titi')
-
-
 myferet.register_auth_menus([
     ToolBarButtonMenu('Sign Up', page='signup', css_class="is-info"),
     ToolBarButtonMenu('Log In', page='login'),
@@ -101,20 +88,13 @@ myferet.register_auth_menus([
         <div class="content">
           <h1>Hello my feret</h1>
           <p>Welcome</p>
-          <form>
-            <div class="container">
-              {{ form.name }}
-              {{ form.mybool }}
-            </div>
-          </form>
         </div>
       </div>
     </template>
-    ''']
+    '''],
 )
 def hello(feretui, session, option):
-    form = HelloForm()
-    return feretui.render_template(session, 'hello', form=form)
+    return feretui.render_template(session, 'hello')
 
 
 # /?page=foo
