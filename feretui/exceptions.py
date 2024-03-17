@@ -70,6 +70,20 @@ class TranslationError(FeretUIError):
     """
 
 
+class TranslationMenuError(TranslationError):
+    """Exception raised by Translation object.
+
+    Inherits :class:`.TranslationError`.
+    """
+
+
+class TranslationFormError(TranslationError):
+    """Exception raised by Translation object.
+
+    Inherits :class:`.TranslationError`.
+    """
+
+
 class PageError(FeretUIError):
     """Exception raised by page mecanism in FeretUI object.
 

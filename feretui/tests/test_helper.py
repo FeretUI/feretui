@@ -22,7 +22,7 @@ from feretui.session import Session
 class TestActionValidator:
     """TestActionValidator."""
 
-    def test_method_None(self):
+    def test_method_None(self) -> None:
         """Test session."""
         myferet = FeretUI()
         session = Session()
@@ -35,7 +35,7 @@ class TestActionValidator:
 
         assert myferet.execute_action(request, 'my_action')
 
-    def test_method_ok(self):
+    def test_method_ok(self) -> None:
         """Test session."""
         myferet = FeretUI()
         session = Session()
@@ -48,7 +48,7 @@ class TestActionValidator:
 
         assert myferet.execute_action(request, 'my_action')
 
-    def test_method_ko(self):
+    def test_method_ko(self) -> None:
         """Test session."""
         myferet = FeretUI()
         session = Session()
@@ -62,7 +62,7 @@ class TestActionValidator:
         with pytest.raises(ActionValidatorError):
             myferet.execute_action(request, 'my_action')
 
-    def test_not_return_response(self):
+    def test_not_return_response(self) -> None:
         """Test session."""
         myferet = FeretUI()
         session = Session()
@@ -70,7 +70,7 @@ class TestActionValidator:
 
         @myferet.register_action
         @action_validator()
-        def my_action(feretui, request):
+        def my_action(feretui, request) -> bool:
             return True
 
         with pytest.raises(ActionValidatorError):

@@ -24,49 +24,49 @@ from feretui.session import Session
 class TestRequest:
     """Test Request."""
 
-    def test_request(self):
+    def test_request(self) -> None:
         """Test simple request."""
         session = Session()
         request = Request(
             session,
             method=Request.POST,
             body=json.dumps({'a': 'b'}),
-            querystring="a=b"
+            querystring="a=b",
         )
         assert request.session is session
         assert request.method is Request.POST
         assert request.body == {'a': 'b'}
         assert request.query == {'a': ['b']}
 
-    def test_request_with_no_session(self):
+    def test_request_with_no_session(self) -> None:
         """Test request with none session."""
         with pytest.raises(RequestNoSessionError):
             Request(None)
 
-    def test_request_wrong_session(self):
+    def test_request_wrong_session(self) -> None:
         """Test request with wrong session type."""
         with pytest.raises(RequestWrongSessionError):
             Request("session", querystring="a=b")
 
-    def test_request_wrong_body(self):
+    def test_request_wrong_body(self) -> None:
         """Test request with wrong body."""
         session = Session()
         request = Request(session, body="not a json")
         assert request.body == {}
 
-    def test_get_url_from_dict(self):
+    def test_get_url_from_dict(self) -> None:
         """Test get_url_from_dict with querystring."""
         session = Session()
         request = Request(session)
-        assert request.get_url_from_dict(querystring=dict(a=1)) == '/?a=1'
+        assert request.get_url_from_dict(querystring={'a': 1}) == '/?a=1'
 
-    def test_get_url_from_dict_2(self):
+    def test_get_url_from_dict_2(self) -> None:
         """Test get_url_from_dict without querystring."""
         session = Session()
         request = Request(session)
         assert request.get_url_from_dict() == '/'
 
-    def test_get_query_string_from_current_url(self):
+    def test_get_query_string_from_current_url(self) -> None:
         """Test get_query_string_from_current_url."""
         session = Session()
         request = Request(session, headers={'Hx-Current-Url': '/?a=b'})

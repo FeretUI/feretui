@@ -15,10 +15,11 @@ language with `PoEdit <https://poedit.net/>`_.
 The translated object are:
 
 * :class:`feretui.translation.TranslatedMessage`
-* :class:`feretui.translation.TranslatedTemplate`
 * :class:`feretui.translation.TranslatedFileTemplate`
-* :class:`feretui.translation.TranslatedStringTemplate`
+* :class:`feretui.translation.TranslatedForm`
 * :class:`feretui.translation.TranslatedMenu`
+* :class:`feretui.translation.TranslatedStringTemplate`
+* :class:`feretui.translation.TranslatedTemplate`
 
 The Translation class have two methods to manipulate the catalogs:
 
@@ -37,7 +38,12 @@ from typing import TYPE_CHECKING, Any
 
 from polib import POEntry, POFile, pofile
 
-from feretui.exceptions import TranslationError
+from feretui.exceptions import (
+    TranslationError,
+    TranslationFormError,
+    TranslationMenuError,
+)
+from feretui.form import FeretUIForm
 from feretui.menus import Menu
 from feretui.thread import local
 
@@ -303,10 +309,13 @@ class TranslatedMenu:
         addons: str = 'feretui',
     ) -> "TranslatedMenu":
         """TranslatedMenu class."""
+        if not isinstance(menu, Menu):
+            raise TranslationMenuError(f"{menu} must be an instance of Menu")
+
         self.menu: Menu = menu
         self.addons: str = addons
 
-    def __str__(self: "TranslatedTemplate") -> str:
+    def __str__(self: "TranslatedMenu") -> str:
         """Return the instance as a string."""
         return f'<TranslatedMenu {self.menu} addons={self.addons}>'
 
@@ -327,6 +336,77 @@ class TranslatedMenu:
         if self.menu.tooltip:
             po.append(translation.define(
                 f'{self.menu.context}:tooltip', self.menu.tooltip))
+
+
+class TranslatedForm:
+    """TranslatedForm class.
+
+    Declare a WTForm as translatable.
+
+    ::
+
+        mytranslatedmenu = TranslatedForm(MyForm, 'my.addons')
+        translation.add_translated_form(mytranslation)
+
+    To declare a TranslatedForm more easily, The helpers exist on
+    FeretUI :
+
+    * :meth:`feretui.feretui.FeretUI.register_form`.
+    * :meth:`feretui.feretui.FeretUI.register_page`.
+
+    Attributes
+    ----------
+    * [form:FeretUIForm] : the form to translated
+    * [addons:str] : the addons of the template file
+
+    :param form: the form class to translate
+    :type form: :class:`feretui.form.FeretUIForm`
+    :param addons: The addons where the message come from
+    :type addons: str
+
+    """
+
+    def __init__(
+        self: "TranslatedForm",
+        form: FeretUIForm,
+        addons: str = 'feretui',
+    ) -> None:
+        """TranslatedForm class."""
+        if not issubclass(form, FeretUIForm):
+            raise TranslationFormError(
+                f"{form} must be a sub class of FeretUI")
+
+        self.form: FeretUIForm = form
+        self.addons: str = addons
+
+    def __str__(self: "TranslatedForm") -> str:
+        """Return the instance as a string."""
+        return f'<TranslatedForm {self.form} addons={self.addons}>'
+
+    def export_catalog(
+        self: "TranslatedForm",
+        translation: "Translation",
+        po: POFile,
+    ) -> None:
+        """Export the form translations in the catalog.
+
+        :param translation: The translation instance to add also inside it.
+        :type translation: :class:`.Translation`
+        :param po: The catalog instance
+        :type po: PoFile_
+        """
+        context = self.form.get_context()
+        form = self.form()
+        for field in form._fields.values():
+            po.append(translation.define(
+                context,
+                field.label.text,
+            ))
+            if field.description:
+                po.append(translation.define(
+                    context,
+                    field.description,
+                ))
 
 
 class Translation:
@@ -361,6 +441,7 @@ class Translation:
         self.translations: dict[tuple[str, str, str], str] = {}
         self.templates: list[TranslatedTemplate] = []
         self.menus: list[TranslatedMenu] = []
+        self.forms: list[TranslatedForm] = []
 
     def has_lang(self: "Translation", lang: str) -> bool:
         """Return True the lang is declared.
@@ -404,7 +485,13 @@ class Translation:
             (lang, poentry.msgctxt, poentry.msgid)
         ] = poentry.msgstr if poentry.msgstr else poentry.msgid
 
-    def get(self: "Translation", lang: str, context: str, message: str) -> str:
+    def get(
+        self: "Translation",
+        lang: str,
+        context: str,
+        message: str,
+        message_as_default: bool = True,
+    ) -> str:
         """Get the translated message from translations.
 
         :param lang: The language code
@@ -413,10 +500,16 @@ class Translation:
         :type context: str
         :param message: The original message
         :type message: str
+        :param message_as_default: If True then when no translation is found
+                                   it is return the message else return None
+        :type message_as_default: bool
         :return: The translated message
         :rtype: str
         """
-        return self.translations.get((lang, context, message), message)
+        return self.translations.get(
+            (lang, context, message),
+            message if message_as_default else None,
+        )
 
     def define(self: "Translation", context: str, message: str) -> POEntry:
         """Create a POEntry for a message.
@@ -474,6 +567,18 @@ class Translation:
         self.menus.append(menu)
         logger.debug('Translation : Added new menu : %s', menu)
 
+    def add_translated_form(
+        self: "Translation",
+        form: TranslatedForm,
+    ) -> None:
+        """Add in forms a TranslatedForm.
+
+        :param form: The Form.
+        :type form: :class:`.TranslatedForm`
+        """
+        self.forms.append(form)
+        logger.debug('Translation : Added new form : %s', form)
+
     def export_catalog(
         self: "Translation",
         output_path: str,
@@ -502,11 +607,19 @@ class Translation:
         messages = Translation.messages
         templates = self.templates
         menus = self.menus
+        forms = self.forms
 
         if addons is not None:
             messages = filter(lambda x: x.addons == addons, messages)
             templates = filter(lambda x: x.addons == addons, templates)
             menus = filter(lambda x: x.addons == addons, menus)
+            forms = filter(lambda x: x.addons == addons, forms)
+
+        for form_translated_message in FeretUIForm.TRANSLATED_MESSAGES:
+            po.append(self.define(
+                FeretUIForm.get_context(),
+                form_translated_message,
+            ))
 
         for message in messages:
             po.append(self.define(message.context, message.msgid))
@@ -519,6 +632,9 @@ class Translation:
 
         for menu in menus:
             menu.export_catalog(self, po)
+
+        for form in forms:
+            form.export_catalog(self, po)
 
         po.save(Path(output_path).resolve())
 

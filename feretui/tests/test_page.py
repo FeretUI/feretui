@@ -6,35 +6,40 @@
 # v. 2.0. If a copy of the MPL was not distributed with this file,You can
 # obtain one at http://mozilla.org/MPL/2.0/.
 import pytest
+
 from feretui.exceptions import PageError
 from feretui.feretui import FeretUI
 from feretui.pages import (
-    aside_menu, page_404, page_forbidden, homepage, static_page
+    aside_menu,
+    homepage,
+    page_404,
+    page_forbidden,
+    static_page,
 )
 from feretui.session import Session
 
 
 class TestPage:
 
-    def test_404(self):
+    def test_404(self) -> None:
         myferet = FeretUI()
         session = Session()
         res = page_404(myferet, session, {'page': 'test'})
         assert res
 
-    def test_forbidden(self):
+    def test_forbidden(self) -> None:
         myferet = FeretUI()
         session = Session()
         res = page_forbidden(myferet, session, {'page': 'test'})
         assert res
 
-    def test_homepage(self):
+    def test_homepage(self) -> None:
         myferet = FeretUI()
         session = Session()
         res = homepage(myferet, session, {})
         assert res
 
-    def test_static_page(self):
+    def test_static_page(self) -> None:
         myferet = FeretUI()
         session = Session()
         myferet.register_template_from_str(
@@ -42,24 +47,24 @@ class TestPage:
                 <template id="my-static-page">
                     <div>Test</div>
                 </template>
-            '''
+            ''',
         )
         res = static_page('my-static-page')(myferet, session, {})
         assert res == '<div>\n Test\n</div>'
 
-    def test_static_page_ko(self):
+    def test_static_page_ko(self) -> None:
         myferet = FeretUI()
         session = Session()
         with pytest.raises(PageError):
             static_page('my-static_page')(myferet, session, {})
 
-    def test_aside(self):
+    def test_aside(self) -> None:
         myferet = FeretUI()
         session = Session()
         res = aside_menu(myferet, session, {'aside': ['test']})
         assert res
 
-    def test_aside_without_requiremend(self):
+    def test_aside_without_requiremend(self) -> None:
         myferet = FeretUI()
         session = Session()
         with pytest.raises(PageError):
