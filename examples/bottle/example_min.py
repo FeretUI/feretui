@@ -11,11 +11,14 @@ from feretui import (
     AsideHeaderMenu,
     AsideMenu,
     FeretUI,
+    FeretUIForm,
     Request,
     Session,
     ToolBarDropDownMenu,
     ToolBarMenu,
 )
+from wtforms import StringField, BooleanField
+from wtforms.validators import InputRequired
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -67,23 +70,44 @@ class MySession(Session, BottleSession):
             cookie_httponly,
         )
         self.theme = "minty"
+        self.lang = 'fr'
 
 
 myferet = FeretUI()
+myferet.load_internal_catalog('fr')
+
+
+@myferet.register_form()
+class HelloForm(FeretUIForm):
+    name = StringField(
+        validators=[InputRequired()],
+        description="PLop"
+    )
+    mybool = BooleanField(description='titi')
 
 
 # /?page=hello
-myferet.register_static_page(
-    'hello',
-    '''
-    <div class="container">
-      <div class="content">
-        <h1>Hello my feret</h1>
-        <p>Welcome</p>
+@myferet.register_page(
+    templates=['''
+    <template id="hello">
+      <div class="container">
+        <div class="content">
+          <h1>Hello my feret</h1>
+          <p>Welcome</p>
+          <form>
+            <div class="container">
+              {{ form.name }}
+              {{ form.mybool }}
+            </div>
+          </form>
+        </div>
       </div>
-    </div>
-    ''',
+    </template>
+    ''']
 )
+def hello(feretui, session, option):
+    form = HelloForm()
+    return feretui.render_template(session, 'hello', form=form)
 
 
 # /?page=foo

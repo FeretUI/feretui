@@ -87,7 +87,7 @@ def import_feretui_addons(feretui: "FeretUI") -> None:
         * feretui.tmpl
 
     * javascript:
-        * `htmx <https://htmx.org/>`_
+        * Htmx_
         * `hyperscript <https://hyperscript.org/docs/>`_
         * `json-enc <https://htmx.org/extensions/json-enc/>`_
 

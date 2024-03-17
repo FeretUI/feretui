@@ -11,7 +11,7 @@ Small web client to build an admin user interface without any link with a
 framework.
 
 This project is not a nodejs project. The client is generated with static
-templates. The javascrip library `htmx <https://htmx.org>`_ to improve the
+templates. The javascrip library Htmx_ to improve the
 capability to manipulate the DOM and to add HTTP verb (DELETE, PUT, PATCH).
 
 The client is not a Framework, and don't use any web-server, orm, connector
@@ -226,6 +226,13 @@ all the translation messages in pot file.
         response = myferet.execute_action(frequest, 'action-arg1-arg2')
         return response.body
 
+.. _Markup: https://markupsafe.palletsprojects.com/en/2.1.x/escaping/
+.. _HtmlElement: https://lxml.de/api/lxml.html.HtmlElement-class.html
+.. _PoFile: https://polib.readthedocs.io/en/latest/api.html#polib.POFile
+.. _WTForms: https://wtforms.readthedocs.io/en/3.1.x/
+.. _Form: https://wtforms.readthedocs.io/en/3.1.x/forms/#wtforms.form.Form
+.. _Field: https://wtforms.readthedocs.io/en/3.1.x/fields/#the-field-base-class
+.. _Htmx: https://htmx.org
 """
 from feretui.feretui import FeretUI  # noqa : F401
 from feretui.form import FeretUIForm, Password  # noqa : F401

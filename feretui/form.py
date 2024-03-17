@@ -5,6 +5,22 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License,
 # v. 2.0. If a copy of the MPL was not distributed with this file,You can
 # obtain one at http://mozilla.org/MPL/2.0/.
+"""Module feretui.form.
+
+Addons for WTForms_. The form is usefull to create a formular in a page.
+
+The class :class:`.FeretUIForm` are behaviour like:
+
+* the link with the feretui translation.
+* widget wrapper for renderer it with bulma class.
+
+  * :func:`.wrap_input`
+  * :func:`.wrap_bool`
+
+Added the also the validators
+
+* :class:`.Password`
+"""
 from typing import Any
 
 from markupsafe import Markup
@@ -198,7 +214,7 @@ class FeretUIForm(Form):
     def register_translation(cls: "FeretUIForm", message: str) -> str:
         """Register a translation come from validator.
 
-        Some text is defined in the validator or WTForm_ addons. They
+        Some text is defined in the validator or WTForms_ addons. They
         can not be export easily. This register give the possibility for
         the devloper to define their.
         """
@@ -278,7 +294,7 @@ PasswordWithoutSpaces = FeretUIForm.register_translation('without spaces')
 class Password:
     """Password validator.
 
-    It is a generic validator for WTForm_. It is based on the library
+    It is a generic validator for WTForms_. It is based on the library
     `password-validator
     <https://github.com/tarunbatra/password-validator-python>`_.
 
@@ -386,7 +402,7 @@ class Password:
     ) -> None:
         """Validate if the field is a valid password.
 
-        :param form: A WTForm
+        :param form: A Form
         :type form: Form_
         :param field: The field to validate
         :type field: Field_
