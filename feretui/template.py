@@ -117,8 +117,6 @@ For the xpath the expression attribute use
     The parser used to manipulate the html is lxml, the html
     must be parsed. So the jinja command must not break the parser.
 
-.. _HtmlElement: https://lxml.de/api/lxml.html.HtmlElement-class.html
-.. _PoFile: https://polib.readthedocs.io/en/latest/api.html#polib.POFile
 """
 import re
 from ast import literal_eval

@@ -20,7 +20,7 @@ class TestTemplate:
     """TestTemplate."""
 
     @pytest.fixture(autouse=True)
-    def init_template(self, request):
+    def init_template(self, request) -> None:
         """Fixture to get an empty Template instance."""
         self.Template = Template(Translation())
 
@@ -28,7 +28,7 @@ class TestTemplate:
         """Convert string."""
         return self.Template.tostring(element, "unicode")
 
-    def test_load_file(self):
+    def test_load_file(self) -> None:
         """Test load a file."""
         f = StringIO()
         t1 = """<template id='test'><a><b1/><b2/></a></template>"""
@@ -47,7 +47,7 @@ class TestTemplate:
             '</template>\n'
         )
 
-    def test_load_file_2(self):
+    def test_load_file_2(self) -> None:
         """Test load a file with comment."""
         f = StringIO()
         t1 = (
@@ -69,7 +69,7 @@ class TestTemplate:
             '</template>\n'
         )
 
-    def test_load_file_3(self):
+    def test_load_file_3(self) -> None:
         """Test load a file with wrong tag."""
         f = StringIO()
         t1 = "<templates><div/></templates>"
@@ -78,7 +78,7 @@ class TestTemplate:
         with pytest.raises(TemplateError):
             self.Template.load_file(f)
 
-    def test_load_file_4(self):
+    def test_load_file_4(self) -> None:
         """Test load a file with wrong root tag."""
         f = StringIO()
         t1 = "<div/>"
@@ -87,7 +87,7 @@ class TestTemplate:
         with pytest.raises(TemplateError):
             self.Template.load_file(f)
 
-    def test_template_from_str(self):
+    def test_template_from_str(self) -> None:
         """Test load a template in string mode."""
         t1 = """<template id='test'><a><b1/><b2/></a></template>"""
         self.Template.load_template_from_str(t1)
@@ -103,7 +103,7 @@ class TestTemplate:
             '</template>\n'
         )
 
-    def test_load_template(self):
+    def test_load_template(self) -> None:
         """Test load a template in etree.Element node."""
         et = html.fromstring(
             '<template id="test"><a><b1/><b2/></a></template>')
@@ -120,14 +120,14 @@ class TestTemplate:
             '</template>\n'
         )
 
-    def test_load_template_without_id_and_without_extend(self):
+    def test_load_template_without_id_and_without_extend(self) -> None:
         """Test load a template without id or extend."""
         et = html.fromstring(
             '<template><a><b1/><b2/></a></template>')
         with pytest.raises(TemplateError):
             self.Template.load_template(et)
 
-    def test_load_template_for_extend(self):
+    def test_load_template_for_extend(self) -> None:
         """Test load a template with extend."""
         et = html.fromstring(
             '<template id="test"><a><b1/><b2/></a></template>')
@@ -141,14 +141,14 @@ class TestTemplate:
         self.Template.load_template(et)
         assert len(self.Template.known['test']['tmpl']) == 2
 
-    def test_load_template_for_extend_ignore_missing(self):
+    def test_load_template_for_extend_ignore_missing(self) -> None:
         """Test load a template with extend and ignore missing."""
         et = html.fromstring(
             '<template extend="missing"><a><b1/><b2/></a></template>')
         self.Template.load_template(et, ignore_missing_extend=True)
         assert len(self.Template.known['missing']['tmpl']) == 1
 
-    def test_load_template_for_extend_unexisting_template(self):
+    def test_load_template_for_extend_unexisting_template(self) -> None:
         """Test load a template with extend a missing template id."""
         et = html.fromstring("""
             <template extend="test">
@@ -159,7 +159,7 @@ class TestTemplate:
         with pytest.raises(TemplateError):
             self.Template.load_template(et)
 
-    def test_load_template_for_replace_existing_template_ko(self):
+    def test_load_template_for_replace_existing_template_ko(self) -> None:
         """Test load a template for replace it without extend."""
         et = html.fromstring(
             '<template id="test"><a><b1/><b2/></a></template>')
@@ -169,7 +169,7 @@ class TestTemplate:
         with pytest.raises(TemplateError):
             self.Template.load_template(et)
 
-    def test_load_template_for_replace_existing_template_ok(self):
+    def test_load_template_for_replace_existing_template_ok(self) -> None:
         """Test force load a template for replace it without extend."""
         et = html.fromstring(
             '<template id="test"><a><b1/><b2/></a></template>')
@@ -191,7 +191,7 @@ class TestTemplate:
             )
         )
 
-    def test_get_xpath(self):
+    def test_get_xpath(self) -> None:
         """Test get xpath."""
         et = html.fromstring("""
             <template>
@@ -202,7 +202,7 @@ class TestTemplate:
         xpaths = self.Template.get_xpath(et)
         assert len(xpaths) == 3
 
-        def check_xpath(xpath, result):
+        def check_xpath(xpath, result) -> None:
             assert xpath.expression == result['expression']
             assert xpath.action == result['action']
             els = [html.tostring(el) for el in xpath.elements]
@@ -218,7 +218,7 @@ class TestTemplate:
                                 'action': 'insertAfter',
                                 'elements': [b'<d></d>']})
 
-    def test_xpath_insertBefore(self):
+    def test_xpath_insertBefore(self) -> None:
         """Test xpath insertBefore."""
         self.Template.compiled['en'] = {}
         self.Template.compiled['en']['test'] = html.fromstring(
@@ -241,14 +241,14 @@ class TestTemplate:
             )
         )
 
-    def test_xpath_insertBefore2(self):
+    def test_xpath_insertBefore2(self) -> None:
         """Test xpath insertBefore from tag xpath."""
         self.Template.load_template_from_str(
             '<template id="test"><a><b1/><b2/></a></template>')
         self.Template.load_template_from_str(
             '<template extend="test">'
             '<xpath expression=".//b1" action="insertBefore"><b0/></xpath>'
-            '</template>'
+            '</template>',
         )
         self.Template.compile()
         assert (
@@ -267,7 +267,7 @@ class TestTemplate:
             )
         )
 
-    def test_xpath_insertAfter(self):
+    def test_xpath_insertAfter(self) -> None:
         """Test xpath insertAfter."""
         self.Template.compiled['en'] = {}
         self.Template.compiled['en']['test'] = html.fromstring(
@@ -290,14 +290,14 @@ class TestTemplate:
             )
         )
 
-    def test_xpath_insertAfter2(self):
+    def test_xpath_insertAfter2(self) -> None:
         """Test xpath insertAfter from tag xpath."""
         self.Template.load_template_from_str(
             '<template id="test"><a><b1/><b2/></a></template>')
         self.Template.load_template_from_str(
             '<template extend="test">'
             '<xpath expression=".//b2" action="insertAfter"><b3/></xpath>'
-            '</template>'
+            '</template>',
         )
         self.Template.compile()
         assert (
@@ -316,7 +316,7 @@ class TestTemplate:
             )
         )
 
-    def test_xpath_insert(self):
+    def test_xpath_insert(self) -> None:
         """Test xpath insert."""
         self.Template.compiled['en'] = {}
         self.Template.compiled['en']['test'] = html.fromstring(
@@ -339,7 +339,7 @@ class TestTemplate:
             )
         )
 
-    def test_xpath_replace(self):
+    def test_xpath_replace(self) -> None:
         """Test xpath replace."""
         self.Template.compiled['en'] = {}
         self.Template.compiled['en']['test'] = html.fromstring(
@@ -358,14 +358,14 @@ class TestTemplate:
             '</template>\n'
         )
 
-    def test_xpath_replace2(self):
+    def test_xpath_replace2(self) -> None:
         """Test xpath replace from xpath tag."""
         self.Template.load_template_from_str(
             '<template id="test"><a><b1/><b2/></a></template>')
         self.Template.load_template_from_str(
             '<template extend="test">'
             '<xpath expression=".//b2" action="replace"><c/></xpath>'
-            '</template>'
+            '</template>',
         )
         self.Template.compile()
         assert (
@@ -380,7 +380,7 @@ class TestTemplate:
             '</template>\n'
         )
 
-    def test_xpath_remove(self):
+    def test_xpath_remove(self) -> None:
         """Test xpath remove."""
         self.Template.compiled['en'] = {}
         self.Template.compiled['en']['test'] = html.fromstring(
@@ -396,14 +396,14 @@ class TestTemplate:
             '</template>\n'
         )
 
-    def test_xpath_remove2(self):
+    def test_xpath_remove2(self) -> None:
         """Test xpath remove from xpath tag."""
         self.Template.load_template_from_str(
             '<template id="test"><a><b1/><b2/></a></template>')
         self.Template.load_template_from_str(
             '<template extend="test">'
             '<xpath expression=".//b2" action="remove" />'
-            '</template>'
+            '</template>',
         )
         self.Template.compile()
         assert (
@@ -416,7 +416,7 @@ class TestTemplate:
             '</template>\n'
         )
 
-    def test_get_xpath_attributes(self):
+    def test_get_xpath_attributes(self) -> None:
         """Test xpath attributes."""
         ets = [
             html.fromstring("""<attribute name="test" test="name"/>"""),
@@ -428,7 +428,7 @@ class TestTemplate:
         assert attributes[0] == {'name': 'test', 'test': 'name'}
         assert attributes[1] == {'a': 'b', 'c': 'd'}
 
-    def test_xpath_attributes(self):
+    def test_xpath_attributes(self) -> None:
         """Test xpath attributes."""
         self.Template.compiled['en'] = {}
         self.Template.compiled['en']['test'] = html.fromstring(
@@ -449,7 +449,7 @@ class TestTemplate:
             )
         )
 
-    def test_xpath_attributes2(self):
+    def test_xpath_attributes2(self) -> None:
         """Test xpath attributes from template."""
         self.Template.load_template_from_str(
             '<template id="test"><a><b1/><b2/></a></template>')
@@ -458,7 +458,7 @@ class TestTemplate:
             '<xpath expression=".//b2" action="attributes" >'
             '<attribute name="test" />'
             '</xpath>'
-            '</template>'
+            '</template>',
         )
         self.Template.compile()
         assert (
@@ -475,7 +475,7 @@ class TestTemplate:
             )
         )
 
-    def test_xpath_attributes3(self):
+    def test_xpath_attributes3(self) -> None:
         """Test xpath attributes with wrong tag."""
         self.Template.load_template_from_str(
             '<template id="test"><a><b1/><b2/></a></template>')
@@ -484,31 +484,31 @@ class TestTemplate:
             '<xpath expression=".//b2" action="attributes" >'
             '<other name="test" />'
             '</xpath>'
-            '</template>'
+            '</template>',
         )
         with pytest.raises(TemplateError):
             self.Template.compile()
 
-    def test_xpath_other(self):
+    def test_xpath_other(self) -> None:
         """Test xpath with wrong tag."""
         self.Template.load_template_from_str(
             '<template id="test"><a><b1/><b2/></a></template>')
         self.Template.load_template_from_str(
             '<template extend="test">'
             '<xpath expression=".//b2" action="other" />'
-            '</template>'
+            '</template>',
         )
         with pytest.raises(TemplateError):
             self.Template.compile()
 
-    def test_include(self):
+    def test_include(self) -> None:
         """Test with include tag."""
         self.Template.load_template_from_str(
             '<template id="test"><a><b1/><b2/></a></template>')
         self.Template.load_template_from_str(
             '<template id="test2">'
             '<c><include template="test"/></c>'
-            '</template>'
+            '</template>',
         )
         self.Template.compile()
         assert (
@@ -536,7 +536,7 @@ class TestTemplate:
             '</template>\n'
         )
 
-    def test_get_template(self):
+    def test_get_template(self) -> None:
         """Test get template."""
         template = '<a><b1></b1><b2></b2></a>'
         self.Template.known = {
@@ -565,7 +565,7 @@ class TestTemplate:
             '</a>\n'
         )
 
-    def test_get_template_with_translation(self):
+    def test_get_template_with_translation(self) -> None:
         """Test get template with translation."""
         template = '<template id="test"><b1 label="test">test</b1></template>'
         self.Template.load_template_from_str(template)
@@ -576,14 +576,14 @@ class TestTemplate:
             '</b1>\n'
         )
 
-    def test_get_template_tostring_is_False(self):
+    def test_get_template_tostring_is_False(self) -> None:
         """Test get template with tostring is False."""
         template = '<a><b1></b1><b2></b2></a>'
         self.Template.compiled['en'] = {}
         self.Template.compiled['en']['test'] = html.fromstring(template)
         assert self.Template.get_template('test', tostring=False) is not None
 
-    def test_compile_the_same_template(self):
+    def test_compile_the_same_template(self) -> None:
         """Test compile the template in two id."""
         et = html.fromstring(
             '<template id="test"><a><b1/><b2/></a></template>')
@@ -608,7 +608,7 @@ class TestTemplate:
             '</template>\n'
         )
 
-    def test_compile_with_extend_another_template(self):
+    def test_compile_with_extend_another_template(self) -> None:
         """Test compile the template with extend."""
         et = html.fromstring(
             '<template id="test"><a><b1/><b2/></a></template>')
@@ -644,7 +644,7 @@ class TestTemplate:
             '</template>\n'
         )
 
-    def test_compile_the_same_template_and_extend_it(self):
+    def test_compile_the_same_template_and_extend_it(self) -> None:
         """Test compile the template with extend."""
         et = html.fromstring(
             '<template id="test"><a><b1/><b2/></a></template>')
@@ -691,7 +691,7 @@ class TestTemplate:
             )
         )
 
-    def test_html_attribute(self):
+    def test_html_attribute(self) -> None:
         """Test keep the html attribute."""
         et = html.fromstring(
             '<template id="test" test><a><b1/><b2/></a></template>')
@@ -708,7 +708,7 @@ class TestTemplate:
             '</template>\n'
         )
 
-    def test_html_no_ending_tag(self):
+    def test_html_no_ending_tag(self) -> None:
         """Test with not ending tag."""
         et = html.fromstring(
             '<template id="test"><a><b1></a></template>')
@@ -724,7 +724,7 @@ class TestTemplate:
             )
         )
 
-    def test_copy(self):
+    def test_copy(self) -> None:
         """Test copy."""
         et = html.fromstring(
             '<template id="test"><a><b1/><b2/></a></template>')

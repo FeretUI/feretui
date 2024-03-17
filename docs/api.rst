@@ -66,6 +66,22 @@ feretui.pages module
    :private-members:
 
 
+feretui.menus module
+--------------------
+
+.. automodule:: feretui.menus
+   :members:
+   :private-members:
+
+
+feretui.form module
+-------------------
+
+.. automodule:: feretui.form
+   :members:
+   :private-members:
+
+
 feretui.helper module
 ---------------------
 

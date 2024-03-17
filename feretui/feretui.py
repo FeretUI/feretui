@@ -50,6 +50,7 @@ from markupsafe import Markup
 
 from feretui.actions import goto
 from feretui.exceptions import MenuError, UnexistingActionError
+from feretui.form import FeretUIForm
 from feretui.menus import (
     AsideMenu,
     ChildrenMenu,
@@ -70,6 +71,7 @@ from feretui.template import Template
 from feretui.thread import local
 from feretui.translation import (
     TranslatedFileTemplate,
+    TranslatedForm,
     TranslatedMenu,
     TranslatedStringTemplate,
     Translation,
@@ -85,7 +87,7 @@ def import_feretui_addons(feretui: "FeretUI") -> None:
         * feretui.tmpl
 
     * javascript:
-        * `htmx <https://htmx.org/>`_
+        * Htmx_
         * `hyperscript <https://hyperscript.org/docs/>`_
         * `json-enc <https://htmx.org/extensions/json-enc/>`_
 
@@ -227,6 +229,10 @@ class FeretUI:
         * :meth:`.FeretUI.register_toolbar_right_menus`
         * :meth:`.FeretUI.register_aside_menus`
 
+    * Form : Declare the WTForm class in the feretui instance, need for the
+      translation
+        * :meth:`.FeretUI.register_form`
+
     * Translations : Import and export the catalog
         * :meth:`.FeretUI.export_catalog`
         * :meth:`.FeretUI.load_catalog`
@@ -265,12 +271,15 @@ class FeretUI:
         self.template = Template(self.translation)
         self.register_template_file(
             Path(feretui_path, 'templates', 'feretui.tmpl'),
+            addons='feretui',
         )
         self.register_template_file(
             Path(feretui_path, 'templates', 'pages.tmpl'),
+            addons='feretui',
         )
         self.register_template_file(
             Path(feretui_path, 'templates', 'menus.tmpl'),
+            addons='feretui',
         )
 
         # Static behaviours
@@ -470,7 +479,7 @@ class FeretUI:
     def register_template_file(
         self: "FeretUI",
         template_path: str,
-        addons: str = 'feretui',
+        addons: str = None,
     ) -> None:
         """Import a template file in FeretUI.
 
@@ -497,7 +506,7 @@ class FeretUI:
     def register_template_from_str(
         self: "FeretUI",
         template: str,
-        addons: str = 'feretui',
+        addons: str = None,
     ) -> None:
         """Import a template string in FeretUI.
 
@@ -639,7 +648,8 @@ class FeretUI:
         self: "FeretUI",
         name: str = None,
         templates: Iterable[str] = None,
-        addons: str = 'feretui',
+        forms: Iterable[FeretUIForm] = None,
+        addons: str = None,
     ) -> Callable:
         """Register a page.
 
@@ -685,11 +695,24 @@ class FeretUI:
             def my_page(feretui, session, options):
                 return ...
 
+        You can register a WTForm
+
+        ::
+
+            class MyForm(FeretUIForm):
+                ...
+
+            @myferet.register_page(forms=[MyForm])
+            def my_page(feretui, session, options):
+                return ...
+
 
         :param name: The name of the pages stored in FeretUI.pages
         :type name: str
         :param templates: The str of the template to load
         :type templates: list[str]
+        :param forms: The WTForm to register at the same time
+        :type form: list[:class:`feretui.form.FeretUIForm`]
         :param addons: The addons where the message come from
         :type addons: str
         :return: Return a decorator
@@ -698,6 +721,11 @@ class FeretUI:
         if isinstance(templates, Iterable):
             for template in templates:
                 self.register_template_from_str(template, addons=addons)
+
+        if isinstance(forms, Iterable):
+            register = self.register_form(addons=addons)
+            for form in forms:
+                register(form)
 
         default_name = name
 
@@ -719,7 +747,7 @@ class FeretUI:
         name: str,
         template: str,
         templates: Iterable[str] = None,
-        addons: str = 'feretui',
+        addons: str = None,
     ) -> None:
         """Register a page.
 
@@ -796,10 +824,11 @@ class FeretUI:
         self: "FeretUI",
         position: str,
         menus: list[ToolBarMenu],
+        addons: str = None,
     ) -> None:
         def add_translation(menu: ToolBarMenu) -> None:
             self.translation.add_translated_menu(
-                TranslatedMenu(menu),
+                TranslatedMenu(menu, addons=addons),
             )
             if isinstance(menu, ChildrenMenu):
                 for submenu in menu.children:
@@ -819,6 +848,7 @@ class FeretUI:
     def register_toolbar_left_menus(
         self: "FeretUI",
         menus: list[ToolBarMenu],
+        addons: str = None,
     ) -> None:
         """Register a menu in the left part of the toolbar.
 
@@ -830,13 +860,16 @@ class FeretUI:
 
         :param menus: The menus to register
         :type menus: list[:class:`feretui.menus.ToolBarMenu`]
+        :param addons: The addons where the message come from
+        :type addons: str
         :exception: MenuError
         """
-        self._register_toolbar_menus('left', menus)
+        self._register_toolbar_menus('left', menus, addons=addons)
 
     def register_toolbar_right_menus(
         self: "FeretUI",
         menus: list[ToolBarMenu],
+        addons: str = None,
     ) -> None:
         """Register a menu in the right part of the toolbar.
 
@@ -848,14 +881,17 @@ class FeretUI:
 
         :param menus: The menus to register
         :type menus: list[:class:`feretui.menus.ToolBarMenu`]
+        :param addons: The addons where the message come from
+        :type addons: str
         :exception: MenuError
         """
-        self._register_toolbar_menus('right', menus)
+        self._register_toolbar_menus('right', menus, addons=addons)
 
     def register_aside_menus(
         self: "FeretUI",
         code: str,
         menus: list[AsideMenu],
+        addons: str = None,
     ) -> None:
         """Register a menu in an aside page.
 
@@ -871,6 +907,8 @@ class FeretUI:
         :type code: str
         :param menus: The menus to register
         :type menus: list[:class:`feretui.menus.AsideMenu`]
+        :param addons: The addons where the message come from
+        :type addons: str
         :exception: MenuError
         """
         asides = self.asides.setdefault(code, [])
@@ -878,7 +916,7 @@ class FeretUI:
         def register_menu(menu: AsideMenu) -> None:
             menu.aside = code
             self.translation.add_translated_menu(
-                TranslatedMenu(menu),
+                TranslatedMenu(menu, addons=addons),
             )
             if isinstance(menu, ChildrenMenu):
                 for submenu in menu.children:
@@ -901,6 +939,30 @@ class FeretUI:
         :rtype: list[:class:`feretui.menus.AsideMenu`
         """
         return self.asides.setdefault(code, [])
+
+    # ---------- Form  ----------
+    def register_form(self: "FeretUI", addons: str = None) -> Callable:
+        """Register a WTForm.
+
+        This a decorator.
+
+        ::
+
+            @myferet.register_form()
+            class MyForm(FeretUIForm):
+                foo = StringField()
+
+
+        :param addons: The addons where the message come from
+        :type addons: str
+        """
+        def _register_form(form: FeretUIForm) -> FeretUIForm:
+            self.translation.add_translated_form(
+                TranslatedForm(form, addons=addons),
+            )
+            return form
+
+        return _register_form
 
     # ---------- Translation ----------
     def export_catalog(
@@ -937,3 +999,15 @@ class FeretUI:
         :type lang: str
         """
         self.translation.load_catalog(catalog_path, lang)
+
+    def load_internal_catalog(self: "FeretUI", lang: str) -> None:
+        """Load a specific catalog for a language defined by feretui.
+
+        ::
+            FeretUI.load_internal_catalog('fr')
+
+        :param lang: Language code
+        :type lang: str
+        """
+        catalog_path = Path(__file__).parent / 'locale' / f'{lang}.po'
+        self.load_catalog(catalog_path, lang)

@@ -14,7 +14,7 @@ import pytest  # noqa: F401
 from feretui.response import Response
 
 
-def test_response():
+def test_response() -> None:
     """Test Response."""
     response = Response('<div>Response</div>')
     assert response.body == '<div>Response</div>'
