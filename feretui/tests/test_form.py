@@ -9,12 +9,12 @@ from pathlib import Path
 
 import pytest
 from multidict import MultiDict
-from wtforms import BooleanField, RadioField, StringField
+from wtforms import BooleanField, StringField
 from wtforms.validators import InputRequired, Length, ValidationError
 
 import feretui
 from feretui.feretui import FeretUI
-from feretui.form import FeretUIForm, Password, wrap_option
+from feretui.form import FeretUIForm, Password
 from feretui.request import Request
 from feretui.session import Session
 from feretui.thread import local
@@ -76,9 +76,11 @@ class TestForm:
         class MyForm(FeretUIForm):
             name = StringField()
 
-        myferet.translation.translations[
-            ('fr', f'form:{MyForm.__module__}:{MyForm.__name__}', 'Name')
-        ] = 'Nom'
+        myferet.translation.translations[(
+            'fr',
+            f'form:{MyForm.__module__}:{MyForm.__name__}:field:name:label',
+            'Name'
+        )] = 'Nom'
         myform = MyForm()
         assert myform.name() == (
             '<div class="field">\n'
@@ -361,141 +363,6 @@ class TestForm:
             ' </label>\n'
             ' \n'
             '</div>'
-        )
-
-    def test_form_render_radio(self) -> None:
-        myferet = FeretUI()
-        local.feretui = myferet
-        session = Session()
-        request = Request(session=session)
-        local.request = request
-        local.lang = 'en'
-
-        class MyForm(FeretUIForm):
-            test = RadioField(choices=[('foo', 'Foo'), ('bar', 'Bar')])
-
-        myform = MyForm()
-        assert myform.test() == (
-            '<div class="field">\n'
-            ' <label class="label" for="test">\n'
-            '  Test\n'
-            '        \n'
-            '  <span>\n'
-            '   \n'
-            '  </span>\n'
-            ' </label>\n'
-            ' <div class="control">\n'
-            '  <ul id="test"><li><span>\n'
-            ' <input class="radio"'' id="test-0" name="test" type="radio" '
-            'value="foo">\n'
-            '</span> <label for="test-0">Foo</label></li><li><span>\n'
-            ' <input class="radio" id="test-1" name="test" type="radio" '
-            'value="bar">\n'
-            '</span> <label for="test-1">Bar</label></li></ul>\n'
-            ' </div>\n'
-            ' \n'
-            '</div>'
-        )
-
-    def test_form_render_radio_required(self) -> None:
-        myferet = FeretUI()
-        local.feretui = myferet
-        session = Session()
-        request = Request(session=session)
-        local.request = request
-        local.lang = 'en'
-
-        class MyForm(FeretUIForm):
-            test = RadioField(
-                choices=[('foo', 'Foo'), ('bar', 'Bar')],
-                validators=[InputRequired()])
-
-        myform = MyForm()
-        assert myform.test() == (
-            '<div class="field">\n'
-            ' <label class="label" for="test">\n'
-            '  Test\n'
-            '        \n'
-            '  <span class="content is-small">\n'
-            '   (\n'
-            '   <span class="has-text-link">\n'
-            '    required\n'
-            '   </span>\n'
-            '   )\n'
-            '  </span>\n'
-            '  \n'
-            '  <span>\n'
-            '   \n'
-            '  </span>\n'
-            ' </label>\n'
-            ' <div class="control">\n'
-            '  <ul id="test"><li><span>\n'
-            ' <input class="radio"'' id="test-0" name="test" required '
-            'type="radio" value="foo">\n'
-            '</span> <label for="test-0">Foo</label></li><li><span>\n'
-            ' <input class="radio" id="test-1" name="test" required '
-            'type="radio" value="bar">\n'
-            '</span> <label for="test-1">Bar</label></li></ul>\n'
-            ' </div>\n'
-            ' \n'
-            '</div>'
-        )
-
-    def test_form_render_radio_description(self) -> None:
-        myferet = FeretUI()
-        local.feretui = myferet
-        session = Session()
-        request = Request(session=session)
-        local.request = request
-        local.lang = 'en'
-
-        class MyForm(FeretUIForm):
-            test = RadioField(
-                choices=[('foo', 'Foo'), ('bar', 'Bar')], description="Test")
-
-        myform = MyForm()
-        assert myform.test() == (
-            '<div class="field">\n'
-            ' <label class="label" for="test">\n'
-            '  Test\n'
-            '        \n'
-            '  <span>\n'
-            '   \n'
-            '   <span class="ml-0 icon has-tooltip-bottom has-tooltip-arrow" '
-            'data-tooltip="Test">\n'
-            '    <i class="fa-solid fa-circle-info is-small">\n'
-            '    </i>\n'
-            '   </span>\n'
-            '   \n'
-            '  </span>\n'
-            ' </label>\n'
-            ' <div class="control">\n'
-            '  <ul id="test"><li><span>\n'
-            ' <input class="radio"'' id="test-0" name="test" type="radio" '
-            'value="foo">\n'
-            '</span> <label for="test-0">Foo</label></li><li><span>\n'
-            ' <input class="radio" id="test-1" name="test" type="radio" '
-            'value="bar">\n'
-            '</span> <label for="test-1">Bar</label></li></ul>\n'
-            ' </div>\n'
-            ' \n'
-            '</div>'
-        )
-
-    def test_form_wrap_option_without_radioinput(self) -> None:
-        myferet = FeretUI()
-        local.feretui = myferet
-        session = Session()
-        request = Request(session=session)
-        local.request = request
-        local.lang = 'en'
-
-        class MyForm(FeretUIForm):
-            test = StringField()
-
-        form = MyForm()
-        assert wrap_option(form.test) == (
-            '<input id="test" name="test" type="text" value="">'
         )
 
     def test_add_translation(self) -> None:
