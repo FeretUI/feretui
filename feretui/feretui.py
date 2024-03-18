@@ -87,9 +87,6 @@ logger = getLogger(__name__)
 def import_feretui_addons(feretui: "FeretUI") -> None:
     """Import the main static used by FeretUI client.
 
-    * templates:
-        * feretui.tmpl
-
     * javascript:
         * Htmx_
         * `hyperscript <https://hyperscript.org/docs/>`_
@@ -283,6 +280,10 @@ class FeretUI:
         )
         self.register_template_file(
             Path(feretui_path, 'templates', 'menus.tmpl'),
+            addons='feretui',
+        )
+        self.register_template_file(
+            Path(feretui_path, 'templates', 'form.tmpl'),
             addons='feretui',
         )
 
