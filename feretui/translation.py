@@ -395,18 +395,7 @@ class TranslatedForm:
         :param po: The catalog instance
         :type po: PoFile_
         """
-        context = self.form.get_context()
-        form = self.form()
-        for field in form._fields.values():
-            po.append(translation.define(
-                context,
-                field.label.text,
-            ))
-            if field.description:
-                po.append(translation.define(
-                    context,
-                    field.description,
-                ))
+        self.form.export_catalog(translation, po)
 
 
 class Translation:

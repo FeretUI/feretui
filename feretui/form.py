@@ -21,10 +21,12 @@ Added the also the validators
 
 * :class:`.Password`
 """
-from typing import Any
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any
 
 from markupsafe import Markup
 from password_validator import PasswordValidator
+from polib import POFile
 from wtforms.fields import BooleanField, Field, RadioField, SelectFieldBase
 from wtforms.fields.core import UnboundField
 from wtforms.form import Form
@@ -32,6 +34,9 @@ from wtforms.validators import InputRequired, ValidationError
 from wtforms.widgets.core import clean_key
 
 from feretui.thread import local
+
+if TYPE_CHECKING:
+    from feretui.translation import Translation
 
 
 def wrap_input(field: Field, **kwargs: dict) -> Markup:
@@ -89,8 +94,11 @@ def wrap_bool(field: "Field", **kwargs: dict) -> Markup:
     ))
 
 
-def wrap_radio(field: "Field", **kwargs: dict) -> Markup:
-    """Render boolean field.
+def wrap_radio(
+    field: "Field",
+    **kwargs: dict,  # noqa: ARG001
+) -> Markup:
+    """Render radio field.
 
     :param field: The field to validate
     :type field: Field_
@@ -99,6 +107,11 @@ def wrap_radio(field: "Field", **kwargs: dict) -> Markup:
     """
     myferet = local.feretui
     session = local.request.session
+    vertical = kwargs.get('vertical', True)
+    if vertical:
+        template_id = "feretui-radio-field-vertical"
+    else:
+        template_id = "feretui-radio-field-horizontal"
 
     required = False
     for validator in field.validators:
@@ -107,7 +120,7 @@ def wrap_radio(field: "Field", **kwargs: dict) -> Markup:
 
     return Markup(myferet.render_template(
         session,
-        "feretui-radio-field",
+        template_id,
         label=field.label,
         field=field,
         required=required,
@@ -117,7 +130,7 @@ def wrap_radio(field: "Field", **kwargs: dict) -> Markup:
 
 
 def no_wrap(field: "Field", **kwargs: dict) -> Markup:
-    """Render boolean field.
+    """Render the field widget.
 
     :param field: The field to validate
     :type field: Field_
@@ -127,10 +140,12 @@ def no_wrap(field: "Field", **kwargs: dict) -> Markup:
     return field.widget(field, **kwargs)
 
 
-def gettext(form, string, context_suffix=''):
-    if not string:
-        return string
-
+def gettext(
+    form: Form,
+    string: str,
+    context_suffix: str = '',
+) -> str:
+    """Translate the string."""
     translation = local.feretui.translation
     lang = local.lang
     for form_cls in form.__mro__:
@@ -148,7 +163,13 @@ def gettext(form, string, context_suffix=''):
     return string
 
 
-def get_field_translations(Form, unbound_field, options, callback):
+def get_field_translations(
+    form_cls: Form,
+    unbound_field: UnboundField,
+    options: dict,
+    callback: Callable,
+) -> tuple[tuple, dict]:
+    """Find the attribute to translate and apply the callback."""
     context_suffix = f":field:{options['name']}:"
 
     args = list(unbound_field.args)
@@ -161,13 +182,14 @@ def get_field_translations(Form, unbound_field, options, callback):
     else:
         label = options['name'].replace('_', ' ').title()
 
-    kwargs['label'] = callback(Form, label, context_suffix + 'label')
+    kwargs['label'] = callback(form_cls, label, context_suffix + 'label')
 
-    kwargs['description'] = callback(
-        Form,
-        kwargs.get('description', ''),
-        context_suffix + 'description'
-    )
+    if kwargs.get('description'):
+        kwargs['description'] = callback(
+            form_cls,
+            kwargs.get('description', ''),
+            context_suffix + 'description',
+        )
 
     if 'choices' in kwargs:
         choices = kwargs.pop('choices')
@@ -180,12 +202,19 @@ def get_field_translations(Form, unbound_field, options, callback):
         new_choices = []
         for choice in choices:
             choice = list(choice)
-            choice[1] = callback(
-                Form,
-                choice[1],
-                context_suffix + 'choice',
-            )
             new_choices.append(choice)
+
+            choice[1] = callback(
+                form_cls,
+                choice[1],
+                context_suffix + f'choice:{choice[0]}:label',
+            )
+            if len(choice) == 3 and choice[2].get('description'):
+                choice[2]['description'] = callback(
+                    form_cls,
+                    choice[2]['description'],
+                    context_suffix + f'choice:{choice[0]}:description',
+                )
 
         kwargs['choices'] = new_choices
 
@@ -321,19 +350,30 @@ class FeretUIForm(Form):
         return f'form:{cls.__module__}:{cls.__name__}'
 
     @classmethod
-    def export_catalog(cls, translation, po):
+    def export_catalog(
+        cls: "FeretUIForm",
+        translation: "Translation",
+        po: POFile,
+    ) -> None:
+        """Export the Form translation in the catalog.
 
-        def callback(Form, string, context_suffix):
-            context = Form.get_context() + context_suffix
+        :param translation: The translation instance to add also inside it.
+        :type translation: :class:`.Translation`
+        :param po: The catalog instance
+        :type po: PoFile_
+        """
+
+        def callback(form_cls: Form, string: str, context_suffix: str) -> str:
+            context = form_cls.get_context() + context_suffix
             po.append(translation.define(context, string))
             return string
 
         for attr in dir(cls):
-            Field = getattr(cls, attr)
-            if not isinstance(Field, UnboundField):
+            field_cls = getattr(cls, attr)
+            if not isinstance(field_cls, UnboundField):
                 continue
 
-            get_field_translations(cls, Field, {'name': attr}, callback)
+            get_field_translations(cls, field_cls, {'name': attr}, callback)
 
     class Meta:
         """Meta class.
@@ -343,7 +383,16 @@ class FeretUIForm(Form):
         * Bulma render
         """
 
-        def bind_field(self, form, unbound_field, options):
+        def bind_field(
+            self: Any,
+            form: Form,
+            unbound_field: UnboundField,
+            options: dict,
+        ) -> Field:
+            """Bind the field to the form.
+
+            Added translation for the field
+            """
             args, kwargs = get_field_translations(
                 form.__class__,
                 unbound_field,
@@ -351,7 +400,7 @@ class FeretUIForm(Form):
                 gettext,
             )
             return UnboundField(
-                unbound_field.field_class, *args, **kwargs
+                unbound_field.field_class, *args, **kwargs,
             ).bind(form=form, **options)
 
         def render_field(self: Any, field: Field, render_kw: dict) -> Markup:
