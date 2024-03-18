@@ -36,7 +36,7 @@ def get_langs():
 class SignUpForm(FeretUIForm):
     login = StringField(validators=[InputRequired()])
     lang = RadioField(
-        'Language',
+        label='Language',
         choices=get_langs,
         validators=[InputRequired()],
     )

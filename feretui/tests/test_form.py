@@ -76,9 +76,11 @@ class TestForm:
         class MyForm(FeretUIForm):
             name = StringField()
 
-        myferet.translation.translations[
-            ('fr', f'form:{MyForm.__module__}:{MyForm.__name__}', 'Name')
-        ] = 'Nom'
+        myferet.translation.translations[(
+            'fr',
+            f'form:{MyForm.__module__}:{MyForm.__name__}:field:name:label',
+            'Name'
+        )] = 'Nom'
         myform = MyForm()
         assert myform.name() == (
             '<div class="field">\n'

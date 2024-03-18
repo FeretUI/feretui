@@ -188,7 +188,18 @@
         <include template="feretui-tooltip" />
       </label>
       <div class="control">
-        {{ widget }}
+        <ul>
+          {% for subfield in field %}
+          <li>
+            <label class="radio" for="{{ label.field_id }}" >
+                {{ subfield() }}
+                {{ subfield.label(class_="radio") }}
+                {% set tooltip = subfield.description %}
+                <include template="feretui-tooltip" />
+            </label>
+          </li>
+        {% endfor %}
+        </ul>
       </div>
       {% if errors %}
       <p class="help is-danger">
@@ -196,8 +207,5 @@
       </p>
       {% endif %}
     </div>
-  </template>
-  <template id="feretui-radio-option">
-    <span>{{ widget }}</span>
   </template>
 </templates>
