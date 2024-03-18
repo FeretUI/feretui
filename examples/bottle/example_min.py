@@ -11,14 +11,11 @@ from feretui import (
     AsideHeaderMenu,
     AsideMenu,
     FeretUI,
-    FeretUIForm,
     Request,
     Session,
     ToolBarDropDownMenu,
     ToolBarMenu,
 )
-from wtforms import StringField, BooleanField
-from wtforms.validators import InputRequired
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -77,15 +74,6 @@ myferet = FeretUI()
 myferet.load_internal_catalog('fr')
 
 
-@myferet.register_form()
-class HelloForm(FeretUIForm):
-    name = StringField(
-        validators=[InputRequired()],
-        description="PLop"
-    )
-    mybool = BooleanField(description='titi')
-
-
 # /?page=hello
 @myferet.register_page(
     templates=['''
@@ -106,8 +94,7 @@ class HelloForm(FeretUIForm):
     ''']
 )
 def hello(feretui, session, option):
-    form = HelloForm()
-    return feretui.render_template(session, 'hello', form=form)
+    return feretui.render_template(session, 'hello')
 
 
 # /?page=foo

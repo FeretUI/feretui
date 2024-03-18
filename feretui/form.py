@@ -21,16 +21,22 @@ Added the also the validators
 
 * :class:`.Password`
 """
-from typing import Any
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any
 
 from markupsafe import Markup
 from password_validator import PasswordValidator
-from wtforms.fields import BooleanField, Field, RadioField
+from polib import POFile
+from wtforms.fields import BooleanField, Field, RadioField, SelectFieldBase
+from wtforms.fields.core import UnboundField
 from wtforms.form import Form
 from wtforms.validators import InputRequired, ValidationError
 from wtforms.widgets.core import clean_key
 
 from feretui.thread import local
+
+if TYPE_CHECKING:
+    from feretui.translation import Translation
 
 
 def wrap_input(field: Field, **kwargs: dict) -> Markup:
@@ -62,7 +68,7 @@ def wrap_input(field: Field, **kwargs: dict) -> Markup:
         label=field.label,
         widget=field.widget(field, **kwargs),
         required=required,
-        tooltip=field.gettext(field.description),
+        tooltip=field.description,
         errors=field.errors,
     ))
 
@@ -83,9 +89,136 @@ def wrap_bool(field: "Field", **kwargs: dict) -> Markup:
         "feretui-bool-field",
         label=field.label,
         widget=field.widget(field, **kwargs),
-        tooltip=field.gettext(field.description),
+        tooltip=field.description,
         errors=field.errors,
     ))
+
+
+def wrap_radio(
+    field: "Field",
+    **kwargs: dict,  # noqa: ARG001
+) -> Markup:
+    """Render radio field.
+
+    :param field: The field to validate
+    :type field: Field_
+    :return: The renderer of the widget as html.
+    :rtype: Markup_
+    """
+    myferet = local.feretui
+    session = local.request.session
+    vertical = kwargs.get('vertical', True)
+    if vertical:
+        template_id = "feretui-radio-field-vertical"
+    else:
+        template_id = "feretui-radio-field-horizontal"
+
+    required = False
+    for validator in field.validators:
+        if isinstance(validator, InputRequired):
+            required = True
+
+    return Markup(myferet.render_template(
+        session,
+        template_id,
+        label=field.label,
+        field=field,
+        required=required,
+        tooltip=field.description,
+        errors=field.errors,
+    ))
+
+
+def no_wrap(field: "Field", **kwargs: dict) -> Markup:
+    """Render the field widget.
+
+    :param field: The field to validate
+    :type field: Field_
+    :return: The renderer of the widget as html.
+    :rtype: Markup_
+    """
+    return field.widget(field, **kwargs)
+
+
+def gettext(
+    form: Form,
+    string: str,
+    context_suffix: str = '',
+) -> str:
+    """Translate the string."""
+    translation = local.feretui.translation
+    lang = local.lang
+    for form_cls in form.__mro__:
+        if hasattr(form_cls, 'get_context'):
+            context = form_cls.get_context() + context_suffix
+            res = translation.get(
+                lang,
+                context,
+                string,
+                message_as_default=False,
+            )
+            if res is not None:
+                return res
+
+    return string
+
+
+def get_field_translations(
+    form_cls: Form,
+    unbound_field: UnboundField,
+    options: dict,
+    callback: Callable,
+) -> tuple[tuple, dict]:
+    """Find the attribute to translate and apply the callback."""
+    context_suffix = f":field:{options['name']}:"
+
+    args = list(unbound_field.args)
+    kwargs = unbound_field.kwargs.copy()
+
+    if args:
+        label = args.pop(0)
+    elif unbound_field.kwargs.get('label'):
+        label = unbound_field.kwargs.pop('label')
+    else:
+        label = options['name'].replace('_', ' ').title()
+
+    kwargs['label'] = callback(form_cls, label, context_suffix + 'label')
+
+    if kwargs.get('description'):
+        kwargs['description'] = callback(
+            form_cls,
+            kwargs.get('description', ''),
+            context_suffix + 'description',
+        )
+
+    if 'choices' in kwargs:
+        choices = kwargs.pop('choices')
+        if callable(choices):
+            choices = choices()
+
+        if isinstance(choices, dict):
+            choices = choices.items()
+
+        new_choices = []
+        for choice in choices:
+            choice = list(choice)
+            new_choices.append(choice)
+
+            choice[1] = callback(
+                form_cls,
+                choice[1],
+                context_suffix + f'choice:{choice[0]}:label',
+            )
+            if len(choice) == 3 and choice[2].get('description'):
+                choice[2]['description'] = callback(
+                    form_cls,
+                    choice[2]['description'],
+                    context_suffix + f'choice:{choice[0]}:description',
+                )
+
+        kwargs['choices'] = new_choices
+
+    return args, kwargs
 
 
 class FormTranslations:
@@ -97,20 +230,7 @@ class FormTranslations:
 
     def gettext(self: "FormTranslations", string: str) -> str:
         """Return the translation."""
-        translation = local.feretui.translation
-        lang = local.lang
-        for form_cls in self.form.__class__.__mro__:
-            if hasattr(form_cls, 'get_context'):
-                res = translation.get(
-                    lang,
-                    form_cls.get_context(),
-                    string,
-                    message_as_default=False,
-                )
-                if res is not None:
-                    return res
-
-        return string
+        return gettext(self.form.__class__, string)
 
     def ngettext(
         self: "FormTranslations",
@@ -145,7 +265,8 @@ class FeretUIForm(Form):
 
     WRAPPERS = {
         BooleanField: wrap_bool,
-        RadioField: wrap_bool,
+        RadioField: wrap_radio,
+        SelectFieldBase._Option: no_wrap,
     }
     DEFAULT_WRAPPER = wrap_input
     TRANSLATED_MESSAGES = [
@@ -228,6 +349,32 @@ class FeretUIForm(Form):
         """Return the context for the translation."""
         return f'form:{cls.__module__}:{cls.__name__}'
 
+    @classmethod
+    def export_catalog(
+        cls: "FeretUIForm",
+        translation: "Translation",
+        po: POFile,
+    ) -> None:
+        """Export the Form translation in the catalog.
+
+        :param translation: The translation instance to add also inside it.
+        :type translation: :class:`.Translation`
+        :param po: The catalog instance
+        :type po: PoFile_
+        """
+
+        def callback(form_cls: Form, string: str, context_suffix: str) -> str:
+            context = form_cls.get_context() + context_suffix
+            po.append(translation.define(context, string))
+            return string
+
+        for attr in dir(cls):
+            field_cls = getattr(cls, attr)
+            if not isinstance(field_cls, UnboundField):
+                continue
+
+            get_field_translations(cls, field_cls, {'name': attr}, callback)
+
     class Meta:
         """Meta class.
 
@@ -235,6 +382,26 @@ class FeretUIForm(Form):
         * Translation
         * Bulma render
         """
+
+        def bind_field(
+            self: Any,
+            form: Form,
+            unbound_field: UnboundField,
+            options: dict,
+        ) -> Field:
+            """Bind the field to the form.
+
+            Added translation for the field
+            """
+            args, kwargs = get_field_translations(
+                form.__class__,
+                unbound_field,
+                options,
+                gettext,
+            )
+            return UnboundField(
+                unbound_field.field_class, *args, **kwargs,
+            ).bind(form=form, **options)
 
         def render_field(self: Any, field: Field, render_kw: dict) -> Markup:
             """Render the field.
@@ -291,7 +458,7 @@ PasswordWithSpaces = FeretUIForm.register_translation('with spaces')
 PasswordWithoutSpaces = FeretUIForm.register_translation('without spaces')
 
 
-class Password:
+class Password(InputRequired):
     """Password validator.
 
     It is a generic validator for WTForms_. It is based on the library
@@ -392,7 +559,7 @@ class Password:
                 getattr(self.schema.has(), attr)()
                 self.waiting.append((true_msg, {}))
             elif has is False:
-                getattr(self.schema.has(), attr)()
+                getattr(self.schema.has().no(), attr)()
                 self.waiting.append((false_msg, {}))
 
     def __call__(

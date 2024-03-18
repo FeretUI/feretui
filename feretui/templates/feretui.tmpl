@@ -108,43 +108,4 @@
       {% endif %}
     </span>
   </template>
-  <template id="feretui-input-field">
-    <div class="field">
-      <label for="{{ label.field_id }}" class="label">
-        {{ label.text }}
-        {% if required %}
-        <span class="content is-small">
-        (
-          <span class="has-text-link">
-            required
-          </span>
-        )
-        </span>
-        {% endif %}
-        <include template="feretui-tooltip" />
-      </label>
-      <div class="control">
-        {{ widget }}
-      </div>
-      {% if errors %}
-      <p class="help is-danger">
-        {{ errors | join(', ')  }}
-      </p>
-      {% endif %}
-    </div>
-  </template>
-  <template id="feretui-bool-field">
-    <div class="field">
-      <label for="{{ label.field_id }}" class="checkbox">
-        {{ widget }}
-        {{ label.text }}
-        <include template="feretui-tooltip" />
-      </label>
-      {% if errors %}
-      <p class="help is-danger">
-        {{ errors | join(', ')  }}
-      </p>
-      {% endif %}
-    </div>
-  </template>
 </templates>
