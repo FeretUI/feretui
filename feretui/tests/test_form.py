@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pytest
 from multidict import MultiDict
-from wtforms import BooleanField, RadioField, StringField, SelectField
+from wtforms import BooleanField, RadioField, SelectField, StringField
 from wtforms.validators import InputRequired, Length, ValidationError
 
 import feretui
@@ -577,7 +577,7 @@ class TestForm:
         class MyForm(FeretUIForm):
             test = RadioField(
                 choices=[('foo', 'Foo'), ('bar', 'Bar')],
-                render_kw=dict(vertical=False),
+                render_kw={'vertical': False},
             )
 
         myform = MyForm()

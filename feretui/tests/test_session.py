@@ -18,3 +18,8 @@ def test_session() -> None:
     """Test session."""
     session = Session()
     assert session.user is None
+    assert session.to_dict() == {
+        'user': None,
+        'lang': 'en',
+        'theme': 'default',
+    }
