@@ -1,11 +1,8 @@
-import inspect
 import logging
 from os import path
 
-import redis
-from bottle import HTTPResponse, app, debug, request, route, run, static_file
-from bottle_session import Session as BottleSession
-from bottle_session import SessionPlugin
+from bottle import response, app, debug, request, route, run, static_file
+from BottleSessions import BottleSessions
 
 from feretui import (
     AsideHeaderMenu,
@@ -17,57 +14,27 @@ from feretui import (
     ToolBarDropDownMenu,
     ToolBarMenu,
 )
+from contextlib import contextmanager
 
 logging.basicConfig(level=logging.DEBUG)
 
 
-class MySessionPlugin(SessionPlugin):
+class Session(Session):
 
-    def apply(self, callback, context):
-        context.config.get('session')
-        try:
-            args = inspect.signature(context.callback).parameters
-        except AttributeError:
-            args = inspect.getargspec(context.callback)[0]
-
-        if self.keyword not in args:
-            return callback
-
-        def wrapper(*args, **kwargs):
-            r = redis.Redis(connection_pool=self.connection_pool)
-            kwargs[self.keyword] = MySession(
-                r,
-                self.cookie_name,
-                self.cookie_lifetime,
-                self.cookie_secure,
-                self.cookie_httponly,
-            )
-            return callback(*args, **kwargs)
-
-        return wrapper
-
-
-class MySession(Session, BottleSession):
-
-    def __init__(
-        self,
-        rdb,
-        cookie_name='bottle.session',
-        cookie_lifetime=None,
-        cookie_secure=False,
-        cookie_httponly=False,
-    ) -> None:
-        Session.__init__(self)
-        BottleSession.__init__(
-            self,
-            rdb,
-            cookie_name,
-            cookie_lifetime,
-            cookie_secure,
-            cookie_httponly,
-        )
+    def __init__(self) -> None:
+        super().__init__()
         self.theme = "minty"
         self.lang = 'fr'
+
+
+@contextmanager
+def feretui_session(cls):
+    session = cls()
+    try:
+        session.__dict__.update(request.session)
+        yield session
+    finally:
+        request.session.update(session.__dict__)
 
 
 myferet = FeretUI()
@@ -129,23 +96,23 @@ myferet.register_toolbar_left_menus([
 
 
 @route('/')
-def index(session):
-    frequest = Request(
-        method=Request.GET,
-        querystring=request.query_string,
-        headers=dict(request.headers),
-        session=session,
-    )
-    response = myferet.render(frequest)
-    return HTTPResponse(
-        body=response.body,
-        status=response.status_code,
-        headers=response.headers,
-    )
+def index():
+    with feretui_session(Session) as session:
+        frequest = Request(
+            method=Request.GET,
+            querystring=request.query_string,
+            headers=dict(request.headers),
+            session=session,
+        )
+        res = myferet.render(frequest)
+        for k, v in res.headers.items():
+            response.set_header(k, v)
+
+        return res.body
 
 
 @route('/feretui/static/<filepath:path>')
-def feretui_static_file(session, filepath):
+def feretui_static_file(filepath):
     filepath = myferet.get_static_file_path(filepath)
     if filepath:
         root, name = path.split(filepath)
@@ -155,40 +122,45 @@ def feretui_static_file(session, filepath):
 
 
 @route('/feretui/action/<action>', method=['GET'])
-def get_action(session, action):
-    frequest = Request(
-        method=Request.GET,
-        querystring=request.query_string,
-        headers=dict(request.headers),
-        session=session,
-    )
-    response = myferet.execute_action(frequest, action)
-    return HTTPResponse(
-        body=response.body,
-        status=response.status_code,
-        headers=response.headers,
-    )
+def get_action(action):
+    with feretui_session(Session) as session:
+        frequest = Request(
+            method=Request.GET,
+            querystring=request.query_string,
+            headers=dict(request.headers),
+            session=session,
+        )
+        res = myferet.execute_action(frequest, action)
+        for k, v in res.headers.items():
+            response.set_header(k, v)
+
+        return res.body
 
 
 @route('/feretui/action/<action>', method=['POST'])
-def post_action(session, action):
-    frequest = Request(
-        method=Request.POST,
-        body=request.body.read(),
-        headers=dict(request.headers),
-        session=session,
-    )
-    response = myferet.execute_action(frequest, action)
-    return HTTPResponse(
-        body=response.body,
-        status=response.status_code,
-        headers=response.headers,
-    )
+def post_action(action):
+    with feretui_session(Session) as session:
+        frequest = Request(
+            method=Request.POST,
+            body=request.body.read(),
+            headers=dict(request.headers),
+            session=session,
+        )
+        res = myferet.execute_action(frequest, action)
+        for k, v in res.headers.items():
+            response.set_header(k, v)
+
+        return res.body
 
 
 if __name__ == "__main__":
     app = app()
-    plugin = MySessionPlugin(cookie_lifetime=600)
-    app.install(plugin)
+    cache_config = {
+        'cache_type': 'FileSystem',
+        'cache_dir': './sess_dir',
+        'threshold': 2000,
+    }
+    btl = BottleSessions(
+        app, session_backing=cache_config, session_cookie='appcookie')
     debug(True)
     run(host="localhost", port=8080)
