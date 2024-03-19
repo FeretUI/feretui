@@ -74,7 +74,7 @@ def login_password(
     feret: "FeretUI",
     request: Request,
 ) -> str:
-    form = request.session.LoginForm(request.body)
+    form = request.session.LoginForm(request.form)
     if form.validate():
         request.session.login(**form.data)
         qs = request.get_query_string_from_current_url()
@@ -97,7 +97,7 @@ def login_signup(
     feret: "FeretUI",
     request: Request,
 ) -> str:
-    form = request.session.SignUpForm(request.body)
+    form = request.session.SignUpForm(request.form)
     if form.validate():
         redirect = request.session.signup(**form.data)
         if redirect:

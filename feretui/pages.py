@@ -30,7 +30,7 @@ from typing import TYPE_CHECKING
 from markupsafe import Markup
 
 from feretui.exceptions import PageError
-from feretui.helper import unauthenticated_or_forbidden
+from feretui.helper import page_for_authenticated_user_or_goto
 from feretui.session import Session
 
 if TYPE_CHECKING:
@@ -148,13 +148,13 @@ def aside_menu(
     )
 
 
-@unauthenticated_or_forbidden
+@page_for_authenticated_user_or_goto('forbidden')
 def login(feretui: "FeretUI", session: Session, options: dict):
     form = options.get('form', session.LoginForm())
     return feretui.render_template(session, 'feretui-page-login', form=form)
 
 
-@unauthenticated_or_forbidden
+@page_for_authenticated_user_or_goto('forbidden')
 def signup(feretui: "FeretUI", session: Session, options: dict):
     form = options.get('form', session.SignUpForm())
     return feretui.render_template(session, 'feretui-page-signup', form=form)

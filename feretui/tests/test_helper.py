@@ -13,7 +13,14 @@ import pytest  # noqa: F401
 
 from feretui.exceptions import ActionValidatorError
 from feretui.feretui import FeretUI
-from feretui.helper import action_validator
+from feretui.helper import (
+    action_validator,
+    menu_for_authenticated_user,
+    menu_for_unauthenticated_user,
+    page_for_authenticated_user_or_goto,
+    page_for_unauthenticated_user_or_goto,
+)
+from feretui.pages import page_404
 from feretui.request import Request
 from feretui.response import Response
 from feretui.session import Session
@@ -75,3 +82,75 @@ class TestActionValidator:
 
         with pytest.raises(ActionValidatorError):
             myferet.execute_action(request, 'my_action')
+
+    def test_page_for_authenticated_user_or_goto_1(self) -> None:
+        myferet = FeretUI()
+        session = Session()
+
+        @page_for_authenticated_user_or_goto('404')
+        def my_page(feretui, session, options) -> str:
+            return '<div>Test</div>'
+
+        assert my_page(myferet, session, {}) == page_404(myferet, session, {})
+
+    def test_page_for_authenticated_user_or_goto_2(self) -> None:
+        myferet = FeretUI()
+        session = Session()
+
+        @page_for_authenticated_user_or_goto(page_404)
+        def my_page(feretui, session, options) -> str:
+            return '<div>Test</div>'
+
+        assert my_page(myferet, session, {}) == page_404(myferet, session, {})
+
+    def test_page_for_authenticated_user_or_goto_3(self) -> None:
+        myferet = FeretUI()
+        session = Session(user='test')
+
+        @page_for_authenticated_user_or_goto(page_404)
+        def my_page(feretui, session, options) -> str:
+            return '<div>Test</div>'
+
+        assert my_page(myferet, session, {}) == '<div>Test</div>'
+
+    def test_page_for_unauthenticated_user_or_goto_1(self) -> None:
+        myferet = FeretUI()
+        session = Session()
+
+        @page_for_unauthenticated_user_or_goto('404')
+        def my_page(feretui, session, options) -> str:
+            return '<div>Test</div>'
+
+        assert my_page(myferet, session, {}) == '<div>Test</div>'
+
+    def test_page_for_unauthenticated_user_or_goto_2(self) -> None:
+        myferet = FeretUI()
+        session = Session(user='test')
+
+        @page_for_unauthenticated_user_or_goto('404')
+        def my_page(feretui, session, options) -> str:
+            return '<div>Test</div>'
+
+        assert my_page(myferet, session, {}) == page_404(myferet, session, {})
+
+    def test_page_for_unauthenticated_user_or_goto_3(self) -> None:
+        myferet = FeretUI()
+        session = Session(user='test')
+
+        @page_for_unauthenticated_user_or_goto(page_404)
+        def my_page(feretui, session, options) -> str:
+            return '<div>Test</div>'
+
+        assert my_page(myferet, session, {}) == page_404(myferet, session, {})
+
+    def test_menu_for_authenticated_user_1(self) -> None:
+        assert menu_for_authenticated_user(Session()) is False
+
+    def test_menu_for_authenticated_user_2(self) -> None:
+        assert menu_for_authenticated_user(Session(user="test")) is True
+
+    def test_menu_for_unauthenticated_user_1(self) -> None:
+        assert menu_for_unauthenticated_user(Session()) is True
+
+    def test_menu_for_unauthenticated_user_2(self) -> None:
+        assert menu_for_unauthenticated_user(Session(user="test")) is False

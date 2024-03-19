@@ -12,6 +12,15 @@ project.
 
 * :func:`.action_validator`: Decorator to validate the call of the action
   callback
+* :func:`.page_for_authenticated_user_or_goto`: Decorator to protect the
+  accebility of one page, and allow this page only for a user.
+* :func:`.page_for_unauthenticated_user_or_goto`: Decorator to protect the
+  accebility of one page, and allow this page only if the user is not
+  authenticated.
+* :func:`.menu_for_authenticated_user`: Callback to return
+  if the user is authenticated.
+* :func:`.menu_for_unauthenticated_user`: Callback to return
+  if the user is authenticated.
 """
 from collections.abc import Callable
 from functools import wraps
@@ -26,49 +35,114 @@ if TYPE_CHECKING:
     from feretui.feretui import FeretUI
 
 
-def authenticated_or_404(func):
-    @wraps(func)
-    def wrap(feret: "FeretUI", session: Session, options: dict):
-        if session.user:
-            return func(feret, session, options)
+def page_for_authenticated_user_or_goto(
+    fallback_page: str | Callable,
+) -> Callable:
+    """Display the decorated page if the user is authenticated.
 
-        return feret.get_page('404')(feret, session, options)
+    In the case or the user is not autenticated. The returned page
+    is the fallback page.
 
-    return wrap
+    ::
+
+        @page_for_authenticated_user_or_goto('404')
+        def my_page(myferet, session, options):
+            ...
+
+    :param fallback_page: The page if the user is not authenticated
+    :type fallback_page: str or the callable page
+    :return: a decorator
+    :rtype: Callable
+    """
+
+    def wrap_func(func: Callable) -> Callable:
+
+        @wraps(func)
+        def wrap_call(
+            feretui: "FeretUI",
+            session: Session,
+            options: dict,
+        ) -> str:
+            if session.user:
+                return func(feretui, session, options)
+
+            page = fallback_page
+            if isinstance(fallback_page, str):
+                page = feretui.get_page(fallback_page)
+
+            return page(feretui, session, options)
+
+        return wrap_call
+
+    return wrap_func
 
 
-def authenticated_or_login(func):
-    @wraps(func)
-    def wrap(feret: "FeretUI", session: Session, options: dict):
-        if session.user:
-            return func(feret, session, options)
+def page_for_unauthenticated_user_or_goto(
+    fallback_page: str | Callable,
+) -> Callable:
+    """Display the decorated page if the user is not authenticated.
 
-        page = feret.get_callback('feretui_default_authentication')()
-        return feret.get_page(page)(feret, session, options)
+    In the case or the user is autenticated. The returned page
+    is the fallback page.
 
-    return wrap
+    ::
+
+        @page_for_unauthenticated_user_or_goto('forbidden')
+        def my_page(myferet, session, options):
+            ...
+
+    :param fallback_page: The page if the user is authenticated
+    :type fallback_page: str or the callable page
+    :return: a decorator
+    :rtype: Callable
+    """
+
+    def wrap_func(func: Callable) -> Callable:
+
+        @wraps(func)
+        def wrap_call(
+            feretui: "FeretUI",
+            session: Session,
+            options: dict,
+        ) -> str:
+            if session.user is None:
+                return func(feretui, session, options)
+
+            page = fallback_page
+            if isinstance(fallback_page, str):
+                page = feretui.get_page(fallback_page)
+
+            return page(feretui, session, options)
+
+        return wrap_call
+
+    return wrap_func
 
 
-def authenticated_or_forbidden(func):
-    @wraps(func)
-    def wrap(feret: "FeretUI", session: Session, options: dict):
-        if session.user:
-            return func(feret, session, options)
+def menu_for_authenticated_user(session: Session) -> bool:
+    """Return True if the user is authenticated.
 
-        return feret.get_page('forbidden')(feret, session, options)
+    See the :class:`feretui.menus.Menu`
 
-    return wrap
+    :param session: The user session
+    :type session: :class:`feretui.session.Session`
+    :return: True if the user is authenticated
+    :rtype: bool
+    """
+    return bool(session.user)
 
 
-def unauthenticated_or_forbidden(func):
-    @wraps(func)
-    def wrap(feret: "FeretUI", session: Session, options: dict):
-        if not session.user:
-            return func(feret, session, options)
+def menu_for_unauthenticated_user(session: Session) -> bool:
+    """Return True if the user is not authenticated.
 
-        return feret.get_page('forbidden')(feret, session, options)
+    See the :class:`feretui.menus.Menu`
 
-    return wrap
+    :param session: The user session
+    :type session: :class:`feretui.session.Session`
+    :return: True if the user is not authenticated
+    :rtype: bool
+    """
+    return not session.user
 
 
 def action_validator(

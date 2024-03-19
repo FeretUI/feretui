@@ -236,7 +236,13 @@ all the translation messages in pot file.
 """
 from feretui.feretui import FeretUI  # noqa : F401
 from feretui.form import FeretUIForm, Password  # noqa : F401
-from feretui.helper import action_validator  # noqa : F401
+from feretui.helper import (  # noqa : F401
+    action_validator,
+    menu_for_authenticated_user,
+    menu_for_unauthenticated_user,
+    page_for_authenticated_user_or_goto,
+    page_for_unauthenticated_user_or_goto,
+)
 from feretui.menus import (  # noqa : F401
     ToolBarButtonMenu,
     ToolBarButtonsMenu,

@@ -15,6 +15,7 @@ from feretui import (
     ToolBarButtonMenu,
     ToolBarDropDownMenu,
     ToolBarMenu,
+    menu_only_for_user
 )
 
 logging.basicConfig(level=logging.DEBUG)
@@ -93,16 +94,20 @@ myferet.register_aside_menus('aside1', [
     ]),
 ])
 myferet.register_toolbar_left_menus([
-    ToolBarDropDownMenu('My left menu', children=[
-        ToolBarMenu(
-            'Hello', page="aside-menu", aside="aside1", aside_page='hello',
-            tooltip="Go to the hello page",
-        ),
-        ToolBarMenu(
-            'Foo', page="aside-menu", aside="aside1", aside_page='foo',
-            icon="fa-solid fa-ghost",
-        ),
-    ]),
+    ToolBarDropDownMenu(
+        'My left menu',
+        visible_callback=menu_only_for_user,
+        children=[
+            ToolBarMenu(
+                'Hello', page="aside-menu", aside="aside1", aside_page='hello',
+                tooltip="Go to the hello page",
+            ),
+            ToolBarMenu(
+                'Foo', page="aside-menu", aside="aside1", aside_page='foo',
+                icon="fa-solid fa-ghost",
+            ),
+        ]
+    ),
 ])
 
 # -- app --

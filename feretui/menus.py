@@ -97,6 +97,7 @@ class Menu:
         label: str,
         icon: str = None,
         tooltip: str = None,
+        visible_callback=None,
         **querystring: dict[str, str],
     ) -> None:
         """Menu constructor.
@@ -122,6 +123,7 @@ class Menu:
         self.label = label
         self.icon = icon
         self.tooltip = tooltip
+        self.visible_callback = visible_callback
         self.querystring = querystring
         self.context = 'menu:'
 
@@ -137,6 +139,9 @@ class Menu:
         :return: True
         :rtype: bool
         """
+        if self.visible_callback:
+            return self.visible_callback(session)
+
         return True
 
     def get_label(self: "Menu", feretui: "FeretUI") -> str:
