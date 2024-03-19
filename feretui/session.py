@@ -38,8 +38,21 @@ class Session:
 
     """
 
-    def __init__(self: "Session") -> "Session":
+    def __init__(
+        self: "Session",
+        user: str = None,
+        lang: str = 'en',
+        theme: str = 'default',
+        **kwargs: dict,
+    ) -> "Session":
         """FeretUI session."""
-        self.user: str = None
-        self.lang: str = 'en'
-        self.theme: str = 'default'
+        self.user: str = user
+        self.lang: str = lang
+        self.theme: str = theme
+        self.kwargs: dict = kwargs
+
+    def to_dict(self: "Session") -> dict:
+        """Return the value of the session as a dict."""
+        dict_ = self.__dict__.copy()
+        dict_.pop('kwargs')
+        return dict_

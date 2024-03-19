@@ -18,6 +18,5 @@ def test_response() -> None:
     """Test Response."""
     response = Response('<div>Response</div>')
     assert response.body == '<div>Response</div>'
-    assert response.content_type == 'text/html'
     assert response.status_code == 200
     assert response.headers == {}

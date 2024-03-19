@@ -38,6 +38,7 @@ from typing import Any
 from multidict import MultiDict
 
 from feretui.exceptions import (
+    RequestFormError,
     RequestNoSessionError,
     RequestWrongSessionError,
 )
@@ -59,10 +60,13 @@ class Request:
     :type method: RequestMethod
     :param body: [None]
     :type body: str
+    :param form: [None]
+    :type form: MultiDict_
     :param querystring: [None]
     :type querystring: str
     :param headers: [None]
     :type headers: dict[str, str]
+    :exception: :class:`feretui.exceptions.RequestFormError`
     :exception: :class:`feretui.exceptions.RequestNoSessionError`
     :exception: :class:`feretui.exceptions.RequestWrongSessionError`
     """
@@ -82,6 +86,7 @@ class Request:
         self: "Request",
         session: Session,
         method: RequestMethod = POST,
+        form: MultiDict = None,
         body: str = None,
         querystring: str = None,
         headers: dict[str, str] = None,
@@ -92,7 +97,8 @@ class Request:
 
         self.session = session
         self.method = method
-        self.raw_body = body
+        self.form = form
+        self.body = body
         self.raw_querystring = querystring
         self.headers = headers
 
@@ -100,11 +106,8 @@ class Request:
         if querystring:
             self.query = urllib.parse.parse_qs(querystring)
 
-        if self.raw_body:
-            try:
-                self.body = MultiDict(json.loads(self.raw_body))
-            except Exception:
-                self.body = {}
+        if form and not isinstance(form, MultiDict):
+            raise RequestFormError('The form must be a MultiDict')
 
         if session is None:
             raise RequestNoSessionError('the session is required')
@@ -112,6 +115,14 @@ class Request:
         if not isinstance(session, Session):
             raise RequestWrongSessionError(
                 'the session must be an instance of FeretUI Session')
+
+    @property
+    def json(self: "Request") -> MultiDict:
+        """Return the body as a dict."""
+        if self.body:
+            return MultiDict(json.loads(self.body))
+
+        return {}
 
     def get_url_from_dict(
         self: "Request",

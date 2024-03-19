@@ -11,11 +11,14 @@ Get the exceptions known by FeretUI:
 
 * :class:`.FeretUIError`
 * :class:`.RequestError`
+* :class:`.RequestFormError`
 * :class:`.RequestSessionError`
 * :class:`.RequestNoSessionError`
 * :class:`.RequestWrongSessionError`
 * :class:`.TemplateError`
 * :class:`.TranslationError`
+* :class:`.TranslationMenuError`
+* :class:`.TranslationFormError`
 * :class:`.PageError`
 * :class:`.ActionError`
 * :class:`.UnexistingActionError`
@@ -32,6 +35,13 @@ class RequestError(FeretUIError):
     """Exception raised by Request object.
 
     Inherits :class:`.FeretUIError`.
+    """
+
+
+class RequestFormError(RequestError):
+    """Exception raised by Request object.
+
+    Inherits :class:`.RequestError`.
     """
 
 

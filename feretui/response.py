@@ -16,7 +16,7 @@ developper.
 
 Example with bottle::
 
-    from bottle import HTTPResponse, route
+    from bottle import response, route
     from feretui import FeretUI
 
     myferet = FeretUI()
@@ -24,12 +24,11 @@ Example with bottle::
     @route('/feretui/action/<action>', method=['POST'])
     def post_action(action):
         ...
-        response = myferet.do_action(frequest, action)
-        return HTTPResponse(
-            body=response.body,
-            status=response.status_code,
-            headers=response.headers
-        )
+        res = myferet.do_action(frequest, action)
+        for k, v in res.headers.items():
+            response.set_header(k, v)
+
+        return res.body,
 
 """
 
@@ -49,8 +48,6 @@ class Response:
 
     :param body: [''], response return to the web-serving.
     :type body: Any
-    :param content_type: ['text/html'], The web-serving content type.
-    :type content_type: str
     :param status_code: [200], the status code of the response.
     :type status_code: int
     :param headers: Optionnal, additionnal headers.
@@ -60,7 +57,6 @@ class Response:
     def __init__(
         self: "Response",
         body: str | None = '',
-        content_type: str = 'text/html',
         status_code: int = 200,
         headers: dict[str, str] = None,
     ) -> "Response":
@@ -68,8 +64,6 @@ class Response:
 
         :param body: [''], response return to the web-serving.
         :type body: Any
-        :param content_type: ['text/html'], The web-serving content type.
-        :type content_type: str
         :param status_code: [200], the status code of the response.
         :type status_code: int
         :param headers: Optionnal, additionnal headers.
@@ -79,6 +73,5 @@ class Response:
             headers = {}
 
         self.body = body
-        self.content_type = content_type
         self.status_code = status_code
         self.headers = headers
