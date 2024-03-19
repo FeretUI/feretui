@@ -10,15 +10,18 @@
 with pytest.
 """
 import json
+from json.decoder import JSONDecodeError
 
 import pytest  # noqa: F401
 
 from feretui.exceptions import (
+    RequestFormError,
     RequestNoSessionError,
     RequestWrongSessionError,
 )
 from feretui.request import Request
 from feretui.session import Session
+from multidict import MultiDict
 
 
 class TestRequest:
@@ -31,12 +34,32 @@ class TestRequest:
             session,
             method=Request.POST,
             body=json.dumps({'a': 'b'}),
+            form=MultiDict(dict(foo='bar')),
             querystring="a=b",
         )
         assert request.session is session
         assert request.method is Request.POST
-        assert request.body == {'a': 'b'}
+        assert request.json == {'a': 'b'}
         assert request.query == {'a': ['b']}
+
+    def test_request_no_body(self) -> None:
+        """Test simple request."""
+        session = Session()
+        request = Request(
+            session,
+            method=Request.POST,
+        )
+        assert request.json == {}
+
+    def test_request_wrong_form(self) -> None:
+        """Test simple request."""
+        session = Session()
+        with pytest.raises(RequestFormError):
+            Request(
+                session,
+                method=Request.POST,
+                form=dict(foo='bar'),
+            )
 
     def test_request_with_no_session(self) -> None:
         """Test request with none session."""
@@ -52,7 +75,8 @@ class TestRequest:
         """Test request with wrong body."""
         session = Session()
         request = Request(session, body="not a json")
-        assert request.body == {}
+        with pytest.raises(JSONDecodeError):
+            request.json
 
     def test_get_url_from_dict(self) -> None:
         """Test get_url_from_dict with querystring."""
