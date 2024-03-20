@@ -11,9 +11,15 @@ with pytest.
 """
 import pytest  # noqa: F401
 
-from feretui.exceptions import ActionValidatorError
+from feretui.exceptions import (
+    ActionUserIsAuthenticatedError,
+    ActionUserIsNotAuthenticatedError,
+    ActionValidatorError,
+)
 from feretui.feretui import FeretUI
 from feretui.helper import (
+    action_for_authenticated_user,
+    action_for_unauthenticated_user,
     action_validator,
     menu_for_authenticated_user,
     menu_for_unauthenticated_user,
@@ -154,3 +160,49 @@ class TestActionValidator:
 
     def test_menu_for_unauthenticated_user_2(self) -> None:
         assert menu_for_unauthenticated_user(Session(user="test")) is False
+
+    def test_action_for_authenticated_user_1(self) -> None:
+        myferet = FeretUI()
+        session = Session()
+        request = Request(session)
+
+        @action_for_authenticated_user
+        def my_action(feretui, request) -> bool:
+            return True
+
+        with pytest.raises(ActionUserIsNotAuthenticatedError):
+            my_action(myferet, request)
+
+    def test_action_for_authenticated_user_2(self) -> None:
+        myferet = FeretUI()
+        session = Session(user='test')
+        request = Request(session)
+
+        @action_for_authenticated_user
+        def my_action(feretui, request) -> bool:
+            return True
+
+        assert my_action(myferet, request) is True
+
+    def test_action_for_unauthenticated_user_1(self) -> None:
+        myferet = FeretUI()
+        session = Session()
+        request = Request(session)
+
+        @action_for_unauthenticated_user
+        def my_action(feretui, request) -> bool:
+            return True
+
+        assert my_action(myferet, request) is True
+
+    def test_action_for_unauthenticated_user_2(self) -> None:
+        myferet = FeretUI()
+        session = Session(user='test')
+        request = Request(session)
+
+        @action_for_unauthenticated_user
+        def my_action(feretui, request) -> bool:
+            return True
+
+        with pytest.raises(ActionUserIsAuthenticatedError):
+            my_action(myferet, request)

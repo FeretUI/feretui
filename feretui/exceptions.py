@@ -23,6 +23,9 @@ Get the exceptions known by FeretUI:
 * :class:`.ActionError`
 * :class:`.UnexistingActionError`
 * :class:`.ActionValidatorError`
+* :class:`.ActionAuthenticationError`
+* :class:`.ActionUserIsNotAuthenticatedError`
+* :class:`.ActionUserIsAuthenticatedError`
 * :class:`.MenuError`
 """
 
@@ -119,6 +122,27 @@ class ActionValidatorError(ActionError):
     """Exception raised by action mecanism in FeretUI object.
 
     Inherits :class:`.ActionError`.
+    """
+
+
+class ActionAuthenticationError(ActionError):
+    """Exception raised by action mecanism in FeretUI object.
+
+    Inherits :class:`.ActionError`.
+    """
+
+
+class ActionUserIsAuthenticatedError(ActionAuthenticationError):
+    """Exception raised by action mecanism in FeretUI object.
+
+    Inherits :class:`.ActionAuthenticationError`.
+    """
+
+
+class ActionUserIsNotAuthenticatedError(ActionAuthenticationError):
+    """Exception raised by action mecanism in FeretUI object.
+
+    Inherits :class:`.ActionAuthenticationError`.
     """
 
 

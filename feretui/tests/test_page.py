@@ -12,11 +12,11 @@ from feretui.feretui import FeretUI
 from feretui.pages import (
     aside_menu,
     homepage,
+    login,
     page_404,
     page_forbidden,
-    static_page,
-    login,
     signup,
+    static_page,
 )
 from feretui.session import Session
 
@@ -28,7 +28,7 @@ class TestPage:
         session = Session()
         snapshot.assert_match(
             page_404(myferet, session, {'page': 'test'}),
-            'snapshot.html'
+            'snapshot.html',
         )
 
     def test_forbidden(self, snapshot) -> None:
@@ -36,7 +36,7 @@ class TestPage:
         session = Session()
         snapshot.assert_match(
             page_forbidden(myferet, session, {'page': 'test'}),
-            'snapshot.html'
+            'snapshot.html',
         )
 
     def test_homepage(self, snapshot) -> None:
@@ -44,7 +44,7 @@ class TestPage:
         session = Session()
         snapshot.assert_match(
             homepage(myferet, session, {}),
-            'snapshot.html'
+            'snapshot.html',
         )
 
     def test_static_page(self) -> None:
@@ -71,7 +71,7 @@ class TestPage:
         session = Session()
         snapshot.assert_match(aside_menu(
             myferet, session, {'aside': ['test']}),
-            'snapshot.html'
+            'snapshot.html',
         )
 
     def test_aside_without_requiremend(self) -> None:

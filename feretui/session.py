@@ -100,3 +100,5 @@ class Session:
                 continue
 
             setattr(self, key, value)
+
+        return True

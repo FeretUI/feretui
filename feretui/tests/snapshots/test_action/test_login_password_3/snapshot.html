@@ -1,0 +1,48 @@
+<form hx-post="/feretui/action/login_password" hx-swap="outerHTML" hx-trigger="submit">
+ <div class="container">
+  <div class="has-text-centered">
+   <div class="field">
+ <label class="label" for="login">
+  Login
+      
+  <span>
+   
+  </span>
+ </label>
+ <div class="control">
+  <input autocomplete="username" class="input is-danger " id="login" name="login" required type="text" value="">
+ </div>
+ <div>
+  
+  <p class="help is-danger">
+   This field is required.
+  </p>
+  
+ </div>
+</div>            <div class="field">
+ <label class="label" for="password">
+  Password
+      
+  <span>
+   
+  </span>
+ </label>
+ <div class="control">
+  <input autocomplete="current-password" class="input is-danger " id="password" name="password" required type="password" value="">
+ </div>
+ <div>
+  
+  <p class="help is-danger">
+   This field is required.
+  </p>
+  
+ </div>
+</div>
+   <div class="buttons">
+    <button class="button is-primary is-fullwidth" type="submit">
+     Log in
+    </button>
+   </div>
+  </div>
+ </div>
+</form>
