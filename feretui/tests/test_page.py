@@ -15,29 +15,37 @@ from feretui.pages import (
     page_404,
     page_forbidden,
     static_page,
+    login,
+    signup,
 )
 from feretui.session import Session
 
 
 class TestPage:
 
-    def test_404(self) -> None:
+    def test_404(self, snapshot) -> None:
         myferet = FeretUI()
         session = Session()
-        res = page_404(myferet, session, {'page': 'test'})
-        assert res
+        snapshot.assert_match(
+            page_404(myferet, session, {'page': 'test'}),
+            'snapshot.html'
+        )
 
-    def test_forbidden(self) -> None:
+    def test_forbidden(self, snapshot) -> None:
         myferet = FeretUI()
         session = Session()
-        res = page_forbidden(myferet, session, {'page': 'test'})
-        assert res
+        snapshot.assert_match(
+            page_forbidden(myferet, session, {'page': 'test'}),
+            'snapshot.html'
+        )
 
-    def test_homepage(self) -> None:
+    def test_homepage(self, snapshot) -> None:
         myferet = FeretUI()
         session = Session()
-        res = homepage(myferet, session, {})
-        assert res
+        snapshot.assert_match(
+            homepage(myferet, session, {}),
+            'snapshot.html'
+        )
 
     def test_static_page(self) -> None:
         myferet = FeretUI()
@@ -58,14 +66,38 @@ class TestPage:
         with pytest.raises(PageError):
             static_page('my-static_page')(myferet, session, {})
 
-    def test_aside(self) -> None:
+    def test_aside(self, snapshot) -> None:
         myferet = FeretUI()
         session = Session()
-        res = aside_menu(myferet, session, {'aside': ['test']})
-        assert res
+        snapshot.assert_match(aside_menu(
+            myferet, session, {'aside': ['test']}),
+            'snapshot.html'
+        )
 
     def test_aside_without_requiremend(self) -> None:
         myferet = FeretUI()
         session = Session()
         with pytest.raises(PageError):
             aside_menu(myferet, session, {})
+
+    def test_login_1(self, snapshot) -> None:
+        myferet = FeretUI()
+        session = Session()
+        snapshot.assert_match(login(myferet, session, {}), 'snapshot.html')
+
+    def test_login_2(self) -> None:
+        myferet = FeretUI()
+        session = Session(user='test')
+        res = login(myferet, session, {})
+        assert res == page_forbidden(myferet, session, {})
+
+    def test_signup_1(self, snapshot) -> None:
+        myferet = FeretUI()
+        session = Session()
+        snapshot.assert_match(signup(myferet, session, {}), 'snapshot.html')
+
+    def test_signup_2(self) -> None:
+        myferet = FeretUI()
+        session = Session(user='test')
+        res = signup(myferet, session, {})
+        assert res == page_forbidden(myferet, session, {})

@@ -58,6 +58,7 @@ test = [
     'perflint',
     'flake8-logging',
     'flake8-bandit',
+    'pytest-snapshot',
 ]
 
 [project.scripts]
