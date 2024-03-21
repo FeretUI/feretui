@@ -36,6 +36,7 @@ from wtforms.widgets.core import clean_key
 from feretui.thread import local
 
 if TYPE_CHECKING:
+
     from feretui.translation import Translation
 
 
@@ -564,7 +565,7 @@ class Password(InputRequired):
 
     def __call__(
         self: "PasswordWithoutSpaces",
-        form: Form,  # noqa: ARG002
+        form: Form,  # noqa: ARG002, U100
         field: Field,
     ) -> None:
         """Validate if the field is a valid password.

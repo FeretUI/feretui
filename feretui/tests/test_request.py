@@ -13,6 +13,7 @@ import json
 from json.decoder import JSONDecodeError
 
 import pytest  # noqa: F401
+from multidict import MultiDict
 
 from feretui.exceptions import (
     RequestFormError,
@@ -21,7 +22,6 @@ from feretui.exceptions import (
 )
 from feretui.request import Request
 from feretui.session import Session
-from multidict import MultiDict
 
 
 class TestRequest:
@@ -34,7 +34,7 @@ class TestRequest:
             session,
             method=Request.POST,
             body=json.dumps({'a': 'b'}),
-            form=MultiDict(dict(foo='bar')),
+            form=MultiDict({'foo': 'bar'}),
             querystring="a=b",
         )
         assert request.session is session
@@ -58,7 +58,7 @@ class TestRequest:
             Request(
                 session,
                 method=Request.POST,
-                form=dict(foo='bar'),
+                form={'foo': 'bar'},
             )
 
     def test_request_with_no_session(self) -> None:

@@ -48,20 +48,24 @@ from pathlib import Path
 from jinja2 import Environment, PackageLoader, select_autoescape
 from markupsafe import Markup
 
-from feretui.actions import goto
+from feretui.actions import goto, login_password, login_signup, logout
 from feretui.exceptions import MenuError, UnexistingActionError
 from feretui.form import FeretUIForm
 from feretui.menus import (
     AsideMenu,
     ChildrenMenu,
+    ToolBarButtonMenu,
+    ToolBarButtonsMenu,
     ToolBarDividerMenu,
     ToolBarMenu,
 )
 from feretui.pages import (
     aside_menu,
     homepage,
+    login,
     page_404,
     page_forbidden,
+    signup,
     static_page,
 )
 from feretui.request import Request
@@ -225,6 +229,8 @@ class FeretUI:
         * :meth:`.FeretUI.register_toolbar_left_menus`
         * :meth:`.FeretUI.register_toolbar_right_menus`
         * :meth:`.FeretUI.register_aside_menus`
+        * :meth:`.FeretUI.register_user_menus`
+        * :meth:`.FeretUI.register_auth_menus`
 
     * Form : Declare the WTForm class in the feretui instance, need for the
       translation
@@ -290,15 +296,28 @@ class FeretUI:
         self.images: dict[str, str] = {}
         self.themes: dict[str, str] = {}
         self.fonts: dict[str, str] = {}
+
+        # Menus
         self.menus: dict[str, list[ToolBarMenu]] = {
             'left': [],
             'right': [],
+            'user': [],
         }
         self.asides: dict[str, list[AsideMenu]] = {}
+        self.auth: dict = {
+            'menus': None,
+            'addons': None,
+        }
+        self.register_auth_menus([
+            ToolBarButtonMenu('Log In', page='login'),
+        ])
 
         # Actions
         self.actions: dict[str, Callable[["FeretUI", Request], Response]] = {}
         self.register_action(goto)
+        self.register_action(login_password)
+        self.register_action(login_signup)
+        self.register_action(logout)
 
         # Pages
         self.pages: dict[str, Callable[
@@ -308,6 +327,8 @@ class FeretUI:
         self.register_page(name='forbidden')(page_forbidden)
         self.register_page()(homepage)
         self.register_page('aside-menu')(aside_menu)
+        self.register_page()(login)
+        self.register_page()(signup)
 
         self.register_addons_from_entrypoint()
 
@@ -837,7 +858,7 @@ class FeretUI:
                         add_translation(submenu)
 
         for menu in menus:
-            if not isinstance(menu, ToolBarMenu):
+            if not isinstance(menu, ToolBarMenu | ToolBarButtonsMenu):
                 raise MenuError(f"{menu} is not a toolbar menu")
 
             if isinstance(menu, ToolBarDividerMenu):
@@ -931,6 +952,55 @@ class FeretUI:
             register_menu(menu)
             asides.append(menu)
 
+    def register_auth_menus(
+        self: "FeretUI",
+        menus: list[ToolBarButtonMenu],
+        addons: str = None,
+    ) -> None:
+        """Register the auth menus.
+
+        ::
+
+            myferet.register_auth_menus([
+                ToolBarButtonMenu(...),
+            ])
+
+        :param menus: The menus to register
+        :type menus: list[:class:`feretui.menus.ToolBarButtonMenu`]
+        :param addons: The addons where the message come from
+        :type addons: str
+        :exception: MenuError
+        """
+        for menu in menus:
+            if not isinstance(menu, ToolBarButtonMenu):
+                raise MenuError(f"{menu} is not a toolbar button menu")
+
+        self.auth = {
+            'menus': ToolBarButtonsMenu(menus),
+            'addons': addons,
+        }
+
+    def register_user_menus(
+        self: "FeretUI",
+        menus: list[ToolBarMenu],
+        addons: str = None,
+    ) -> None:
+        """Register a menu in the dropdown in the user menu.
+
+        ::
+
+            myferet.register_user_menus([
+                ToolBarMenu(...),
+            ])
+
+        :param menus: The menus to register
+        :type menus: list[:class:`feretui.menus.ToolBarMenu`]
+        :param addons: The addons where the message come from
+        :type addons: str
+        :exception: MenuError
+        """
+        self._register_toolbar_menus('user', menus, addons=addons)
+
     def get_aside_menus(self: "FeretUI", code: str) -> list[AsideMenu]:
         """Return the aside menus link with the code.
 
@@ -986,6 +1056,11 @@ class FeretUI:
         :param addons: The addons where the message come from
         :type addons: str
         """
+        if self.auth['menus']:
+            for menu in (self.auth['menus'].children or []):
+                self.translation.add_translated_menu(
+                    TranslatedMenu(menu, addons=self.auth['addons']),
+                )
         self.translation.export_catalog(output_path, version, addons=addons)
 
     def load_catalog(self: "FeretUI", catalog_path: str, lang: str) -> None:

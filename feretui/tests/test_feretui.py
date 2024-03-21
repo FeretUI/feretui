@@ -18,6 +18,7 @@ from feretui.menus import (
     AsideHeaderMenu,
     AsideMenu,
     Menu,
+    ToolBarButtonMenu,
     ToolBarDividerMenu,
     ToolBarDropDownMenu,
     ToolBarMenu,
@@ -31,13 +32,14 @@ from feretui.session import Session
 class TestFeretUI:
     """Test of FeretUI class."""
 
-    def test_render(self) -> None:
+    def test_render(self, snapshot) -> None:
         """Test the main render without any options."""
         myferet = FeretUI()
         session = Session()
         request = Request(session=session)
         response = myferet.render(request)
         assert isinstance(response, Response)
+        snapshot.assert_match(response.body, 'snapshot.html')
 
     def test_get_static_file_path(self) -> None:
         """Test get_static_file_path."""
@@ -267,3 +269,22 @@ class TestFeretUI:
             pass
 
         assert len(myferet.translation.forms) == 1
+
+    def test_register_auth_menus_1(self, snapshot) -> None:
+        myferet = FeretUI()
+        session = Session()
+        request = Request(session=session)
+        snapshot.assert_match(myferet.render(request).body, 'before.html')
+        myferet.register_auth_menus([ToolBarButtonMenu('Test', page='test')])
+        snapshot.assert_match(myferet.render(request).body, 'after.html')
+
+    def test_register_auth_menus_2(self, snapshot) -> None:
+        myferet = FeretUI()
+        with pytest.raises(MenuError):
+            myferet.register_auth_menus([ToolBarMenu('Test', page='test')])
+
+    def test_register_user_menus_1(self) -> None:
+        myferet = FeretUI()
+        myferet.register_user_menus([ToolBarMenu('Test', page='test')])
+        assert len(myferet.menus['user']) == 1
+        assert len(myferet.translation.menus) == 1

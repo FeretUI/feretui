@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: 0.0.1\n"
-"POT-Creation-Date: 2024-03-15T22:27:21.141910\n"
+"POT-Creation-Date: 2024-03-21T11:16:56.453124\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -39,19 +39,19 @@ msgstr "N'est pas une heure valide."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Not a valid week value."
-msgstr ""
+msgstr "N'est pas une semaine valide"
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Invalid Choice: could not coerce."
-msgstr ""
+msgstr "Choix invalide."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Choices cannot be None."
-msgstr ""
+msgstr "La liste des choix ne peut être vide."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Not a valid choice."
-msgstr ""
+msgstr "N'est pas une choix valide"
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Invalid choice(s): one or more data inputs could not be coerced."
@@ -87,7 +87,7 @@ msgstr ""
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Field must be equal to %(other_name)s."
-msgstr ""
+msgstr "Le champs doit être égale à %(other_name)s."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Field must be at least %(min)d character long."
@@ -305,6 +305,10 @@ msgctxt "template:feretui-client-header:a:data-tooltip"
 msgid "Go to the homepage"
 msgstr "Aller à la page d'accueil"
 
+msgctxt "template:feretui-client-header"
+msgid "Log out"
+msgstr ""
+
 msgctxt "template:feretui-client-footer"
 msgid "FeretUI"
 msgstr "FeretUI"
@@ -312,22 +316,6 @@ msgstr "FeretUI"
 msgctxt "template:feretui-client-footer"
 msgid "by Js Suzanne."
 msgstr "par Jean-Sébastien Suzanne."
-
-msgctxt "template:feretui-tooltip:span:data-tooltip"
-msgid "{{ tooltip }}"
-msgstr ""
-
-msgctxt "template:feretui-input-field"
-msgid "("
-msgstr ""
-
-msgctxt "template:feretui-input-field"
-msgid "required"
-msgstr "requis"
-
-msgctxt "template:feretui-input-field"
-msgid ")"
-msgstr ""
 
 msgctxt "template:feretui-page-404"
 msgid "Page not found"
@@ -359,4 +347,56 @@ msgstr "Bienvenue sur le client FeretUI"
 
 msgctxt "template:feretui-page-homepage"
 msgid "Small and modular web client to administrate your service"
+msgstr ""
+
+msgctxt "template:feretui-page-login"
+msgid "Log in"
+msgstr ""
+
+msgctxt "template:feretui-page-signup"
+msgid "Register a new user"
+msgstr ""
+
+msgctxt "template:feretui-page-signup"
+msgid "Sign up"
+msgstr ""
+
+msgctxt "template:feretui-input-label"
+msgid "("
+msgstr ""
+
+msgctxt "template:feretui-input-label"
+msgid "required"
+msgstr "requis"
+
+msgctxt "template:feretui-input-label"
+msgid ")"
+msgstr ""
+
+msgctxt "form:feretui.session:LoginForm:field:login:label"
+msgid "Login"
+msgstr ""
+
+msgctxt "form:feretui.session:LoginForm:field:password:label"
+msgid "Password"
+msgstr ""
+
+msgctxt "form:feretui.session:SignUpForm:field:lang:label"
+msgid "Language"
+msgstr ""
+
+msgctxt "form:feretui.session:SignUpForm:field:lang:choice:en:label"
+msgid "English"
+msgstr ""
+
+msgctxt "form:feretui.session:SignUpForm:field:login:label"
+msgid "Login"
+msgstr ""
+
+msgctxt "form:feretui.session:SignUpForm:field:password:label"
+msgid "Password"
+msgstr ""
+
+msgctxt "form:feretui.session:SignUpForm:field:password_confirm:label"
+msgid "Password Confirm"
 msgstr ""

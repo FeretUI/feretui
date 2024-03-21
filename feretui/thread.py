@@ -28,10 +28,9 @@ of the client and the request every where during the execution
 from threading import local as localthreading
 from typing import TYPE_CHECKING
 
-from feretui.request import Request
-
 if TYPE_CHECKING:
     from feretui.feretui import FeretUI
+    from feretui.request import Request
 
 
 class LocalThreading(localthreading):
@@ -50,7 +49,7 @@ class LocalThreading(localthreading):
     feretui: "FeretUI" = None
     """The feretui instane of the thread."""
 
-    request: Request = None
+    request: "Request" = None
     """The feretui request instane of the thread."""
 
 

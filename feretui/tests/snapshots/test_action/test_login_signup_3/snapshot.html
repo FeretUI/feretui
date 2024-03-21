@@ -1,0 +1,118 @@
+<form hx-post="/feretui/action/login_signup" hx-swap="outerHTML" hx-trigger="submit">
+ <div class="container">
+  <h1 class="title">
+   Register a new user
+  </h1>
+  <div id="feretui-signup-field-login">
+   <div class="field">
+ <label class="label" for="login">
+  Login
+      
+  <span>
+   
+  </span>
+ </label>
+ <div class="control">
+  <input autocomplete="username" class="input is-danger " id="login" name="login" required type="text" value="">
+ </div>
+ <div>
+  
+  <p class="help is-danger">
+   This field is required.
+  </p>
+  
+ </div>
+</div>
+  </div>
+  <div id="feretui-signup-field-lang">
+   <div class="field">
+ <label class="label" for="lang">
+  Language
+      
+  <span class="content is-small">
+   (
+   <span class="has-text-link">
+    required
+   </span>
+   )
+  </span>
+  
+  <span>
+   
+  </span>
+ </label>
+ <div class="control">
+  <ul>
+   
+   <li>
+    <label class="radio" for="lang">
+     <input id="lang-0" name="lang" required type="radio" value="en">
+                <label class="radio" for="lang-0">English</label>
+                
+     <span>
+      
+     </span>
+    </label>
+   </li>
+   
+  </ul>
+ </div>
+ <div>
+  
+  <p class="help is-danger">
+   This field is required.
+  </p>
+  
+ </div>
+</div>
+  </div>
+  <div id="feretui-signup-field-password">
+   <div class="field">
+ <label class="label" for="password">
+  Password
+      
+  <span>
+   
+  </span>
+ </label>
+ <div class="control">
+  <input autocomplete="current-password" class="input is-danger " id="password" name="password" type="password" value="">
+ </div>
+ <div>
+  
+  <p class="help is-danger">
+   The password should have more than 12 caractere, with lowercase, with uppercase, with letters, with digits, with symbols, without spaces.
+  </p>
+  
+ </div>
+</div>
+  </div>
+  <div id="feretui-signup-field-password2">
+   <div class="field">
+ <label class="label" for="password_confirm">
+  Password Confirm
+      
+  <span>
+   
+  </span>
+ </label>
+ <div class="control">
+  <input autocomplete="current-password" class="input is-danger " id="password_confirm" name="password_confirm" required type="password" value="">
+ </div>
+ <div>
+  
+  <p class="help is-danger">
+   This field is required.
+  </p>
+  
+ </div>
+</div>
+  </div>
+  <br>
+  <div class="buttons">
+   <button class="button is-primary is-fullwidth" type="submit">
+    Sign up
+   </button>
+  </div>
+ </div>
+</form>

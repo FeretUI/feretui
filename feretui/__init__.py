@@ -233,10 +233,19 @@ all the translation messages in pot file.
 .. _Form: https://wtforms.readthedocs.io/en/3.1.x/forms/#wtforms.form.Form
 .. _Field: https://wtforms.readthedocs.io/en/3.1.x/fields/#the-field-base-class
 .. _Htmx: https://htmx.org
+.. _MultiDict: https://pypi.org/project/multidict/
 """
 from feretui.feretui import FeretUI  # noqa : F401
 from feretui.form import FeretUIForm, Password  # noqa : F401
-from feretui.helper import action_validator  # noqa : F401
+from feretui.helper import (  # noqa : F401
+    action_validator,
+    action_for_authenticated_user,
+    action_for_unauthenticated_user,
+    menu_for_authenticated_user,
+    menu_for_unauthenticated_user,
+    page_for_authenticated_user_or_goto,
+    page_for_unauthenticated_user_or_goto,
+)
 from feretui.menus import (  # noqa : F401
     ToolBarButtonMenu,
     ToolBarButtonsMenu,

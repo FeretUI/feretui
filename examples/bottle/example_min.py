@@ -2,9 +2,7 @@ import logging
 from contextlib import contextmanager
 from os import path
 
-from bottle import (
-    abort, app, debug, request, response, route, run, static_file
-)
+from bottle import abort, app, debug, request, response, route, run, static_file
 from BottleSessions import BottleSessions
 from multidict import MultiDict
 
@@ -14,8 +12,10 @@ from feretui import (
     FeretUI,
     Request,
     Session,
+    ToolBarButtonMenu,
     ToolBarDropDownMenu,
     ToolBarMenu,
+    menu_for_authenticated_user
 )
 
 logging.basicConfig(level=logging.DEBUG)
@@ -41,6 +41,11 @@ def add_response_headers(headers) -> None:
 # -- for feretui --
 
 
+myferet = FeretUI()
+myferet.load_internal_catalog('fr')
+Session.SignUpForm.lang.kwargs['choices'].append(('fr', 'Français'))
+
+
 class MySession(Session):
 
     def __init__(self, **options) -> None:
@@ -49,8 +54,10 @@ class MySession(Session):
         super().__init__(**options)
 
 
-myferet = FeretUI()
-myferet.load_internal_catalog('fr')
+myferet.register_auth_menus([
+    ToolBarButtonMenu('Sign Up', page='signup', css_class="is-info"),
+    ToolBarButtonMenu('Log In', page='login'),
+])
 
 
 # /?page=hello
@@ -88,16 +95,20 @@ myferet.register_aside_menus('aside1', [
     ]),
 ])
 myferet.register_toolbar_left_menus([
-    ToolBarDropDownMenu('My left menu', children=[
-        ToolBarMenu(
-            'Hello', page="aside-menu", aside="aside1", aside_page='hello',
-            tooltip="Go to the hello page",
-        ),
-        ToolBarMenu(
-            'Foo', page="aside-menu", aside="aside1", aside_page='foo',
-            icon="fa-solid fa-ghost",
-        ),
-    ]),
+    ToolBarDropDownMenu(
+        'My left menu',
+        visible_callback=menu_for_authenticated_user,
+        children=[
+            ToolBarMenu(
+                'Hello', page="aside-menu", aside="aside1", aside_page='hello',
+                tooltip="Go to the hello page",
+            ),
+            ToolBarMenu(
+                'Foo', page="aside-menu", aside="aside1", aside_page='foo',
+                icon="fa-solid fa-ghost",
+            ),
+        ]
+    ),
 ])
 
 # -- app --
@@ -125,6 +136,7 @@ def feretui_static_file(filepath):
         return static_file(name, root)
 
     abort(404)
+    return None
 
 
 @route('/feretui/action/<action>', method=['GET'])
@@ -142,7 +154,7 @@ def get_action(action):
 
 
 @route('/feretui/action/<action>', method=['POST'])
-def post_action(session, action):
+def post_action(action):
     with feretui_session(MySession) as session:
         frequest = Request(
             method=Request.POST,

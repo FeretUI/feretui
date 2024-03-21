@@ -172,5 +172,5 @@ class TestTranslation:
         myferet = FeretUI()
         myferet.load_internal_catalog('fr')
         assert myferet.translation.get(
-            'fr', "template:feretui-input-field", 'required',
+            'fr', "template:feretui-input-label", 'required',
         ) == 'requis'

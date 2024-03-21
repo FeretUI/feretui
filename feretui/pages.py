@@ -23,6 +23,15 @@ The availlable pages are:
 * :func:`.page_404`.
 * :func:`.page_forbidden`.
 * :func:`.homepage`.
+* :func:`.static_page`.
+* :func:`.aside_menu`.
+* :func:`.login`.
+* :func:`.signup`.
+
+To protect them in function of the user see:
+
+* :func: `feretui.helper.page_for_authenticated_user_or_goto`
+* :func: `feretui.helper.page_for_unauthenticated_user_or_goto`
 """
 from collections.abc import Callable
 from typing import TYPE_CHECKING
@@ -30,6 +39,7 @@ from typing import TYPE_CHECKING
 from markupsafe import Markup
 
 from feretui.exceptions import PageError
+from feretui.helper import page_for_unauthenticated_user_or_goto
 from feretui.session import Session
 
 if TYPE_CHECKING:
@@ -145,3 +155,43 @@ def aside_menu(
         menus=menus,
         page=Markup(feretui.get_page(page)(feretui, session, options)),
     )
+
+
+@page_for_unauthenticated_user_or_goto('forbidden')
+def login(feretui: "FeretUI", session: Session, options: dict) -> str:
+    """Return the login form page.
+
+    If the user is already authenticated, the page will be mark
+    as forbidden.
+
+    :param feretui: The feretui client
+    :type feretui: :class:`feretui.feretui.FeretUI`
+    :param session: The Session
+    :type session: :class:`feretui.session.Session`
+    :param options: The options come from the body or the query string
+    :type options: dict
+    :return: The html page in
+    :rtype: str
+    """
+    form = options.get('form', session.LoginForm())
+    return feretui.render_template(session, 'feretui-page-login', form=form)
+
+
+@page_for_unauthenticated_user_or_goto('forbidden')
+def signup(feretui: "FeretUI", session: Session, options: dict) -> str:
+    """Return the signup form page.
+
+    If the user is already authenticated, the page will be mark
+    as forbidden.
+
+    :param feretui: The feretui client
+    :type feretui: :class:`feretui.feretui.FeretUI`
+    :param session: The Session
+    :type session: :class:`feretui.session.Session`
+    :param options: The options come from the body or the query string
+    :type options: dict
+    :return: The html page in
+    :rtype: str
+    """
+    form = options.get('form', session.SignUpForm())
+    return feretui.render_template(session, 'feretui-page-signup', form=form)

@@ -17,6 +17,32 @@ The session can be overwritting by the developper::
 
     session = Session()
 """
+from wtforms import PasswordField, RadioField, StringField
+from wtforms.validators import EqualTo, InputRequired
+
+from feretui.form import FeretUIForm, Password
+
+
+class LoginForm(FeretUIForm):
+    """WTform for the login."""
+
+    login = StringField(validators=[InputRequired()])
+    password = PasswordField(validators=[InputRequired()])
+
+
+class SignUpForm(FeretUIForm):
+    """WTform for sign up."""
+
+    login = StringField(validators=[InputRequired()])
+    lang = RadioField(
+        label='Language',
+        choices=[('en', 'English')],
+        validators=[InputRequired()],
+    )
+    password = PasswordField(validators=[Password()])
+    password_confirm = PasswordField(
+        validators=[InputRequired(), EqualTo('password')],
+    )
 
 
 class Session:
@@ -30,6 +56,13 @@ class Session:
         class MySession(Session):
             pass
 
+    You should overwrite the methods to link the session with your
+    user model.
+
+    * :meth:`.Session.login`
+    * :meth:`.Session.signup`
+    * :meth:`.Session.logout`
+
     Attributes
     ----------
     * [user: str = None] : User name of the session
@@ -37,6 +70,9 @@ class Session:
     * [theme: str = 'default'] : The ui theme use by the user session
 
     """
+
+    LoginForm: FeretUIForm = LoginForm
+    SignUpForm: FeretUIForm = SignUpForm
 
     def __init__(
         self: "Session",
@@ -56,3 +92,32 @@ class Session:
         dict_ = self.__dict__.copy()
         dict_.pop('kwargs')
         return dict_
+
+    def login(
+        self: "Session",
+        login: str = None,
+        password: str = None,  # noqa: ARG002
+    ) -> None:
+        """Login.
+
+        :param login: the login
+        :type login: str
+        :param password: the password
+        :type password: str
+        """
+        self.user = login
+
+    def logout(self: "Session") -> None:
+        """Logout."""
+        self.user = None
+
+    def signup(self: "Session", **kwargs: dict) -> bool:
+        """Signup."""
+        self.user = kwargs['login']
+        for key, value in kwargs.items():
+            if key in ('login', 'password', 'password_confirm'):
+                continue
+
+            setattr(self, key, value)
+
+        return True

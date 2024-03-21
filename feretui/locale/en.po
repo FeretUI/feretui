@@ -1,0 +1,402 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: 0.0.1\n"
+"POT-Creation-Date: 2024-03-21T11:16:56.453124\n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.2.2\n"
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Not a valid integer value."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Not a valid decimal value."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Not a valid float value."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Not a valid datetime value."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Not a valid date value."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Not a valid time value."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Not a valid week value."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Invalid Choice: could not coerce."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Choices cannot be None."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Not a valid choice."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Invalid choice(s): one or more data inputs could not be coerced."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "'%(value)s' is not a valid choice for this field."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "'%(value)s' are not valid choices for this field."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Invalid CSRF Token."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "CSRF token missing."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "CSRF failed."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "CSRF token expired."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Invalid field name '%s'."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Field must be equal to %(other_name)s."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Field must be at least %(min)d character long."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Field must be at least %(min)d characters long."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Field cannot be longer than %(max)d character."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Field cannot be longer than %(max)d characters."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Field must be exactly %(max)d character long."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Field must be exactly %(max)d characters long."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Field must be between %(min)d and %(max)d characters long."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Number must be at least %(min)s."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Number must be at most %(max)s."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Number must be between %(min)s and %(max)s."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "This field is required."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Invalid input."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Invalid email address."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Invalid IP address."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Invalid Mac address."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Invalid URL."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Invalid UUID."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Invalid value, must be one of: %(values)s."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Invalid value, can't be any of: %(values)s."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "This field cannot be edited"
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "This field is disabled and cannot have a value"
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Not a valid time."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Not a valid decimal range value"
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Not a valid float range value"
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Not a valid int range value"
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Not a valid date range value"
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Not a valid datetime range value"
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Not a valid choice"
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Not a valid color."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Invalid choice(s): one or more data inputs could not be coerced"
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "'%(value)s' is not a valid choice for this field"
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Date must be greater than %(min)s."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Date must be less than %(max)s."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Date must be between %(min)s and %(max)s."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Time must be greater than %(min)s."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Time must be less than %(max)s."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "Time must be between %(min)s and %(max)s."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "This field contains invalid JSON"
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "The password should have {msg}."
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "more than {min_size} caractere"
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "less than {max_size} caractere"
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "with lowercase"
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "without lowercase"
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "with uppercase"
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "without uppercase"
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "with letters"
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "without letters"
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "with digits"
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "without digits"
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "with symbols"
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "without symbols"
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "with spaces"
+msgstr ""
+
+msgctxt "form:feretui.form:FeretUIForm"
+msgid "without spaces"
+msgstr ""
+
+msgctxt "template:feretui-client-header:a:data-tooltip"
+msgid "Go to the homepage"
+msgstr ""
+
+msgctxt "template:feretui-client-header"
+msgid "Log out"
+msgstr ""
+
+msgctxt "template:feretui-client-footer"
+msgid "FeretUI"
+msgstr ""
+
+msgctxt "template:feretui-client-footer"
+msgid "by Js Suzanne."
+msgstr ""
+
+msgctxt "template:feretui-page-404"
+msgid "Page not found"
+msgstr ""
+
+msgctxt "template:feretui-page-404"
+msgid "The page \""
+msgstr ""
+
+msgctxt "template:feretui-page-404"
+msgid "\" is not a declared page"
+msgstr ""
+
+msgctxt "template:feretui-page-forbidden"
+msgid "This page is forbidden"
+msgstr ""
+
+msgctxt "template:feretui-page-forbidden"
+msgid "The page \""
+msgstr ""
+
+msgctxt "template:feretui-page-forbidden"
+msgid "\" is forbidden."
+msgstr ""
+
+msgctxt "template:feretui-page-homepage"
+msgid "Welcome to the FeretUI's client"
+msgstr ""
+
+msgctxt "template:feretui-page-homepage"
+msgid "Small and modular web client to administrate your service"
+msgstr ""
+
+msgctxt "template:feretui-page-login"
+msgid "Log in"
+msgstr ""
+
+msgctxt "template:feretui-page-signup"
+msgid "Register a new user"
+msgstr ""
+
+msgctxt "template:feretui-page-signup"
+msgid "Sign up"
+msgstr ""
+
+msgctxt "template:feretui-input-label"
+msgid "("
+msgstr ""
+
+msgctxt "template:feretui-input-label"
+msgid "required"
+msgstr ""
+
+msgctxt "template:feretui-input-label"
+msgid ")"
+msgstr ""
+
+msgctxt "form:feretui.session:LoginForm:field:login:label"
+msgid "Login"
+msgstr ""
+
+msgctxt "form:feretui.session:LoginForm:field:password:label"
+msgid "Password"
+msgstr ""
+
+msgctxt "form:feretui.session:SignUpForm:field:lang:label"
+msgid "Language"
+msgstr ""
+
+msgctxt "form:feretui.session:SignUpForm:field:lang:choice:en:label"
+msgid "English"
+msgstr ""
+
+msgctxt "form:feretui.session:SignUpForm:field:login:label"
+msgid "Login"
+msgstr ""
+
+msgctxt "form:feretui.session:SignUpForm:field:password:label"
+msgid "Password"
+msgstr ""
+
+msgctxt "form:feretui.session:SignUpForm:field:password_confirm:label"
+msgid "Password Confirm"
+msgstr ""

@@ -12,11 +12,19 @@ The actions is called by the :meth:`feretui.feretui.FeretUI.execute_action`.
 The availlable actions are:
 
 * :func:`.goto`.
+* :func:`.login_password`.
+* :func:`.login_signup`.
+* :func:`.logout`.
 """
 from typing import TYPE_CHECKING
 
 from feretui.exceptions import ActionError
-from feretui.helper import action_validator
+from feretui.helper import (
+    action_for_authenticated_user,
+    action_for_unauthenticated_user,
+    action_validator,
+)
+from feretui.pages import login, signup
 from feretui.request import Request
 from feretui.response import Response
 
@@ -66,3 +74,99 @@ def goto(
             'HX-Push-Url': url,
         },
     )
+
+
+@action_validator(methods=[Request.POST])
+@action_for_unauthenticated_user
+def login_password(
+    feretui: "FeretUI",
+    request: Request,
+) -> str:
+    """Login the user.
+
+    Used the LoginForm passed in the request.session.
+
+    :param feretui: The feretui client
+    :type feretui: :class:`feretui.feretui.FeretUI`
+    :param request: The request
+    :type request: :class:`feretui.request.Request`
+    :return: The page to display
+    :rtype: :class:`feretui.response.Response`
+    """
+    form = request.session.LoginForm(request.form)
+    if form.validate():
+        request.session.login(**form.data)
+        qs = request.get_query_string_from_current_url()
+        if qs.get('page') == ['login']:
+            base_url = request.get_base_url_from_current_url()
+            headers = {
+                'HX-Redirect': f'{base_url}?page=homepage',
+            }
+        else:
+            headers = {
+                'HX-Refresh': 'true',
+            }
+
+        return Response('', headers=headers)
+
+    return Response(login(feretui, request.session, {'form': form}))
+
+
+@action_validator(methods=[Request.POST])
+@action_for_unauthenticated_user
+def login_signup(
+    feretui: "FeretUI",
+    request: Request,
+) -> str:
+    """Signup actions.
+
+    Used the SignUpForm passed in the request.session.
+
+    :param feretui: The feretui client
+    :type feretui: :class:`feretui.feretui.FeretUI`
+    :param request: The request
+    :type request: :class:`feretui.request.Request`
+    :return: The page to display
+    :rtype: :class:`feretui.response.Response`
+    """
+    form = request.session.SignUpForm(request.form)
+    if form.validate():
+        redirect = request.session.signup(**form.data)
+        if redirect:
+            qs = request.get_query_string_from_current_url()
+            if qs.get('page') == ['signup']:
+                base_url = request.get_base_url_from_current_url()
+                headers = {
+                    'HX-Redirect': f'{base_url}?page=homepage',
+                }
+            else:
+                headers = {
+                    'HX-Refresh': 'true',
+                }
+
+            return Response('', headers=headers)
+
+    return Response(signup(feretui, request.session, {'form': form}))
+
+
+@action_validator(methods=[Request.POST])
+@action_for_authenticated_user
+def logout(
+    feretui: "FeretUI",  # noqa: ARG001
+    request: Request,
+) -> str:
+    """Logout actions.
+
+    Used the SignUpForm passed in the request.session.
+
+    :param feretui: The feretui client
+    :type feretui: :class:`feretui.feretui.FeretUI`
+    :param request: The request
+    :type request: :class:`feretui.request.Request`
+    :return: The page to display
+    :rtype: :class:`feretui.response.Response`
+    """
+    request.session.logout()
+    base_url = request.get_base_url_from_current_url()
+    url = request.get_url_from_dict(base_url=base_url, querystring={})
+    return Response('', headers={'HX-Redirect': url})
