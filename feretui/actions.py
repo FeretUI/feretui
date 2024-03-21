@@ -103,6 +103,7 @@ def login_password(
                 request.session,
                 {'form': form, 'error': str(e)},
             ))
+
         qs = request.get_query_string_from_current_url()
         if qs.get('page') == ['login']:
             base_url = request.get_base_url_from_current_url()
