@@ -238,6 +238,8 @@ from feretui.feretui import FeretUI  # noqa : F401
 from feretui.form import FeretUIForm, Password  # noqa : F401
 from feretui.helper import (  # noqa : F401
     action_validator,
+    action_for_authenticated_user,
+    action_for_unauthenticated_user,
     menu_for_authenticated_user,
     menu_for_unauthenticated_user,
     page_for_authenticated_user_or_goto,

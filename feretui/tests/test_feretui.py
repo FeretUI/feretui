@@ -18,10 +18,10 @@ from feretui.menus import (
     AsideHeaderMenu,
     AsideMenu,
     Menu,
+    ToolBarButtonMenu,
     ToolBarDividerMenu,
     ToolBarDropDownMenu,
     ToolBarMenu,
-    ToolBarButtonMenu,
 )
 from feretui.pages import homepage, page_404
 from feretui.request import Request
@@ -270,7 +270,7 @@ class TestFeretUI:
 
         assert len(myferet.translation.forms) == 1
 
-    def test_register_auth_menus_1(self, snapshot):
+    def test_register_auth_menus_1(self, snapshot) -> None:
         myferet = FeretUI()
         session = Session()
         request = Request(session=session)
@@ -278,7 +278,7 @@ class TestFeretUI:
         myferet.register_auth_menus([ToolBarButtonMenu('Test', page='test')])
         snapshot.assert_match(myferet.render(request).body, 'after.html')
 
-    def test_register_auth_menus_2(self, snapshot):
+    def test_register_auth_menus_2(self, snapshot) -> None:
         myferet = FeretUI()
         with pytest.raises(MenuError):
             myferet.register_auth_menus([ToolBarMenu('Test', page='test')])

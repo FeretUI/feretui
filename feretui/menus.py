@@ -58,6 +58,7 @@ The menus are splited in two groups.
     ])
 
 """
+from collections.abc import Callable
 from typing import TYPE_CHECKING
 
 from markupsafe import Markup
@@ -97,7 +98,7 @@ class Menu:
         label: str,
         icon: str = None,
         tooltip: str = None,
-        visible_callback=None,
+        visible_callback: Callable = None,
         **querystring: dict[str, str],
     ) -> None:
         """Menu constructor.
@@ -255,6 +256,19 @@ class ChildrenMenu:
             children=self.children,
         ))
 
+    def is_visible(self: "Menu", session: Session) -> bool:  # noqa: ARG002
+        """Return True if the menu can be rendering.
+
+        :param session: The session of the user
+        :type session: :class:`feretui.session.Session`
+        :return: True
+        :rtype: bool
+        """
+        if self.visible_callback and not self.visible_callback(session):
+            return False
+
+        return all(child.is_visible(session) for child in self.children)
+
 
 class UrlMenu:
     """Mixin class for give an external url."""
@@ -342,10 +356,13 @@ class ToolBarDividerMenu(ToolBarMenu):
 
     template_id: str = 'toolbar-divider-menu'
 
-    def __init__(self: "ToolBarDividerMenu") -> None:
+    def __init__(
+        self: "ToolBarDividerMenu",
+        visible_callback: Callable = None,
+    ) -> None:
         """Separate two menu in DropDown menu."""
         self.context = ''
-        pass
+        self.visible_callback = visible_callback
 
     def render(
         self: "ToolBarDividerMenu",
@@ -475,12 +492,18 @@ class ToolBarButtonsMenu(ChildrenMenu, ToolBarButtonMenu):
     def __init__(
         self: "ToolBarButtonsMenu",
         children: ToolBarMenu,
+        visible_callback: Callable = None,
     ) -> None:
         """Construct the dropdown menu.
 
         Inherits of ToolbarMenu and ChildrenMenu
         """
-        ToolBarButtonMenu.__init__(self, None, type='buttons')
+        ToolBarButtonMenu.__init__(
+            self,
+            None,
+            type='buttons',
+            visible_callback=visible_callback,
+        )
         ChildrenMenu.__init__(self, children)
         for child in children:
             if isinstance(child, ChildrenMenu):
@@ -504,6 +527,7 @@ class ToolBarButtonUrlMenu(UrlMenu, ToolBarButtonMenu):
         self: "ToolBarButtonUrlMenu",
         label: str,
         url: str,
+        visible_callback: Callable = None,
         **kw: dict[str, str],
     ) -> None:
         """Call the menu constructor and update the context.
@@ -521,6 +545,7 @@ class ToolBarButtonUrlMenu(UrlMenu, ToolBarButtonMenu):
         :type tooltip: str
         """
         super().__init__(label, url=url, **kw)
+        self.visible_callback = visible_callback
 
 
 class AsideMenu(Menu):
