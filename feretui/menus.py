@@ -57,6 +57,35 @@ The menus are splited in two groups.
         ToolBarMenu('Menu Tb2', page="my-page"),
     ])
 
+
+Helper exist to compute the visibility:
+
+* :func:`feretui.helper.menu_for_authenticated_user`
+* :func:`feretui.helper.menu_for_unauthenticated_user`
+
+::
+
+    myferet.register_toolbar_left_menus([
+        ToolBarDropDownMenu('Menu Tb1', children=[
+            ToolBarMenu(
+                'Menu Tb11', page="aside-menu", aside="aside1",
+                aside_page='submenu11',
+            ),
+            ToolBarDividerMenu(),
+            ToolBarMenu(
+                'Menu Tb12', page="aside-menu", aside="aside2",
+                aside_page='submenu22',
+            ),
+        ], visible_callback=menu_for_authenticated_user
+        ),
+        ToolBarMenu(
+            'Menu Tb2',
+            page="my-page",
+            visible_callback=menu_for_unauthenticated_user
+        ),
+    ])
+
+
 """
 from collections.abc import Callable
 from typing import TYPE_CHECKING
@@ -84,7 +113,10 @@ class Menu:
 
     ::
 
-        menu = Menu('My label')
+        menu = Menu(
+            'My label',
+            visible_callback=menu_for_authenticated_user,
+        )
         if menu.is_visible(session):
             menu.render(myferet, session)
 
@@ -110,6 +142,9 @@ class Menu:
         :param tooltip: The tooltip, it is a helper to understand the role
                         of the menu
         :type tooltip: str
+        :param visible_callback: Callback to determine with the session,
+                                 if the menu is visible or not.
+        :type visible_callback: Callback[:class:`feretui.session.Session`, bool]
         :param querystring: The querystring of the api called
         :type querystring: str
         :exception: :class:`feretui.exceptions.MenuError`

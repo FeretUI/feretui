@@ -233,6 +233,7 @@ all the translation messages in pot file.
 .. _Form: https://wtforms.readthedocs.io/en/3.1.x/forms/#wtforms.form.Form
 .. _Field: https://wtforms.readthedocs.io/en/3.1.x/fields/#the-field-base-class
 .. _Htmx: https://htmx.org
+.. _MultiDict: https://pypi.org/project/multidict/
 """
 from feretui.feretui import FeretUI  # noqa : F401
 from feretui.form import FeretUIForm, Password  # noqa : F401
