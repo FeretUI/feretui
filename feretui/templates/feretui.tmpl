@@ -72,7 +72,9 @@
               {% endif %}
             {% endfor %}
             {% if not session.user %}
-            {{ feretui.auth.render(feretui, session) | safe }}
+             {%if feretui.auth.menus %}
+             {{ feretui.auth.menus.render(feretui, session) | safe }}
+             {% endif %}
             {% else %}
             <div class="navbar-item has-dropdown is-hoverable">
               <a class="navbar-link">

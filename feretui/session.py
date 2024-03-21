@@ -21,23 +21,22 @@ from wtforms import PasswordField, RadioField, StringField
 from wtforms.validators import EqualTo, InputRequired
 
 from feretui.form import FeretUIForm, Password
-from feretui.thread import local
 
 
 class LoginForm(FeretUIForm):
+    """WTform for the login."""
+
     login = StringField(validators=[InputRequired()])
     password = PasswordField(validators=[InputRequired()])
 
 
-def get_langs():
-    return local.feretui.get_langs()
-
-
 class SignUpForm(FeretUIForm):
+    """WTform for sign up."""
+
     login = StringField(validators=[InputRequired()])
     lang = RadioField(
         label='Language',
-        choices=get_langs,
+        choices=[('en', 'English')],
         validators=[InputRequired()],
     )
     password = PasswordField(validators=[Password()])
@@ -56,6 +55,13 @@ class Session:
 
         class MySession(Session):
             pass
+
+    You should overwrite the methods to link the session with your
+    user model.
+
+    * :meth:`.Session.login`
+    * :meth:`.Session.signup`
+    * :meth:`.Session.logout`
 
     Attributes
     ----------
@@ -87,13 +93,26 @@ class Session:
         dict_.pop('kwargs')
         return dict_
 
-    def login(self, login=None, password=None) -> None:
+    def login(
+        self: "Session",
+        login: str = None,
+        password: str = None,  # noqa: ARG002
+    ) -> None:
+        """Login.
+
+        :param login: the login
+        :type login: str
+        :param password: the password
+        :type password: str
+        """
         self.user = login
 
-    def logout(self) -> None:
+    def logout(self: "Session") -> None:
+        """Logout."""
         self.user = None
 
-    def signup(self, **kwargs) -> None:
+    def signup(self: "Session", **kwargs: dict) -> bool:
+        """Signup."""
         self.user = kwargs['login']
         for key, value in kwargs.items():
             if key in ('login', 'password', 'password_confirm'):

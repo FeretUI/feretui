@@ -146,7 +146,7 @@ class TestAction:
             method=Request.POST,
             form=MultiDict({
                 'login': 'test',
-                'lang': 'fr',
+                'lang': 'en',
                 'password': 'Testtest123!',
                 'password_confirm': 'Testtest123!',
             }),
@@ -164,7 +164,7 @@ class TestAction:
             method=Request.POST,
             form=MultiDict({
                 'login': 'test',
-                'lang': 'fr',
+                'lang': 'en',
                 'password': 'Testtest123!',
                 'password_confirm': 'Testtest123!',
             }),

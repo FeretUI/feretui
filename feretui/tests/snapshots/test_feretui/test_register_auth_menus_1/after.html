@@ -1,0 +1,111 @@
+<!DOCTYPE html5>
+<html lang="en">
+ <head>
+  <meta charset="utf-8">
+  <meta content="width=device-width,initial-scale=1" name="viewport">
+  <title>
+   FeretUI
+  </title>
+  <link href="/feretui/static/logo.png" rel="icon" type="image/png">
+  
+  <link href="/feretui/static/bulma.css" rel="stylesheet">
+  
+  <link href="/feretui/static/bulma-tooltip.css" rel="stylesheet">
+  
+  <link href="/feretui/static/fontawesome/css/all.css" rel="stylesheet">
+  
+  <link href="/feretui/static/default" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@creativebulma/bulma-tooltip@1.2.0/dist/bulma-tooltip.min.css" rel="stylesheet">
+ </head>
+ <body class="has-navbar-fixed-top">
+  <header>
+   <nav aria-label="main navigation" class="navbar is-fixed-top" role="navigation">
+    <div class="navbar-brand">
+     <a class="navbar-item has-tooltip-right has-tooltip-arrow" data-tooltip="Go to the homepage" hx-get="/feretui/action/goto?page=homepage" hx-swap="innerHTML" hx-target="#body">
+      <img alt="FeretUI" src="/feretui/static/logo.png">
+     </a>
+     <a _="on click toggle .is-active on me then toggle .is-active on #feretui-app-header-burger" aria-expanded="false" aria-label="menu" class="navbar-burger" data-target="feretui-app-header-burger" id="feretui-app-header-burger-button" role="button">
+      <span aria-hidden="true">
+      </span>
+      <span aria-hidden="true">
+      </span>
+      <span aria-hidden="true">
+      </span>
+     </a>
+    </div>
+    <div class="navbar-menu" id="feretui-app-header-burger">
+     <div class="navbar-start">
+      
+     </div>
+     <div class="navbar-end">
+      
+            
+             
+             <div class="navbar-item">
+ <div class="buttons">
+  
+          
+            <a class="button None" hx-get="/feretui/action/goto?page=test" hx-swap="innerHTML" hx-target="#body">
+ <span>
+  
+ </span>
+ <strong>
+  Test
+ </strong>
+ <span>
+  
+ </span>
+</a>
+          
+        
+ </div>
+</div>
+             
+            
+     </div>
+    </div>
+   </nav>
+  </header>
+  <main>
+   <div class="mt-4 mb-4" hx-boost="true" id="body">
+    <div class="container has-text-centered">
+ <div class="content">
+  <h1>
+   Welcome to the FeretUI's client
+  </h1>
+  <div class="container">
+   <figure class="image 1by1">
+    <img src="/feretui/static/logo.png">
+   </figure>
+  </div>
+  <p>
+   Small and modular web client to administrate your service
+   <i class="fa-regular fa-face-smile">
+   </i>
+  </p>
+ </div>
+</div>
+   </div>
+  </main>
+  <footer>
+   <div class="content has-text-centered">
+    <p>
+     <strong>
+      FeretUI
+     </strong>
+     by Js Suzanne.
+    </p>
+   </div>
+  </footer>
+  
+  <script src="/feretui/static/htmx.js">
+  </script>
+  
+  <script src="/feretui/static/hyperscript.js">
+  </script>
+  
+  <script src="/feretui/static/json-enc.js">
+  </script>
+  
+ </body>
+</html>

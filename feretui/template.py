@@ -136,15 +136,8 @@ logger = getLogger(__name__)
 
 
 JINJA_REGEXES = [
-    "\{\{ [a-zA-Z0-9_()\.|, ']* \}\}",  # noqa W605
-    "\{% set [a-zA-Z0-9_\[\]]* = [a-zA-Z0-9_()\.,']* %\}",  # noqa W605
-    "\{% if [a-zA-Z0-9_()\., =<>!'\[\]]* %\}",  # noqa W605
-    "\{% elif [a-zA-Z0-9_()\., =<>!'\[\]]* %\}",  # noqa W605
-    "\{% else %\}",  # noqa W605
-    "\{% endif %\}",  # noqa W605
-    "\{% for [a-zA-Z0-9_(), ]* in [a-zA-Z0-9_()\.'\[\]]* recursive %\}",  # noqa W605
-    "\{% for [a-zA-Z0-9_(), ]* in [a-zA-Z0-9_()\.'\[\]]* %\}",  # noqa W605
-    "\{% endfor %\}",  # noqa W605
+    "\{\{ .* \}\}",  # noqa W605
+    "\{% .* %\}",  # noqa W605
 ]
 """Regex to indicate if the text is a command jinja"""
 
@@ -915,8 +908,10 @@ class Template:
         for key in (set(tmpl.attrib.keys()).intersection(
             {"label", "hx-confirm", "data-tooltip"})
         ):
-            tmpl.attrib[key] = action_callback(
-                tmpl.attrib[key], suffix=f'{tmpl.tag}:{key}')
+            val = get_translated_message(tmpl.attrib[key])
+            if val:
+                tmpl.attrib[key] = action_callback(
+                    val, suffix=f'{tmpl.tag}:{key}')
 
         for child in tmpl.getchildren():
             self.compile_template_i18n(child, action_callback)

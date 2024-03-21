@@ -45,6 +45,7 @@ from feretui.exceptions import (
 )
 from feretui.form import FeretUIForm
 from feretui.menus import Menu
+from feretui.session import Session
 from feretui.thread import local
 
 if TYPE_CHECKING:
@@ -597,6 +598,11 @@ class Translation:
         templates = self.templates
         menus = self.menus
         forms = self.forms
+
+        self.add_translated_form(
+            TranslatedForm(Session.LoginForm, addons='feretui'))
+        self.add_translated_form(
+            TranslatedForm(Session.SignUpForm, addons='feretui'))
 
         if addons is not None:
             messages = filter(lambda x: x.addons == addons, messages)
