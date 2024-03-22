@@ -61,6 +61,9 @@ def page_404(feretui: "FeretUI", session: Session, options: dict) -> str:
     :rtype: str
     """
     page = options.get('page', '')
+    if isinstance(page, list):
+        page = page[0]
+
     return feretui.render_template(session, 'feretui-page-404', page=page)
 
 
@@ -83,6 +86,9 @@ def page_forbidden(
     :rtype: str
     """
     page = options.get('page', '')
+    if isinstance(page, list):
+        page = page[0]
+
     return feretui.render_template(
         session, 'feretui-page-forbidden', page=page)
 
@@ -174,7 +180,13 @@ def login(feretui: "FeretUI", session: Session, options: dict) -> str:
     :rtype: str
     """
     form = options.get('form', session.LoginForm())
-    return feretui.render_template(session, 'feretui-page-login', form=form)
+    error = options.get('error')
+    return feretui.render_template(
+        session,
+        'feretui-page-login',
+        form=form,
+        error=error,
+    )
 
 
 @page_for_unauthenticated_user_or_goto('forbidden')
@@ -194,4 +206,10 @@ def signup(feretui: "FeretUI", session: Session, options: dict) -> str:
     :rtype: str
     """
     form = options.get('form', session.SignUpForm())
-    return feretui.render_template(session, 'feretui-page-signup', form=form)
+    error = options.get('error')
+    return feretui.render_template(
+        session,
+        'feretui-page-signup',
+        form=form,
+        error=error,
+    )

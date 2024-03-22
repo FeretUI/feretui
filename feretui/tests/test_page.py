@@ -27,7 +27,7 @@ class TestPage:
         myferet = FeretUI()
         session = Session()
         snapshot.assert_match(
-            page_404(myferet, session, {'page': 'test'}),
+            page_404(myferet, session, {'page': ['test']}),
             'snapshot.html',
         )
 
@@ -35,7 +35,7 @@ class TestPage:
         myferet = FeretUI()
         session = Session()
         snapshot.assert_match(
-            page_forbidden(myferet, session, {'page': 'test'}),
+            page_forbidden(myferet, session, {'page': ['test']}),
             'snapshot.html',
         )
 

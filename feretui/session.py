@@ -95,29 +95,25 @@ class Session:
 
     def login(
         self: "Session",
-        login: str = None,
-        password: str = None,  # noqa: ARG002
+        form: FeretUIForm,
     ) -> None:
         """Login.
 
-        :param login: the login
-        :type login: str
-        :param password: the password
-        :type password: str
+        :param form: the WTForm object
+        :type login: :class:`feretui.form.FeretUIForm`
         """
-        self.user = login
+        self.user = form.login.data
 
     def logout(self: "Session") -> None:
         """Logout."""
         self.user = None
 
-    def signup(self: "Session", **kwargs: dict) -> bool:
-        """Signup."""
-        self.user = kwargs['login']
-        for key, value in kwargs.items():
-            if key in ('login', 'password', 'password_confirm'):
-                continue
+    def signup(self: "Session", form: FeretUIForm) -> bool:
+        """Signup.
 
-            setattr(self, key, value)
-
+        :param form: the WTForm object
+        :type login: :class:`feretui.form.FeretUIForm`
+        """
+        self.user = form.login.data
+        self.lang = form.lang.data
         return True
