@@ -259,5 +259,6 @@ from feretui.menus import (  # noqa : F401
     AsideUrlMenu,
 )
 from feretui.request import Request  # noqa : F401
+from feretui.resource import Resource  # noqa : F401
 from feretui.response import Response  # noqa : F401
 from feretui.session import Session  # noqa : F401

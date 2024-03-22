@@ -213,3 +213,16 @@ def signup(feretui: "FeretUI", session: Session, options: dict) -> str:
         form=form,
         error=error,
     )
+
+
+def resource(feret: "FeretUI", session: Session, options: dict):
+    resourcecode = options['resource'][0]
+    Resource = feret.get_resource(resourcecode)
+    viewcode = options.get('view', ['list'])[0]
+    view = getattr(Resource, f"_{viewcode}_view")
+    # render view
+    return feret.render_template(
+        session,
+        'feretui-page-resource',
+        view=Markup(view.render(feret, session, options, Resource)),
+    )

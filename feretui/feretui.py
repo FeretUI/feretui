@@ -67,6 +67,7 @@ from feretui.pages import (
     page_forbidden,
     signup,
     static_page,
+    resource,
 )
 from feretui.request import Request
 from feretui.response import Response
@@ -202,6 +203,7 @@ class FeretUI:
       or right the value are instances of the menu.
     * asides[dict[str, :class:`feretui.menus.AsideMenu`]] : The key is the
       code for the aside-menu page, the values are the instance of the menu.
+    * resources[dict[str, :class:`feretui.resource.Resource`]] : the resources
 
     The instance provide methodes to use
 
@@ -235,6 +237,9 @@ class FeretUI:
     * Form : Declare the WTForm class in the feretui instance, need for the
       translation
         * :meth:`.FeretUI.register_form`
+
+    * Resource: Declare the resource to CRUD
+        * :meth:`.FeretUI.register_resource`
 
     * Translations : Import and export the catalog
         * :meth:`.FeretUI.export_catalog`
@@ -329,8 +334,12 @@ class FeretUI:
         self.register_page('aside-menu')(aside_menu)
         self.register_page()(login)
         self.register_page()(signup)
+        self.register_page()(resource)
 
         self.register_addons_from_entrypoint()
+
+        # resources
+        self.resources = {}
 
     def register_addons_from_entrypoint(self: "FeretUI") -> None:
         """Get the static from the entrypoints.
@@ -1034,6 +1043,28 @@ class FeretUI:
             return form
 
         return _register_form
+
+    # ---------- Resource  ----------
+    def register_resource(self: "FeretUI", code, label, addons: str = None):
+        def wrap_class(cls):
+            if code in self.resources:
+                logger.info(f'Overload resource {code}[{label}]')
+
+            self.resources[code] = cls
+            cls._code = code
+            cls._label = label
+            # tr = TranslatedResource(cls, addons)
+            # Translation.add_translated_resource(tr)
+            return cls
+
+        return wrap_class
+
+    def get_resource(self, code):
+        # if resourcecode not in self.resources:
+        #     raise UnexistingResource(resourcecode)
+
+        return self.resources[code]
+
 
     # ---------- Translation ----------
     def export_catalog(

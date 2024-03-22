@@ -120,4 +120,119 @@
       </div>
     </form>
   </template>
+  <template id="feretui-page-resource">
+    <div hx-target="this" hx-swap="innerHTML">
+      {{ view }}
+    </div>
+  </template>
+  <template id="feretui-page-resource-pagination">
+    <div class="columns is-vcentered">
+      <div class="column is-1">
+        <div class="buttons">
+          {% if create_view_qs %}
+          <button 
+            class="button is-primary"
+            hx-get="{{ feretui.base_url }}/action/goto?{{ create_view_qs }}"
+            hx-target="#feretui-body"
+          >
+            Create
+          </button>
+          {% endif %}
+        </div>
+      </div>
+      <div class="column">
+        {% if paginations %}
+        <nav class="pagination" role="pagination" arial-label="pagination">
+          {% if paginations[0] == offset %}
+          <a class="pagination-previous" disabled>Previous page</a>
+          {% endif %}
+          {% if paginations[0] != offset %}
+          <a
+            class="pagination-previous"
+            hx-get="/feretui/action/resource-pagination?resource={{ Resource._code }}&offset={{offset - limit}}"
+            hx-target="#feretui-page-resource-{{ Resource._code }}"
+          >
+            Previous page
+          </a>
+          {% endif %}
+          {% if paginations[-1] == offset %}
+          <a class="pagination-next" disabled>Next page</a>
+          {% endif %}
+          {% if paginations[-1] != offset %}
+          <a
+            class="pagination-next"
+            hx-get="/feretui/action/resource-pagination?resource={{ Resource._code }}&offset={{offset + limit}}"
+            hx-target="#feretui-page-resource-{{ Resource._code }}"
+          >
+            Next page
+          </a>
+          {% endif %}
+          <ul class="pagination-list">
+            {% for pagination in paginations %}
+            <li>
+              {% if pagination == offset %}
+              <a class="pagination-link is-current">
+                {{ pagination }}-{{ [pagination + limit - 1, dataset.total]|min }}
+              </a>
+              {% endif %}
+              {% if pagination != offset %}
+              <a
+                class="pagination-link"
+                hx-get="/feretui/action/resource-pagination?resource={{ Resource._code }}&offset={{pagination}}"
+                hx-target="#feretui-page-resource-{{ Resource._code }}"
+              >
+                {{ pagination }}-{{ [pagination + limit - 1, dataset.total]|min }}
+              </a>
+              {% endif %}
+            </li>
+            {% endfor %}
+          </ul>
+        </nav>
+        {% endif %}
+      </div>
+    </div>
+  </template>
+  <template id="feretui-page-resource-list">
+    <div class="container is-fluid">
+      <div class="columns is-vcentered">
+        <div class="column is-2">
+          <h1>{{ label }} ({{ dataset.total }})</h1>
+        </div>
+        <div class="column">
+        </div>
+      </div>
+      <include template="feretui-page-resource-pagination" />
+      <table class="table is-fullwidth is-striped">
+        <thead>
+          <tr>
+            {% for field in fields %}
+            <th id="{{ field }}">{{ form[field].label.text }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+            {% for row in dataset.forms %}
+            <tr
+              hx-trigger="dblclick"
+              hx-get="/feretui/action/goto?{{ open_view_qs }}&id={{ row.pk.name }}"
+            >
+              {% for field in fields %}
+              <td>
+                {{ row[field](data_only=True) }}
+              </td>
+              {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr>
+            {% for field in fields %}
+            <th id="{{ field }}">{{ form[field].label.text }}</th>
+            {% endfor %}
+          </tr>
+        </tfoot>
+      </table>
+      <include template="feretui-page-resource-pagination" />
+    </div>
+  </template>
 </templates>

@@ -10,9 +10,7 @@ from feretui import (
     FeretUI,
     Request,
     Session,
-    menu_for_authenticated_user,
-    ToolBarMenu,
-    FeretUIForm,
+    Resource,
     Password,
 )
 from sqlalchemy.orm import (
@@ -21,7 +19,7 @@ from sqlalchemy.orm import (
     mapped_column,
     Session as SQLASession,
 )
-from sqlalchemy import create_engine, String, select
+from sqlalchemy import create_engine, String, select, func
 from wtforms import StringField, RadioField, PasswordField
 from wtforms.validators import InputRequired
 
@@ -94,20 +92,15 @@ class MySession(Session):
             raise Exception('Login or password invalid')
 
 
-myferet.register_toolbar_left_menus([
-    ToolBarMenu(
-        'Users', page="resource", resource="user",
-        visible_callback=menu_for_authenticated_user,
-    ),
-])
+@myferet.register_resource(
+    'c1',
+    'User',
+    # access rules
+)
+class RUser(Resource):
 
-
-# @myferet.register_resource('c1')
-# class RUser(Resource):
-class RUser():
-
-    class Form(FeretUIForm):
-        pk = StringField('Login', validators=[InputRequired()])
+    class Form:
+        login = StringField(validators=[InputRequired()])
         name = StringField()
         lang = RadioField(
             label='Language',
@@ -125,6 +118,11 @@ class RUser():
             render_kw=dict(vertical=False),
         )
 
+        @property
+        def pk(self):
+            return self.login
+
+    @classmethod
     def create(self, form):
         with SQLASession(engine) as session:
             user = User()
@@ -134,18 +132,22 @@ class RUser():
 
         return user.login
 
-    def read(self, form_cls, pk):
+    def read(self, form_cls):
         with SQLASession(engine) as session:
-            user = session.get(User, pk)
+            user = session.get(User, self.pk)
             if user:
                 return form_cls(MultiDict(user.__dict__))
 
-    def search_read(self, form_cls, filters, offset, limit):
+    @classmethod
+    def filtered_reads(self, form_cls, filters, offset, limit):
         forms = []
         total = 0
         with SQLASession(engine) as session:
             stmt = select(User).where()
-            # do count
+            stmt_count = select(func.count()).select_from(
+                stmt.subquery())
+            total = session.execute(stmt_count).scalars().first()
+
             stmt = stmt.offset(offset).limit(limit)
             for user in session.scalars(stmt):
                 forms.append(form_cls(MultiDict(user.__dict__)))
@@ -155,18 +157,23 @@ class RUser():
             'forms': forms,
         }
 
-    def update(self, pk, form):
+    def update(self, form):
         with SQLASession(engine) as session:
-            user = session.get(User, pk)
+            user = session.get(User, self.pk)
             if user:
                 form.populate_obj(user)
                 session.commit()
                 return user.login
 
-    def delete(self, pk):
+    def delete(self):
         with SQLASession(engine) as session:
-            session.delete(session.get(User, pk))
+            session.delete(session.get(User, self.pk))
             session.commit()
+
+
+myferet.register_toolbar_left_menus([
+    RUser.menu()
+])
 
 # -- app --
 

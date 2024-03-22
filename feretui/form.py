@@ -62,12 +62,12 @@ def wrap_input(field: Field, **kwargs: dict) -> Markup:
     :return: The renderer of the widget as html.
     :rtype: Markup_
     """
+    myferet = local.feretui
+    session = local.request.session
+
     if kwargs.pop('data-readonly', False) is True:
         kwargs['nolabel'] = True
         kwargs['readonly'] = True
-
-    myferet = local.feretui
-    session = local.request.session
 
     input_class = ["input"]
     required = False
@@ -112,14 +112,14 @@ def wrap_bool(field: "Field", **kwargs: dict) -> Markup:
     :return: The renderer of the widget as html.
     :rtype: Markup_
     """
-    readonly = False
+    myferet = local.feretui
+    session = local.request.session
+
     if kwargs.pop('data-readonly', False) is True:
         kwargs['nolabel'] = True
         kwargs['readonly'] = True
 
-    myferet = local.feretui
-    session = local.request.session
-
+    readonly = False
     if kwargs.pop('readonly', False):
         read_only(field)
         readonly = True
@@ -149,6 +149,7 @@ def wrap_radio(
     myferet = local.feretui
     session = local.request.session
     vertical = kwargs.pop('vertical', True)
+
     if vertical:
         template_id = "feretui-radio-field-vertical"
     else:
