@@ -95,7 +95,14 @@ def login_password(
     """
     form = request.session.LoginForm(request.form)
     if form.validate():
-        request.session.login(**form.data)
+        try:
+            request.session.login(form)
+        except Exception as e:
+            return Response(login(
+                feretui,
+                request.session,
+                {'form': form, 'error': str(e)},
+            ))
         qs = request.get_query_string_from_current_url()
         if qs.get('page') == ['login']:
             base_url = request.get_base_url_from_current_url()
@@ -131,7 +138,14 @@ def login_signup(
     """
     form = request.session.SignUpForm(request.form)
     if form.validate():
-        redirect = request.session.signup(**form.data)
+        try:
+            redirect = request.session.signup(form)
+        except Exception as e:
+            return Response(signup(
+                feretui,
+                request.session,
+                {'form': form, 'error': str(e)},
+            ))
         if redirect:
             qs = request.get_query_string_from_current_url()
             if qs.get('page') == ['signup']:

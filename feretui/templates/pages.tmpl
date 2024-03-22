@@ -63,6 +63,11 @@
         hx-trigger="submit"
       >
         <div class="container">
+          {% if error %}
+          <div class="notification is-danger">
+            {{ error }}
+          </div>
+          {% endif %}
           <div class="has-text-centered">
             {{ form.login(autocomplete="username") }}
             {{ form.password(autocomplete="current-password") }}
@@ -85,6 +90,11 @@
       hx-trigger="submit"
     >
       <div class="container">
+        {% if error %}
+        <div class="notification is-danger">
+          {{ error }}
+        </div>
+        {% endif %}
         <h1 class="title">Register a new user</h1>
         <div id="feretui-signup-field-login">
           {{ form.login(autocomplete='username') }}

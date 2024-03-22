@@ -85,7 +85,7 @@ class TestAction:
             'snapshot.html',
         )
 
-    def test_login_password_4(self, snapshot) -> None:
+    def test_login_password_4(self) -> None:
         local.feretui = myferet = FeretUI()
         session = Session()
         local.request = request = Request(
@@ -98,7 +98,7 @@ class TestAction:
         assert res.body == ''
         assert res.headers['HX-Refresh'] == 'true'
 
-    def test_login_password_5(self, snapshot) -> None:
+    def test_login_password_5(self) -> None:
         local.feretui = myferet = FeretUI()
         session = Session()
         local.request = request = Request(
@@ -110,6 +110,24 @@ class TestAction:
         res = login_password(myferet, request)
         assert res.body == ''
         assert res.headers['HX-Redirect'] == '/test?page=homepage'
+
+    def test_login_password_6(self, snapshot) -> None:
+        class MySession(Session):
+            def login(self, form):
+                raise Exception('Test')
+
+        local.feretui = myferet = FeretUI()
+        session = MySession()
+        local.request = request = Request(
+            method=Request.POST,
+            form=MultiDict({'login': 'test', 'password': 'test'}),
+            session=session,
+            headers={'Hx-Current-Url': '/test?page=login'},
+        )
+        snapshot.assert_match(
+            login_password(myferet, request).body,
+            'snapshot.html',
+        )
 
     def test_login_signup_1(self) -> None:
         myferet = FeretUI()
@@ -139,7 +157,7 @@ class TestAction:
             'snapshot.html',
         )
 
-    def test_login_signup_4(self, snapshot) -> None:
+    def test_login_signup_4(self) -> None:
         local.feretui = myferet = FeretUI()
         session = Session()
         local.request = request = Request(
@@ -157,7 +175,7 @@ class TestAction:
         assert res.body == ''
         assert res.headers['HX-Refresh'] == 'true'
 
-    def test_login_signup_5(self, snapshot) -> None:
+    def test_login_signup_5(self) -> None:
         local.feretui = myferet = FeretUI()
         session = Session()
         local.request = request = Request(
@@ -174,6 +192,29 @@ class TestAction:
         res = login_signup(myferet, request)
         assert res.body == ''
         assert res.headers['HX-Redirect'] == '/test?page=homepage'
+
+    def test_login_signup_6(self, snapshot) -> None:
+        class MySession(Session):
+            def signup(self, form):
+                raise Exception('Test')
+
+        local.feretui = myferet = FeretUI()
+        session = MySession()
+        local.request = request = Request(
+            method=Request.POST,
+            form=MultiDict({
+                'login': 'test',
+                'lang': 'en',
+                'password': 'Testtest123!',
+                'password_confirm': 'Testtest123!',
+            }),
+            session=session,
+            headers={'Hx-Current-Url': '/test?page=signup'},
+        )
+        snapshot.assert_match(
+            login_signup(myferet, request).body,
+            'snapshot.html',
+        )
 
     def test_logout_1(self) -> None:
         myferet = FeretUI()
