@@ -48,6 +48,19 @@ def wrap_input(field: Field, **kwargs: dict) -> Markup:
     :return: The renderer of the widget as html.
     :rtype: Markup_
     """
+    if kwargs.get('data-readonly') is True:
+        del kwargs['data-readonly']
+        if hasattr(field, 'choices'):
+            for choice in field.choices:
+                if choice[0] == field.data:
+                    return Markup(f'<span>{choice[1]}</span>')
+
+            return Markup('<span></span>')
+
+        kwargs['class'] = 'input is-static'
+        kwargs['readonly'] = True
+        return field.widget(field, **kwargs)
+
     myferet = local.feretui
     session = local.request.session
 
@@ -55,14 +68,17 @@ def wrap_input(field: Field, **kwargs: dict) -> Markup:
     required = False
     if field.errors:
         input_class.append("is-danger")
-    else:
-        for validator in field.validators:
-            if isinstance(validator, InputRequired):
+
+    for validator in field.validators:
+        if isinstance(validator, InputRequired):
+            if not field.errors:
                 input_class.append("is-link")
-                required = True
+
+            required = True
 
     c = kwargs.pop('class', '') or kwargs.pop('class_', '')
     kwargs['class'] = '{} {}'.format(' '.join(input_class), c)
+
     return Markup(myferet.render_template(
         session,
         "feretui-input-field",
@@ -82,6 +98,11 @@ def wrap_bool(field: "Field", **kwargs: dict) -> Markup:
     :return: The renderer of the widget as html.
     :rtype: Markup_
     """
+    if kwargs.get('data-readonly') is True:
+        del kwargs['data-readonly']
+        kwargs['disabled'] = True
+        return field.widget(field, **kwargs)
+
     myferet = local.feretui
     session = local.request.session
 
@@ -106,6 +127,14 @@ def wrap_radio(
     :return: The renderer of the widget as html.
     :rtype: Markup_
     """
+    if kwargs.get('data-readonly') is True:
+        del kwargs['data-readonly']
+        for choice in field.choices:
+            if choice[0] == field.data:
+                return Markup(f'<span>{choice[1]}</span>')
+
+        return Markup('<span></span>')
+
     myferet = local.feretui
     session = local.request.session
     vertical = kwargs.get('vertical', True)
