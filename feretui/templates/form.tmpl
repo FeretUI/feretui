@@ -49,8 +49,8 @@
         <ul>
           {% for subfield in field %}
           <li>
-            <label class="radio" for="{{ label.field_id }}" >
-                {{ subfield() }}
+            <label class="radio" for="{{ subfield.id }}" >
+                {{ subfield(**options) }}
                 {{ subfield.label(class_="radio") }}
                 {% set tooltip = subfield.description %}
                 <include template="feretui-tooltip" />
@@ -67,8 +67,8 @@
       <include template="feretui-input-label"/>
       <div class="control">
         {% for subfield in field %}
-          <label class="radio" for="{{ label.field_id }}" >
-            {{ subfield() }}
+          <label class="radio" for="{{ subfield.id }}" >
+            {{ subfield(**options) }}
             {{ subfield.label(class_="radio") }}
             {% set tooltip = subfield.description %}
             <include template="feretui-tooltip" />
