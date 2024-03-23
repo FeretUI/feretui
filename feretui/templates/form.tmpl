@@ -15,31 +15,37 @@
     </label>
   </template>
   <template id="feretui-input-error">
-    <div>
-      {% if errors %}
-      <p class="help is-danger">
-        {{ errors | join(', ')  }}
-      </p>
-      {% endif %}
-    </div>
+    <p class="help is-danger">
+      {{ errors | join(', ')  }}
+    </p>
   </template>
   <template id="feretui-input-field">
     <div class="field">
+      {% if label %}
       <include template="feretui-input-label"/>
+      {% endif %}
       <div class="control">
         {{ widget }}
       </div>
+      {% if not readonly and errors %}
       <include template="feretui-input-error"/>
+      {% endif %}
     </div>
   </template>
   <template id="feretui-bool-field">
     <div class="field">
+      {% if label %}
       <label for="{{ label.field_id }}" class="checkbox">
         {{ widget }}
         {{ label.text }}
         <include template="feretui-tooltip" />
       </label>
+      {% else %}
+      {{ widget }}
+      {% endif %}
+      {% if not readonly and errors %}
       <include template="feretui-input-error"/>
+      {% endif %}
     </div>
   </template>
   <template id="feretui-radio-field-vertical">
@@ -59,7 +65,9 @@
           {% endfor %}
         </ul>
       </div>
+      {% if not readonly and errors %}
       <include template="feretui-input-error"/>
+      {% endif %}
     </div>
   </template>
   <template id="feretui-radio-field-horizontal">
@@ -75,7 +83,9 @@
           </label>
         {% endfor %}
       </div>
+      {% if not readonly and errors %}
       <include template="feretui-input-error"/>
+      {% endif %}
     </div>
   </template>
 </templates>

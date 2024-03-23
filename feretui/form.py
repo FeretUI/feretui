@@ -49,28 +49,21 @@ def wrap_input(field: Field, **kwargs: dict) -> Markup:
     :return: The renderer of the widget as html.
     :rtype: Markup_
     """
-    if kwargs.get('data-readonly') is True:
-        del kwargs['data-readonly']
-        if hasattr(field, 'choices'):
-            for choice in field.choices:
-                if choice[0] == field.data:
-                    return Markup(f'<span>{choice[1]}</span>')
-
-            return Markup('<span></span>')
-
-        kwargs['class'] = 'input is-static'
+    if kwargs.pop('data-readonly', False) is True:
+        kwargs['nolabel'] = True
         kwargs['readonly'] = True
-        return field.widget(field, **kwargs)
 
     myferet = local.feretui
     session = local.request.session
 
     input_class = ["input"]
     required = False
+    readonly = False
 
     if kwargs.get('readonly', False):
         input_class.append('is-static')
         read_only(field)
+        readonly = True
 
     else:
         if field.errors:
@@ -89,9 +82,10 @@ def wrap_input(field: Field, **kwargs: dict) -> Markup:
     return Markup(myferet.render_template(
         session,
         "feretui-input-field",
-        label=field.label,
+        label=None if kwargs.pop('nolabel', False) else field.label,
         widget=field.widget(field, **kwargs),
         required=required,
+        readonly=readonly,
         tooltip=field.description,
         errors=field.errors,
     ))
@@ -105,20 +99,24 @@ def wrap_bool(field: "Field", **kwargs: dict) -> Markup:
     :return: The renderer of the widget as html.
     :rtype: Markup_
     """
+    readonly = False
     if kwargs.pop('data-readonly', False) is True:
-        read_only(field)
-        return field.widget(field, **kwargs)
+        kwargs['nolabel'] = True
+        kwargs['readonly'] = True
 
     myferet = local.feretui
     session = local.request.session
 
     if kwargs.pop('readonly', False):
         read_only(field)
+        readonly = True
+
     return Markup(myferet.render_template(
         session,
         "feretui-bool-field",
-        label=field.label,
+        label=None if kwargs.pop('nolabel', False) else field.label,
         widget=field.widget(field, **kwargs),
+        readonly=readonly,
         tooltip=field.description,
         errors=field.errors,
     ))
@@ -135,13 +133,6 @@ def wrap_radio(
     :return: The renderer of the widget as html.
     :rtype: Markup_
     """
-    if kwargs.pop('data-readonly', False) is True:
-        for choice in field.choices:
-            if choice[0] == field.data:
-                return Markup(f'<span>{choice[1]}</span>')
-
-        return Markup('<span></span>')
-
     myferet = local.feretui
     session = local.request.session
     vertical = kwargs.pop('vertical', True)
@@ -150,7 +141,15 @@ def wrap_radio(
     else:
         template_id = "feretui-radio-field-horizontal"
 
+    if kwargs.pop('data-readonly', False) is True:
+        for choice in field.choices:
+            if choice[0] == field.data:
+                return Markup(f'<span>{choice[1]}</span>')
+
+        return Markup('<span></span>')
+
     required = False
+    readonly = False
     for validator in field.validators:
         if isinstance(validator, InputRequired):
             required = True
@@ -158,13 +157,15 @@ def wrap_radio(
     if kwargs.get('readonly'):
         read_only(field)
         kwargs['disabled'] = True
+        readonly = True
 
     return Markup(myferet.render_template(
         session,
         template_id,
-        label=field.label,
+        label=None if kwargs.pop('nolabel', False) else field.label,
         field=field,
         required=required,
+        readonly=readonly,
         options=kwargs,
         tooltip=field.description,
         errors=field.errors,
