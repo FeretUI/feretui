@@ -12,10 +12,23 @@ Addons for WTForms_. The form is usefull to create a formular in a page.
 The class :class:`.FeretUIForm` are behaviour like:
 
 * the link with the feretui translation.
-* widget wrapper for renderer it with bulma class.
+* widget wrapper for renderer it with bulma class, with label in a
+  **field div**.
 
   * :func:`.wrap_input`
   * :func:`.wrap_bool`
+  * :func:`.wrap_radio`
+  * :func:`.no_wrap`
+
+The wrappers, excepted :func:`._no wrap`, added behaviours in kwargs of
+the **__call__** method of the field:
+
+* readonly : Put the field in a readonly mode
+* no-label : Donc display the label but keep the bulma class in th
+  **field div**
+* data-readonly : with no label and readonly. The main diference is fot
+  the wrapper :func:`.wrap_radio`, because only the label of the selected
+  radio is displayed
 
 Added the also the validators
 
