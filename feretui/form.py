@@ -12,10 +12,23 @@ Addons for WTForms_. The form is usefull to create a formular in a page.
 The class :class:`.FeretUIForm` are behaviour like:
 
 * the link with the feretui translation.
-* widget wrapper for renderer it with bulma class.
+* widget wrapper for renderer it with bulma class, with label in a
+  **field div**.
 
   * :func:`.wrap_input`
   * :func:`.wrap_bool`
+  * :func:`.wrap_radio`
+  * :func:`.no_wrap`
+
+The wrappers, excepted :func:`._no wrap`, added behaviours in kwargs of
+the **__call__** method of the field:
+
+* readonly : Put the field in a readonly mode
+* no-label : Donc display the label but keep the bulma class in th
+  **field div**
+* data-readonly : with no label and readonly. The main diference is fot
+  the wrapper :func:`.wrap_radio`, because only the label of the selected
+  radio is displayed
 
 Added the also the validators
 
@@ -32,6 +45,7 @@ from wtforms.fields.core import UnboundField
 from wtforms.form import Form
 from wtforms.validators import InputRequired, ValidationError
 from wtforms.widgets.core import clean_key
+from wtforms_components import read_only
 
 from feretui.thread import local
 
@@ -48,27 +62,43 @@ def wrap_input(field: Field, **kwargs: dict) -> Markup:
     :return: The renderer of the widget as html.
     :rtype: Markup_
     """
+    if kwargs.pop('data-readonly', False) is True:
+        kwargs['nolabel'] = True
+        kwargs['readonly'] = True
+
     myferet = local.feretui
     session = local.request.session
 
     input_class = ["input"]
     required = False
-    if field.errors:
-        input_class.append("is-danger")
+    readonly = False
+
+    if kwargs.get('readonly', False):
+        input_class.append('is-static')
+        read_only(field)
+        readonly = True
+
     else:
+        if field.errors:
+            input_class.append("is-danger")
+
         for validator in field.validators:
             if isinstance(validator, InputRequired):
-                input_class.append("is-link")
+                if (not field.errors):
+                    input_class.append("is-link")
+
                 required = True
 
     c = kwargs.pop('class', '') or kwargs.pop('class_', '')
     kwargs['class'] = '{} {}'.format(' '.join(input_class), c)
+
     return Markup(myferet.render_template(
         session,
         "feretui-input-field",
-        label=field.label,
+        label=None if kwargs.pop('nolabel', False) else field.label,
         widget=field.widget(field, **kwargs),
         required=required,
+        readonly=readonly,
         tooltip=field.description,
         errors=field.errors,
     ))
@@ -82,14 +112,24 @@ def wrap_bool(field: "Field", **kwargs: dict) -> Markup:
     :return: The renderer of the widget as html.
     :rtype: Markup_
     """
+    readonly = False
+    if kwargs.pop('data-readonly', False) is True:
+        kwargs['nolabel'] = True
+        kwargs['readonly'] = True
+
     myferet = local.feretui
     session = local.request.session
+
+    if kwargs.pop('readonly', False):
+        read_only(field)
+        readonly = True
 
     return Markup(myferet.render_template(
         session,
         "feretui-bool-field",
-        label=field.label,
+        label=None if kwargs.pop('nolabel', False) else field.label,
         widget=field.widget(field, **kwargs),
+        readonly=readonly,
         tooltip=field.description,
         errors=field.errors,
     ))
@@ -108,23 +148,38 @@ def wrap_radio(
     """
     myferet = local.feretui
     session = local.request.session
-    vertical = kwargs.get('vertical', True)
+    vertical = kwargs.pop('vertical', True)
     if vertical:
         template_id = "feretui-radio-field-vertical"
     else:
         template_id = "feretui-radio-field-horizontal"
 
+    if kwargs.pop('data-readonly', False) is True:
+        for choice in field.choices:
+            if choice[0] == field.data:
+                return Markup(f'<span>{choice[1]}</span>')
+
+        return Markup('<span></span>')
+
     required = False
+    readonly = False
     for validator in field.validators:
         if isinstance(validator, InputRequired):
             required = True
 
+    if kwargs.get('readonly'):
+        read_only(field)
+        kwargs['disabled'] = True
+        readonly = True
+
     return Markup(myferet.render_template(
         session,
         template_id,
-        label=field.label,
+        label=None if kwargs.pop('nolabel', False) else field.label,
         field=field,
         required=required,
+        readonly=readonly,
+        options=kwargs,
         tooltip=field.description,
         errors=field.errors,
     ))

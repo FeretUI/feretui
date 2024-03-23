@@ -15,31 +15,37 @@
     </label>
   </template>
   <template id="feretui-input-error">
-    <div>
-      {% if errors %}
-      <p class="help is-danger">
-        {{ errors | join(', ')  }}
-      </p>
-      {% endif %}
-    </div>
+    <p class="help is-danger">
+      {{ errors | join(', ')  }}
+    </p>
   </template>
   <template id="feretui-input-field">
     <div class="field">
+      {% if label %}
       <include template="feretui-input-label"/>
+      {% endif %}
       <div class="control">
         {{ widget }}
       </div>
+      {% if not readonly and errors %}
       <include template="feretui-input-error"/>
+      {% endif %}
     </div>
   </template>
   <template id="feretui-bool-field">
     <div class="field">
+      {% if label %}
       <label for="{{ label.field_id }}" class="checkbox">
         {{ widget }}
         {{ label.text }}
         <include template="feretui-tooltip" />
       </label>
+      {% else %}
+      {{ widget }}
+      {% endif %}
+      {% if not readonly and errors %}
       <include template="feretui-input-error"/>
+      {% endif %}
     </div>
   </template>
   <template id="feretui-radio-field-vertical">
@@ -49,8 +55,8 @@
         <ul>
           {% for subfield in field %}
           <li>
-            <label class="radio" for="{{ label.field_id }}" >
-                {{ subfield() }}
+            <label class="radio" for="{{ subfield.id }}" >
+                {{ subfield(**options) }}
                 {{ subfield.label(class_="radio") }}
                 {% set tooltip = subfield.description %}
                 <include template="feretui-tooltip" />
@@ -59,7 +65,9 @@
           {% endfor %}
         </ul>
       </div>
+      {% if not readonly and errors %}
       <include template="feretui-input-error"/>
+      {% endif %}
     </div>
   </template>
   <template id="feretui-radio-field-horizontal">
@@ -67,15 +75,17 @@
       <include template="feretui-input-label"/>
       <div class="control">
         {% for subfield in field %}
-          <label class="radio" for="{{ label.field_id }}" >
-            {{ subfield() }}
+          <label class="radio" for="{{ subfield.id }}" >
+            {{ subfield(**options) }}
             {{ subfield.label(class_="radio") }}
             {% set tooltip = subfield.description %}
             <include template="feretui-tooltip" />
           </label>
         {% endfor %}
       </div>
+      {% if not readonly and errors %}
       <include template="feretui-input-error"/>
+      {% endif %}
     </div>
   </template>
 </templates>

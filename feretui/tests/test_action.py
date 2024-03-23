@@ -1,3 +1,5 @@
+from typing import NoReturn
+
 import pytest
 from multidict import MultiDict
 
@@ -113,7 +115,7 @@ class TestAction:
 
     def test_login_password_6(self, snapshot) -> None:
         class MySession(Session):
-            def login(self, form):
+            def login(self, form) -> NoReturn:
                 raise Exception('Test')
 
         local.feretui = myferet = FeretUI()
@@ -195,7 +197,7 @@ class TestAction:
 
     def test_login_signup_6(self, snapshot) -> None:
         class MySession(Session):
-            def signup(self, form):
+            def signup(self, form) -> NoReturn:
                 raise Exception('Test')
 
         local.feretui = myferet = FeretUI()
