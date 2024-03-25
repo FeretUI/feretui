@@ -48,7 +48,13 @@ from pathlib import Path
 from jinja2 import Environment, PackageLoader, select_autoescape
 from markupsafe import Markup
 
-from feretui.actions import goto, login_password, login_signup, logout
+from feretui.actions import (
+    goto,
+    login_password,
+    login_signup,
+    logout,
+    resource,
+)
 from feretui.exceptions import MenuError, UnexistingActionError
 from feretui.form import FeretUIForm
 from feretui.menus import (
@@ -67,7 +73,7 @@ from feretui.pages import (
     page_forbidden,
     signup,
     static_page,
-    resource,
+    resource_page,
 )
 from feretui.request import Request
 from feretui.response import Response
@@ -323,6 +329,7 @@ class FeretUI:
         self.register_action(login_password)
         self.register_action(login_signup)
         self.register_action(logout)
+        self.register_action(resource)
 
         # Pages
         self.pages: dict[str, Callable[
@@ -334,7 +341,7 @@ class FeretUI:
         self.register_page('aside-menu')(aside_menu)
         self.register_page()(login)
         self.register_page()(signup)
-        self.register_page()(resource)
+        self.register_page(name='resource')(resource_page)
 
         self.register_addons_from_entrypoint()
 
@@ -1064,7 +1071,6 @@ class FeretUI:
         #     raise UnexistingResource(resourcecode)
 
         return self.resources[code]
-
 
     # ---------- Translation ----------
     def export_catalog(

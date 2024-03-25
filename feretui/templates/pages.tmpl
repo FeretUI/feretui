@@ -149,8 +149,7 @@
           {% if paginations[0] != offset %}
           <a
             class="pagination-previous"
-            hx-get="/feretui/action/resource-pagination?resource={{ Resource._code }}&offset={{offset - limit}}"
-            hx-target="#feretui-page-resource-{{ Resource._code }}"
+            hx-get="{{ feretui.base_url}}/action/resource?action=pagination&offset={{offset - limit}}"
           >
             Previous page
           </a>
@@ -161,8 +160,7 @@
           {% if paginations[-1] != offset %}
           <a
             class="pagination-next"
-            hx-get="/feretui/action/resource-pagination?resource={{ Resource._code }}&offset={{offset + limit}}"
-            hx-target="#feretui-page-resource-{{ Resource._code }}"
+            hx-get="{{ feretui.base_url}}/action/resource?action=pagination&offset={{offset + limit}}"
           >
             Next page
           </a>
@@ -178,8 +176,7 @@
               {% if pagination != offset %}
               <a
                 class="pagination-link"
-                hx-get="/feretui/action/resource-pagination?resource={{ Resource._code }}&offset={{pagination}}"
-                hx-target="#feretui-page-resource-{{ Resource._code }}"
+                hx-get="{{ feretui.base_url}}/action/resource?action=pagination&offset={{ pagination }}"
               >
                 {{ pagination }}-{{ [pagination + limit - 1, dataset.total]|min }}
               </a>
@@ -218,7 +215,7 @@
             >
               {% for field in fields %}
               <td>
-                {{ row[field](data_only=True) }}
+                {{ row[field](data_readonly=True) }}
               </td>
               {% endfor %}
             </tr>

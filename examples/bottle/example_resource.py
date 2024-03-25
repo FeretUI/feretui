@@ -61,7 +61,7 @@ class User(Base):
     theme: Mapped[str] = mapped_column(String(10), default="minthy")
 
 
-engine = create_engine("sqlite://")
+engine = create_engine("sqlite:///resource.db")
 Base.metadata.create_all(engine)
 # -- for feretui --
 
@@ -75,11 +75,11 @@ class MySession(Session):
         super().__init__(**kwargs)
         self.user_id = user_id
 
-    def login(self, login=None, password=None):
+    def login(self, form):
         with SQLASession(engine) as session:
             stmt = select(User).where(
-                User.login == login,
-                User.password == password
+                User.login == form.login.data,
+                User.password == form.password.data
             )
             user = session.scalars(stmt).one_or_none()
             if user:
@@ -241,6 +241,10 @@ if __name__ == "__main__":
                 password='admin',
                 name='Administrator',
             ))
+            session.add_all([
+                User(login=f'foo{x}', password=f'bar{x}', name='Foo')
+                for x in range(100)
+            ])
             session.commit()
 
     app = app()

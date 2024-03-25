@@ -66,8 +66,14 @@ def wrap_input(field: Field, **kwargs: dict) -> Markup:
     session = local.request.session
 
     if kwargs.pop('data-readonly', False) is True:
-        kwargs['nolabel'] = True
-        kwargs['readonly'] = True
+        if hasattr(field, 'choices'):
+            for choice in field.choices:
+                if choice[0] == field.data:
+                    return Markup(f'<span>{choice[1]}</span>')
+
+            return Markup('<span></span>')
+
+        return Markup(f'<span>{field.data}</span>')
 
     input_class = ["input"]
     required = False

@@ -13,15 +13,14 @@ class View:
         self,
         label: str = None,
     ):
-        self.Resource = None  # filled by resource
         self.label = label
 
     def render(
         self,
+        resource_cls,
         feret,
         session,
         options: dict[str, list[str]],
-        ResourceCls,
     ) -> str:
         raise ViewError('render must be overwriting')
 
@@ -64,29 +63,29 @@ class ListView(View):
 
     def render(
         self,
+        resource_cls,
         feret,
         session,
         options: dict,
-        ResourceCls,
     ) -> str:
         properties = {}
 
         if self.fields:
-            for attr in dir(ResourceCls.Form):
-                field = getattr(ResourceCls.Form, attr)
+            for attr in dir(resource_cls.Form):
+                field = getattr(resource_cls.Form, attr)
                 if isinstance(field, UnboundField):
                     if attr not in self.fields:
                         properties[attr] = None
         else:
             self.fields = [
                 attr
-                for attr in dir(ResourceCls.Form)
-                if isinstance(getattr(ResourceCls.Form, attr), UnboundField)
+                for attr in dir(resource_cls.Form)
+                if isinstance(getattr(resource_cls.Form, attr), UnboundField)
             ]
 
         form_cls = type(
-            f'{ResourceCls._code}__list',
-            (ResourceCls.Form, FeretUIForm),
+            f'{resource_cls._code}__list',
+            (resource_cls.Form, FeretUIForm),
             properties,
         )
 
@@ -95,7 +94,7 @@ class ListView(View):
             offset = offset[0]
 
         offset = int(offset)
-        dataset = ResourceCls.filtered_reads(
+        dataset = resource_cls.filtered_reads(
             form_cls,
             None,  # filters,
             offset,
@@ -105,20 +104,19 @@ class ListView(View):
 
         create_view_qs = self.get_transition_querystring(
             options,
-            view=ResourceCls.on_list_create_button_redirect_to,
+            view=resource_cls.on_list_create_button_redirect_to,
         )
 
         open_view_qs = self.get_transition_querystring(
             options,
             id=None,
-            view=ResourceCls.on_list_do_click_on_row_redirect_to,
+            view=resource_cls.on_list_do_click_on_row_redirect_to,
         )
 
         return feret.render_template(
             session,
             'feretui-page-resource-list',
             label=self.get_label(),
-            Resource=ResourceCls,
             fields=self.fields,
             form=form_cls(),
             # filters=filters,
