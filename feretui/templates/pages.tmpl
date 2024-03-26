@@ -144,25 +144,25 @@
         {% if paginations %}
         <nav class="pagination" role="pagination" arial-label="pagination">
           {% if paginations[0] == offset %}
-          <a class="pagination-previous" disabled>Previous page</a>
+          <a class="pagination-previous" disabled><i class="fa-solid fa-chevron-left"></i></a>
           {% endif %}
           {% if paginations[0] != offset %}
           <a
             class="pagination-previous"
             hx-get="{{ feretui.base_url}}/action/resource?action=pagination&offset={{offset - limit}}"
           >
-            Previous page
+            <i class="fa-solid fa-chevron-left"></i>
           </a>
           {% endif %}
           {% if paginations[-1] == offset %}
-          <a class="pagination-next" disabled>Next page</a>
+          <a class="pagination-next" disabled><i class="fa-solid fa-chevron-right"></i></a>
           {% endif %}
           {% if paginations[-1] != offset %}
           <a
             class="pagination-next"
             hx-get="{{ feretui.base_url}}/action/resource?action=pagination&offset={{offset + limit}}"
           >
-            Next page
+            <i class="fa-solid fa-chevron-right"></i>
           </a>
           {% endif %}
           <ul class="pagination-list">
@@ -191,45 +191,85 @@
   </template>
   <template id="feretui-page-resource-list">
     <div class="container is-fluid">
-      <div class="columns is-vcentered">
-        <div class="column is-2">
-          <h1>{{ label }} ({{ dataset.total }})</h1>
-        </div>
+      <div class="columns">
         <div class="column">
+          <div class="columns is-vcentered">
+            <div class="column is-2">
+              <h1>{{ label }} ({{ dataset.total }})</h1>
+            </div>
+            <div class="column">
+            </div>
+          </div>
+          <include template="feretui-page-resource-pagination" />
+          <table class="table is-fullwidth is-striped">
+            <thead>
+              <tr>
+                {% for field in fields %}
+                <th id="{{ field }}">{{ form[field].label.text }}</th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+                {% for row in dataset.forms %}
+                <tr
+                  hx-trigger="dblclick"
+                  hx-get="/feretui/action/goto?{{ open_view_qs }}&id={{ row.pk.name }}"
+                >
+                  {% for field in fields %}
+                  <td>
+                    {{ row[field](data_readonly=True) }}
+                  </td>
+                  {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+              <tr>
+                {% for field in fields %}
+                <th id="{{ field }}">{{ form[field].label.text }}</th>
+                {% endfor %}
+              </tr>
+            </tfoot>
+          </table>
+          <include template="feretui-page-resource-pagination" />
         </div>
+        {% if actions %}
+        <div class="column is-2">
+          {% for action in actions %}
+          {{ action }}
+          {% endfor %}
+        </div>
+        {% endif %}
       </div>
-      <include template="feretui-page-resource-pagination" />
-      <table class="table is-fullwidth is-striped">
-        <thead>
-          <tr>
-            {% for field in fields %}
-            <th id="{{ field }}">{{ form[field].label.text }}</th>
-            {% endfor %}
-          </tr>
-        </thead>
-        <tbody>
-            {% for row in dataset.forms %}
-            <tr
-              hx-trigger="dblclick"
-              hx-get="/feretui/action/goto?{{ open_view_qs }}&id={{ row.pk.name }}"
-            >
-              {% for field in fields %}
-              <td>
-                {{ row[field](data_readonly=True) }}
-              </td>
-              {% endfor %}
-            </tr>
-            {% endfor %}
-        </tbody>
-        <tfoot>
-          <tr>
-            {% for field in fields %}
-            <th id="{{ field }}">{{ form[field].label.text }}</th>
-            {% endfor %}
-          </tr>
-        </tfoot>
-      </table>
-      <include template="feretui-page-resource-pagination" />
+    </div>
+  </template>
+  <template id="feretui-page-resource-action">
+    <a
+      class="{{ css_class }}"
+      hx-post="{{ url }}"
+      hx-swap="none"
+    >
+      {{ label }}
+      <include template="feretui-tooltip"/>
+    </a>
+  </template>
+  <template id="feretui-page-resource-action-set">
+    <div class="card mb-4">
+      <header class="card-header">
+         <p class="card-header-title">
+          {{ label }}
+          <include template="feretui-tooltip"/>
+         </p>
+      </header>
+      <div class="card-content">
+        <ul>
+        {% for action in actions %}
+          <li>
+            {{ action }}
+          </li>
+        {% endfor %}
+        </ul>
+      </div>
     </div>
   </template>
 </templates>

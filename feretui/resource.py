@@ -1,6 +1,5 @@
 from wtforms import IntegerField
 from wtforms.validators import InputRequired
-import urllib
 from feretui.menus import ToolBarMenu
 from feretui.session import Session
 from feretui.request import Request
@@ -65,30 +64,20 @@ class Resource:
             view=Markup(view.render(cls, feretui, session, options)),
         )
 
-    # @classmethod
-    # def _router_action(cls, feret: "FeretUI", request: Request) -> Response:
-    #     query = request.get_query_string_from_current_url()
-    #     viewcode = query['view'][0]
-    #     code = request.query['code'][0]
-    #     view = getattr(cls, f"{viewcode}_view")
-    #     resource = cls()
-    #     ids = query.get('id')
-    #     if ids:
-    #         resource = cls(ids[0])
+    @classmethod
+    def router_call(cls, feret, request) -> Response:
+        # TODO validate is POST
+        # TODO is declaredin the view
+        # TODO is visible
+        func = getattr(cls, request.params['method'])
+        res = func(feret, request)
+        if res:
+            if not isinstance(res, Response):
+                res = Response(str(res))
+        else:
+            res = Response('')
 
-    #     for actionset in view.actions:
-    #         for action in actionset.actions:
-    #             if action.code == code:
-    #                 res = getattr(resource, action.method)(feret, request)
-    #                 if res:
-    #                     if not isinstance(res, Response):
-    #                         res = Response(str(res))
-    #                 else:
-    #                     res = Response('')
-
-    #                 return res
-
-    #     return Response('')
+        return res
 
     # @classmethod
     # def _router_row_action(
@@ -126,11 +115,12 @@ class Resource:
         request: Request
     ) -> Response:
         newqs = request.get_query_string_from_current_url().copy()
+        base_url = request.get_base_url_from_current_url()
         newqs['offset'] = request.query['offset']
         return Response(
             cls.render(feret, request.session, newqs),
             headers={
-                'HX-Push-Url': request.get_url_from_dict(feret.base_url, newqs),
+                'HX-Push-Url': request.get_url_from_dict(base_url, newqs),
             }
         )
 

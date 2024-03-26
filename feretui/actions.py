@@ -199,7 +199,11 @@ def resource(
 
     Resource = feret.get_resource(resource)
 
-    action = request.query.get('action', [None])[0]
+    if request.method in (Request.GET,):
+        action = request.query.get('action', [None])[0]
+    else:
+        action = request.params.get('action', [None])
+
     if not action:
         raise Exception('No action')
 

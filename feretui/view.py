@@ -1,10 +1,97 @@
 import urllib
 from wtforms.fields.core import UnboundField
 from feretui.form import FeretUIForm
+from markupsafe import Markup
 
 
 class ViewError(Exception):
     pass
+
+
+class Action:
+
+    def __init__(
+        self,
+        label: str,
+        method: str,
+        visible_callback=None,
+        css_class=None,
+        tooltip=None,
+    ):
+        self.label = label
+        self.method = method
+        self.visible_callback = visible_callback
+        self.tooltip = tooltip
+        if css_class is None:
+            css_class = []
+
+        self.css_class = css_class
+
+    def get_label(self):
+        return self.label
+
+    def render(
+        self,
+        feret,
+        session,
+        pk=False,
+    ):
+        url = f'{feret.base_url}/action/resource?'
+        url += f'action=call&method={self.method}'
+        if pk:
+            url += '&pk={pk}'
+
+        return Markup(feret.render_template(
+            session,
+            'feretui-page-resource-action',
+            url=url,
+            label=self.get_label(),
+            css_class=' '.join(self.css_class),
+            tooltip=self.tooltip,
+        ))
+
+    def is_visible(
+        self,
+        session,
+    ) -> bool:
+        return True
+
+
+class Actionset:
+
+    def __init__(self, label: str, actions: list[Action], tooltip=None):
+        self.label = label
+        self.actions = actions
+        self.tooltip = tooltip
+
+    def get_label(self):
+        return self.label
+
+    def render(
+        self,
+        feret,
+        session,
+    ):
+        return Markup(feret.render_template(
+            session,
+            'feretui-page-resource-action-set',
+            label=self.get_label(),
+            actions=[
+                action.render(feret, session)
+                for action in self.actions
+                if action.is_visible(session)
+            ],
+            tooltip=self.tooltip,
+        ))
+
+    def is_visible(
+        self,
+        session,
+    ) -> bool:
+        return all([
+            action.is_visible(session)
+            for action in self.actions
+        ])
 
 
 class View:
@@ -24,8 +111,8 @@ class View:
     ) -> str:
         raise ViewError('render must be overwriting')
 
-    def get_label(self):
-        return self.label or 'List'
+    def get_label(self, resource_cls):
+        return self.label or resource_cls._label
 
     def get_transition_querystring(
         self,
@@ -44,8 +131,33 @@ class View:
         return urllib.parse.urlencode(options, doseq=True)
 
 
-class ListView(View):
-    template_type: str = 'list'
+class ActionsMixinForView:
+
+    def __init__(
+        self,
+        actions: list[Actionset] = None,
+    ):
+        if actions is None:
+            actions = []
+
+        self.actions = actions
+
+    def get_actions(
+        self,
+        feret,
+        session,
+    ):
+        return [
+            actionset.render(
+                feret,
+                session,
+            )
+            for actionset in self.actions
+            if actionset.is_visible(session)
+        ]
+
+
+class ListView(ActionsMixinForView, View):
 
     def __init__(
         self,
@@ -53,10 +165,10 @@ class ListView(View):
         # filters: list[Filter] = None,
         limit: int = 15,
         label: str = None,
-        # actions: list[Actionset] = None,
+        actions: list[Actionset] = None,
     ):
         View.__init__(self, label=label)
-        # ActionsMixinForView.__init__(self, actions=actions)
+        ActionsMixinForView.__init__(self, actions=actions)
         self.fields = fields
         # self.filters = filters
         self.limit = limit
@@ -116,14 +228,14 @@ class ListView(View):
         return feret.render_template(
             session,
             'feretui-page-resource-list',
-            label=self.get_label(),
-            fields=self.fields,
+            label=self.get_label(resource_cls),
             form=form_cls(),
-            # filters=filters,
+            fields=self.fields,
             offset=offset,
             limit=self.limit,
             paginations=paginations,
             dataset=dataset,
+            actions=self.get_actions(feret, session),
             create_view_qs=create_view_qs,
             open_view_qs=open_view_qs,
         )
