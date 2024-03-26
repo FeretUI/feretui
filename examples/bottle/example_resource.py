@@ -11,9 +11,9 @@ from feretui import (
     Request,
     Session,
     Resource,
-    ListResource,
+    LCRUDResource,
     # Password,
-    # PostButtonField,
+    PostButtonField,
 )
 from sqlalchemy.orm import (
     DeclarativeBase,
@@ -22,7 +22,7 @@ from sqlalchemy.orm import (
     Session as SQLASession,
 )
 from sqlalchemy import create_engine, String, select, func
-from wtforms import StringField, RadioField  # , PasswordField
+from wtforms import StringField, RadioField, SelectField  # , PasswordField
 from wtforms.validators import InputRequired
 
 logging.basicConfig(level=logging.DEBUG)
@@ -99,44 +99,46 @@ class MySession(Session):
     'User',
     # access rules
 )
-class RUser(ListResource, Resource):
+class RUser(LCRUDResource, Resource):
 
-    class Meta:
+    class Form:
+        login = StringField(validators=[InputRequired()])
+        name = StringField()
+        lang = RadioField(
+            label='Language',
+            choices=[('en', 'English'), ('fr', 'Français')],
+            validators=[InputRequired()],
+            render_kw=dict(vertical=False),
+        )
+        theme = RadioField(
+            choices=[
+                ('journal', 'Journal'),
+                ('minthy', 'Minthy'),
+                ('darkly', 'Darkly'),
+            ],
+            render_kw=dict(vertical=False),
+        )
 
-        class Form:
-            login = StringField(validators=[InputRequired()])
-            name = StringField()
-            lang = RadioField(
-                label='Language',
-                choices=[('en', 'English'), ('fr', 'Français')],
-                validators=[InputRequired()],
-                render_kw=dict(vertical=False),
-            )
-            theme = RadioField(
-                choices=[
-                    ('journal', 'Journal'),
-                    ('minthy', 'Minthy'),
-                    ('darkly', 'Darkly'),
-                ],
-                render_kw=dict(vertical=False),
-            )
-
-            @property
-            def pk(self):
-                return self.login
+        @property
+        def pk(self):
+            return self.login
 
     class MetaList:
 
         class List:
             login = True
             name = True
-            # print_1 = PostButtonField()
+            theme = SelectField()
+            print_1 = PostButtonField()
 
         class ActionSet_1:
             label = "Python print"
 
-            # print_1 = PostButtonField('Print(1)', description='test')
-            # print_10 = PostButtonField()
+            print_1 = PostButtonField('Print(1)', description='test')
+            print_10 = PostButtonField()
+
+        class Filter:
+            pass
 
     @classmethod
     def print_1(cls, feretui, session, pk=None):
