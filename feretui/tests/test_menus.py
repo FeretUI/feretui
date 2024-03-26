@@ -79,7 +79,7 @@ class TestMenu:
             'snapshot.html',
         )
 
-    def test_ToolBarDropDownMenu_tooltip(self, snapshot) -> None:
+    def test_ToolBarDropDownMenu_description(self, snapshot) -> None:
         myferet = FeretUI()
         session = Session()
         request = Request(session=session)
@@ -87,7 +87,7 @@ class TestMenu:
         snapshot.assert_match(
             ToolBarDropDownMenu(
                 'Test',
-                tooltip='Test',
+                description='Test',
                 children=[ToolBarMenu('Test', page='test')],
             ).render(myferet, session),
             'snapshot.html',
@@ -187,14 +187,14 @@ class TestMenu:
             'snapshot.html',
         )
 
-    def test_ToolBarMenu_tooltip(self, snapshot) -> None:
+    def test_ToolBarMenu_description(self, snapshot) -> None:
         myferet = FeretUI()
         session = Session()
         request = Request(session=session)
         local.request = request
         snapshot.assert_match(
             ToolBarMenu(
-                'Test', page='test', tooltip="Test",
+                'Test', page='test', description="Test",
             ).render(myferet, session),
             'snapshot.html',
         )
@@ -242,14 +242,14 @@ class TestMenu:
             'snapshot.html',
         )
 
-    def test_ToolBarUrlMenu_tooltip(self, snapshot) -> None:
+    def test_ToolBarUrlMenu_description(self, snapshot) -> None:
         myferet = FeretUI()
         session = Session()
         snapshot.assert_match(
             ToolBarUrlMenu(
                 'Test',
                 'https://feretui.readthedocs.io/en/latest/',
-                tooltip='Test',
+                description='Test',
             ).render(myferet, session),
             'snapshot.html',
         )
@@ -376,14 +376,14 @@ class TestMenu:
             'snapshot.html',
         )
 
-    def test_ToolBarButtonMenu_tooltip(self, snapshot) -> None:
+    def test_ToolBarButtonMenu_desciption(self, snapshot) -> None:
         myferet = FeretUI()
         session = Session()
         request = Request(session=session)
         local.request = request
         snapshot.assert_match(
             ToolBarButtonMenu(
-                'Test', page='test', tooltip="Test",
+                'Test', page='test', description="Test",
             ).render(myferet, session),
             'snapshot.html',
         )
@@ -410,14 +410,14 @@ class TestMenu:
             'snapshot.html',
         )
 
-    def test_ToolBarButtonUrlMenu_tooltip(self, snapshot) -> None:
+    def test_ToolBarButtonUrlMenu_description(self, snapshot) -> None:
         myferet = FeretUI()
         session = Session()
         snapshot.assert_match(
             ToolBarButtonUrlMenu(
                 'Test',
                 'https://feretui.readthedocs.io/en/latest/',
-                tooltip='Test',
+                description='Test',
             ).render(myferet, session),
             'snapshot.html',
         )
@@ -447,7 +447,7 @@ class TestMenu:
             'snapshot.html',
         )
 
-    def test_AsideHeaderMenu_tooltip(self, snapshot) -> None:
+    def test_AsideHeaderMenu_description(self, snapshot) -> None:
         myferet = FeretUI()
         session = Session()
         request = Request(session=session)
@@ -455,7 +455,7 @@ class TestMenu:
         snapshot.assert_match(
             AsideHeaderMenu(
                 'Test',
-                tooltip='Test',
+                description='Test',
                 children=[AsideMenu('Test', page='test')],
             ).render(myferet, session),
             'snapshot.html',
@@ -510,14 +510,14 @@ class TestMenu:
             'snapshot.html',
         )
 
-    def test_AsideMenu_tooltip(self, snapshot) -> None:
+    def test_AsideMenu_description(self, snapshot) -> None:
         myferet = FeretUI()
         session = Session()
         request = Request(session=session)
         local.request = request
         snapshot.assert_match(
             AsideMenu(
-                'Test', page='test', tooltip="Test",
+                'Test', page='test', description="Test",
             ).render(myferet, session),
             'snapshot.html',
         )
@@ -545,14 +545,14 @@ class TestMenu:
             'snapshot.html',
         )
 
-    def test_AsideUrlMenu_tooltip(self, snapshot) -> None:
+    def test_AsideUrlMenu_description(self, snapshot) -> None:
         myferet = FeretUI()
         session = Session()
         snapshot.assert_match(
             AsideUrlMenu(
                 'Test',
                 'https://feretui.readthedocs.io/en/latest/',
-                tooltip='Test',
+                description='Test',
             ).render(myferet, session),
             'snapshot.html',
         )

@@ -334,9 +334,9 @@ class TranslatedMenu:
         """
         po.append(translation.define(
             f'{self.menu.context}:label', self.menu.label))
-        if self.menu.tooltip:
+        if self.menu.description:
             po.append(translation.define(
-                f'{self.menu.context}:tooltip', self.menu.tooltip))
+                f'{self.menu.context}:description', self.menu.description))
 
 
 class TranslatedForm:

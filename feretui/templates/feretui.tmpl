@@ -11,7 +11,6 @@
         <link rel="stylesheet" href="{{ css }}" />
         {% endfor %}
         <link rel="stylesheet" href="{{ feretui.get_theme_url(session) }}" />
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@creativebulma/bulma-tooltip@1.2.0/dist/bulma-tooltip.min.css">
       </feretui-head>
       <feretui-body class="has-navbar-fixed-top">
         <include template="feretui-client-header"/>
@@ -112,12 +111,12 @@
       </div>
     </footer>
   </template>
-  <template id="feretui-tooltip">
+  <template id="feretui-description">
     <span>
-      {% if tooltip %}
+      {% if description %}
       <span 
         class="ml-0 icon has-tooltip-bottom has-tooltip-arrow"
-        data-tooltip="{{ tooltip }}"
+        data-tooltip="{{ description }}"
       >
         <i class="fa-solid fa-circle-info is-small"></i>
       </span>

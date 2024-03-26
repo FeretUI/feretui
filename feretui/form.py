@@ -92,7 +92,7 @@ def wrap_input(field: Field, **kwargs: dict) -> Markup:
         widget=field.widget(field, **kwargs),
         required=required,
         readonly=readonly,
-        tooltip=field.description,
+        description=field.description,
         errors=field.errors,
     ))
 
@@ -119,7 +119,7 @@ def wrap_bool(field: "Field", **kwargs: dict) -> Markup:
         label=None if kwargs.pop('nolabel', False) else field.label,
         widget=field.widget(field, **kwargs),
         readonly=readonly,
-        tooltip=field.description,
+        description=field.description,
         errors=field.errors,
     ))
 
@@ -162,7 +162,7 @@ def wrap_radio(
         required=required,
         readonly=readonly,
         options=kwargs,
-        tooltip=field.description,
+        description=field.description,
         errors=field.errors,
     ))
 

@@ -131,7 +131,7 @@ class TestTranslation:
         translated_message('My translation')
         myferet.translation.add_translated_menu(
             TranslatedMenu(
-                ToolBarMenu('Test', page='test', tooltip='Test')),
+                ToolBarMenu('Test', page='test', description='Test')),
         )
         myferet.translation.add_translated_menu(
             TranslatedMenu(ToolBarMenu('Test', page='test')),

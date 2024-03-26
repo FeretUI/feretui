@@ -152,7 +152,7 @@ page.
         ToolBarMenu(
             'My static page',
             page='my-static-page',
-            tooltip="Go to my static page"
+            description="Go to my static page"
         ),
     ])
 
