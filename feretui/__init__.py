@@ -152,7 +152,7 @@ page.
         ToolBarMenu(
             'My static page',
             page='my-static-page',
-            tooltip="Go to my static page"
+            description="Go to my static page"
         ),
     ])
 
@@ -197,7 +197,6 @@ The client FeretUI add translation mechanism. This mecanism can be declared
 with addon's name attribute. This attribute is used to extract the translation
 of FeretUI or an additionnal project. The translated object are:
 
-* :class:`feretui.translation.TranslatedMessage`
 * :class:`feretui.translation.TranslatedFileTemplate`
 * :class:`feretui.translation.TranslatedForm`
 * :class:`feretui.translation.TranslatedMenu`
