@@ -14,7 +14,6 @@ language with `PoEdit <https://poedit.net/>`_.
 
 The translated object are:
 
-* :class:`feretui.translation.TranslatedMessage`
 * :class:`feretui.translation.TranslatedFileTemplate`
 * :class:`feretui.translation.TranslatedForm`
 * :class:`feretui.translation.TranslatedMenu`
@@ -30,11 +29,10 @@ The Translation class have two methods to manipulate the catalogs:
 
 .. _POEntry: https://polib.readthedocs.io/en/latest/api.html#the-poentry-class
 """
-import inspect
 from datetime import datetime
 from logging import getLogger
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from polib import POEntry, POFile, pofile
 
@@ -52,76 +50,6 @@ if TYPE_CHECKING:
     from feretui.template import Template
 
 logger = getLogger(__name__)
-
-
-class TranslatedMessage:
-    """TranslatedMessage class.
-
-    Declare a string as translatable. The instance is used to be exported
-    or to be translated in the render.
-
-    ::
-
-        mytranslation = TranslatedMessage(
-            'My translation', 'my.module', 'my.addons')
-
-        Translation.add_translated_message(mytranslation)
-
-    To declare a TranslatedMessage more easily, a helper exist
-    :func:`.translated_message`.
-
-    Attributes
-    ----------
-    * [msgid:str] : the translated string
-    * [context:str] : the context in the catalog
-    * [addons:str] : the addons of the message
-
-    :param message: the translated string
-    :type message: str
-    :param module: the module name where the message come from
-    :type module: str
-    :param addons: The addons where the message come from
-    :type addons: str
-
-    """
-
-    def __init__(
-        self: "TranslatedMessage",
-        message: str,
-        module: str,
-        addons: str,
-    ) -> "TranslatedMessage":
-        """TranslatedMessage class."""
-        self.msgid: str = message
-        self.context: str = f'message:{module}'
-        self.addons: str = addons
-
-    def __str__(self: "TranslatedMessage") -> str:
-        """Return the translated message.
-
-        the message depend of the language defined in the Translation class.
-        If not language is defined then the raw string is returned.
-        """
-        if local.feretui is None:
-            raise TranslationError('No feretui instance in local thread')
-
-        translation = local.feretui.translation
-        lang = translation.get_lang()
-        return translation.get(lang, self.context, self.msgid)
-
-    def format(self: "TranslatedMessage", **kwargs: dict[str, Any]) -> str:
-        """Return the translated message with some arguments.
-
-        ::
-
-            mytranslation = TranslatedMessage(
-                'My message {foo}',
-                'my.module',
-                'my.addons',
-            )
-            mytranslation.format(foo='bar')
-        """
-        return str(self).format(**kwargs)
 
 
 class TranslatedTemplate:
@@ -404,26 +332,10 @@ class Translation:
 
     This class is used to manipulate translation.
 
-    example with TranslatedMessage::
-
-        myferet = FeretUI()
-        local.feretui = myferet
-
-        mytranslation = TranslatedMessage('My translation')
-        Translation.add_translated_message(mytranslation)
-
-        assert myferet.translation.get_lang() == 'en'
-        assert str(mytranslation) == 'My translation'
-        myferet.translation.set_lang('fr')
-        assert str(mytranslation) == 'Ma traduction'
-
     .. warning::
 
         The behaviour work with thread local
     """
-
-    messages: list[TranslatedMessage] = []
-    """Translated messages"""
 
     def __init__(self: "Translation") -> "Translation":
         """Instance of the Translation class."""
@@ -518,21 +430,6 @@ class Translation:
             msgstr='',
         )
 
-    @classmethod
-    def add_translated_message(
-        cls: "Translation", translated_message: TranslatedMessage,
-    ) -> None:
-        """Add in messages a TranslatedMessage.
-
-        :param translated_message: A message.
-        :type translated_message: :class:`TranslatedMessage`
-        """
-        Translation.messages.append(translated_message)
-        logger.debug(
-            'Translation : Added new message: %s',
-            translated_message.msgid,
-        )
-
     def add_translated_template(
         self: "Translation",
         template: TranslatedTemplate,
@@ -540,7 +437,7 @@ class Translation:
         """Add in templates a TranslatedTemplate.
 
         :param template: The template.
-        :type template: :class:`TranslatedMessage`
+        :type template: :class:`TranslatedTemplate`
         """
         self.templates.append(template)
         logger.debug('Translation : Added new template : %s', template)
@@ -594,7 +491,6 @@ class Translation:
             'Content-Type': 'text/plain; charset=utf-8',
             'Content-Transfer-Encoding': '8bit',
         }
-        messages = Translation.messages
         templates = self.templates
         menus = self.menus
         forms = self.forms
@@ -605,7 +501,6 @@ class Translation:
             TranslatedForm(Session.SignUpForm, addons='feretui'))
 
         if addons is not None:
-            messages = filter(lambda x: x.addons == addons, messages)
             templates = filter(lambda x: x.addons == addons, templates)
             menus = filter(lambda x: x.addons == addons, menus)
             forms = filter(lambda x: x.addons == addons, forms)
@@ -615,9 +510,6 @@ class Translation:
                 FeretUIForm.get_context(),
                 form_translated_message,
             ))
-
-        for message in messages:
-            po.append(self.define(message.context, message.msgid))
 
         tmpls = Template(Translation())
         for template in templates:
@@ -648,27 +540,3 @@ class Translation:
         po = pofile(catalog_path)
         for entry in po:
             self.set(lang, entry)
-
-
-def translated_message(
-    message: str,
-    addons: str = 'feretui',
-) -> TranslatedMessage:
-    """Help to define TranslatedMessage.
-
-    ::
-
-        mytranslation = translated_message('My Translation')
-
-    :param message: the translated string
-    :type message: str
-    :param addons: The addons where the message come from
-    :type addons: str
-    :return: the message
-    :rtype: :class:`.TranslatedMessage`
-    """
-    frm = inspect.stack()[1]
-    mod = inspect.getmodule(frm[0])
-    translated_message = TranslatedMessage(message, mod.__name__, addons)
-    Translation.add_translated_message(translated_message)
-    return translated_message

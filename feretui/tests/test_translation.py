@@ -15,7 +15,6 @@ import pytest  # noqa: F401
 from wtforms import StringField
 
 from feretui.exceptions import (
-    TranslationError,
     TranslationFormError,
     TranslationMenuError,
 )
@@ -30,36 +29,11 @@ from feretui.translation import (
     TranslatedStringTemplate,
     TranslatedTemplate,
     Translation,
-    translated_message,
 )
 
 
 class TestTranslation:
     """Test Translation."""
-
-    def test_translated_message_without_feretui(self) -> None:
-        """Test translated_message without feretui."""
-        local.feretui = None
-        mytranslation = translated_message('My translation')
-        with pytest.raises(TranslationError):
-            str(mytranslation)
-
-    def test_translated_message_without_args(self) -> None:
-        """Test translated_message without args."""
-        myferet = FeretUI()
-        local.feretui = myferet
-
-        mytranslation = translated_message('My translation')
-        assert str(mytranslation) == "My translation"
-
-    def test_translated_message_with_args(self) -> None:
-        """Test translated_message without args."""
-        myferet = FeretUI()
-        local.feretui = myferet
-
-        mytranslation = translated_message('My translation {foo}')
-        assert str(mytranslation) == "My translation {foo}"
-        assert mytranslation.format(foo='bar') == "My translation bar"
 
     def test_translated_template(self) -> None:
         """Test translated_message without feretui."""
@@ -128,7 +102,6 @@ class TestTranslation:
         myferet = FeretUI()
         local.feretui = myferet
 
-        translated_message('My translation')
         myferet.translation.add_translated_menu(
             TranslatedMenu(
                 ToolBarMenu('Test', page='test', description='Test')),
