@@ -177,4 +177,4 @@ if __name__ == "__main__":
     BottleSessions(
         app, session_backing=cache_config, session_cookie='appcookie')
     debug(True)
-    run(host="localhost", port=8080)
+    run(host="localhost", port=8080, reloader=1)
