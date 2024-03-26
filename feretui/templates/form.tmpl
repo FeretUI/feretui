@@ -11,7 +11,7 @@
       )
       </span>
       {% endif %}
-      <include template="feretui-tooltip" />
+      <include template="feretui-description" />
     </label>
   </template>
   <template id="feretui-input-error">
@@ -38,7 +38,7 @@
       <label for="{{ label.field_id }}" class="checkbox">
         {{ widget }}
         {{ label.text }}
-        <include template="feretui-tooltip" />
+        <include template="feretui-description" />
       </label>
       {% else %}
       {{ widget }}
@@ -58,8 +58,8 @@
             <label class="radio" for="{{ subfield.id }}" >
                 {{ subfield(**options) }}
                 {{ subfield.label(class_="radio") }}
-                {% set tooltip = subfield.description %}
-                <include template="feretui-tooltip" />
+                {% set description = subfield.description %}
+                <include template="feretui-description" />
             </label>
           </li>
           {% endfor %}
@@ -78,8 +78,8 @@
           <label class="radio" for="{{ subfield.id }}" >
             {{ subfield(**options) }}
             {{ subfield.label(class_="radio") }}
-            {% set tooltip = subfield.description %}
-            <include template="feretui-tooltip" />
+            {% set description = subfield.description %}
+            <include template="feretui-description" />
           </label>
         {% endfor %}
       </div>

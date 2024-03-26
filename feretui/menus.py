@@ -106,7 +106,7 @@ class Menu:
     All the menu inherit this class. It is added behaviours:
 
     * Translated label
-    * Translated tooltip
+    * Translated description (tooltip)
     * icon
     * querystring
     * render
@@ -129,7 +129,7 @@ class Menu:
         self: "Menu",
         label: str,
         icon: str = None,
-        tooltip: str = None,
+        description: str = None,
         visible_callback: Callable = None,
         **querystring: dict[str, str],
     ) -> None:
@@ -139,9 +139,9 @@ class Menu:
         :type label: str
         :param icon: The icon html class used in the render
         :type icon: str
-        :param tooltip: The tooltip, it is a helper to understand the role
-                        of the menu
-        :type tooltip: str
+        :param description: The tooltip, it is a helper to understand the
+                            role of the menu
+        :type description: str
         :param visible_callback: Callback to determine with the session,
                                  if the menu is visible or not.
         :type visible_callback: Callback[:class:`feretui.session.Session`, bool]
@@ -158,7 +158,7 @@ class Menu:
 
         self.label = label
         self.icon = icon
-        self.tooltip = tooltip
+        self.description = description
         self.visible_callback = visible_callback
         self.querystring = querystring
         self.context = 'menu:'
@@ -195,22 +195,22 @@ class Menu:
             self.label,
         )
 
-    def get_tooltip(self: "Menu", feretui: "FeretUI") -> str:
-        """Return the translated tooltip.
+    def get_description(self: "Menu", feretui: "FeretUI") -> str:
+        """Return the translated description.
 
         :param feretui: The feretui client instance.
         :type feretui: :class:`feretui.feretui.FeretUI`
-        :return: The tooltip translated in the user lang
+        :return: The description translated in the user lang
         :rtype: str
         """
-        if not self.tooltip:
+        if not self.description:
             return ''
 
         lang = local.lang
         return feretui.translation.get(
             lang,
-            f'{self.context}:tooltip',
-            self.tooltip,
+            f'{self.context}:description',
+            self.description,
         )
 
     def get_url(
@@ -246,7 +246,7 @@ class Menu:
             session,
             self.template_id,
             label=self.get_label(feretui),
-            tooltip=self.get_tooltip(feretui),
+            description=self.get_description(feretui),
             icon=self.icon,
             url=self.get_url(feretui, self.querystring),
         ))
@@ -286,7 +286,7 @@ class ChildrenMenu:
             session,
             self.template_id,
             label=self.get_label(feretui),
-            tooltip=self.get_tooltip(feretui),
+            description=self.get_description(feretui),
             icon=self.icon,
             children=self.children,
         ))
@@ -444,9 +444,9 @@ class ToolBarUrlMenu(UrlMenu, ToolBarMenu):
         :type url: str
         :param icon: the icon html class used in the render
         :type icon: str
-        :param tooltip: the tooltip, it is a helper to understand the role
-                        of the menu
-        :type tooltip: str
+        :param description: the description, it is a helper to understand the
+                            role of the menu
+        :type description: str
         """
         super().__init__(label, url=url, **kw)
 
@@ -502,7 +502,7 @@ class ToolBarButtonMenu(Menu):
             session,
             self.template_id,
             label=self.get_label(feretui),
-            tooltip=self.get_tooltip(feretui),
+            description=self.get_description(feretui),
             icon=self.icon,
             url=self.get_url(feretui, self.querystring),
             css_class=self.css_class,
@@ -575,9 +575,9 @@ class ToolBarButtonUrlMenu(UrlMenu, ToolBarButtonMenu):
         :type url: str
         :param icon: the icon html class used in the render
         :type icon: str
-        :param tooltip: the tooltip, it is a helper to understand the role
-                        of the menu
-        :type tooltip: str
+        :param description: the description, it is a helper to understand the
+                            role of the menu
+        :type description: str
         """
         super().__init__(label, url=url, **kw)
         self.visible_callback = visible_callback
@@ -688,8 +688,8 @@ class AsideUrlMenu(UrlMenu, AsideMenu):
         :type url: str
         :param icon: the icon html class used in the render
         :type icon: str
-        :param tooltip: the tooltip, it is a helper to understand the role
-                        of the menu
-        :type tooltip: str
+        :param description: the description, it is a helper to understand the
+                            role of the menu
+        :type description: str
         """
         super().__init__(label, url=url, **kw)

@@ -97,7 +97,6 @@ def import_feretui_addons(feretui: "FeretUI") -> None:
     * javascript:
         * Htmx_
         * `hyperscript <https://hyperscript.org/docs/>`_
-        * `json-enc <https://htmx.org/extensions/json-enc/>`_
 
     * css:
         * `bulma <https://bulma.io/>`_
@@ -124,10 +123,6 @@ def import_feretui_addons(feretui: "FeretUI") -> None:
     feretui.register_js(
         'hyperscript.js',
         Path(feretui_path, 'static', 'hyperscript.0.9.12.js'),
-    )
-    feretui.register_js(
-        'json-enc.js',
-        Path(feretui_path, 'static', 'json-enc.js'),
     )
 
     # ---- CSS ----

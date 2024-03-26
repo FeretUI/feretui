@@ -26,9 +26,6 @@ the **__call__** method of the field:
 * readonly : Put the field in a readonly mode
 * no-label : Donc display the label but keep the bulma class in th
   **field div**
-* data-readonly : with no label and readonly. The main diference is fot
-  the wrapper :func:`.wrap_radio`, because only the label of the selected
-  radio is displayed
 
 Added the also the validators
 
@@ -105,7 +102,7 @@ def wrap_input(field: Field, **kwargs: dict) -> Markup:
         widget=field.widget(field, **kwargs),
         required=required,
         readonly=readonly,
-        tooltip=field.description,
+        description=field.description,
         errors=field.errors,
     ))
 
@@ -118,14 +115,10 @@ def wrap_bool(field: "Field", **kwargs: dict) -> Markup:
     :return: The renderer of the widget as html.
     :rtype: Markup_
     """
+    readonly = False
     myferet = local.feretui
     session = local.request.session
 
-    if kwargs.pop('data-readonly', False) is True:
-        kwargs['nolabel'] = True
-        kwargs['readonly'] = True
-
-    readonly = False
     if kwargs.pop('readonly', False):
         read_only(field)
         readonly = True
@@ -136,7 +129,7 @@ def wrap_bool(field: "Field", **kwargs: dict) -> Markup:
         label=None if kwargs.pop('nolabel', False) else field.label,
         widget=field.widget(field, **kwargs),
         readonly=readonly,
-        tooltip=field.description,
+        description=field.description,
         errors=field.errors,
     ))
 
@@ -161,13 +154,6 @@ def wrap_radio(
     else:
         template_id = "feretui-radio-field-horizontal"
 
-    if kwargs.pop('data-readonly', False) is True:
-        for choice in field.choices:
-            if choice[0] == field.data:
-                return Markup(f'<span>{choice[1]}</span>')
-
-        return Markup('<span></span>')
-
     required = False
     readonly = False
     for validator in field.validators:
@@ -187,7 +173,7 @@ def wrap_radio(
         required=required,
         readonly=readonly,
         options=kwargs,
-        tooltip=field.description,
+        description=field.description,
         errors=field.errors,
     ))
 

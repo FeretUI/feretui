@@ -8,7 +8,7 @@
     >
       <include template="feretui-icon" />
       <strong>{{ label }}</strong>
-      <include template="feretui-tooltip" />
+      <include template="feretui-description" />
     </a>
   </template>
   <template id="toolbar-dropdown-menu">
@@ -16,7 +16,7 @@
       <a class="navbar-link">
         <include template="feretui-icon" />
         <strong>{{ label }}</strong>
-        <include template="feretui-tooltip" />
+        <include template="feretui-description" />
       </a>
       <div class="navbar-dropdown">
         {% for child in children %}
@@ -34,7 +34,7 @@
     <a class="navbar-item" href="{{ url }}">
       <include template="feretui-icon" />
       <strong>{{ label }}</strong>
-      <include template="feretui-tooltip" />
+      <include template="feretui-description" />
     </a>
   </template>
   <template id="toolbar-button-menu">
@@ -46,7 +46,7 @@
     >
       <include template="feretui-icon" />
       <strong>{{ label }}</strong>
-      <include template="feretui-tooltip" />
+      <include template="feretui-description" />
     </a>
   </template>
   <template id="toolbar-buttons-menu">
@@ -64,7 +64,7 @@
     <a class="button {{ css_class }}" href="{{ url }}">
       <include template="feretui-icon" />
       <strong>{{ label }}</strong>
-      <include template="feretui-tooltip" />
+      <include template="feretui-description" />
     </a>
   </template>
   <template id="aside-menu">
@@ -76,7 +76,7 @@
     >
       <include template="feretui-icon" />
       <span>{{ label }}</span>
-      <include template="feretui-tooltip" />
+      <include template="feretui-description" />
     </a>
   </template>
   <template id="aside-header-menu">
@@ -84,7 +84,7 @@
       <p class="menu-label">
         <include template="feretui-icon" />
         <span><strong>{{ label }}</strong></span>
-        <include template="feretui-tooltip" />
+        <include template="feretui-description" />
       </p>
       <ul>
         {% for child in children %}
@@ -102,7 +102,7 @@
     >
       <include template="feretui-icon" />
       <span>{{ label }}</span>
-      <include template="feretui-tooltip" />
+      <include template="feretui-description" />
     </a>
   </template>
 </templates>

@@ -90,7 +90,7 @@ myferet.register_static_page(
 )
 myferet.register_aside_menus('aside1', [
     AsideHeaderMenu('My aside menu', children=[
-        AsideMenu('Hello', page='hello', tooltip="Hello"),
+        AsideMenu('Hello', page='hello', description="Hello"),
         AsideMenu('Foo', page='foo', icon="fa-solid fa-ghost"),
     ]),
 ])
@@ -101,7 +101,7 @@ myferet.register_toolbar_left_menus([
         children=[
             ToolBarMenu(
                 'Hello', page="aside-menu", aside="aside1", aside_page='hello',
-                tooltip="Go to the hello page",
+                description="Go to the hello page",
             ),
             ToolBarMenu(
                 'Foo', page="aside-menu", aside="aside1", aside_page='foo',
