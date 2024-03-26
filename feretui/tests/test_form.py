@@ -128,24 +128,6 @@ class TestForm:
             'snapshot.html',
         )
 
-    def test_form_render_field_data_readonly(self, snapshot) -> None:
-        myferet = FeretUI()
-        local.feretui = myferet
-        session = Session()
-        request = Request(session=session)
-        local.request = request
-        local.lang = 'en'
-
-        class MyForm(FeretUIForm):
-            name = StringField(validators=[InputRequired()])
-
-        myform = MyForm(MultiDict(name='test'))
-        myform.validate()
-        snapshot.assert_match(
-            myform.name(data_readonly=True),
-            'snapshot.html',
-        )
-
     def test_form_render_field_readonly(self, snapshot) -> None:
         myferet = FeretUI()
         local.feretui = myferet
@@ -179,48 +161,6 @@ class TestForm:
         myform.validate()
         snapshot.assert_match(
             myform.name(nolabel=True),
-            'snapshot.html',
-        )
-
-    def test_get_field_choices_data_readonly(
-        self,
-        snapshot,
-    ) -> None:
-        myferet = FeretUI()
-        local.feretui = myferet
-        session = Session()
-        request = Request(session=session)
-        local.request = request
-        local.lang = 'en'
-
-        class MyForm(FeretUIForm):
-            name = SelectField(choices={'foo': 'Foo', 'bar': 'Bar'})
-
-        myform = MyForm(MultiDict(name='foo'))
-        myform.validate()
-        snapshot.assert_match(
-            myform.name(data_readonly=True),
-            'snapshot.html',
-        )
-
-    def test_get_field_choices_data_readonly_2(
-        self,
-        snapshot,
-    ) -> None:
-        myferet = FeretUI()
-        local.feretui = myferet
-        session = Session()
-        request = Request(session=session)
-        local.request = request
-        local.lang = 'en'
-
-        class MyForm(FeretUIForm):
-            name = SelectField(choices={'foo': 'Foo', 'bar': 'Bar'})
-
-        myform = MyForm()
-        myform.validate()
-        snapshot.assert_match(
-            myform.name(data_readonly=True),
             'snapshot.html',
         )
 
@@ -384,23 +324,6 @@ class TestForm:
             'snapshot.html',
         )
 
-    def test_form_render_bool_data_readonly(self, snapshot) -> None:
-        myferet = FeretUI()
-        local.feretui = myferet
-        session = Session()
-        request = Request(session=session)
-        local.request = request
-        local.lang = 'en'
-
-        class MyForm(FeretUIForm):
-            test = BooleanField()
-
-        myform = MyForm()
-        snapshot.assert_match(
-            myform.test(data_readonly=True),
-            'snapshot.html',
-        )
-
     def test_form_render_bool_readonly(self, snapshot) -> None:
         myferet = FeretUI()
         local.feretui = myferet
@@ -466,40 +389,6 @@ class TestForm:
         myform = MyForm()
         snapshot.assert_match(
             myform.test(),
-            'snapshot.html',
-        )
-
-    def test_form_render_radio_data_readonly(self, snapshot) -> None:
-        myferet = FeretUI()
-        local.feretui = myferet
-        session = Session()
-        request = Request(session=session)
-        local.request = request
-        local.lang = 'en'
-
-        class MyForm(FeretUIForm):
-            test = RadioField(choices=[('foo', 'Foo'), ('bar', 'Bar')])
-
-        myform = MyForm()
-        snapshot.assert_match(
-            myform.test(data_readonly=True),
-            'snapshot.html',
-        )
-
-    def test_form_render_radio_data_readonly_2(self, snapshot) -> None:
-        myferet = FeretUI()
-        local.feretui = myferet
-        session = Session()
-        request = Request(session=session)
-        local.request = request
-        local.lang = 'en'
-
-        class MyForm(FeretUIForm):
-            test = RadioField(choices=[('foo', 'Foo'), ('bar', 'Bar')])
-
-        myform = MyForm(MultiDict(test='foo'))
-        snapshot.assert_match(
-            myform.test(data_readonly=True),
             'snapshot.html',
         )
 

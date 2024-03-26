@@ -26,9 +26,6 @@ the **__call__** method of the field:
 * readonly : Put the field in a readonly mode
 * no-label : Donc display the label but keep the bulma class in th
   **field div**
-* data-readonly : with no label and readonly. The main diference is fot
-  the wrapper :func:`.wrap_radio`, because only the label of the selected
-  radio is displayed
 
 Added the also the validators
 
@@ -62,10 +59,6 @@ def wrap_input(field: Field, **kwargs: dict) -> Markup:
     :return: The renderer of the widget as html.
     :rtype: Markup_
     """
-    if kwargs.pop('data-readonly', False) is True:
-        kwargs['nolabel'] = True
-        kwargs['readonly'] = True
-
     myferet = local.feretui
     session = local.request.session
 
@@ -113,10 +106,6 @@ def wrap_bool(field: "Field", **kwargs: dict) -> Markup:
     :rtype: Markup_
     """
     readonly = False
-    if kwargs.pop('data-readonly', False) is True:
-        kwargs['nolabel'] = True
-        kwargs['readonly'] = True
-
     myferet = local.feretui
     session = local.request.session
 
@@ -153,13 +142,6 @@ def wrap_radio(
         template_id = "feretui-radio-field-vertical"
     else:
         template_id = "feretui-radio-field-horizontal"
-
-    if kwargs.pop('data-readonly', False) is True:
-        for choice in field.choices:
-            if choice[0] == field.data:
-                return Markup(f'<span>{choice[1]}</span>')
-
-        return Markup('<span></span>')
 
     required = False
     readonly = False
