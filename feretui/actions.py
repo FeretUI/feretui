@@ -103,6 +103,7 @@ def login_password(
                 request.session,
                 {'form': form, 'error': str(e)},
             ))
+
         qs = request.get_query_string_from_current_url()
         if qs.get('page') == ['login']:
             base_url = request.get_base_url_from_current_url()
@@ -184,3 +185,30 @@ def logout(
     base_url = request.get_base_url_from_current_url()
     url = request.get_url_from_dict(base_url=base_url, querystring={})
     return Response('', headers={'HX-Redirect': url})
+
+
+@action_validator()
+def resource(
+    feret: "FeretUI",
+    request: Request,
+) -> str:
+    qs = request.get_query_string_from_current_url()
+    resource = qs.get('resource', [None])[0]
+    if not resource:
+        raise Exception('No resource')
+
+    Resource = feret.get_resource(resource)
+
+    if request.method in (Request.GET,):
+        action = request.query.get('action', [None])[0]
+    else:
+        action = request.params.get('action', [None])
+
+    if not action:
+        raise Exception('No action')
+
+    attr = f'router_{action}'
+    if not hasattr(Resource, attr):
+        raise Exception(f"No router found for : {action}")
+
+    return getattr(Resource, attr)(feret, request)

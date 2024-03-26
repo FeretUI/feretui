@@ -213,3 +213,9 @@ def signup(feretui: "FeretUI", session: Session, options: dict) -> str:
         form=form,
         error=error,
     )
+
+
+def resource_page(feret: "FeretUI", session: Session, options: dict):
+    resourcecode = options['resource'][0]
+    Resource = feret.get_resource(resourcecode)
+    return Resource.render(feret, session, options)

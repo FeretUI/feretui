@@ -62,6 +62,16 @@ def wrap_input(field: Field, **kwargs: dict) -> Markup:
     myferet = local.feretui
     session = local.request.session
 
+    if kwargs.pop('data-readonly', False) is True:
+        if hasattr(field, 'choices'):
+            for choice in field.choices:
+                if choice[0] == field.data:
+                    return Markup(f'<span>{choice[1]}</span>')
+
+            return Markup('<span></span>')
+
+        return Markup(f'<span>{field.data}</span>')
+
     input_class = ["input"]
     required = False
     readonly = False
@@ -138,6 +148,7 @@ def wrap_radio(
     myferet = local.feretui
     session = local.request.session
     vertical = kwargs.pop('vertical', True)
+
     if vertical:
         template_id = "feretui-radio-field-vertical"
     else:
