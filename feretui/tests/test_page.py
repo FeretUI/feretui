@@ -19,6 +19,8 @@ from feretui.pages import (
     static_page,
 )
 from feretui.session import Session
+from feretui.thread import local
+from feretui.request import Request
 
 
 class TestPage:
@@ -81,8 +83,9 @@ class TestPage:
             aside_menu(myferet, session, {})
 
     def test_login_1(self, snapshot) -> None:
-        myferet = FeretUI()
+        local.feretui = myferet = FeretUI()
         session = Session()
+        local.request = Request(session=session)
         snapshot.assert_match(login(myferet, session, {}), 'snapshot.html')
 
     def test_login_2(self) -> None:
@@ -92,8 +95,9 @@ class TestPage:
         assert res == page_forbidden(myferet, session, {})
 
     def test_signup_1(self, snapshot) -> None:
-        myferet = FeretUI()
+        local.feretui = myferet = FeretUI()
         session = Session()
+        local.request = Request(session=session)
         snapshot.assert_match(signup(myferet, session, {}), 'snapshot.html')
 
     def test_signup_2(self) -> None:

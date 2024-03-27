@@ -15,7 +15,7 @@ from feretui import (
     ToolBarButtonMenu,
     ToolBarDropDownMenu,
     ToolBarMenu,
-    menu_for_authenticated_user
+    menu_for_authenticated_user,
 )
 
 logging.basicConfig(level=logging.DEBUG)
@@ -107,7 +107,7 @@ myferet.register_toolbar_left_menus([
                 'Foo', page="aside-menu", aside="aside1", aside_page='foo',
                 icon="fa-solid fa-ghost",
             ),
-        ]
+        ],
     ),
 ])
 

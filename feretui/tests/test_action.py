@@ -242,7 +242,6 @@ class TestAction:
             session=session,
             headers={'Hx-Current-Url': '/test?page=signup'},
         )
-        local.lang = 'fr'
         res = logout(myferet, request)
         assert res.body == ''
         assert res.headers['HX-Redirect'] == '/test'

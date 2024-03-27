@@ -5,23 +5,27 @@ from os import path
 from bottle import abort, app, debug, request, response, route, run, static_file
 from BottleSessions import BottleSessions
 from multidict import MultiDict
+from sqlalchemy import String, create_engine, select  # , func
 
-from feretui import (
-    FeretUI,
-    Request,
-    Session,
-    # Resource,
-    # LCRUDResource,
-    # Password,
-    # PostButtonField,
-)
+# LCRUDResource,
+# Password,
+# PostButtonField,
 from sqlalchemy.orm import (
     DeclarativeBase,
     Mapped,
     mapped_column,
+)
+from sqlalchemy.orm import (
     Session as SQLASession,
 )
-from sqlalchemy import create_engine, String, select  # , func
+
+from feretui import (
+    FeretUI,
+    Request,
+    Resource,
+    Session,
+)
+
 # from wtforms import StringField, RadioField, SelectField  # , PasswordField
 # from wtforms.validators import InputRequired
 
@@ -73,15 +77,15 @@ myferet.load_internal_catalog('fr')
 
 
 class MySession(Session):
-    def __init__(self, user_id=None, **kwargs):
+    def __init__(self, user_id=None, **kwargs) -> None:
         super().__init__(**kwargs)
         self.user_id = user_id
 
-    def login(self, form):
+    def login(self, form) -> bool:
         with SQLASession(engine) as session:
             stmt = select(User).where(
                 User.login == form.login.data,
-                User.password == form.password.data
+                User.password == form.password.data,
             )
             user = session.scalars(stmt).one_or_none()
             if user:
@@ -94,11 +98,12 @@ class MySession(Session):
             raise Exception('Login or password invalid')
 
 
-# @myferet.register_resource(
-#     'c1',
-#     'User',
-#     # access rules
-# )
+@myferet.register_resource(
+    'c1',
+    'User',
+)
+class RUser(Resource):
+    pass
 # class RUser(LCRUDResource, Resource):
 #
 #     class Form:

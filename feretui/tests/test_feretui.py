@@ -11,7 +11,11 @@ with pytest.
 """
 import pytest  # noqa: F401
 
-from feretui.exceptions import MenuError, UnexistingActionError
+from feretui.exceptions import (
+    MenuError,
+    UnexistingActionError,
+    UnexistingResourceError,
+)
 from feretui.feretui import FeretUI
 from feretui.form import FeretUIForm
 from feretui.menus import (
@@ -27,6 +31,7 @@ from feretui.pages import homepage, page_404
 from feretui.request import Request
 from feretui.response import Response
 from feretui.session import Session
+from feretui.resource import Resource
 
 
 class TestFeretUI:
@@ -288,3 +293,19 @@ class TestFeretUI:
         myferet.register_user_menus([ToolBarMenu('Test', page='test')])
         assert len(myferet.menus['user']) == 1
         assert len(myferet.translation.menus) == 1
+
+    def test_register_resource(self):
+        myferet = FeretUI()
+        myferet.register_resource('test', 'Test')(Resource)
+        assert myferet.resources['test']
+        assert len(myferet.translation.resources) == 1
+
+    def test_get_resource_1(self):
+        myferet = FeretUI()
+        myferet.resources['test'] = 'test'
+        assert myferet.get_resource('test') == 'test'
+
+    def test_get_resource_2(self):
+        myferet = FeretUI()
+        with pytest.raises(UnexistingResourceError):
+            myferet.get_resource('test')
