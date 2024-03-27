@@ -18,9 +18,9 @@ from feretui.pages import (
     signup,
     static_page,
 )
+from feretui.request import Request
 from feretui.session import Session
 from feretui.thread import local
-from feretui.request import Request
 
 
 class TestPage:

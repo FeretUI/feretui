@@ -29,9 +29,9 @@ from feretui.menus import (
 )
 from feretui.pages import homepage, page_404
 from feretui.request import Request
+from feretui.resource import Resource
 from feretui.response import Response
 from feretui.session import Session
-from feretui.resource import Resource
 
 
 class TestFeretUI:
@@ -294,18 +294,18 @@ class TestFeretUI:
         assert len(myferet.menus['user']) == 1
         assert len(myferet.translation.menus) == 1
 
-    def test_register_resource(self):
+    def test_register_resource(self) -> None:
         myferet = FeretUI()
         myferet.register_resource('test', 'Test')(Resource)
         assert myferet.resources['test']
         assert len(myferet.translation.resources) == 1
 
-    def test_get_resource_1(self):
+    def test_get_resource_1(self) -> None:
         myferet = FeretUI()
         myferet.resources['test'] = 'test'
         assert myferet.get_resource('test') == 'test'
 
-    def test_get_resource_2(self):
+    def test_get_resource_2(self) -> None:
         myferet = FeretUI()
         with pytest.raises(UnexistingResourceError):
             myferet.get_resource('test')
