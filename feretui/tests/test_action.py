@@ -3,18 +3,26 @@ from typing import NoReturn
 import pytest
 from multidict import MultiDict
 
-from feretui.actions import goto, login_password, login_signup, logout
+from feretui.actions import (
+    goto,
+    login_password,
+    login_signup,
+    logout,
+    resource,
+)
 from feretui.exceptions import (
     ActionError,
     ActionUserIsAuthenticatedError,
     ActionUserIsNotAuthenticatedError,
     ActionValidatorError,
+    ResourceError
 )
 from feretui.feretui import FeretUI
 from feretui.pages import homepage
 from feretui.request import Request
 from feretui.session import Session
 from feretui.thread import local
+from feretui.resource import Resource
 
 
 class TestAction:
@@ -245,3 +253,32 @@ class TestAction:
         res = logout(myferet, request)
         assert res.body == ''
         assert res.headers['HX-Redirect'] == '/test'
+
+    def test_resource_1(self):
+        local.feretui = myferet = FeretUI()
+        session = Session(user="Test")
+        local.request = request = Request(
+            method=Request.POST,
+            session=session,
+            headers={'Hx-Current-Url': '/test?page=signup'},
+        )
+        with pytest.raises(ResourceError):
+            resource(myferet, request)
+
+    def test_resource_2(self):
+        local.feretui = myferet = FeretUI()
+        session = Session(user="Test")
+        local.request = request = Request(
+            method=Request.POST,
+            session=session,
+            params=MultiDict({}),
+            headers={'Hx-Current-Url': '/test?resource=test'},
+        )
+
+        @myferet.register_resource()
+        class MyResource(Resource):
+            code = 'test'
+            label = 'Test'
+
+        with pytest.raises(ResourceError):
+            resource(myferet, request)

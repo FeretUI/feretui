@@ -87,7 +87,7 @@ class TestTranslation:
 
     def test_translated_resource(self) -> None:
         """Test translated_message without feretui."""
-        mytranslation = TranslatedResource(Resource('test', 'Test'))
+        mytranslation = TranslatedResource(Resource())
         assert str(mytranslation)
 
     def test_translated_resource_not_a_resource(self) -> None:
@@ -141,8 +141,14 @@ class TestTranslation:
             name = StringField(description='My name')
 
         myferet.translation.add_translated_form(TranslatedForm(MyForm))
+
+        class MyResource(Resource):
+            code = 'test'
+            label = 'Test'
+
+        MyResource.build()
         myferet.translation.add_translated_resource(
-            TranslatedResource(Resource('test', 'Test')))
+            TranslatedResource(MyResource()))
 
         with NamedTemporaryFile() as fpt:
             fpt.write(t1)

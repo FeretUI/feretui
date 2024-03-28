@@ -48,7 +48,7 @@ from pathlib import Path
 from jinja2 import Environment, PackageLoader, select_autoescape
 from markupsafe import Markup
 
-from feretui.actions import goto, login_password, login_signup, logout
+from feretui.actions import goto, login_password, login_signup, logout, resource
 from feretui.exceptions import (
     MenuError,
     UnexistingActionError,
@@ -69,6 +69,7 @@ from feretui.pages import (
     login,
     page_404,
     page_forbidden,
+    resource_page,
     signup,
     static_page,
 )
@@ -296,6 +297,10 @@ class FeretUI:
             Path(feretui_path, 'templates', 'form.tmpl'),
             addons='feretui',
         )
+        self.register_template_file(
+            Path(feretui_path, 'templates', 'resource.tmpl'),
+            addons='feretui',
+        )
 
         # Static behaviours
         self.statics: dict[str, str] = {}
@@ -326,6 +331,7 @@ class FeretUI:
         self.register_action(login_password)
         self.register_action(login_signup)
         self.register_action(logout)
+        self.register_action(resource)
 
         # Pages
         self.pages: dict[str, Callable[
@@ -337,6 +343,7 @@ class FeretUI:
         self.register_page('aside-menu')(aside_menu)
         self.register_page()(login)
         self.register_page()(signup)
+        self.register_page(name='resource')(resource_page)
 
         self.register_addons_from_entrypoint()
 
@@ -1025,11 +1032,6 @@ class FeretUI:
     # ---------- Resource  ----------
     def register_resource(
         self: "FeretUI",
-        code: str,
-        label: str,
-        icon: str = None,
-        description: str = None,
-        visible_callback: Callable = None,
         addons: str = None,
     ) -> None:
         """Register and build the resource instance.
@@ -1043,35 +1045,16 @@ class FeretUI:
             class MyResource(Resource):
                 pass
 
-        :param code: The code of the resource to find it
-        :type code: str
-        :param label: The label of the resource
-        :type label: str
-        :param icon: The icon html class used in the render
-        :type icon: str
-        :param description: The tooltip, it is a helper to understand the
-                            role of the menu
-        :type description: str
-        :param visible_callback: Callback to determine with the session,
-                                 if the menu is visible or not.
-        :type visible_callback: Callback[:class:`feretui.session.Session`,
-                                bool]
         :param addons: The addons where the message come from
         :type addons: str
         """
         def wrap_class(cls: Resource) -> Resource:
-            if code in self.resources:
-                logger.info('Overload resource %s[%s]', (code, label))
+            if cls.code in self.resources:
+                logger.info('Overload resource %s[%s]', (cls.code, cls.label))
 
             cls.build()
-            resource = cls(
-                code,
-                label,
-                icon=icon,
-                description=description,
-                visible_callback=visible_callback,
-            )
-            self.resources[code] = resource
+            resource = cls()
+            self.resources[cls.code] = resource
             tr = TranslatedResource(resource, addons)
             self.translation.add_translated_resource(tr)
             return cls

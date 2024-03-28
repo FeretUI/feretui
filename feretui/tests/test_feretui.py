@@ -296,7 +296,12 @@ class TestFeretUI:
 
     def test_register_resource(self) -> None:
         myferet = FeretUI()
-        myferet.register_resource('test', 'Test')(Resource)
+
+        class Test(Resource):
+            code = 'test'
+            label = 'Test'
+
+        myferet.register_resource()(Test)
         assert myferet.resources['test']
         assert len(myferet.translation.resources) == 1
 

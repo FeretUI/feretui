@@ -25,43 +25,34 @@ from typing import TYPE_CHECKING
 
 from polib import POFile
 
+from feretui.exceptions import ResourceError
+from feretui.helper import (
+    menu_for_authenticated_user,
+    page_for_authenticated_user_or_goto,
+)
+from feretui.menus import Menu, ToolBarMenu
+from feretui.pages import page_404
+from feretui.request import Request
+from feretui.response import Response
+from feretui.session import Session
+
 if TYPE_CHECKING:
+    from feretui.feretui import FeretUI
     from feretui.translation import Translation
 
 
 class Resource:
     """Resource class."""
 
-    def __init__(
-        self: "Resource",
-        code: str,
-        label: str,
-        icon: str = None,
-        description: str = None,
-        visible_callback: Callable = None,
-    ) -> None:
-        """Resource class.
-
-        :param code: The id of the resource in feretui instance
-        :type code: str
-        :param label: The main label of the resource
-        :type label: str
-        :param icon: The icon html class used in the render
-        :type icon: str
-        :param description: The tooltip, it is a helper to understand the
-                            role of the menu
-        :type description: str
-        :param visible_callback: Callback to determine with the session,
-                                 if the menu is visible or not.
-        :type visible_callback: Callback[:class:`feretui.session.Session`,
-                                bool]
-        """
-        self.context = f'resource:{code}'
-        self.code = code
-        self.label = label
-        self.icon = icon
-        self.description = description
-        self.visible_callback = visible_callback
+    code: str = None
+    label: str = None
+    menu: Menu = ToolBarMenu(
+        '',
+        page="resource",
+        visible_callback=menu_for_authenticated_user,
+    )
+    page_security = staticmethod(page_for_authenticated_user_or_goto(page_404))
+    action_security: Callable = None
 
     def __str__(self: "Resource") -> str:
         """Return the resource as a string."""
@@ -84,3 +75,67 @@ class Resource:
     @classmethod
     def build(cls: "Resource") -> None:
         """Build the additional part of the resource."""
+        if not cls.code:
+            raise ResourceError('No code defined')
+
+        if not cls.label:
+            raise ResourceError('No label defined')
+
+        if not cls.menu.label:
+            cls.menu.label = cls.label
+
+        cls.context = f'resource:{cls.code}'
+
+    def render(
+        self: "Resource",
+        feretui: "FeretUI",
+        session: Session,
+        options: dict,  # noqa: ARG002
+    ) -> str:
+        """Render the resource.
+
+        :param feretui: The feretui client
+        :type feretui: :class:`feretui.feretui.FeretUI`
+        :param session: The Session
+        :type session: :class:`feretui.session.Session`
+        :param options: The options come from the body or the query string
+        :type options: dict
+        :return: The html page in
+        :rtype: str.
+        """
+        func = None
+
+        if not func:
+            func = page_404
+
+        if self.page_security:
+            return self.page_security(func)(feretui, session, options)
+
+        return func(feretui, session, options)
+
+    def router(
+        self: "Resource",
+        feretui: "FeretUI",  # noqa: ARG002
+        request: Request,
+    ) -> Response:
+        """Resource entry point actions.
+
+        :param feretui: The feretui client
+        :type feretui: :class:`feretui.feretui.FeretUI`
+        :param request: The request
+        :type request: :class:`feretui.request.Request`
+        :return: The page to display
+        :rtype: :class:`feretui.response.Response`
+        """
+        if request.method in (Request.GET,):
+            action = request.query.get('action')  # pragma: no cover
+        else:
+            action = request.params.get('action')
+
+        if isinstance(action, list):
+            action = action[0]  # pragma: no cover
+
+        if not action:
+            raise ResourceError('No action defined in the query string')
+
+        return ''  # pragma: no cover

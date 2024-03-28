@@ -98,13 +98,12 @@ class MySession(Session):
             raise Exception('Login or password invalid')
 
 
-@myferet.register_resource(
-    'c1',
-    'User',
-)
-class RUser(Resource):
-    pass
+@myferet.register_resource()
 # class RUser(LCRUDResource, Resource):
+class RUser(Resource):
+    code = 'c1'
+    label = 'User'
+
 #
 #     class Form:
 #         login = StringField(validators=[InputRequired()])
@@ -202,9 +201,9 @@ class RUser(Resource):
 #             session.commit()
 
 
-# myferet.register_toolbar_left_menus([
-#     RUser.menu()
-# ])
+myferet.register_toolbar_left_menus([
+    RUser.menu,
+])
 
 # -- app --
 
