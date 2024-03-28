@@ -82,6 +82,14 @@ feretui.form module
    :private-members:
 
 
+feretui.resource module
+-----------------------
+
+.. automodule:: feretui.resource
+   :members:
+   :private-members:
+
+
 feretui.helper module
 ---------------------
 

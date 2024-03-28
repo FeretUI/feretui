@@ -27,6 +27,7 @@ The availlable pages are:
 * :func:`.aside_menu`.
 * :func:`.login`.
 * :func:`.signup`.
+* :func:`.resource_page`.
 
 To protect them in function of the user see:
 
@@ -60,7 +61,7 @@ def page_404(feretui: "FeretUI", session: Session, options: dict) -> str:
     :return: The html page
     :rtype: str
     """
-    page = options.get('page', '')
+    page = options.get('resource', options.get('page', ''))
     if isinstance(page, list):
         page = page[0]
 
@@ -85,7 +86,7 @@ def page_forbidden(
     :return: The html page
     :rtype: str
     """
-    page = options.get('page', '')
+    page = options.get('resource', options.get('page', ''))
     if isinstance(page, list):
         page = page[0]
 
@@ -119,6 +120,7 @@ def static_page(template_id: str) -> Callable:
     :type feretui: :str
     :return: The html page
     :rtype: Callable
+    :exception: :class:`feretui.exceptions.PageError`
     """
     def _static_page(
         feretui: "FeretUI",
@@ -148,6 +150,7 @@ def aside_menu(
     :type options: dict
     :return: The html page in
     :rtype: str
+    :exception: :class:`feretui.exceptions.PageError`
     """
     if 'aside' not in options:
         raise PageError('The aside parameter is required in the querystring')
@@ -213,3 +216,27 @@ def signup(feretui: "FeretUI", session: Session, options: dict) -> str:
         form=form,
         error=error,
     )
+
+
+def resource_page(feretui: "FeretUI", session: Session, options: dict) -> str:
+    """Return the resource page.
+
+    :param feretui: The feretui client
+    :type feretui: :class:`feretui.feretui.FeretUI`
+    :param session: The Session
+    :type session: :class:`feretui.session.Session`
+    :param options: The options come from the body or the query string
+    :type options: dict
+    :return: The html page in
+    :rtype: str
+    :exception: :class:`feretui.exceptions.PageError`
+    """
+    code = options.get('resource')
+    if isinstance(code, list):
+        code = code[0]
+
+    if not code:
+        raise PageError('No resource in the query string')
+
+    resource = feretui.get_resource(code)
+    return resource.render(feretui, session, options)

@@ -19,6 +19,7 @@ Get the exceptions known by FeretUI:
 * :class:`.TranslationError`
 * :class:`.TranslationMenuError`
 * :class:`.TranslationFormError`
+* :class:`.TranslationResourceError`
 * :class:`.PageError`
 * :class:`.ActionError`
 * :class:`.UnexistingActionError`
@@ -27,6 +28,8 @@ Get the exceptions known by FeretUI:
 * :class:`.ActionUserIsNotAuthenticatedError`
 * :class:`.ActionUserIsAuthenticatedError`
 * :class:`.MenuError`
+* :class:`.ResourceError`
+* :class:`.UnexistingResourceError`
 """
 
 
@@ -97,6 +100,13 @@ class TranslationFormError(TranslationError):
     """
 
 
+class TranslationResourceError(TranslationError):
+    """Exception raised by Translation object.
+
+    Inherits :class:`.TranslationError`.
+    """
+
+
 class PageError(FeretUIError):
     """Exception raised by page mecanism in FeretUI object.
 
@@ -150,4 +160,18 @@ class MenuError(FeretUIError):
     """Exception raised by menu mecanism in FeretUI object.
 
     Inherits :class:`.FeretUIError`.
+    """
+
+
+class ResourceError(FeretUIError):
+    """Exception raised by resource mecanism in FeretUI object.
+
+    Inherits :class:`.FeretUIError`.
+    """
+
+
+class UnexistingResourceError(FeretUIError):
+    """Exception raised by resource mecanism in FeretUI object.
+
+    Inherits :class:`.ResourceError`.
     """

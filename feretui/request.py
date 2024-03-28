@@ -88,6 +88,7 @@ class Request:
         method: RequestMethod = POST,
         form: MultiDict = None,
         body: str = None,
+        params: MultiDict = None,
         querystring: str = None,
         headers: dict[str, str] = None,
     ) -> "Request":
@@ -99,6 +100,7 @@ class Request:
         self.method = method
         self.form = form
         self.body = body
+        self.params = params
         self.raw_querystring = querystring
         self.headers = headers
 

@@ -214,13 +214,16 @@ def get_field_translations(
     kwargs = unbound_field.kwargs.copy()
 
     if args:
-        label = args.pop(0)
+        args = list(args)
+        args[0] = callback(form_cls, args[0], context_suffix + 'label')
+        args = tuple(args)
     elif unbound_field.kwargs.get('label'):
-        label = unbound_field.kwargs.pop('label')
+        kwargs['label'] = callback(
+            form_cls, kwargs['label'], context_suffix + 'label')
     else:
         label = options['name'].replace('_', ' ').title()
-
-    kwargs['label'] = callback(form_cls, label, context_suffix + 'label')
+        kwargs['label'] = callback(
+            form_cls, label, context_suffix + 'label')
 
     if kwargs.get('description'):
         kwargs['description'] = callback(
