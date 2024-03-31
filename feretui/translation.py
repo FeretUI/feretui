@@ -40,9 +40,11 @@ from feretui.exceptions import (
     TranslationError,
     TranslationFormError,
     TranslationMenuError,
+    TranslationResourceError,
 )
 from feretui.form import FeretUIForm
 from feretui.menus import Menu
+from feretui.resources.resource import Resource
 from feretui.session import Session
 from feretui.thread import local
 
@@ -327,6 +329,67 @@ class TranslatedForm:
         self.form.export_catalog(translation, po)
 
 
+class TranslatedResource:
+    """TranslatedForm class.
+
+    Declare a resource as translatable.
+
+    ::
+
+        MyResource.build()
+        myresource = MyResource('Code', 'The label')
+        translation.add_translated_resource(myresource)
+
+
+    To declare a TranslatedForm more easily, The helpers exist on
+    FeretUI :
+
+    * :meth:`feretui.feretui.FeretUI.register_resource`.
+
+    Attributes
+    ----------
+    * [resource:Resource] : the resource to translated
+    * [addons:str] : the addons of the template file
+
+    :param resource: the resource instance to translate
+    :type resource: :class:`feretui.resource.Resource`
+    :param addons: The addons where the message come from
+    :type addons: str
+
+    """
+
+    def __init__(
+        self: "TranslatedResource",
+        resource: Resource,
+        addons: str = 'feretui',
+    ) -> None:
+        """TranslatedForm class."""
+        if not isinstance(resource, Resource):
+            raise TranslationResourceError(
+                f"{resource} must be an instance of Resource")
+
+        self.resource: Resource = resource
+        self.addons: str = addons
+
+    def __str__(self: "TranslatedResource") -> str:
+        """Return the instance as a string."""
+        return f'<TranslatedResource {self.resource} addons={self.addons}>'
+
+    def export_catalog(
+        self: "TranslatedResource",
+        translation: "Translation",
+        po: POFile,
+    ) -> None:
+        """Export the resource translations in the catalog.
+
+        :param translation: The translation instance to add also inside it.
+        :type translation: :class:`.Translation`
+        :param po: The catalog instance
+        :type po: PoFile_
+        """
+        self.resource.export_catalog(translation, po)
+
+
 class Translation:
     """Translation class.
 
@@ -344,6 +407,7 @@ class Translation:
         self.templates: list[TranslatedTemplate] = []
         self.menus: list[TranslatedMenu] = []
         self.forms: list[TranslatedForm] = []
+        self.resources: list[TranslatedResource] = []
 
     def has_lang(self: "Translation", lang: str) -> bool:
         """Return True the lang is declared.
@@ -466,6 +530,18 @@ class Translation:
         self.forms.append(form)
         logger.debug('Translation : Added new form : %s', form)
 
+    def add_translated_resource(
+        self: "Translation",
+        resource: TranslatedResource,
+    ) -> None:
+        """Add in forms a TranslatedResource.
+
+        :param resource: The resource instance.
+        :type resource: :class:`.TranslatedResource`
+        """
+        self.resources.append(resource)
+        logger.debug('Translation : Added new resource : %s', resource)
+
     def export_catalog(
         self: "Translation",
         output_path: str,
@@ -494,6 +570,7 @@ class Translation:
         templates = self.templates
         menus = self.menus
         forms = self.forms
+        resources = self.resources
 
         self.add_translated_form(
             TranslatedForm(Session.LoginForm, addons='feretui'))
@@ -504,6 +581,7 @@ class Translation:
             templates = filter(lambda x: x.addons == addons, templates)
             menus = filter(lambda x: x.addons == addons, menus)
             forms = filter(lambda x: x.addons == addons, forms)
+            resources = filter(lambda x: x.addons == addons, resources)
 
         for form_translated_message in FeretUIForm.TRANSLATED_MESSAGES:
             po.append(self.define(
@@ -522,6 +600,9 @@ class Translation:
 
         for form in forms:
             form.export_catalog(self, po)
+
+        for resource in resources:
+            resource.export_catalog(self, po)
 
         po.save(Path(output_path).resolve())
 

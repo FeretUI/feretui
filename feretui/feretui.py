@@ -48,8 +48,12 @@ from pathlib import Path
 from jinja2 import Environment, PackageLoader, select_autoescape
 from markupsafe import Markup
 
-from feretui.actions import goto, login_password, login_signup, logout
-from feretui.exceptions import MenuError, UnexistingActionError
+from feretui.actions import goto, login_password, login_signup, logout, resource
+from feretui.exceptions import (
+    MenuError,
+    UnexistingActionError,
+    UnexistingResourceError,
+)
 from feretui.form import FeretUIForm
 from feretui.menus import (
     AsideMenu,
@@ -65,10 +69,12 @@ from feretui.pages import (
     login,
     page_404,
     page_forbidden,
+    resource_page,
     signup,
     static_page,
 )
 from feretui.request import Request
+from feretui.resources.resource import Resource
 from feretui.response import Response
 from feretui.session import Session
 from feretui.template import Template
@@ -77,6 +83,7 @@ from feretui.translation import (
     TranslatedFileTemplate,
     TranslatedForm,
     TranslatedMenu,
+    TranslatedResource,
     TranslatedStringTemplate,
     Translation,
 )
@@ -197,6 +204,8 @@ class FeretUI:
       or right the value are instances of the menu.
     * asides[dict[str, :class:`feretui.menus.AsideMenu`]] : The key is the
       code for the aside-menu page, the values are the instance of the menu.
+    * resources[dict[str, :class:`feretui.resource.Resource]] : The key
+      is the code of the resource and value the class.
 
     The instance provide methodes to use
 
@@ -230,6 +239,11 @@ class FeretUI:
     * Form : Declare the WTForm class in the feretui instance, need for the
       translation
         * :meth:`.FeretUI.register_form`
+
+    * Resource: Declare the resource to CRUD
+        * :meth:`.FeretUI.register_resource`
+        * :meth:`.FeretUI.get_resource`
+
 
     * Translations : Import and export the catalog
         * :meth:`.FeretUI.export_catalog`
@@ -283,6 +297,10 @@ class FeretUI:
             Path(feretui_path, 'templates', 'form.tmpl'),
             addons='feretui',
         )
+        self.register_template_file(
+            Path(feretui_path, 'resources', 'templates', 'resource.tmpl'),
+            addons='feretui',
+        )
 
         # Static behaviours
         self.statics: dict[str, str] = {}
@@ -313,6 +331,7 @@ class FeretUI:
         self.register_action(login_password)
         self.register_action(login_signup)
         self.register_action(logout)
+        self.register_action(resource)
 
         # Pages
         self.pages: dict[str, Callable[
@@ -324,8 +343,12 @@ class FeretUI:
         self.register_page('aside-menu')(aside_menu)
         self.register_page()(login)
         self.register_page()(signup)
+        self.register_page(name='resource')(resource_page)
 
         self.register_addons_from_entrypoint()
+
+        # Resources
+        self.resources: dict[str, Resource] = {}
 
     def register_addons_from_entrypoint(self: "FeretUI") -> None:
         """Get the static from the entrypoints.
@@ -879,7 +902,7 @@ class FeretUI:
         :type menus: list[:class:`feretui.menus.ToolBarMenu`]
         :param addons: The addons where the message come from
         :type addons: str
-        :exception: MenuError
+        :exception: :class:`feretui.exceptions.MenuError`
         """
         self._register_toolbar_menus('left', menus, addons=addons)
 
@@ -900,7 +923,7 @@ class FeretUI:
         :type menus: list[:class:`feretui.menus.ToolBarMenu`]
         :param addons: The addons where the message come from
         :type addons: str
-        :exception: MenuError
+        :exception: :class:`feretui.exceptions.MenuError`
         """
         self._register_toolbar_menus('right', menus, addons=addons)
 
@@ -926,7 +949,7 @@ class FeretUI:
         :type menus: list[:class:`feretui.menus.AsideMenu`]
         :param addons: The addons where the message come from
         :type addons: str
-        :exception: MenuError
+        :exception: :class:`feretui.exceptions.MenuError`
         """
         asides = self.asides.setdefault(code, [])
 
@@ -964,7 +987,7 @@ class FeretUI:
         :type menus: list[:class:`feretui.menus.ToolBarButtonMenu`]
         :param addons: The addons where the message come from
         :type addons: str
-        :exception: MenuError
+        :exception: :class:`feretui.exceptions.MenuError`
         """
         for menu in menus:
             if not isinstance(menu, ToolBarButtonMenu):
@@ -992,7 +1015,7 @@ class FeretUI:
         :type menus: list[:class:`feretui.menus.ToolBarMenu`]
         :param addons: The addons where the message come from
         :type addons: str
-        :exception: MenuError
+        :exception: :class:`feretui.exceptions.MenuError`
         """
         self._register_toolbar_menus('user', menus, addons=addons)
 
@@ -1005,6 +1028,51 @@ class FeretUI:
         :rtype: list[:class:`feretui.menus.AsideMenu`
         """
         return self.asides.setdefault(code, [])
+
+    # ---------- Resource  ----------
+    def register_resource(
+        self: "FeretUI",
+        addons: str = None,
+    ) -> None:
+        """Register and build the resource instance.
+
+        ::
+
+            myferet.register_resource(
+                'code of the resource',
+                'label',
+            )
+            class MyResource(Resource):
+                pass
+
+        :param addons: The addons where the message come from
+        :type addons: str
+        """
+        def wrap_class(cls: Resource) -> Resource:
+            if cls.code in self.resources:
+                logger.info('Overload resource %s[%s]', (cls.code, cls.label))
+
+            resource = cls.build()
+            self.resources[cls.code] = resource
+            tr = TranslatedResource(resource, addons)
+            self.translation.add_translated_resource(tr)
+            return cls
+
+        return wrap_class
+
+    def get_resource(self: "FeretUI", code: str) -> Resource:
+        """Return the resource instance.
+
+        :param code: The code of the instance
+        :type code: :class:`feretui.resource.Resource`
+        :return: The instance of the resource
+        :rtype: :class:`feretui.resource.Resource`
+        :exception: :class:`feretui.exceptions.UnexistingResourceError`
+        """
+        if code not in self.resources:
+            raise UnexistingResourceError(code)
+
+        return self.resources[code]
 
     # ---------- Form  ----------
     def register_form(self: "FeretUI", addons: str = None) -> Callable:

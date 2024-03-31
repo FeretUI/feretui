@@ -462,8 +462,9 @@ class TestMenu:
         )
 
     def test_AsideHeaderMenu_cascade(self, snapshot) -> None:
-        myferet = FeretUI()
+        local.feretui = myferet = FeretUI()
         session = Session()
+        local.request = Request(session)
         snapshot.assert_match(
             AsideHeaderMenu(
                 'Test',

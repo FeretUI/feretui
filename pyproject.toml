@@ -86,14 +86,14 @@ exclude = [
     "build",
     "dist",
     "venv",
-    "feretui/tests"
+    "*/tests/*"
 ]
 
 [tool.ruff.lint]
 # Add the `line-too-long` rule to the enforced rule set. By default, Ruff omits rules that
 # overlap with the use of a formatter, like Black, but we can override this behavior by
 # explicitly adding the rule.
-select = ["ANN", "ARG", "B", "C4", "C90", "COM", "D", "E", "F", "FIX", "G", "I", "LOG", "N", "PERF", "PTH", "RET", "RSE", "S", "SIM", "TD", "TID", "TCH", "UP", "W", "YTT"]
+select = ["ANN", "ARG", "B", "C4", "C90", "COM", "D", "E", "F", "FIX", "G", "I", "LOG", "N", "PERF", "PTH", "RET", "RSE", "S", "SIM", "TID", "TCH", "UP", "W", "YTT"]
 
 [tool.ruff.format]
 # Prefer single quotes over double quotes.

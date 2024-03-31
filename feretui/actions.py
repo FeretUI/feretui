@@ -18,7 +18,7 @@ The availlable actions are:
 """
 from typing import TYPE_CHECKING
 
-from feretui.exceptions import ActionError
+from feretui.exceptions import ActionError, ResourceError
 from feretui.helper import (
     action_for_authenticated_user,
     action_for_unauthenticated_user,
@@ -184,3 +184,28 @@ def logout(
     base_url = request.get_base_url_from_current_url()
     url = request.get_url_from_dict(base_url=base_url, querystring={})
     return Response('', headers={'HX-Redirect': url})
+
+
+@action_validator()
+def resource(
+    feretui: "FeretUI",
+    request: Request,
+) -> str:
+    """Resource entry point actions.
+
+    Used the SignUpForm passed in the request.session.
+
+    :param feretui: The feretui client
+    :type feretui: :class:`feretui.feretui.FeretUI`
+    :param request: The request
+    :type request: :class:`feretui.request.Request`
+    :return: The page to display
+    :rtype: :class:`feretui.response.Response`
+    """
+    qs = request.get_query_string_from_current_url()
+    code = qs.get('resource', [None])[0]
+    if not code:
+        raise ResourceError('No resource in the query string')
+
+    resource = feretui.get_resource(code)
+    return resource.router(feretui, request)

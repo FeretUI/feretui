@@ -537,6 +537,7 @@ class TestForm:
         FeretUIForm.register_translation('One test')
 
     def test_password_validator(self) -> None:
+        local.feretui = FeretUI()
         validator = Password()
 
         class MyForm(FeretUIForm):
@@ -547,6 +548,7 @@ class TestForm:
             validator(myform, myform.password)
 
     def test_password_validator_2(self) -> None:
+        local.feretui = FeretUI()
         validator = Password(
             max_size=14,
             has_lowercase=False,

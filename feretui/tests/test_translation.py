@@ -17,15 +17,18 @@ from wtforms import StringField
 from feretui.exceptions import (
     TranslationFormError,
     TranslationMenuError,
+    TranslationResourceError,
 )
 from feretui.feretui import FeretUI
 from feretui.form import FeretUIForm
 from feretui.menus import ToolBarMenu
+from feretui.resources.resource import Resource
 from feretui.thread import local
 from feretui.translation import (
     TranslatedFileTemplate,
     TranslatedForm,
     TranslatedMenu,
+    TranslatedResource,
     TranslatedStringTemplate,
     TranslatedTemplate,
     Translation,
@@ -82,6 +85,18 @@ class TestTranslation:
         with pytest.raises(TranslationFormError):
             TranslatedForm(A)
 
+    def test_translated_resource(self) -> None:
+        """Test translated_message without feretui."""
+        mytranslation = TranslatedResource(Resource())
+        assert str(mytranslation)
+
+    def test_translated_resource_not_a_resource(self) -> None:
+        class A:
+            pass
+
+        with pytest.raises(TranslationResourceError):
+            TranslatedResource(A)
+
     def test_has_langs(self) -> None:
         """Test has_lang."""
         translation = Translation()
@@ -126,6 +141,14 @@ class TestTranslation:
             name = StringField(description='My name')
 
         myferet.translation.add_translated_form(TranslatedForm(MyForm))
+
+        class MyResource(Resource):
+            code = 'test'
+            label = 'Test'
+
+        MyResource.build()
+        myferet.translation.add_translated_resource(
+            TranslatedResource(MyResource()))
 
         with NamedTemporaryFile() as fpt:
             fpt.write(t1)

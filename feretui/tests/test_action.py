@@ -3,16 +3,26 @@ from typing import NoReturn
 import pytest
 from multidict import MultiDict
 
-from feretui.actions import goto, login_password, login_signup, logout
+from feretui.actions import (
+    goto,
+    login_password,
+    login_signup,
+    logout,
+    resource,
+)
 from feretui.exceptions import (
     ActionError,
     ActionUserIsAuthenticatedError,
     ActionUserIsNotAuthenticatedError,
     ActionValidatorError,
+    ResourceError,
 )
 from feretui.feretui import FeretUI
 from feretui.pages import homepage
 from feretui.request import Request
+from feretui.resources.resource import Resource
+from feretui.resources.view import View
+from feretui.response import Response
 from feretui.session import Session
 from feretui.thread import local
 
@@ -242,7 +252,144 @@ class TestAction:
             session=session,
             headers={'Hx-Current-Url': '/test?page=signup'},
         )
-        local.lang = 'fr'
         res = logout(myferet, request)
         assert res.body == ''
         assert res.headers['HX-Redirect'] == '/test'
+
+    def test_resource_1(self) -> None:
+        local.feretui = myferet = FeretUI()
+        session = Session(user="Test")
+        local.request = request = Request(
+            method=Request.POST,
+            session=session,
+            headers={'Hx-Current-Url': '/test?page=signup'},
+        )
+        with pytest.raises(ResourceError):
+            resource(myferet, request)
+
+    def test_resource_2(self) -> None:
+        local.feretui = myferet = FeretUI()
+        session = Session(user="Test")
+        local.request = request = Request(
+            method=Request.POST,
+            session=session,
+            params=MultiDict({}),
+            headers={'Hx-Current-Url': '/test?resource=test'},
+        )
+
+        @myferet.register_resource()
+        class MyResource(Resource):
+            code = 'test'
+            label = 'Test'
+
+        with pytest.raises(ResourceError):
+            resource(myferet, request)
+
+    def test_resource_3(self) -> None:
+        local.feretui = myferet = FeretUI()
+        session = Session(user="Test")
+        local.request = request = Request(
+            method=Request.POST,
+            session=session,
+            params=MultiDict({}),
+            headers={'Hx-Current-Url': '/test?resource=test&view=test'},
+        )
+
+        @myferet.register_resource()
+        class MyResource(Resource):
+            code = 'test'
+            label = 'Test'
+
+        with pytest.raises(ResourceError):
+            resource(myferet, request)
+
+    def test_resource_4(self) -> None:
+        local.feretui = myferet = FeretUI()
+        session = Session(user="Test")
+        local.request = request = Request(
+            method=Request.POST,
+            session=session,
+            params=MultiDict({}),
+            headers={'Hx-Current-Url': '/test?resource=test&view=test'},
+        )
+
+        @myferet.register_resource()
+        class MyResource(Resource):
+            code = 'test'
+            label = 'Test'
+
+        myferet.resources['test'].views['test'] = View(
+            myferet.resources['test'])
+
+        with pytest.raises(ResourceError):
+            resource(myferet, request)
+
+    def test_resource_5(self) -> None:
+        local.feretui = myferet = FeretUI()
+        session = Session(user="Test")
+        local.request = request = Request(
+            method=Request.POST,
+            session=session,
+            params=MultiDict({'action': ['foo']}),
+            headers={'Hx-Current-Url': '/test?resource=test&view=test'},
+        )
+
+        @myferet.register_resource()
+        class MyResource(Resource):
+            code = 'test'
+            label = 'Test'
+
+        myferet.resources['test'].views['test'] = View(
+            myferet.resources['test'])
+
+        with pytest.raises(ResourceError):
+            resource(myferet, request)
+
+    def test_resource_6(self) -> None:
+        local.feretui = myferet = FeretUI()
+        session = Session(user="Test")
+        local.request = request = Request(
+            method=Request.POST,
+            session=session,
+            params=MultiDict({'action': ['foo']}),
+            headers={'Hx-Current-Url': '/test?resource=test&view=test'},
+        )
+
+        @myferet.register_resource()
+        class MyResource(Resource):
+            code = 'test'
+            label = 'Test'
+
+        class MyView(View):
+            def foo(self, feretui, request):
+                return Response('bar')
+
+        myferet.resources['test'].views['test'] = MyView(
+            myferet.resources['test'])
+
+        assert resource(myferet, request).body == 'bar'
+
+    def test_resource_7(self) -> None:
+        local.feretui = myferet = FeretUI()
+        session = Session(user="Test")
+        local.request = request = Request(
+            method=Request.POST,
+            session=session,
+            params=MultiDict({'action': ['foo']}),
+            headers={'Hx-Current-Url': '/test?resource=test&view=test'},
+        )
+
+        @myferet.register_resource()
+        class MyResource(Resource):
+            code = 'test'
+            label = 'Test'
+            action_security = None
+
+        class MyView(View):
+            def foo(self, feretui, request):
+                return Response('bar')
+
+        myferet.resources['test'].views['test'] = MyView(
+            myferet.resources['test'])
+
+        assert resource(myferet, request).body == 'bar'

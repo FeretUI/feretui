@@ -192,6 +192,11 @@ To link the form with the translation and the bulma renderer you must inherit
 If you need to register a password you must use the validator
 :class:`feretui.form.Password`
 
+The resource is a set of page and form to represent a data and tools
+to manipulate this data.
+
+* :class:`feretui.resources.resource.Resource`
+
 
 The client FeretUI add translation mechanism. This mecanism can be declared
 with addon's name attribute. This attribute is used to extract the translation
@@ -258,5 +263,6 @@ from feretui.menus import (  # noqa : F401
     AsideUrlMenu,
 )
 from feretui.request import Request  # noqa : F401
+from feretui.resources import Resource, LCRUDResource  # noqa: F401
 from feretui.response import Response  # noqa : F401
 from feretui.session import Session  # noqa : F401

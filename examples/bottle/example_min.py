@@ -15,7 +15,7 @@ from feretui import (
     ToolBarButtonMenu,
     ToolBarDropDownMenu,
     ToolBarMenu,
-    menu_for_authenticated_user
+    menu_for_authenticated_user,
 )
 
 logging.basicConfig(level=logging.DEBUG)
@@ -107,7 +107,7 @@ myferet.register_toolbar_left_menus([
                 'Foo', page="aside-menu", aside="aside1", aside_page='foo',
                 icon="fa-solid fa-ghost",
             ),
-        ]
+        ],
     ),
 ])
 
@@ -177,4 +177,4 @@ if __name__ == "__main__":
     BottleSessions(
         app, session_backing=cache_config, session_cookie='appcookie')
     debug(True)
-    run(host="localhost", port=8080)
+    run(host="localhost", port=8080, reloader=1)

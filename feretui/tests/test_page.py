@@ -7,18 +7,23 @@
 # obtain one at http://mozilla.org/MPL/2.0/.
 import pytest
 
-from feretui.exceptions import PageError
+from feretui.exceptions import PageError, UnexistingResourceError
 from feretui.feretui import FeretUI
+from feretui.helper import page_for_authenticated_user_or_goto
 from feretui.pages import (
     aside_menu,
     homepage,
     login,
     page_404,
     page_forbidden,
+    resource_page,
     signup,
     static_page,
 )
+from feretui.request import Request
+from feretui.resources.resource import Resource
 from feretui.session import Session
+from feretui.thread import local
 
 
 class TestPage:
@@ -81,8 +86,9 @@ class TestPage:
             aside_menu(myferet, session, {})
 
     def test_login_1(self, snapshot) -> None:
-        myferet = FeretUI()
+        local.feretui = myferet = FeretUI()
         session = Session()
+        local.request = Request(session=session)
         snapshot.assert_match(login(myferet, session, {}), 'snapshot.html')
 
     def test_login_2(self) -> None:
@@ -92,8 +98,9 @@ class TestPage:
         assert res == page_forbidden(myferet, session, {})
 
     def test_signup_1(self, snapshot) -> None:
-        myferet = FeretUI()
+        local.feretui = myferet = FeretUI()
         session = Session()
+        local.request = Request(session=session)
         snapshot.assert_match(signup(myferet, session, {}), 'snapshot.html')
 
     def test_signup_2(self) -> None:
@@ -101,3 +108,63 @@ class TestPage:
         session = Session(user='test')
         res = signup(myferet, session, {})
         assert res == page_forbidden(myferet, session, {})
+
+    def test_resource_1(self) -> None:
+        myferet = FeretUI()
+        session = Session()
+        with pytest.raises(PageError):
+            resource_page(myferet, session, {})
+
+    def test_resource_2(self) -> None:
+        myferet = FeretUI()
+        session = Session()
+        with pytest.raises(UnexistingResourceError):
+            resource_page(myferet, session, {'resource': ['test']})
+
+    def test_resource_3(self) -> None:
+        myferet = FeretUI()
+        session = Session()
+
+        @myferet.register_resource()
+        class MyResource(Resource):
+            code = 'test'
+            label = 'Test'
+
+        assert (
+            resource_page(myferet, session, {'resource': ['test']})
+            == page_404(myferet, session, {'page': ['test']})
+        )
+
+    def test_resource_4(self) -> None:
+        myferet = FeretUI()
+        session = Session()
+
+        @myferet.register_resource()
+        class MyResource(Resource):
+            code = 'test'
+            label = 'Test'
+            page_security = staticmethod(
+                page_for_authenticated_user_or_goto(page_forbidden))
+
+        assert (
+            resource_page(myferet, session, {'resource': ['test']})
+            == page_forbidden(myferet, session, {'page': ['test']})
+        )
+
+    def test_resource_5(self) -> None:
+        myferet = FeretUI()
+        session = Session()
+
+        @myferet.register_resource()
+        class MyResource(Resource):
+            code = 'test'
+            label = 'Test'
+            page_security = None
+
+        assert (
+            resource_page(
+                myferet,
+                session,
+                {'resource': ['test'], 'view': ['test']},
+            ) == page_404(myferet, session, {'page': ['test']})
+        )
