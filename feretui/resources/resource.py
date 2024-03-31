@@ -113,7 +113,7 @@ class Resource:
 
     def get_label(self: "Resource") -> None:
         """Return the translated label."""
-        return local.feretui.ranslation.get(
+        return local.feretui.translation.get(
             local.lang, f'{self.context}:label', self.label,
         )
 
@@ -139,10 +139,10 @@ class Resource:
             viewcode = viewcode[0]
 
         if not viewcode:
-            raise ResourceError('No view defined in the query string')
-
-        view = self.views.get(viewcode)
-        func = page_404 if not view else view.render
+            func = page_404
+        else:
+            view = self.views.get(viewcode)
+            func = page_404 if not view else view.render
 
         if self.page_security:
             return self.page_security(func)(feretui, session, options)
@@ -163,12 +163,13 @@ class Resource:
         :return: The page to display
         :rtype: :class:`feretui.response.Response`
         """
+        qs = request.get_query_string_from_current_url()
         options = (
             request.query
             if request.method == Request.GET
             else request.params
         )
-        viewcode = options.get('view')
+        viewcode = qs.get('view')
         if isinstance(viewcode, list):
             viewcode = viewcode[0]
 

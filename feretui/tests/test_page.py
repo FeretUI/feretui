@@ -162,6 +162,9 @@ class TestPage:
             page_security = None
 
         assert (
-            resource_page(myferet, session, {'resource': ['test']})
-            == page_404(myferet, session, {'page': ['test']})
+            resource_page(
+                myferet,
+                session,
+                {'resource': ['test'], 'view': ['test']},
+            ) == page_404(myferet, session, {'page': ['test']})
         )
