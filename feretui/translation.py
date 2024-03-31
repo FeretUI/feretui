@@ -44,7 +44,7 @@ from feretui.exceptions import (
 )
 from feretui.form import FeretUIForm
 from feretui.menus import Menu
-from feretui.resource import Resource
+from feretui.resources.resource import Resource
 from feretui.session import Session
 from feretui.thread import local
 

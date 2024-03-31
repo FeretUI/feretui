@@ -86,7 +86,7 @@ exclude = [
     "build",
     "dist",
     "venv",
-    "feretui/tests"
+    "*/tests/*"
 ]
 
 [tool.ruff.lint]

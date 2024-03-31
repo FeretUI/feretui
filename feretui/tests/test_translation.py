@@ -22,7 +22,7 @@ from feretui.exceptions import (
 from feretui.feretui import FeretUI
 from feretui.form import FeretUIForm
 from feretui.menus import ToolBarMenu
-from feretui.resource import Resource
+from feretui.resources.resource import Resource
 from feretui.thread import local
 from feretui.translation import (
     TranslatedFileTemplate,

@@ -7,7 +7,6 @@ from BottleSessions import BottleSessions
 from multidict import MultiDict
 from sqlalchemy import String, create_engine, select  # , func
 
-# LCRUDResource,
 # Password,
 # PostButtonField,
 from sqlalchemy.orm import (
@@ -21,6 +20,7 @@ from sqlalchemy.orm import (
 
 from feretui import (
     FeretUI,
+    LCRUDResource,
     Request,
     Resource,
     Session,
@@ -99,10 +99,27 @@ class MySession(Session):
 
 
 @myferet.register_resource()
-# class RUser(LCRUDResource, Resource):
-class RUser(Resource):
+class RUser(LCRUDResource, Resource):
     code = 'c1'
     label = 'User'
+
+    class MetaViewList:
+        pass
+
+        # class List:
+        #     login = True
+        #     name = True
+        #     theme = SelectField()
+        #     print_1 = PostButtonField()
+
+        # class ActionSet_1:
+        #     label = "Python print"
+
+        #     print_1 = PostButtonField('Print(1)', description='test')
+        #     print_10 = PostButtonField()
+
+        # class Filter:
+        #     pass
 
 #
 #     class Form:
@@ -127,22 +144,6 @@ class RUser(Resource):
 #         def pk(self):
 #             return self.login
 #
-#     class MetaList:
-#
-#         class List:
-#             login = True
-#             name = True
-#             theme = SelectField()
-#             print_1 = PostButtonField()
-#
-#         class ActionSet_1:
-#             label = "Python print"
-#
-#             print_1 = PostButtonField('Print(1)', description='test')
-#             print_10 = PostButtonField()
-#
-#         class Filter:
-#             pass
 #
 #     @classmethod
 #     def print_1(cls, feretui, session, pk=None):

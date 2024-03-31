@@ -15,14 +15,14 @@ from feretui.exceptions import (
     ActionUserIsAuthenticatedError,
     ActionUserIsNotAuthenticatedError,
     ActionValidatorError,
-    ResourceError
+    ResourceError,
 )
 from feretui.feretui import FeretUI
 from feretui.pages import homepage
 from feretui.request import Request
+from feretui.resources.resource import Resource
 from feretui.session import Session
 from feretui.thread import local
-from feretui.resource import Resource
 
 
 class TestAction:
@@ -254,7 +254,7 @@ class TestAction:
         assert res.body == ''
         assert res.headers['HX-Redirect'] == '/test'
 
-    def test_resource_1(self):
+    def test_resource_1(self) -> None:
         local.feretui = myferet = FeretUI()
         session = Session(user="Test")
         local.request = request = Request(
@@ -265,7 +265,7 @@ class TestAction:
         with pytest.raises(ResourceError):
             resource(myferet, request)
 
-    def test_resource_2(self):
+    def test_resource_2(self) -> None:
         local.feretui = myferet = FeretUI()
         session = Session(user="Test")
         local.request = request = Request(

@@ -74,7 +74,7 @@ from feretui.pages import (
     static_page,
 )
 from feretui.request import Request
-from feretui.resource import Resource
+from feretui.resources.resource import Resource
 from feretui.response import Response
 from feretui.session import Session
 from feretui.template import Template
@@ -298,7 +298,7 @@ class FeretUI:
             addons='feretui',
         )
         self.register_template_file(
-            Path(feretui_path, 'templates', 'resource.tmpl'),
+            Path(feretui_path, 'resources', 'templates', 'resource.tmpl'),
             addons='feretui',
         )
 
@@ -1052,8 +1052,7 @@ class FeretUI:
             if cls.code in self.resources:
                 logger.info('Overload resource %s[%s]', (cls.code, cls.label))
 
-            cls.build()
-            resource = cls()
+            resource = cls.build()
             self.resources[cls.code] = resource
             tr = TranslatedResource(resource, addons)
             self.translation.add_translated_resource(tr)

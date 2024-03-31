@@ -29,7 +29,7 @@ from feretui.menus import (
 )
 from feretui.pages import homepage, page_404
 from feretui.request import Request
-from feretui.resource import Resource
+from feretui.resources.resource import Resource
 from feretui.response import Response
 from feretui.session import Session
 

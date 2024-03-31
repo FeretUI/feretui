@@ -7,19 +7,9 @@
 # obtain one at http://mozilla.org/MPL/2.0/.
 """Module feretui.resource.
 
-The resource is a set of View to représente one data.
-
-* :class:`.Resource`
-
-::
-
-    myferet.register_resource(
-        'code of the resource',
-        'label',
-    )
-    class MyResource(Resource):
-        pass
+The main class to create a resource.
 """
+import inspect
 from collections.abc import Callable
 from typing import TYPE_CHECKING
 
@@ -27,14 +17,17 @@ from polib import POFile
 
 from feretui.exceptions import ResourceError
 from feretui.helper import (
+    action_for_authenticated_user,
     menu_for_authenticated_user,
     page_for_authenticated_user_or_goto,
 )
 from feretui.menus import Menu, ToolBarMenu
 from feretui.pages import page_404
 from feretui.request import Request
+from feretui.resources.view import View
 from feretui.response import Response
 from feretui.session import Session
+from feretui.thread import local
 
 if TYPE_CHECKING:
     from feretui.feretui import FeretUI
@@ -51,8 +44,14 @@ class Resource:
         page="resource",
         visible_callback=menu_for_authenticated_user,
     )
-    page_security = staticmethod(page_for_authenticated_user_or_goto(page_404))
-    action_security: Callable = None
+    page_security: Callable = staticmethod(
+        page_for_authenticated_user_or_goto(page_404))
+    action_security: Callable = staticmethod(action_for_authenticated_user)
+    default_view: str = None
+
+    def __init__(self: "Resource") -> None:
+        """Resource class."""
+        self.views: dict[str, View] = {}
 
     def __str__(self: "Resource") -> str:
         """Return the resource as a string."""
@@ -84,7 +83,39 @@ class Resource:
         if not cls.menu.label:
             cls.menu.label = cls.label
 
+        cls.menu.querystring['resource'] = cls.code
         cls.context = f'resource:{cls.code}'
+        resource = cls()
+        for attr in dir(cls):
+            if (
+                attr.startswith('MetaView')
+                and inspect.isclass(getattr(cls, attr))
+            ):
+                view = resource.build_view(attr, getattr(cls, attr))
+                resource.views[view.code] = view
+
+        return resource
+
+    def build_view(
+        self: "Resource",
+        view_cls_name: str,
+        view_cls: View,
+    ) -> View:
+        """Return the view instance in fonction of the MetaView attributes.
+
+        :param view_cls_name: name of the meta attribute
+        :type view_cls_name: str
+        :param view_cls: Meta attributes
+        :type view_cls: class
+        :return: An instance of the view
+        :rtype: :class:`feretui.resources.view.View`
+        """
+
+    def get_label(self: "Resource") -> None:
+        """Return the translated label."""
+        return local.feretui.ranslation.get(
+            local.lang, f'{self.context}:label', self.label,
+        )
 
     def render(
         self: "Resource",
@@ -103,10 +134,15 @@ class Resource:
         :return: The html page in
         :rtype: str.
         """
-        func = None
+        viewcode = options.get('view', self.default_view)
+        if isinstance(viewcode, list):
+            viewcode = viewcode[0]
 
-        if not func:
-            func = page_404
+        if not viewcode:
+            raise ResourceError('No view defined in the query string')
+
+        view = self.views.get(viewcode)
+        func = page_404 if not view else view.render
 
         if self.page_security:
             return self.page_security(func)(feretui, session, options)
@@ -115,7 +151,7 @@ class Resource:
 
     def router(
         self: "Resource",
-        feretui: "FeretUI",  # noqa: ARG002
+        feretui: "FeretUI",
         request: Request,
     ) -> Response:
         """Resource entry point actions.
@@ -127,15 +163,35 @@ class Resource:
         :return: The page to display
         :rtype: :class:`feretui.response.Response`
         """
-        if request.method in (Request.GET,):
-            action = request.query.get('action')  # pragma: no cover
-        else:
-            action = request.params.get('action')
+        options = (
+            request.query
+            if request.method == Request.GET
+            else request.params
+        )
+        viewcode = options.get('view')
+        if isinstance(viewcode, list):
+            viewcode = viewcode[0]
 
+        if not viewcode:
+            raise ResourceError('No view defined in the query string')
+
+        view = self.views.get(viewcode)
+        if not view:
+            raise ResourceError(f'No view {viewcode} defined in {self}')
+
+        action = options.get('action')
         if isinstance(action, list):
-            action = action[0]  # pragma: no cover
+            action = action[0]
 
         if not action:
             raise ResourceError('No action defined in the query string')
 
-        return ''  # pragma: no cover
+        if not hasattr(view, action):
+            raise ResourceError(
+                f'{self.code} - {viewcode} has no method {action}')
+
+        func = getattr(view, action)
+        if self.action_security:
+            return self.action_security(func)(feretui, request)
+
+        return func(feretui, request)

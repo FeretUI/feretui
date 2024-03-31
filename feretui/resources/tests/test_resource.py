@@ -11,13 +11,13 @@ with pytest.
 """
 import pytest  # noqa: F401
 
-from feretui.resource import Resource
 from feretui.exceptions import ResourceError
+from feretui.resources.resource import Resource
 
 
 class TestResource:
 
-    def test_without_code(self):
+    def test_without_code(self) -> None:
 
         class MyResource(Resource):
             label = 'Test'
@@ -25,7 +25,7 @@ class TestResource:
         with pytest.raises(ResourceError):
             MyResource.build()
 
-    def test_without_label(self):
+    def test_without_label(self) -> None:
 
         class MyResource(Resource):
             code = 'test'
