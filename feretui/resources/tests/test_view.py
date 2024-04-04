@@ -27,16 +27,18 @@ class TResource:
     class MetaViewTest:
         pass
 
-    def build_view(resource, name, cls):
+    def build_view(self, name):
         if name.startswith('MetaViewTest'):
+            meta_view_cls = self.get_meta_view_class(name)
+            meta_view_cls.append(TView)
             view_cls = type(
                 'TView',
-                (cls, TView),
+                tuple(meta_view_cls),
                 {},
             )
-            return view_cls(resource)
+            return view_cls(self)
 
-        return super().build_view(resource, name, cls)
+        return super().build_view(self, name)
 
 
 class MyResource(TResource, Resource):
