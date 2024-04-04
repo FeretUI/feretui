@@ -12,9 +12,9 @@ The main class to construct a view
 import urllib
 from typing import TYPE_CHECKING
 
+from feretui.form import FeretUIForm
 from feretui.pages import page_404
 from feretui.session import Session
-from feretui.form import FeretUIForm
 
 if TYPE_CHECKING:
     from feretui.feretui import FeretUI
@@ -27,7 +27,7 @@ class View:
     code: str = None
 
     class Form:
-        pass
+        """Form class."""
 
     def __init__(self: "View", resource: "Resource") -> None:
         """View class.
@@ -87,7 +87,8 @@ class View:
 
         return urllib.parse.urlencode(options, doseq=True)
 
-    def get_form_cls(self):
+    def get_form_cls(self: "View") -> FeretUIForm:
+        """Return the Form for the view."""
         return type(
             f'Form_{self.resource.code}_{self.code}',
             (self.Form, self.resource.Form, FeretUIForm),

@@ -22,18 +22,19 @@ The resource is a set of View to représente one data.
 """
 from typing import TYPE_CHECKING
 
+from markupsafe import Markup
 from polib import POFile
+from wtforms.fields import Field
+
+from feretui.resources.common import ActionsMixinForView, MultiViewHeaderButtons
 
 # from feretui.exceptions import ResourceError
 # from feretui.request import Request
 # from feretui.response import Response
 # from feretui.session import Session
 from feretui.resources.view import View
-from feretui.thread import local
 from feretui.response import Response
-from wtforms.fields import Field
-from markupsafe import Markup
-from feretui.resources.common import ActionsMixinForView, MultiViewHeaderButtons
+from feretui.thread import local
 
 from .resource import Resource
 
@@ -113,7 +114,7 @@ class ListView(ActionsMixinForView, MultiViewHeaderButtons, View):
                     ),
                     rcode=self.resource.code,
                     vcode=self.code,
-                ))
+                )),
             )
 
         return res
@@ -163,7 +164,7 @@ class ListView(ActionsMixinForView, MultiViewHeaderButtons, View):
                 feret,
                 session,
                 options,
-            )
+            ),
         )
 
     def pagination(self, feretui, request):
@@ -174,7 +175,7 @@ class ListView(ActionsMixinForView, MultiViewHeaderButtons, View):
             self.render(feretui, request.session, newqs),
             headers={
                 'HX-Push-Url': request.get_url_from_dict(base_url, newqs),
-            }
+            },
         )
 
 

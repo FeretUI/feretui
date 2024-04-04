@@ -10,7 +10,7 @@ class Action:
         method: str,
         visible_callback=None,
         tooltip=None,
-    ):
+    ) -> None:
         self.label = label
         self.method = method
         self.visible_callback = visible_callback
@@ -52,7 +52,7 @@ class SelectedRowsAction(Action):
 
 class Actionset:
 
-    def __init__(self, label: str, actions: list[Action], tooltip=None):
+    def __init__(self, label: str, actions: list[Action], tooltip=None) -> None:
         self.label = label
         self.actions = actions
         self.tooltip = tooltip
@@ -83,7 +83,5 @@ class Actionset:
         self,
         session,
     ) -> bool:
-        return all([
-            action.is_visible(session)
-            for action in self.actions
-        ])
+        return all(action.is_visible(session)
+            for action in self.actions)

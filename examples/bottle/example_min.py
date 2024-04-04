@@ -2,7 +2,7 @@ import logging
 from contextlib import contextmanager
 from os import path
 
-from bottle import abort, app, debug, request, response, route, run, static_file
+from bottle import abort, app, request, response, route, run, static_file
 from BottleSessions import BottleSessions
 from multidict import MultiDict
 
@@ -139,26 +139,14 @@ def feretui_static_file(filepath):
     return None
 
 
-@route('/feretui/action/<action>', method=['GET'])
-def get_action(action):
+@route('/feretui/action/<action>', method=['GET', 'POST'])
+def call_action(action):
     with feretui_session(MySession) as session:
         frequest = Request(
-            method=Request.GET,
+            method=getattr(Request, request.method),
             querystring=request.query_string,
-            headers=dict(request.headers),
-            session=session,
-        )
-        res = myferet.execute_action(frequest, action)
-        add_response_headers(res.headers)
-        return res.body
-
-
-@route('/feretui/action/<action>', method=['POST'])
-def post_action(action):
-    with feretui_session(MySession) as session:
-        frequest = Request(
-            method=Request.POST,
             form=MultiDict(request.forms),
+            params=MultiDict(request.params),
             headers=dict(request.headers),
             session=session,
         )
@@ -176,5 +164,4 @@ if __name__ == "__main__":
     }
     BottleSessions(
         app, session_backing=cache_config, session_cookie='appcookie')
-    debug(True)
-    run(host="localhost", port=8080, reloader=1)
+    run(host="localhost", port=8080, debug=True, reloader=1)

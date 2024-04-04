@@ -13,6 +13,7 @@ import inspect
 from collections.abc import Callable
 from typing import TYPE_CHECKING
 
+from markupsafe import Markup
 from polib import POFile
 
 from feretui.exceptions import ResourceError
@@ -28,8 +29,6 @@ from feretui.resources.view import View
 from feretui.response import Response
 from feretui.session import Session
 from feretui.thread import local
-from markupsafe import Markup
-
 
 if TYPE_CHECKING:
     from feretui.feretui import FeretUI
@@ -52,7 +51,7 @@ class Resource:
     default_view: str = None
 
     class Form:
-        pass
+        """The Form class."""
 
     def __init__(self: "Resource") -> None:
         """Resource class."""
@@ -99,16 +98,24 @@ class Resource:
                 and inspect.isclass(getattr(cls, attr))
             ):
                 view = resource.build_view(attr)
-                resource.views[view.code] = view
+                if view:
+                    resource.views[view.code] = view
 
         return resource
 
-    def get_meta_view_class(self, view_cls_name):
-        return [
+    def get_meta_view_class(self: "Resource", view_cls_name: str) -> list:
+        """Return all the meta view class.
+
+        :param view_cls_name: The name of the meta class
+        :type view_cls_name: Class
+        :return: list of the class
+        :rtype: list
+        """
+        return list({
             getattr(cls, view_cls_name)
             for cls in self.__class__.__mro__
             if hasattr(cls, view_cls_name)
-        ]
+        })
 
     def build_view(
         self: "Resource",
@@ -118,8 +125,6 @@ class Resource:
 
         :param view_cls_name: name of the meta attribute
         :type view_cls_name: str
-        :param view_cls: Meta attributes
-        :type view_cls: class
         :return: An instance of the view
         :rtype: :class:`feretui.resources.view.View`
         """

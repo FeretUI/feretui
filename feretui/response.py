@@ -21,7 +21,7 @@ Example with bottle::
 
     myferet = FeretUI()
 
-    @route('/feretui/action/<action>', method=['POST'])
+    @route('/feretui/action/<action>', method=['GET', 'POST'])
     def post_action(action):
         ...
         res = myferet.do_action(frequest, action)

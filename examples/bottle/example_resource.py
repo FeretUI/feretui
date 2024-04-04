@@ -2,10 +2,10 @@ import logging
 from contextlib import contextmanager
 from os import path
 
-from bottle import abort, app, debug, request, response, route, run, static_file
+from bottle import abort, app, request, response, route, run, static_file
 from BottleSessions import BottleSessions
 from multidict import MultiDict
-from sqlalchemy import String, create_engine, select, func
+from sqlalchemy import String, create_engine, func, select
 
 # Password,
 # PostButtonField,
@@ -17,20 +17,19 @@ from sqlalchemy.orm import (
 from sqlalchemy.orm import (
     Session as SQLASession,
 )
+from wtforms import RadioField, SelectField, StringField  # , PasswordField
+from wtforms.validators import InputRequired
 
 from feretui import (
+    Action,
+    Actionset,
     FeretUI,
     LCRUDResource,
     Request,
     Resource,
-    Session,
-    Actionset,
-    Action,
     SelectedRowsAction,
+    Session,
 )
-
-from wtforms import StringField, RadioField, SelectField  # , PasswordField
-from wtforms.validators import InputRequired
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -116,7 +115,7 @@ class RUser(LCRUDResource, Resource):
             label='Language',
             choices=[('en', 'English'), ('fr', 'Français')],
             validators=[InputRequired()],
-            render_kw=dict(vertical=False),
+            render_kw={"vertical": False},
         )
         theme = RadioField(
             choices=[
@@ -124,7 +123,7 @@ class RUser(LCRUDResource, Resource):
                 ('minthy', 'Minthy'),
                 ('darkly', 'Darkly'),
             ],
-            render_kw=dict(vertical=False),
+            render_kw={"vertical": False},
         )
 
         @property
@@ -154,27 +153,28 @@ class RUser(LCRUDResource, Resource):
             ]),
         ]
 
-    def print_1(self, feretui, session, **kwargs):
-        print(1, kwargs)
+    def print_1(self, *a, **kw) -> None:
+        print(1, a, kw)
 
-    def print_10(self, feretui, session, **kwargs):
-        print(10, kwargs)
+    def print_10(self, *a, **kw) -> None:
+        print(10, a, kw)
 
-#     def create(self, form):
-#         with SQLASession(engine) as session:
-#             user = User()
-#             form.populate_obj(user)
-#             session.add(user)
-#             session.commit()
-#
-#         return user.login
-#
-#     def read(self, form_cls):
-#         with SQLASession(engine) as session:
-#             user = session.get(User, self.pk)
-#             if user:
-#                 return form_cls(MultiDict(user.__dict__))
-#
+    def create(self, form):
+        with SQLASession(engine) as session:
+            user = User()
+            form.populate_obj(user)
+            session.add(user)
+            session.commit()
+
+        return user.login
+
+    def read(self, form_cls):
+        with SQLASession(engine) as session:
+            user = session.get(User, self.pk)
+            if user:
+                return form_cls(MultiDict(user.__dict__))
+            return None
+
     def filtered_reads(self, form_cls, filters, offset, limit):
         forms = []
         total = 0
@@ -192,19 +192,20 @@ class RUser(LCRUDResource, Resource):
             'total': total,
             'forms': forms,
         }
-#
-#     def update(self, form):
-#         with SQLASession(engine) as session:
-#             user = session.get(User, self.pk)
-#             if user:
-#                 form.populate_obj(user)
-#                 session.commit()
-#                 return user.login
-#
-#     def delete(self):
-#         with SQLASession(engine) as session:
-#             session.delete(session.get(User, self.pk))
-#             session.commit()
+
+    def update(self, form):
+        with SQLASession(engine) as session:
+            user = session.get(User, self.pk)
+            if user:
+                form.populate_obj(user)
+                session.commit()
+                return user.login
+            return None
+
+    def delete(self) -> None:
+        with SQLASession(engine) as session:
+            session.delete(session.get(User, self.pk))
+            session.commit()
 
 
 myferet.register_toolbar_left_menus([
@@ -279,5 +280,4 @@ if __name__ == "__main__":
     }
     BottleSessions(
         app, session_backing=cache_config, session_cookie='appcookie')
-    debug(True)
-    run(host="localhost", port=8080)
+    run(host="localhost", port=8080, debug=True, reloader=1)

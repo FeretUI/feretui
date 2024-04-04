@@ -1,7 +1,8 @@
 from markupsafe import Markup
-from feretui.response import Response
+
 from feretui.request import Request
 from feretui.resources.actions import SelectedRowsAction
+from feretui.response import Response
 
 
 class MultiViewHeaderButtons:
@@ -16,8 +17,8 @@ class MultiViewHeaderButtons:
                     create_view_qs=self.get_transition_querystring(
                         options,
                         view=self.create_button_redirect_to,
-                    )
-                ))
+                    ),
+                )),
             )
 
         return res
@@ -39,7 +40,7 @@ class ActionsMixinForView:
 
     def call(self, feretui, request):
         if request.method is not Request.POST:
-            raise Exception()
+            raise Exception
 
         method = request.params.get('method')
         if isinstance(method, list):
@@ -53,14 +54,14 @@ class ActionsMixinForView:
                     if action.method == method:
                         if isinstance(action, SelectedRowsAction):
                             view_kwargs.update(
-                                self.get_call_kwargs(request.params)
+                                self.get_call_kwargs(request.params),
                             )
 
                         is_declared = True
                         break
 
         if not is_declared:
-            raise Exception()
+            raise Exception
 
         func = getattr(self.resource, method)
         res = func(feretui, request, **view_kwargs)

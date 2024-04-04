@@ -119,26 +119,14 @@ def feretui_static_file(filepath):
     abort(404)
 
 
-@route('/feretui/action/<action>', method=['GET'])
-def get_action(action):
+@route('/feretui/action/<action>', method=['GET', 'POST'])
+def call_action(action):
     with feretui_session(MySession) as session:
         frequest = Request(
-            method=Request.GET,
+            method=getattr(Request, request.method),
             querystring=request.query_string,
-            headers=dict(request.headers),
-            session=session,
-        )
-        res = myferet.execute_action(frequest, action)
-        add_response_headers(res.headers)
-        return res.body
-
-
-@route('/feretui/action/<action>', method=['POST'])
-def post_action(session, action):
-    with feretui_session(MySession) as session:
-        frequest = Request(
-            method=Request.POST,
             form=MultiDict(request.forms),
+            params=request.params.dict,
             headers=dict(request.headers),
             session=session,
         )

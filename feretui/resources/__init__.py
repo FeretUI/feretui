@@ -36,7 +36,7 @@ class (only if build).
         MyResource.menu,
     ])
 """
-from feretui.resources.actions import Action, SelectedRowsAction, Actionset
+from feretui.resources.actions import Action, Actionset, SelectedRowsAction
 from feretui.resources.list import LResource  # noqa: F401
 
 from .resource import Resource  # noqa: F401
