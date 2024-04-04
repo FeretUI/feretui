@@ -120,4 +120,9 @@
       </div>
     </form>
   </template>
+  <template id="feretui-page-resource">
+    <div hx-target="this" hx-swap="innerHTML" id="resource-{{ code }}">
+      {{ view }}
+    </div>
+  </template>
 </templates>

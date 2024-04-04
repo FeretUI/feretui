@@ -5,7 +5,7 @@ from os import path
 from bottle import abort, app, debug, request, response, route, run, static_file
 from BottleSessions import BottleSessions
 from multidict import MultiDict
-from sqlalchemy import String, create_engine, select  # , func
+from sqlalchemy import String, create_engine, select, func
 
 # Password,
 # PostButtonField,
@@ -24,10 +24,13 @@ from feretui import (
     Request,
     Resource,
     Session,
+    Actionset,
+    Action,
+    SelectedRowsAction,
 )
 
-# from wtforms import StringField, RadioField, SelectField  # , PasswordField
-# from wtforms.validators import InputRequired
+from wtforms import StringField, RadioField, SelectField  # , PasswordField
+from wtforms.validators import InputRequired
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -103,57 +106,60 @@ class RUser(LCRUDResource, Resource):
     code = 'c1'
     label = 'User'
 
+    page_security = None
+    action_security = None
+
+    class Form:
+        login = StringField(validators=[InputRequired()])
+        name = StringField()
+        lang = RadioField(
+            label='Language',
+            choices=[('en', 'English'), ('fr', 'Français')],
+            validators=[InputRequired()],
+            render_kw=dict(vertical=False),
+        )
+        theme = RadioField(
+            choices=[
+                ('journal', 'Journal'),
+                ('minthy', 'Minthy'),
+                ('darkly', 'Darkly'),
+            ],
+            render_kw=dict(vertical=False),
+        )
+
+        @property
+        def pk(self):
+            return self.login
+
     class MetaViewList:
-        pass
 
-        # class List:
-        #     login = True
-        #     name = True
-        #     theme = SelectField()
-        #     print_1 = PostButtonField()
-
-        # class ActionSet_1:
-        #     label = "Python print"
-
-        #     print_1 = PostButtonField('Print(1)', description='test')
-        #     print_10 = PostButtonField()
+        class Form:
+            theme = SelectField(
+                choices=[
+                    ('journal', 'Journal'),
+                    ('minthy', 'Minthy'),
+                    ('darkly', 'Darkly'),
+                ],
+            )
+            lang = None
+            # print_1 = PostButtonField()
 
         # class Filter:
         #     pass
 
-#
-#     class Form:
-#         login = StringField(validators=[InputRequired()])
-#         name = StringField()
-#         lang = RadioField(
-#             label='Language',
-#             choices=[('en', 'English'), ('fr', 'Français')],
-#             validators=[InputRequired()],
-#             render_kw=dict(vertical=False),
-#         )
-#         theme = RadioField(
-#             choices=[
-#                 ('journal', 'Journal'),
-#                 ('minthy', 'Minthy'),
-#                 ('darkly', 'Darkly'),
-#             ],
-#             render_kw=dict(vertical=False),
-#         )
-#
-#         @property
-#         def pk(self):
-#             return self.login
-#
-#
-#     @classmethod
-#     def print_1(cls, feretui, session, pk=None):
-#         print(1, pk)
-#
-#     @classmethod
-#     def print_10(cls, feretui, session, pk=None):
-#         print(10)
-#
-#     @classmethod
+        actions = [
+            Actionset('Print', [
+                Action('Print 1', 'print_1'),
+                SelectedRowsAction('Print 10', 'print_10'),
+            ]),
+        ]
+
+    def print_1(self, feretui, session, **kwargs):
+        print(1, kwargs)
+
+    def print_10(self, feretui, session, **kwargs):
+        print(10, kwargs)
+
 #     def create(self, form):
 #         with SQLASession(engine) as session:
 #             user = User()
@@ -169,24 +175,23 @@ class RUser(LCRUDResource, Resource):
 #             if user:
 #                 return form_cls(MultiDict(user.__dict__))
 #
-#     @classmethod
-#     def filtered_reads(self, form_cls, filters, offset, limit):
-#         forms = []
-#         total = 0
-#         with SQLASession(engine) as session:
-#             stmt = select(User).where()
-#             stmt_count = select(func.count()).select_from(
-#                 stmt.subquery())
-#             total = session.execute(stmt_count).scalars().first()
-#
-#             stmt = stmt.offset(offset).limit(limit)
-#             for user in session.scalars(stmt):
-#                 forms.append(form_cls(MultiDict(user.__dict__)))
-#
-#         return {
-#             'total': total,
-#             'forms': forms,
-#         }
+    def filtered_reads(self, form_cls, filters, offset, limit):
+        forms = []
+        total = 0
+        with SQLASession(engine) as session:
+            stmt = select(User).where()
+            stmt_count = select(func.count()).select_from(
+                stmt.subquery())
+            total = session.execute(stmt_count).scalars().first()
+
+            stmt = stmt.offset(offset).limit(limit)
+            for user in session.scalars(stmt):
+                forms.append(form_cls(MultiDict(user.__dict__)))
+
+        return {
+            'total': total,
+            'forms': forms,
+        }
 #
 #     def update(self, form):
 #         with SQLASession(engine) as session:
@@ -234,27 +239,14 @@ def feretui_static_file(filepath):
     return None
 
 
-@route('/feretui/action/<action>', method=['GET', 'DELETE'])
-def get_action(action):
+@route('/feretui/action/<action>', method=['GET', 'POST'])
+def call_action(action):
     with feretui_session(MySession) as session:
         frequest = Request(
-            method=Request.GET,
+            method=getattr(Request, request.method),
             querystring=request.query_string,
-            headers=dict(request.headers),
-            session=session,
-        )
-        res = myferet.execute_action(frequest, action)
-        add_response_headers(res.headers)
-        return res.body
-
-
-@route('/feretui/action/<action>', method=['POST', 'PUT', 'PATCH'])
-def post_action(action):
-    with feretui_session(MySession) as session:
-        frequest = Request(
-            method=Request.POST,
             form=MultiDict(request.forms),
-            params=MultiDict(request.params),
+            params=request.params.dict,
             headers=dict(request.headers),
             session=session,
         )

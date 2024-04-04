@@ -28,6 +28,8 @@ from feretui.resources.view import View
 from feretui.response import Response
 from feretui.session import Session
 from feretui.thread import local
+from markupsafe import Markup
+
 
 if TYPE_CHECKING:
     from feretui.feretui import FeretUI
@@ -48,6 +50,9 @@ class Resource:
         page_for_authenticated_user_or_goto(page_404))
     action_security: Callable = staticmethod(action_for_authenticated_user)
     default_view: str = None
+
+    class Form:
+        pass
 
     def __init__(self: "Resource") -> None:
         """Resource class."""
@@ -70,6 +75,8 @@ class Resource:
         :type po: PoFile_
         """
         po.append(translation.define(f'{self.context}:label', self.label))
+        for view in self.views.values():
+            view.export_catalog(translation, po)
 
     @classmethod
     def build(cls: "Resource") -> None:
@@ -91,15 +98,21 @@ class Resource:
                 attr.startswith('MetaView')
                 and inspect.isclass(getattr(cls, attr))
             ):
-                view = resource.build_view(attr, getattr(cls, attr))
+                view = resource.build_view(attr)
                 resource.views[view.code] = view
 
         return resource
 
+    def get_meta_view_class(self, view_cls_name):
+        return [
+            getattr(cls, view_cls_name)
+            for cls in self.__class__.__mro__
+            if hasattr(cls, view_cls_name)
+        ]
+
     def build_view(
         self: "Resource",
         view_cls_name: str,
-        view_cls: View,
     ) -> View:
         """Return the view instance in fonction of the MetaView attributes.
 
@@ -134,7 +147,7 @@ class Resource:
         :return: The html page in
         :rtype: str.
         """
-        viewcode = options.get('view', self.default_view)
+        viewcode = options.setdefault('view', self.default_view)
         if isinstance(viewcode, list):
             viewcode = viewcode[0]
 
@@ -145,9 +158,14 @@ class Resource:
             func = page_404 if not view else view.render
 
         if self.page_security:
-            return self.page_security(func)(feretui, session, options)
+            func = self.page_security(func)
 
-        return func(feretui, session, options)
+        return feretui.render_template(
+            session,
+            'feretui-page-resource',
+            view=Markup(func(feretui, session, options)),
+            code=self.code,
+        )
 
     def router(
         self: "Resource",
@@ -193,6 +211,6 @@ class Resource:
 
         func = getattr(view, action)
         if self.action_security:
-            return self.action_security(func)(feretui, request)
+            func = self.action_security(func)
 
         return func(feretui, request)
