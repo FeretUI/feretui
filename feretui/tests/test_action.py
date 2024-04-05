@@ -25,6 +25,7 @@ from feretui.resources.view import View
 from feretui.response import Response
 from feretui.session import Session
 from feretui.thread import local
+from wtforms import StringField
 
 
 class TestAction:
@@ -318,6 +319,9 @@ class TestAction:
             code = 'test'
             label = 'Test'
 
+            class Form:
+                pk = StringField()
+
         myferet.resources['test'].views['test'] = View(
             myferet.resources['test'])
 
@@ -338,6 +342,9 @@ class TestAction:
         class MyResource(Resource):
             code = 'test'
             label = 'Test'
+
+            class Form:
+                pk = StringField()
 
         myferet.resources['test'].views['test'] = View(
             myferet.resources['test'])
@@ -361,6 +368,10 @@ class TestAction:
             label = 'Test'
 
         class MyView(View):
+
+            class Form:
+                pk = StringField()
+
             def foo(self, feretui, request):
                 return Response('bar')
 
@@ -386,6 +397,10 @@ class TestAction:
             action_security = None
 
         class MyView(View):
+
+            class Form:
+                pk = StringField()
+
             def foo(self, feretui, request):
                 return Response('bar')
 

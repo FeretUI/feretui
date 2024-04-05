@@ -1,0 +1,35 @@
+<templates>
+   <template id="feretui-page-resource-action">
+    <a
+      class="button panel-block"
+      hx-post="{{ url }}"
+    >
+      <include template="feretui-icon" />
+      <span>{{ label }}</span>
+      <include template="feretui-description"/>
+    </a>
+  </template>
+  <template id="feretui-page-resource-action-for-selected-rows">
+    <a
+      class="button panel-block selected-buttons-resource-{{ rcode }}-view-{{ vcode }}"
+      hx-post="{{ url }}"
+      disabled
+    >
+      <include template="feretui-icon" />
+      <span>{{ label }}</span>
+      <include template="feretui-description"/>
+    </a>
+  </template>
+  <template id="feretui-page-resource-action-set">
+    <div class="panel mb-4">
+      <p class="panel-heading">
+        <include template="feretui-icon" />
+        <span>{{ label }}</span>
+        <include template="feretui-description"/>
+      </p>
+      {% for action in actions %}
+      {{ action }}
+      {% endfor %}
+    </div>
+  </template>
+</templates>

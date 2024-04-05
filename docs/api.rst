@@ -95,6 +95,14 @@ feretui.resources modules
    :members:
    :private-members:
 
+.. automodule:: feretui.resources.common
+   :members:
+   :private-members:
+
+.. automodule:: feretui.resources.actions
+   :members:
+   :private-members:
+
 
 feretui.helper module
 ---------------------

@@ -74,6 +74,8 @@ class Resource:
         :type po: PoFile_
         """
         po.append(translation.define(f'{self.context}:label', self.label))
+        for view in self.views.values():
+            view.export_catalog(translation, po)
 
     @classmethod
     def build(cls: "Resource") -> None:

@@ -35,7 +35,12 @@ class (only if build).
         MyResource.menu,
     ])
 """
-from .resource import Resource  # noqa: F401
+from feretui.resources.actions import (  # noqa: F401
+    Action,
+    Actionset,
+    SelectedRowsAction,
+)
+from feretui.resources.resource import Resource  # noqa: F401
 
 
 class LCRUDResource:

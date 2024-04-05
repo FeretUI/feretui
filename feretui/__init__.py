@@ -263,6 +263,12 @@ from feretui.menus import (  # noqa : F401
     AsideUrlMenu,
 )
 from feretui.request import Request  # noqa : F401
-from feretui.resources import Resource, LCRUDResource  # noqa: F401
+from feretui.resources import (  # noqa: F401
+    Action,
+    Actionset,
+    LCRUDResource,
+    Resource,
+    SelectedRowsAction,
+)
 from feretui.response import Response  # noqa : F401
 from feretui.session import Session  # noqa : F401

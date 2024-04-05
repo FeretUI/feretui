@@ -301,6 +301,14 @@ class FeretUI:
             Path(feretui_path, 'resources', 'templates', 'resource.tmpl'),
             addons='feretui',
         )
+        self.register_template_file(
+            Path(feretui_path, 'resources', 'templates', 'action.tmpl'),
+            addons='feretui',
+        )
+        self.register_template_file(
+            Path(feretui_path, 'resources', 'templates', 'common.tmpl'),
+            addons='feretui',
+        )
 
         # Static behaviours
         self.statics: dict[str, str] = {}
