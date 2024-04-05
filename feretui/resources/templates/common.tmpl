@@ -10,4 +10,74 @@
       <span>Create</span>
     </button>
   </template>
+  <template id="view-delete-button">
+    <button
+      class="button is-danger selected-buttons-resource-{{ rcode }}-view-{{ vcode }}"
+      hx-get="{{ feretui.base_url }}/action/goto?{{ delete_view_qs }}"
+      disabled="{{ disabled }}"
+    >
+      <span class="icon">
+        <i class="fa-solid fa-trash"></i>
+      </span>
+      <span>Delete</span>
+    </button>
+  </template>
+  <template id="feretui-page-resource-pagination">
+    <div class="columns is-vcentered">
+      <div class="column is-narrow">
+        <div class="buttons">
+          {% for button in header_buttons %}
+          {{ button }}
+          {% endfor %}
+        </div>
+      </div>
+      <div class="column">
+        {% if paginations %}
+        <nav class="pagination" role="pagination" arial-label="pagination">
+          {% if paginations[0] == offset %}
+          <a class="pagination-previous" disabled><i class="fa-solid fa-chevron-left"></i></a>
+          {% endif %}
+          {% if paginations[0] != offset %}
+          <a
+            class="pagination-previous"
+            hx-get="{{ feretui.base_url}}/action/resource?action=pagination&offset={{offset - limit}}"
+          >
+            <i class="fa-solid fa-chevron-left"></i>
+          </a>
+          {% endif %}
+          {% if paginations[-1] == offset %}
+          <a class="pagination-next" disabled><i class="fa-solid fa-chevron-right"></i></a>
+          {% endif %}
+          {% if paginations[-1] != offset %}
+          <a
+            class="pagination-next"
+            hx-get="{{ feretui.base_url}}/action/resource?action=pagination&offset={{offset + limit}}"
+          >
+            <i class="fa-solid fa-chevron-right"></i>
+          </a>
+          {% endif %}
+          <ul class="pagination-list">
+            {% for pagination in paginations %}
+            <li>
+              {% if pagination == offset %}
+              <a class="pagination-link is-current">
+                {{ pagination }}-{{ [pagination + limit - 1, dataset.total]|min }}
+              </a>
+              {% endif %}
+              {% if pagination != offset %}
+              <a
+                class="pagination-link"
+                hx-get="{{ feretui.base_url}}/action/resource?action=pagination&offset={{ pagination }}"
+              >
+                {{ pagination }}-{{ [pagination + limit - 1, dataset.total]|min }}
+              </a>
+              {% endif %}
+            </li>
+            {% endfor %}
+          </ul>
+        </nav>
+        {% endif %}
+      </div>
+    </div>
+  </template>
 </templates>
