@@ -41,7 +41,6 @@ from feretui.resources.actions import (  # noqa: F401
     Actionset,
     SelectedRowsAction,
 )
-
 from feretui.resources.list import LResource  # noqa: F401
 from feretui.resources.resource import Resource  # noqa: F401
 
