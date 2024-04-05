@@ -1,0 +1,13 @@
+<templates>
+  <template id="view-create-button">
+    <button
+      class="button is-primary"
+      hx-get="{{ feretui.base_url }}/action/goto?{{ create_view_qs }}"
+    >
+      <span class="icon">
+        <i class="fa-solid fa-plus"></i>
+      </span>
+      <span>Create</span>
+    </button>
+  </template>
+</templates>

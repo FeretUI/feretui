@@ -12,18 +12,38 @@ The main class to construct a view
 import urllib
 from typing import TYPE_CHECKING
 
+from polib import POFile
+
+from feretui.exceptions import ViewFormError
+from feretui.form import FeretUIForm
 from feretui.pages import page_404
 from feretui.session import Session
 
 if TYPE_CHECKING:
     from feretui.feretui import FeretUI
     from feretui.resources.resource import Resource
+    from feretui.translation import Translation
+
+
+class ViewForm:
+    """View Form for translation."""
+
+    @classmethod
+    def get_context(cls: "ViewForm") -> str:
+        """Return the context for the translation."""
+        if hasattr(cls, 'view'):
+            return f'{cls.view.context}:form'
+
+        return ''
 
 
 class View:
     """View class."""
 
     code: str = None
+
+    class Form:
+        """Form class."""
 
     def __init__(self: "View", resource: "Resource") -> None:
         """View class.
@@ -32,10 +52,26 @@ class View:
         :type resource: :class:`feretui.resources.resource.Resource`
         """
         self.resource = resource
+        self.context = resource.context + f':view:{self.code}'
+        self.form_cls = self.get_form_cls()
 
     def get_label(self: "View") -> str:
         """Return the translated label."""
         return self.resource.get_label()
+
+    def export_catalog(
+        self: "View",
+        translation: "Translation",
+        po: POFile,
+    ) -> None:
+        """Export the translations in the catalog.
+
+        :param translation: The translation instance to add also inside it.
+        :type translation: :class:`.Translation`
+        :param po: The catalog instance
+        :type po: PoFile_
+        """
+        self.form_cls.export_catalog(translation, po)
 
     def render(
         self: "View",
@@ -80,3 +116,15 @@ class View:
                 options[key] = [value]
 
         return urllib.parse.urlencode(options, doseq=True)
+
+    def get_form_cls(self: "View") -> FeretUIForm:
+        """Return the Form for the view."""
+        res = type(
+            f'Form_{self.resource.code}_{self.code}',
+            (self.Form, self.resource.Form, ViewForm, FeretUIForm),
+            {'view': self},
+        )
+        if not hasattr(res, 'pk'):
+            raise ViewFormError(f'The form {res} has no pk')
+
+        return res

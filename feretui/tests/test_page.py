@@ -121,7 +121,7 @@ class TestPage:
         with pytest.raises(UnexistingResourceError):
             resource_page(myferet, session, {'resource': ['test']})
 
-    def test_resource_3(self) -> None:
+    def test_resource_3(self, snapshot) -> None:
         myferet = FeretUI()
         session = Session()
 
@@ -130,12 +130,12 @@ class TestPage:
             code = 'test'
             label = 'Test'
 
-        assert (
-            resource_page(myferet, session, {'resource': ['test']})
-            == page_404(myferet, session, {'page': ['test']})
+        snapshot.assert_match(
+            resource_page(myferet, session, {'resource': ['test']}),
+            'snapshot.html',
         )
 
-    def test_resource_4(self) -> None:
+    def test_resource_4(self, snapshot) -> None:
         myferet = FeretUI()
         session = Session()
 
@@ -146,12 +146,12 @@ class TestPage:
             page_security = staticmethod(
                 page_for_authenticated_user_or_goto(page_forbidden))
 
-        assert (
-            resource_page(myferet, session, {'resource': ['test']})
-            == page_forbidden(myferet, session, {'page': ['test']})
+        snapshot.assert_match(
+            resource_page(myferet, session, {'resource': ['test']}),
+            'snapshot.html',
         )
 
-    def test_resource_5(self) -> None:
+    def test_resource_5(self, snapshot) -> None:
         myferet = FeretUI()
         session = Session()
 
@@ -161,10 +161,11 @@ class TestPage:
             label = 'Test'
             page_security = None
 
-        assert (
+        snapshot.assert_match(
             resource_page(
                 myferet,
                 session,
                 {'resource': ['test'], 'view': ['test']},
-            ) == page_404(myferet, session, {'page': ['test']})
+            ),
+            'snapshot.html',
         )

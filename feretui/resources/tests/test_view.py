@@ -16,10 +16,16 @@ from feretui.resources.view import View
 from feretui.feretui import FeretUI
 from feretui.session import Session
 from feretui.thread import local
+from polib import POFile
+from wtforms import StringField
+from feretui.exceptions import ViewFormError
 
 
 class TView(View):
     code = 'test'
+
+    class Form:
+        pk = StringField()
 
 
 class TResource:
@@ -27,16 +33,18 @@ class TResource:
     class MetaViewTest:
         pass
 
-    def build_view(resource, name, cls):
+    def build_view(self, name):
         if name.startswith('MetaViewTest'):
+            meta_view_cls = self.get_meta_view_class(name)
+            meta_view_cls.append(TView)
             view_cls = type(
                 'TView',
-                (cls, TView),
+                tuple(meta_view_cls),
                 {},
             )
-            return view_cls(resource)
+            return view_cls(self)
 
-        return super().build_view(resource, name, cls)
+        return super().build_view(self, name)
 
 
 class MyResource(TResource, Resource):
@@ -77,3 +85,18 @@ class TestResourceView:
             {'foo': 'bar'},
             bar=['bar'],
         ) == 'foo=bar&bar=bar'
+
+    def test_export_catalog(self):
+        local.feretui = myferet = FeretUI()
+        po = POFile()
+        resource = MyResource.build()
+        resource.export_catalog(myferet.translation, po)
+        assert len(po) == 2
+        form = resource.views['test'].form_cls()
+        assert form.pk.label.text == 'Pk'
+
+    def test_without_pk(self) -> None:
+        with pytest.raises(ViewFormError):
+            resource = MyResource()
+            resource.context = 'test'
+            View(resource)

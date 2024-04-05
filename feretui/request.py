@@ -21,14 +21,17 @@ Example with bottle::
     myferet = FeretUI()
     session = Session()
 
-    @route('/feretui/action/<action>', method=['POST'])
-    def post_action(action):
+    @route('/feretui/action/<action>', method=['GET', 'POST'])
+    def call_action(action):
         frequest = Request(
-            session=session,
-            method=Request.POST,
-            body=request.body.read(),
+            method=getattr(Request, request.method),
+            querystring=request.query_string,
+            form=MultiDict(request.forms),
+            params=request.params.dict,
             headers=dict(request.headers),
+            session=session,
         )
+        res = myferet.do_action(frequest, action)
         ...
 """
 import json

@@ -13,6 +13,7 @@ import inspect
 from collections.abc import Callable
 from typing import TYPE_CHECKING
 
+from markupsafe import Markup
 from polib import POFile
 
 from feretui.exceptions import ResourceError
@@ -49,6 +50,9 @@ class Resource:
     action_security: Callable = staticmethod(action_for_authenticated_user)
     default_view: str = None
 
+    class Form:
+        """The Form class."""
+
     def __init__(self: "Resource") -> None:
         """Resource class."""
         self.views: dict[str, View] = {}
@@ -70,6 +74,8 @@ class Resource:
         :type po: PoFile_
         """
         po.append(translation.define(f'{self.context}:label', self.label))
+        for view in self.views.values():
+            view.export_catalog(translation, po)
 
     @classmethod
     def build(cls: "Resource") -> None:
@@ -91,22 +97,34 @@ class Resource:
                 attr.startswith('MetaView')
                 and inspect.isclass(getattr(cls, attr))
             ):
-                view = resource.build_view(attr, getattr(cls, attr))
-                resource.views[view.code] = view
+                view = resource.build_view(attr)
+                if view:
+                    resource.views[view.code] = view
 
         return resource
+
+    def get_meta_view_class(self: "Resource", view_cls_name: str) -> list:
+        """Return all the meta view class.
+
+        :param view_cls_name: The name of the meta class
+        :type view_cls_name: Class
+        :return: list of the class
+        :rtype: list
+        """
+        return list({
+            getattr(cls, view_cls_name)
+            for cls in self.__class__.__mro__
+            if hasattr(cls, view_cls_name)
+        })
 
     def build_view(
         self: "Resource",
         view_cls_name: str,
-        view_cls: View,
     ) -> View:
         """Return the view instance in fonction of the MetaView attributes.
 
         :param view_cls_name: name of the meta attribute
         :type view_cls_name: str
-        :param view_cls: Meta attributes
-        :type view_cls: class
         :return: An instance of the view
         :rtype: :class:`feretui.resources.view.View`
         """
@@ -134,7 +152,7 @@ class Resource:
         :return: The html page in
         :rtype: str.
         """
-        viewcode = options.get('view', self.default_view)
+        viewcode = options.setdefault('view', self.default_view)
         if isinstance(viewcode, list):
             viewcode = viewcode[0]
 
@@ -145,9 +163,14 @@ class Resource:
             func = page_404 if not view else view.render
 
         if self.page_security:
-            return self.page_security(func)(feretui, session, options)
+            func = self.page_security(func)
 
-        return func(feretui, session, options)
+        return feretui.render_template(
+            session,
+            'feretui-page-resource',
+            view=Markup(func(feretui, session, options)),
+            code=self.code,
+        )
 
     def router(
         self: "Resource",
@@ -193,6 +216,6 @@ class Resource:
 
         func = getattr(view, action)
         if self.action_security:
-            return self.action_security(func)(feretui, request)
+            func = self.action_security(func)
 
         return func(feretui, request)
