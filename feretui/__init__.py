@@ -267,10 +267,10 @@ from feretui.request import Request  # noqa : F401
 from feretui.resources import (  # noqa: F401
     Action,
     Actionset,
+    LResource,
+    LCRUDResource,
     Resource,
     SelectedRowsAction,
-    LCRUDResource,
-    LResource,
 )
 from feretui.response import Response  # noqa : F401
 from feretui.session import Session  # noqa : F401

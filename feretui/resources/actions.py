@@ -1,87 +1,255 @@
+# This file is a part of the FeretUI project
+#
+#    Copyright (C) 2023-2024 Jean-Sebastien SUZANNE <js.suzanne@gmail.com>
+#
+# This Source Code Form is subject to the terms of the Mozilla Public License,
+# v. 2.0. If a copy of the MPL was not distributed with this file,You can
+# obtain one at http://mozilla.org/MPL/2.0/.
+"""feretui.resources.actions's module.
+
+Declare the actions.
+
+"""
+from collections.abc import Callable
+from typing import TYPE_CHECKING
+
 from markupsafe import Markup
+from polib import POFile
+
+from feretui.session import Session
+from feretui.thread import local
+
+if TYPE_CHECKING:
+    from feretui.feretui import FeretUI
+    from feretui.resources.view import View
+    from feretui.translation import Translation
 
 
-class Action:
-    template_id = 'feretui-page-resource-action'
+class ActionI18nMixin:
+    """Mixin to declare and get the translation."""
+
+    def get_label(self: "Action") -> str:
+        """Return the translated label.
+
+        :return: The label translated in the user lang
+        :rtype: str
+        """
+        return local.feretui.translation.get(
+            local.lang,
+            f'{self.context}:label',
+            self.label,
+        )
+
+    def get_description(self: "Action") -> str:
+        """Return the translated description.
+
+        :return: The label translated in the user lang
+        :rtype: str
+        """
+        return local.feretui.translation.get(
+            local.lang,
+            f'{self.context}:description',
+            self.description,
+        )
+
+    def export_catalog(
+        self: "Action",
+        translation: "Translation",
+        po: POFile,
+    ) -> None:
+        """Export the menu translation in the catalog.
+
+        :param translation: The translation instance to add also inside it.
+        :type translation: :class:`.Translation`
+        :param po: The catalog instance
+        :type po: PoFile_
+        """
+        po.append(translation.define(f'{self.context}:label', self.label))
+        if self.description:
+            po.append(translation.define(
+                f'{self.context}:description', self.description))
+
+
+class Action(ActionI18nMixin):
+    """Action class.
+
+    Define an action in actionset in the view meta.
+    """
+
+    template_id: str = 'feretui-page-resource-action'
 
     def __init__(
-        self,
+        self: "Action",
         label: str,
         method: str,
-        visible_callback=None,
-        tooltip=None,
+        icon: str = None,
+        description: str = None,
+        visible_callback: Callable = None,
     ) -> None:
+        """Construct the Action class.
+
+        :param label: The label of the menu
+        :type label: str
+        :param method: The method name to call on the resource
+        :type method: callable
+        :param icon: The icon html class used in the render
+        :type icon: str
+        :param description: The tooltip, it is a helper to understand the
+                            role of the menu
+        :type description: str
+        :param visible_callback: Callback to determine with the session,
+                                 if the menu is visible or not.
+        :type visible_callback: Callback[:class:`feretui.session.Session`, bool]
+        """
         self.label = label
         self.method = method
+        self.icon = icon
+        self.description = description
         self.visible_callback = visible_callback
-        self.tooltip = tooltip
-
-    def get_label(self):
-        return self.label
 
     def render(
-        self,
-        feret,
-        session,
-        resource_code,
-        view_code,
-    ):
-        url = f'{feret.base_url}/action/resource?'
-        url += f'action=call&method={self.method}'
+        self: "Action",
+        feretui: "FeretUI",
+        session: Session,
+        resource_code: str,
+        view_code: str,
+    ) -> Markup:
+        """Return the html of the action.
 
-        return Markup(feret.render_template(
+        :param feretui: The feretui client instance.
+        :type feretui: :class:`feretui.feretui.FeretUI`
+        :param session: The session of the user
+        :type session: :class:`feretui.session.Session`
+        :return: The html
+        :rtype: Markup
+        """
+        return Markup(feretui.render_template(
             session,
             self.template_id,
-            url=url,
+            url=(
+                f'{feretui.base_url}/action/resource?'
+                f'action=call&method={self.method}'
+            ),
             label=self.get_label(),
-            tooltip=self.tooltip,
+            description=self.get_description(),
+            icon=self.icon,
             rcode=resource_code,
             vcode=view_code,
         ))
 
     def is_visible(
-        self,
-        session,
+        self: "Action",
+        session: Session,  # noqa: ARG002
     ) -> bool:
+        """Return True is the action should be displayed.
+
+        :param session: The session of the user
+        :type session: :class:`feretui.session.Session`
+        :rtype: bool
+        """
         return True
 
 
 class SelectedRowsAction(Action):
-    template_id = 'feretui-page-resource-action-for-selected-rows'
+    """SelectedRowsAction class.
+
+    This action is not disabled when an entry is selected.
+    """
+
+    template_id: str = 'feretui-page-resource-action-for-selected-rows'
 
 
-class Actionset:
+class Actionset(ActionI18nMixin):
+    """Actionset class.
 
-    def __init__(self, label: str, actions: list[Action], tooltip=None) -> None:
+    The Actionset is a set of action with a label.
+
+    This need to group the action in the same place
+    """
+
+    def __init__(
+        self: "Actionset",
+        label: str,
+        actions: list[Action],
+        icon: str = None,
+        description: str = None,
+    ) -> None:
+        """Actionset constructor.
+
+        :param label: The label of the menu
+        :type label: str
+        :param actions: The actions in this set
+        :type actions: list[Action]
+        :param icon: The icon html class used in the render
+        :type icon: str
+        :param description: The tooltip, it is a helper to understand the
+                            role of the menu
+        :type description: str
+        """
         self.label = label
         self.actions = actions
-        self.tooltip = tooltip
+        self.icon = icon
+        self.description = description
 
-    def get_label(self):
-        return self.label
+    def export_catalog(
+        self: "View",
+        translation: "Translation",
+        po: POFile,
+    ) -> None:
+        """Export the translations in the catalog.
+
+        :param translation: The translation instance to add also inside it.
+        :type translation: :class:`.Translation`
+        :param po: The catalog instance
+        :type po: PoFile_
+        """
+        super().export_catalog(translation, po)
+        for action in self.actions:
+            action.export_catalog(translation, po)
 
     def render(
-        self,
-        feret,
-        session,
-        resource_code,
-        view_code,
-    ):
-        return Markup(feret.render_template(
+        self: "Actionset",
+        feretui: "FeretUI",
+        session: Session,
+        resource_code: str,
+        view_code: str,
+    ) -> Markup:
+        """Return the html of the action.
+
+        :param feretui: The feretui client instance.
+        :type feretui: :class:`feretui.feretui.FeretUI`
+        :param session: The session of the user
+        :type session: :class:`feretui.session.Session`
+        :param resource_code: the code of the resource
+        :type resource_code: str
+        :param view_code: the code of the view
+        :type view_code: str
+        :return: The html
+        :rtype: Markup
+        """
+        return Markup(feretui.render_template(
             session,
             'feretui-page-resource-action-set',
             label=self.get_label(),
             actions=[
-                action.render(feret, session, resource_code, view_code)
+                action.render(feretui, session, resource_code, view_code)
                 for action in self.actions
                 if action.is_visible(session)
             ],
-            tooltip=self.tooltip,
+            description=self.description,
         ))
 
     def is_visible(
-        self,
-        session,
+        self: "Actionset",
+        session: Session,
     ) -> bool:
-        return all(action.is_visible(session)
-            for action in self.actions)
+        """Return True is the action should be displayed.
+
+        :param session: The session of the user
+        :type session: :class:`feretui.session.Session`
+        :rtype: bool
+        """
+        return all(
+            action.is_visible(session)
+            for action in self.actions
+        )

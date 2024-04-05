@@ -30,6 +30,9 @@ Get the exceptions known by FeretUI:
 * :class:`.MenuError`
 * :class:`.ResourceError`
 * :class:`.UnexistingResourceError`
+* :class:`.ViewError`
+* :class:`.ViewActionError`
+* :class:`.ViewFormError`
 """
 
 
@@ -174,4 +177,25 @@ class UnexistingResourceError(FeretUIError):
     """Exception raised by resource mecanism in FeretUI object.
 
     Inherits :class:`.ResourceError`.
+    """
+
+
+class ViewError(FeretUIError):
+    """Exception raised by resource mecanism in FeretUI object.
+
+    Inherits :class:`.ResourceError`.
+    """
+
+
+class ViewActionError(FeretUIError):
+    """Exception raised by resource mecanism in FeretUI object.
+
+    Inherits :class:`.ViewError`.
+    """
+
+
+class ViewFormError(FeretUIError):
+    """Exception raised by resource mecanism in FeretUI object.
+
+    Inherits :class:`.ViewError`.
     """
