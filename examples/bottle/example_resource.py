@@ -247,7 +247,7 @@ def call_action(action):
             method=getattr(Request, request.method),
             querystring=request.query_string,
             form=MultiDict(request.forms),
-            params=request.params.dict,
+            params=request.params,
             headers=dict(request.headers),
             session=session,
         )

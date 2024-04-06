@@ -111,11 +111,11 @@ class Resource:
         :return: list of the class
         :rtype: list
         """
-        return list(
+        return [
             getattr(cls, view_cls_name)
             for cls in self.__class__.__mro__
-            if hasattr(cls, view_cls_name)
-        )
+            if view_cls_name in cls.__dict__
+        ]
 
     def build_view(
         self: "Resource",
