@@ -26,14 +26,14 @@ from markupsafe import Markup
 from polib import POFile
 from wtforms.fields import Field
 
-from feretui.resources.common import ActionsMixinForView, MultiViewHeaderButtons
+from feretui.resources.common import MultiView
 
 # from feretui.exceptions import ResourceError
 # from feretui.request import Request
 # from feretui.response import Response
 # from feretui.session import Session
 from feretui.resources.view import View
-from feretui.response import Response
+# from feretui.response import Response
 from feretui.thread import local
 
 from .resource import Resource
@@ -59,10 +59,10 @@ class DefaultViewList:
     limit: int = 20
     create_button_redirect_to: str = None
     delete_button_redirect_to: str = None
-    do_click_on_row_redirect_to: str = None
+    do_click_on_entry_redirect_to: str = None
 
 
-class ListView(ActionsMixinForView, MultiViewHeaderButtons, View):
+class ListView(MultiView, View):
     code: str = 'list'
     WIDGETS: dict[str, Field] = {}
 
@@ -121,61 +121,15 @@ class ListView(ActionsMixinForView, MultiViewHeaderButtons, View):
 
     def render(
         self,
-        feret,
+        feretui,
         session,
         options: dict,
     ) -> str:
-        offset = options.get('offset', 0)
-        if isinstance(offset, list):
-            offset = offset[0]
-
-        offset = int(offset)
-        dataset = self.resource.filtered_reads(
-            self.form_cls,
-            None,  # filters,
-            offset,
-            self.limit,
-        )
-        paginations = range(0, dataset['total'], self.limit)
-
-        open_view_qs = (
-            self.get_transition_querystring(
-                options,
-                pk=None,
-                view=self.do_click_on_row_redirect_to,
-            ) if self.do_click_on_row_redirect_to
-            else None
-        )
-        return feret.render_template(
+        return feretui.render_template(
             session,
             'feretui-resource-list',
-            rcode=self.resource.code,
-            vcode=self.code,
-            label=self.get_label(),
-            form=self.form_cls(),
             widget=self.widget,
-            offset=offset,
-            limit=self.limit,
-            paginations=paginations,
-            dataset=dataset,
-            actions=self.get_actions(feret, session),
-            open_view_qs=open_view_qs,
-            header_buttons=self.get_header_buttons(
-                feret,
-                session,
-                options,
-            ),
-        )
-
-    def pagination(self, feretui, request):
-        newqs = request.get_query_string_from_current_url().copy()
-        base_url = request.get_base_url_from_current_url()
-        newqs['offset'] = request.query['offset']
-        return Response(
-            self.render(feretui, request.session, newqs),
-            headers={
-                'HX-Push-Url': request.get_url_from_dict(base_url, newqs),
-            },
+            **self.render_kwargs(feretui, session, options)
         )
 
 
