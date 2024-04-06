@@ -18,11 +18,8 @@ from feretui.session import Session
 from feretui.thread import local
 from polib import POFile
 from wtforms import StringField
-from feretui.exceptions import ViewActionError
-from feretui.resources.common import (
-    ActionsMixinForView,
-    MultiViewHeaderButtons,
-)
+from feretui.exceptions import ViewActionError, ViewError
+from feretui.resources.common import (ActionsMixinForView, MultiView)
 from feretui.resources.actions import Actionset, SelectedRowsAction
 from feretui.request import Request
 
@@ -41,17 +38,82 @@ class MyViewWithAction(ActionsMixinForView, View):
     ]
 
 
-class TestCommon:
+class MultiResource(Resource):
 
-    def test_MultiViewHeaderButtons(self, snapshot):
+    def filtered_reads(self, form_cls, filters, offset, limit):
+        return {'total': 0, 'forms': []}
 
-        class MyView(MultiViewHeaderButtons, View):
+
+class TestMultiView:
+
+    def test_init_1(self):
+
+        class MyView(MultiView, View):
+            create_button_redirect_to = 'other'
+            do_click_on_entry_redirect_to = 'other'
+
+            class Form:
+                pk = StringField()
+
+        resource = MultiResource()
+        resource.context = 'test'
+        with pytest.raises(ViewError):
+            MyView(resource)
+
+    def test_init_2(self):
+
+        class MyView(MultiView, View):
+            limit = 15
+            do_click_on_entry_redirect_to = 'other'
+
+            class Form:
+                pk = StringField()
+
+        resource = MultiResource()
+        resource.context = 'test'
+        with pytest.raises(ViewError):
+            MyView(resource)
+
+    def test_init_3(self):
+
+        class MyView(MultiView, View):
+            limit = 15
             create_button_redirect_to = 'other'
 
             class Form:
                 pk = StringField()
 
+        resource = MultiResource()
+        resource.context = 'test'
+        with pytest.raises(ViewError):
+            MyView(resource)
+
+    def test_init_4(self):
+
+        class MyView(MultiView, View):
+            limit = 15
+            create_button_redirect_to = 'other'
+            do_click_on_entry_redirect_to = 'other'
+
+            class Form:
+                pk = StringField()
+
         resource = Resource()
+        resource.context = 'test'
+        with pytest.raises(ViewError):
+            MyView(resource)
+
+    def test_get_header_buttons(self, snapshot):
+
+        class MyView(MultiView, View):
+            limit = 15
+            create_button_redirect_to = 'other'
+            do_click_on_entry_redirect_to = 'other'
+
+            class Form:
+                pk = StringField()
+
+        resource = MultiResource()
         resource.context = 'test'
         view = MyView(resource)
         local.feretui = feretui = FeretUI()
@@ -60,6 +122,47 @@ class TestCommon:
             view.get_header_buttons(feretui, session, dict())[0],
             'snapshot.html',
         )
+
+    def test_render_kwargs(self):
+
+        class MyView(MultiView, View):
+            limit = 15
+            create_button_redirect_to = 'other'
+            do_click_on_entry_redirect_to = 'other'
+
+            class Form:
+                pk = StringField()
+
+        resource = MultiResource()
+        resource.context = 'test'
+        view = MyView(resource)
+        local.feretui = feretui = FeretUI()
+        session = Session()
+
+        assert view.render_kwargs(feretui, session, {'offset': [0]})
+
+    def test_call_pagination(self):
+        local.feretui = myferet = FeretUI()
+        session = Session()
+        request = Request(
+            method=Request.POST,
+            querystring='offset=0',
+            session=session,
+            headers={'Hx-Current-Url': '/test?resource=test'},
+        )
+
+        class MyView(MultiView, View):
+            limit = 15
+            create_button_redirect_to = 'other'
+            do_click_on_entry_redirect_to = 'other'
+
+            class Form:
+                pk = StringField()
+
+        resource = MultiResource()
+        resource.context = 'test'
+        view = MyView(resource)
+        assert view.pagination(myferet, request).body is not None
 
 
 class TestCommonActionsMixinForView:
