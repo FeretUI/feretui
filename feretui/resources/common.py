@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING
 from markupsafe import Markup
 from polib import POFile
 
-from feretui.exceptions import ViewActionError
+from feretui.exceptions import ViewActionError, ViewError
 from feretui.request import Request
 from feretui.resources.actions import Actionset, SelectedRowsAction
 from feretui.response import Response
@@ -20,45 +20,6 @@ from feretui.session import Session
 if TYPE_CHECKING:
     from feretui.feretui import FeretUI
     from feretui.translation import Translation
-
-
-class MultiViewHeaderButtons:
-    """MultiViewHeaderButtons class.
-
-    Render the buttons for view multi.
-    """
-
-    def get_header_buttons(
-        self: "MultiViewHeaderButtons",
-        feretui: "FeretUI",
-        session: Session,
-        options: dict,
-    ) -> list[Markup]:
-        """Return the buttons for the multi view.
-
-        :param feretui: The feretui client
-        :type feretui: :class:`feretui.feretui.FeretUI`
-        :param session: The Session
-        :type session: :class:`feretui.session.Session`
-        :param options: The options come from the body or the query string
-        :type options: dict
-        :return: The html pages
-        :rtype: list[Markup]
-        """
-        res = []
-        if self.create_button_redirect_to:
-            res.append(
-                Markup(feretui.render_template(
-                    session,
-                    'view-create-button',
-                    create_view_qs=self.get_transition_querystring(
-                        options,
-                        view=self.create_button_redirect_to,
-                    ),
-                )),
-            )
-
-        return res
 
 
 class ActionsMixinForView:
@@ -173,7 +134,7 @@ class ActionsMixinForView:
 
         if not is_declared:
             raise ViewActionError(
-                f'The method {method} is not declared in the {self.resource}',
+                f'The method {method} is not declared in the {self}',
             )
 
         func = getattr(self.resource, method)
@@ -186,3 +147,147 @@ class ActionsMixinForView:
             res = Response(res)
 
         return res
+
+
+class MultiView(ActionsMixinForView):
+    """MultiView class.
+
+    Render the buttons for view multi.
+    """
+
+    def __init__(self: "MultiView", *args: tuple, **kwargs: dict) -> None:
+        """MultiView constructor."""
+        super().__init__(*args, **kwargs)
+        if not hasattr(self, 'limit'):
+            raise ViewError("The view has not a 'limit : int' class attribute")
+
+        if not hasattr(self, 'do_click_on_entry_redirect_to'):
+            raise ViewError(
+                "The view has not a 'do_click_on_entry_redirect_to : str' "
+                "class attribute",
+            )
+
+        if not hasattr(self, 'create_button_redirect_to'):
+            raise ViewError(
+                "The view has not a 'create_button_redirect_to : str' "
+                "class attribute",
+            )
+
+        if not hasattr(self.resource, 'filtered_reads'):
+            raise ViewError(
+                "The resource has not a 'filtered_reads' method\n"
+                "def filtered_reads(self, form_cls, filters, offset, limit):\n"
+                "    return {'total': 0, 'forms': []}",
+            )
+
+    def get_header_buttons(
+        self: "MultiView",
+        feretui: "FeretUI",
+        session: Session,
+        options: dict,
+    ) -> list[Markup]:
+        """Return the buttons for the multi view.
+
+        :param feretui: The feretui client
+        :type feretui: :class:`feretui.feretui.FeretUI`
+        :param session: The Session
+        :type session: :class:`feretui.session.Session`
+        :param options: The options come from the body or the query string
+        :type options: dict
+        :return: The html pages
+        :rtype: list[Markup]
+        """
+        res = []
+        if self.create_button_redirect_to:
+            res.append(
+                Markup(feretui.render_template(
+                    session,
+                    'view-create-button',
+                    create_view_qs=self.get_transition_querystring(
+                        options,
+                        view=self.create_button_redirect_to,
+                    ),
+                )),
+            )
+
+        return res
+
+    def render_kwargs(
+        self: "MultiView",
+        feretui: "FeretUI",
+        session: Session,
+        options: dict,
+    ) -> dict:
+        """Return the dict of parameter need for  the muti view.
+
+        :param feretui: The feretui client
+        :type feretui: :class:`feretui.feretui.FeretUI`
+        :param session: The Session
+        :type session: :class:`feretui.session.Session`
+        :param options: The options come from the body or the query string
+        :type options: dict
+        :return: the named attributes
+        :rtype: dict
+        """
+        offset = options.get('offset', 0)
+        if isinstance(offset, list):
+            offset = offset[0]
+
+        offset = int(offset)
+        dataset = self.resource.filtered_reads(
+            self.form_cls,
+            None,  # filters,
+            offset,
+            self.limit,
+        )
+        paginations = range(0, dataset['total'], self.limit)
+
+        open_view_qs = (
+            self.get_transition_querystring(
+                options,
+                pk=None,
+                view=self.do_click_on_entry_redirect_to,
+            ) if self.do_click_on_entry_redirect_to
+            else None
+        )
+        return {
+            "rcode": self.resource.code,
+            "vcode": self.code,
+            "label": self.get_label(),
+            "form": self.form_cls(),
+            "offset": offset,
+            "limit": self.limit,
+            "paginations": paginations,
+            "dataset": dataset,
+            "open_view_qs": open_view_qs,
+            "header_buttons": self.get_header_buttons(
+                feretui,
+                session,
+                options,
+            ),
+            "actions": self.get_actions(feretui, session),
+        }
+
+    def pagination(
+        self: "MultiView",
+        feretui: "FeretUI",
+        request: Request,
+    ) -> Response:
+        """Change the pagination call by the resource router.
+
+        :param feretui: The feretui client
+        :type feretui: :class:`feretui.feretui.FeretUI`
+        :param request: The request
+        :type request: :class:`feretui.request.Request`
+        :return: The page to display
+        :rtype: :class:`feretui.response.Response`
+        """
+        newqs = request.get_query_string_from_current_url().copy()
+        base_url = request.get_base_url_from_current_url()
+        newqs['offset'] = request.query['offset']
+        return Response(
+            self.render(feretui, request.session, newqs),
+            headers={
+                'HX-Push-Url': request.get_url_from_dict(base_url, newqs),
+            },
+        )

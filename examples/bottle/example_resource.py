@@ -142,11 +142,11 @@ class RUser(LCRUDResource, Resource):
         # class Filter:
         #     pass
 
-    def print_1(self, feretui, session, pks=None) -> None:
-        print(1, pks)
+    def print_1(self, *a, **kw) -> None:
+        print(1, a, kw)
 
-    def print_10(self, feretui, session, pks=None) -> None:
-        print(10, pks)
+    def print_10(self, *a, **kw) -> None:
+        print(10, a, kw)
 
     def create(self, form):
         with SQLASession(engine) as session:
@@ -236,7 +236,7 @@ def call_action(action):
             method=getattr(Request, request.method),
             querystring=request.query_string,
             form=MultiDict(request.forms),
-            params=MultiDict(request.params),
+            params=request.params,
             headers=dict(request.headers),
             session=session,
         )
