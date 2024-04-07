@@ -229,6 +229,14 @@ class MultiView(ActionsMixinForView):
         :return: the named attributes
         :rtype: dict
         """
+        filters = [
+            (key[7:-1], values)
+            for key, values in options.items()
+            if (
+                key.startswith('filter[')
+                and key[-1] == ']'
+            )
+        ]
         offset = options.get('offset', 0)
         if isinstance(offset, list):
             offset = offset[0]
@@ -236,7 +244,7 @@ class MultiView(ActionsMixinForView):
         offset = int(offset)
         dataset = self.resource.filtered_reads(
             self.form_cls,
-            None,  # filters,
+            filters,
             offset,
             self.limit,
         )
@@ -259,6 +267,7 @@ class MultiView(ActionsMixinForView):
             "limit": self.limit,
             "paginations": paginations,
             "dataset": dataset,
+            'filters': filters,
             "open_view_qs": open_view_qs,
             "header_buttons": self.get_header_buttons(
                 feretui,

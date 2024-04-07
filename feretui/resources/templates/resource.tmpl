@@ -2,17 +2,35 @@
   <template id="feretui-resource-list">
     <div id="resource-{{ rcode }}-view-{{ vcode }}" class="container is-fluid">
       <form>
+        <div class="columns is-vcentered">
+          <div class="column content">
+            <h1>{{ label }} <small>({{ dataset.total }})</small></h1>
+          </div>
+          <div class="column is-narrow">
+            <div class="field is-grouped is-grouped-multiline">
+            {% for fname, values in filters %}
+              <div class="control">
+                <div class="tags has-addons">
+                  <span class="tag is-dark">{{ fname }}</span>
+                  {% for value in values %}
+                  <span class="tag is-info">
+                    {{ value }}
+                    <button
+                      class="delete"
+                      hx-delete="/feretui/action/resource?action=filters&{{fname}}={{value}}"
+                    >
+                    </button>
+                  </span>
+                  {% endfor %}
+                </div>
+              </div>
+            {% endfor %}
+            </div>
+          </div>
+        </div>
         <div class="columns">
           <div class="column">
-            <div class="columns is-vcentered">
-              <div class="column is-2 content">
-                <h1>{{ label }} <small>({{ dataset.total }})</small></h1>
-              </div>
-              <div class="column">
-                <!-- filters -->
-              </div>
-            </div>
-            <include template="feretui-page-resource-pagination" />
+            <include template="view-pagination" />
             <div class="table-container">
               <table class="table is-fullwidth is-striped">
                 <thead>
@@ -24,6 +42,7 @@
                         _="
                           on click 
                           set <input[name='selected-rows-resource-{{ rcode }}-view-{{ vcode }}']/>'s checked to my.checked 
+                          set <input[name='selected-table-resource-{{ rcode }}-view-{{ vcode }}']/>'s checked to my.checked 
                           if me.checked
                             set .selected-buttons-resource-{{ rcode }}-view-{{ vcode }} @disabled to undefined
                           else
@@ -75,7 +94,22 @@
                 </tbody>
                 <tfoot>
                   <tr>
-                    <th></th>
+                    <th class="is-narrow">
+                      <input
+                        type="checkbox"
+                        name="selected-table-resource-{{ rcode }}-view-{{ vcode }}"
+                        _="
+                          on click 
+                          set <input[name='selected-rows-resource-{{ rcode }}-view-{{ vcode }}']/>'s checked to my.checked 
+                          set <input[name='selected-table-resource-{{ rcode }}-view-{{ vcode }}']/>'s checked to my.checked 
+                          if me.checked
+                            set .selected-buttons-resource-{{ rcode }}-view-{{ vcode }} @disabled to undefined
+                          else
+                            set .selected-buttons-resource-{{ rcode }}-view-{{ vcode }} @disabled to 'disabled'
+                          end
+                        "
+                      />
+                    </th>
                     {% for field in form %}
                     <th id="{{ field.name }}">{{ field.label.text }}</th>
                     {% endfor %}
@@ -83,7 +117,7 @@
                 </tfoot>
               </table>
             </div>
-            <include template="feretui-page-resource-pagination" />
+            <include template="view-pagination" />
         </div>
           {% if actions %}
             <div class="column is-2">

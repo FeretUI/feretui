@@ -82,6 +82,7 @@ class MySession(Session):
     def __init__(self, user_id=None, **kwargs) -> None:
         super().__init__(**kwargs)
         self.user_id = user_id
+        self.theme = 'darkly'
 
     def login(self, form) -> bool:
         with SQLASession(engine) as session:
@@ -180,6 +181,14 @@ class RUser(LCRUDResource, Resource):
         total = 0
         with SQLASession(engine) as session:
             stmt = select(User).where()
+            for key, values in filters:
+                if len(values) == 1:
+                    stmt = stmt.filter(
+                        getattr(User, key).ilike(f'%{values[0]}%')
+                    )
+                elif len(values) > 1:
+                    stmt = stmt.filter(getattr(User, key).in_(values))
+
             stmt_count = select(func.count()).select_from(
                 stmt.subquery())
             total = session.execute(stmt_count).scalars().first()
@@ -240,7 +249,7 @@ def feretui_static_file(filepath):
     return None
 
 
-@route('/feretui/action/<action>', method=['GET', 'POST'])
+@route('/feretui/action/<action>', method=['DELETE', 'GET', 'POST'])
 def call_action(action):
     with feretui_session(MySession) as session:
         frequest = Request(

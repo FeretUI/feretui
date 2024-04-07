@@ -29,9 +29,10 @@ from wtforms.fields import Field
 from feretui.resources.common import MultiView
 
 # from feretui.exceptions import ResourceError
-# from feretui.request import Request
-# from feretui.response import Response
-# from feretui.session import Session
+from feretui.form import FeretUIForm
+from feretui.request import Request
+from feretui.response import Response
+from feretui.session import Session
 from feretui.resources.view import View
 # from feretui.response import Response
 from feretui.thread import local
@@ -39,7 +40,7 @@ from feretui.thread import local
 from .resource import Resource
 
 if TYPE_CHECKING:
-    # from feretui.feretui import FeretUI
+    from feretui.feretui import FeretUI
     from feretui.translation import Translation
 
 
@@ -61,10 +62,30 @@ class DefaultViewList:
     delete_button_redirect_to: str = None
     do_click_on_entry_redirect_to: str = None
 
+    class Filter:
+        pass
+
 
 class ListView(MultiView, View):
     code: str = 'list'
     WIDGETS: dict[str, Field] = {}
+
+    def __init__(
+        self: "ListView",
+        *args: tuple,
+        **kwargs: dict,
+    ) -> None:
+        """ActionsMixinForView constructor."""
+        super().__init__(*args, **kwargs)
+        self.filter_cls = self.get_filter_cls()
+
+    def get_filter_cls(self: "ListView") -> FeretUIForm:
+        """Return the Form for the view."""
+        return type(
+            f'Filter_{self.resource.code}_{self.code}',
+            (self.Filter, self.form_cls),
+            {'view': self},
+        )
 
     def get_label(self: "View") -> str:
         """Return the translated label."""
@@ -76,7 +97,7 @@ class ListView(MultiView, View):
         )
 
     def export_catalog(
-        self: "Resource",
+        self: "ListView",
         translation: "Translation",
         po: POFile,
     ) -> None:
@@ -87,11 +108,39 @@ class ListView(MultiView, View):
         :param po: The catalog instance
         :type po: PoFile_
         """
+        super().export_catalog(translation, po)
         if self.label:
             po.append(translation.define(f'{self.context}:label', self.label))
 
+        self.filter_cls.export_catalog(translation, po)
+
     def widget(self, field, **kwargs):
         return self.WIDGETS.get(field.__class__, span_widget)(field, **kwargs)
+
+    def get_actions(
+        self: "ListView",
+        feretui: "FeretUI",
+        session: Session,
+    ) -> list[Markup]:
+        """Return the actionset list renderer.
+
+        :param feretui: The feretui client
+        :type feretui: :class:`feretui.feretui.FeretUI`
+        :param session: The Session
+        :type session: :class:`feretui.session.Session`
+        :return: The html pages
+        :rtype: list[str]
+        """
+        res = [
+            Markup(feretui.render_template(
+                session,
+                'view-filter',
+                form=self.filter_cls(),
+                hx_post=f'{ feretui.base_url}/action/resource?action=filters'
+            ))
+        ]
+        res.extend(super().get_actions(feretui, session))
+        return res
 
     def get_call_kwargs(self, params):
         res = super().get_call_kwargs(params)
@@ -130,6 +179,36 @@ class ListView(MultiView, View):
             'feretui-resource-list',
             widget=self.widget,
             **self.render_kwargs(feretui, session, options)
+        )
+
+    def filters(self, feretui, request):
+        qs = request.get_query_string_from_current_url()
+        qs['offset'] = 0
+
+        for param, values in request.params.items():
+            if param == 'action':
+                continue
+
+            existing = qs.setdefault(f'filter[{param}]', [])
+            if request.method == Request.POST:
+                for value in values:
+                    if value not in existing:
+                        existing.append(value)
+            elif request.method == Request.DELETE:
+                for value in values:
+                    if value in existing:
+                        existing.remove(value)
+
+                if not existing:
+                    del qs[f'filter[{param}]']
+
+        base_url = request.get_base_url_from_current_url()
+        url = request.get_url_from_dict(base_url=base_url, querystring=qs)
+        return Response(
+            self.render(feretui, request.session, qs),
+            headers={
+                'HX-Push-Url': url,
+            }
         )
 
 

@@ -22,7 +22,7 @@
       <span>Delete</span>
     </button>
   </template>
-  <template id="feretui-page-resource-pagination">
+  <template id="view-pagination">
     <div class="columns is-vcentered">
       <div class="column is-narrow">
         <div class="buttons">
@@ -78,6 +78,20 @@
         </nav>
         {% endif %}
       </div>
+    </div>
+  </template>
+  <template id="view-filter">
+    <div class="panel mb-4">
+      <p class="panel-heading">
+        <span>Filter</span>
+      </p>
+      {% for field in form %}
+      <div class="panel-block">
+        <div class="container">
+        {{ field(**{'hx-post': hx_post, 'hx-params': field.name, 'hx-trigger': "keyup[key=='Enter'],blur"}) }}
+      </div>
+      </div>
+      {% endfor %}
     </div>
   </template>
 </templates>
