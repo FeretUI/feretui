@@ -80,6 +80,34 @@
       </div>
     </div>
   </template>
+  <template id="view-multi-header">
+    <div class="columns is-vcentered">
+      <div class="column content">
+        <h1>{{ label }} <small>({{ dataset.total }})</small></h1>
+      </div>
+      <div class="column is-narrow">
+        <div class="field is-grouped is-grouped-multiline">
+        {% for fname, values in filters %}
+          <div class="control">
+            <div class="tags has-addons">
+              <span class="tag is-dark">{{ fname }}</span>
+              {% for value in values %}
+              <span class="tag is-info">
+                {{ value }}
+                <button
+                  class="delete"
+                  hx-delete="/feretui/action/resource?action=filters&{{ fname }}={{ value }}"
+                >
+                </button>
+              </span>
+              {% endfor %}
+            </div>
+          </div>
+        {% endfor %}
+        </div>
+      </div>
+    </div>
+  </template>
   <template id="view-filter">
     <div class="panel mb-4">
       <p class="panel-heading">
