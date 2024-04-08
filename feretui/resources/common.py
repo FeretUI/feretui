@@ -12,6 +12,7 @@ from markupsafe import Markup
 from polib import POFile
 
 from feretui.exceptions import ViewActionError, ViewError
+from feretui.form import FeretUIForm
 from feretui.request import Request
 from feretui.resources.actions import Actionset, SelectedRowsAction
 from feretui.response import Response
@@ -155,6 +156,9 @@ class MultiView(ActionsMixinForView):
     Render the buttons for view multi.
     """
 
+    class Filter:
+        """Filter's Form."""
+
     def __init__(self: "MultiView", *args: tuple, **kwargs: dict) -> None:
         """MultiView constructor."""
         super().__init__(*args, **kwargs)
@@ -173,12 +177,45 @@ class MultiView(ActionsMixinForView):
                 "class attribute",
             )
 
+        if not hasattr(self, 'delete_button_redirect_to'):
+            raise ViewError(
+                "The view has not a 'delete_button_redirect_to : str' "
+                "class attribute",
+            )
+
         if not hasattr(self.resource, 'filtered_reads'):
             raise ViewError(
                 "The resource has not a 'filtered_reads' method\n"
                 "def filtered_reads(self, form_cls, filters, offset, limit):\n"
                 "    return {'total': 0, 'forms': []}",
             )
+
+        self.filter_cls = self.get_filter_cls()
+
+    def export_catalog(
+        self: "MultiView",
+        translation: "Translation",
+        po: POFile,
+    ) -> None:
+        """Export the translations in the catalog.
+
+        :param translation: The translation instance to add also inside it.
+        :type translation: :class:`.Translation`
+        :param po: The catalog instance
+        :type po: PoFile_
+        """
+        super().export_catalog(translation, po)
+        self.filter_cls.export_catalog(translation, po)
+
+    def get_filter_cls(self: "MultiView") -> FeretUIForm:
+        """Return the Filter Form for the view."""
+        return type(
+            f'Filter_{self.resource.code}_{self.code}',
+            (self.Filter, self.form_cls),
+            {'view': self},
+        )
+
+    # ---------- Render -------------------
 
     def get_header_buttons(
         self: "MultiView",
@@ -209,7 +246,45 @@ class MultiView(ActionsMixinForView):
                     ),
                 )),
             )
+        if self.delete_button_redirect_to:
+            res.append(
+                Markup(feretui.render_template(
+                    session,
+                    'view-delete-button',
+                    delete_view_qs=self.get_transition_querystring(
+                        options,
+                        view=self.delete_button_redirect_to,
+                    ),
+                    rcode=self.resource.code,
+                    vcode=self.code,
+                )),
+            )
 
+        return res
+
+    def get_actions(
+        self: "MultiView",
+        feretui: "FeretUI",
+        session: Session,
+    ) -> list[Markup]:
+        """Return the actionset list renderer.
+
+        :param feretui: The feretui client
+        :type feretui: :class:`feretui.feretui.FeretUI`
+        :param session: The Session
+        :type session: :class:`feretui.session.Session`
+        :return: The html pages
+        :rtype: list[str]
+        """
+        res = [
+            Markup(feretui.render_template(
+                session,
+                'view-filter',
+                form=self.filter_cls(),
+                hx_post=f'{feretui.base_url}/action/resource?action=filters',
+            )),
+        ]
+        res.extend(super().get_actions(feretui, session))
         return res
 
     def render_kwargs(
@@ -267,7 +342,7 @@ class MultiView(ActionsMixinForView):
             "limit": self.limit,
             "paginations": paginations,
             "dataset": dataset,
-            'filters': filters,
+            "filters": filters,
             "open_view_qs": open_view_qs,
             "header_buttons": self.get_header_buttons(
                 feretui,
@@ -276,6 +351,8 @@ class MultiView(ActionsMixinForView):
             ),
             "actions": self.get_actions(feretui, session),
         }
+
+    # ---------------- View actions -------------------------
 
     def pagination(
         self: "MultiView",
@@ -298,5 +375,53 @@ class MultiView(ActionsMixinForView):
             self.render(feretui, request.session, newqs),
             headers={
                 'HX-Push-Url': request.get_url_from_dict(base_url, newqs),
+            },
+        )
+
+    def filters(
+        self: "MultiView",
+        feretui: "FeretUI",
+        request: Request,
+    ) -> Response:
+        """Change the filters and rerender.
+
+        The type of modification of the filter depend of the request method:
+
+        * POST : add a filter
+        * DELETE : remove a filter
+
+        :param feretui: The feretui client
+        :type feretui: :class:`feretui.feretui.FeretUI`
+        :param request: The request
+        :type request: :class:`feretui.request.Request`
+        :return: The page to display
+        :rtype: :class:`feretui.response.Response`
+        """
+        qs = request.get_query_string_from_current_url()
+        qs['offset'] = 0
+
+        for param, values in request.params.items():
+            if param == 'action':
+                continue
+
+            existing = qs.setdefault(f'filter[{param}]', [])
+            if request.method == Request.POST:
+                for value in values:
+                    if value not in existing:
+                        existing.append(value)
+            elif request.method == Request.DELETE:
+                for value in values:
+                    if value in existing:
+                        existing.remove(value)
+
+                if not existing:
+                    del qs[f'filter[{param}]']
+
+        base_url = request.get_base_url_from_current_url()
+        url = request.get_url_from_dict(base_url=base_url, querystring=qs)
+        return Response(
+            self.render(feretui, request.session, qs),
+            headers={
+                'HX-Push-Url': url,
             },
         )

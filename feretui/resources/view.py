@@ -32,7 +32,7 @@ class ViewForm:
     def get_context(cls: "ViewForm") -> str:
         """Return the context for the translation."""
         if hasattr(cls, 'view'):
-            return f'{cls.view.context}:form'
+            return f'{cls.view.context}:form:{cls.__name__}'
 
         return ''
 
