@@ -10,7 +10,19 @@
       <span>Create</span>
     </button>
   </template>
-  <template id="feretui-page-resource-pagination">
+  <template id="view-delete-button">
+    <button
+      class="button is-danger selected-buttons-resource-{{ rcode }}-view-{{ vcode }}"
+      hx-get="{{ feretui.base_url }}/action/goto?{{ delete_view_qs }}"
+      disabled="{{ disabled }}"
+    >
+      <span class="icon">
+        <i class="fa-solid fa-trash"></i>
+      </span>
+      <span>Delete</span>
+    </button>
+  </template>
+  <template id="view-pagination">
     <div class="columns is-vcentered">
       <div class="column is-narrow">
         <div class="buttons">
@@ -66,6 +78,48 @@
         </nav>
         {% endif %}
       </div>
+    </div>
+  </template>
+  <template id="view-multi-header">
+    <div class="columns is-vcentered">
+      <div class="column content">
+        <h1>{{ label }} <small>({{ dataset.total }})</small></h1>
+      </div>
+      <div class="column is-narrow">
+        <div class="field is-grouped is-grouped-multiline">
+        {% for fname, values in filters %}
+          <div class="control">
+            <div class="tags has-addons">
+              <span class="tag is-dark">{{ fname }}</span>
+              {% for value in values %}
+              <span class="tag is-info">
+                {{ value }}
+                <button
+                  class="delete"
+                  hx-delete="/feretui/action/resource?action=filters&{{ fname }}={{ value }}"
+                >
+                </button>
+              </span>
+              {% endfor %}
+            </div>
+          </div>
+        {% endfor %}
+        </div>
+      </div>
+    </div>
+  </template>
+  <template id="view-filter">
+    <div class="panel mb-4">
+      <p class="panel-heading">
+        <span>Filter</span>
+      </p>
+      {% for field in form %}
+      <div class="panel-block">
+        <div class="container">
+        {{ field(**{'hx-post': hx_post, 'hx-params': field.name, 'hx-trigger': "keyup[key=='Enter'],blur"}) }}
+      </div>
+      </div>
+      {% endfor %}
     </div>
   </template>
 </templates>

@@ -169,6 +169,14 @@ class RUser(LCRUDResource, Resource):
         total = 0
         with SQLASession(engine) as session:
             stmt = select(User).where()
+            for key, values in filters:
+                if len(values) == 1:
+                    stmt = stmt.filter(
+                        getattr(User, key).ilike(f'%{values[0]}%')
+                    )
+                elif len(values) > 1:
+                    stmt = stmt.filter(getattr(User, key).in_(values))
+
             stmt_count = select(func.count()).select_from(
                 stmt.subquery())
             total = session.execute(stmt_count).scalars().first()
@@ -229,14 +237,14 @@ def feretui_static_file(filepath):
     return None
 
 
-@route('/feretui/action/<action>', method=['GET', 'POST'])
+@route('/feretui/action/<action>', method=['DELETE', 'GET', 'POST'])
 def call_action(action):
     with feretui_session(MySession) as session:
         frequest = Request(
             method=getattr(Request, request.method),
             querystring=request.query_string,
             form=MultiDict(request.forms),
-            params=request.params,
+            params=request.params.dict,
             headers=dict(request.headers),
             session=session,
         )
