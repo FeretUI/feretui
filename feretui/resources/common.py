@@ -5,10 +5,16 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License,
 # v. 2.0. If a copy of the MPL was not distributed with this file,You can
 # obtain one at http://mozilla.org/MPL/2.0/.
-"""feretui.resources.common's module."""
-from typing import TYPE_CHECKING
-from lxml.etree import Element, SubElement, tostring, fromstring
+"""feretui.resources.common's module.
 
+* :class:`.ActionsMixinForView`
+* :class:`.MultiView`
+* :class:`.TemplateMixinForView`
+"""
+from typing import TYPE_CHECKING
+
+from lxml.etree import Element, SubElement, tostring
+from lxml.html import fromstring
 from markupsafe import Markup
 from polib import POFile
 
@@ -18,11 +24,12 @@ from feretui.request import Request
 from feretui.resources.actions import Actionset, SelectedRowsAction
 from feretui.response import Response
 from feretui.session import Session
+from feretui.template import Template, decode_html
 from feretui.thread import local
+from feretui.translation import Translation
 
 if TYPE_CHECKING:
     from feretui.feretui import FeretUI
-    from feretui.translation import Translation
 
 
 class ActionsMixinForView:
@@ -241,7 +248,7 @@ class MultiView(ActionsMixinForView):
             res.append(
                 Markup(feretui.render_template(
                     session,
-                    'view-create-button',
+                    'view-goto-create-button',
                     create_view_qs=self.get_transition_querystring(
                         options,
                         view=self.create_button_redirect_to,
@@ -252,7 +259,7 @@ class MultiView(ActionsMixinForView):
             res.append(
                 Markup(feretui.render_template(
                     session,
-                    'view-delete-button',
+                    'view-goto-selected-delete-button',
                     delete_view_qs=self.get_transition_querystring(
                         options,
                         view=self.delete_button_redirect_to,
@@ -430,28 +437,163 @@ class MultiView(ActionsMixinForView):
 
 
 class TemplateMixinForView:
+    """TemplateMixinForView class."""
 
-    header_template_id: str = None
+    header_template_id: str = 'view-buttons-header'
     header_template: str = None
-    body_template_id: str = None
+    body_template_id: str = 'view-readwrite-form'
     body_template: str = None
-    footer_template_id: str = None
+    footer_template_id: str = 'view-buttons-header'
     footer_template: str = None
 
-    def __init__(
-        self: "TemplateMixinForView",
-        *args: tuple,
-        **kwargs: dict,
+    # ----- translation ------
+    def export_catalog(
+        self: "ActionsMixinForView",
+        translation: "Translation",
+        po: POFile,
     ) -> None:
-        """TemplateMixinForView constructor."""
-        super().__init__(*args, **kwargs)
-        # if not (
-        #     hasattr(self, 'header_template')
-        #     or hasattr(self, 'header_template_id')
-        # ):
-        #     raise ViewError(
-        #     )
+        """Export the translations in the catalog.
 
+        :param translation: The translation instance to add also inside it.
+        :type translation: :class:`.Translation`
+        :param po: The catalog instance
+        :type po: PoFile_
+        """
+        super().export_catalog(translation, po)
+        template_id = f'resource-{self.resource.code}-view-{self.code}'
+        tmpls = Template(Translation())
+        tmpls.load_template_from_str(
+            self.get_compiled_template(local.feretui, template_id),
+        )
+        tmpls.export_catalog(po)
+
+    # ----- templating ------
+    def compile(self: "TemplateMixinForView", node: Element) -> Element:
+        """Transform the template to add some javascript behaviours.
+
+        :param node: The main node to transform
+        :type node: HtmlElement_
+        :return: new node
+        :rtype: HtmlElement_
+        """
+        return node
+
+    def set_header_template(
+        self: "TemplateMixinForView",
+        feretui: "FeretUI",
+        parent: Element,
+    ) -> None:
+        """Add the header template.
+
+        :param feretui: The feretui client
+        :type feretui: :class:`feretui.feretui.FeretUI`
+        :param parent: The parent node
+        :type parent: HtmlElement_
+        """
+        header = None
+        if self.header_template:
+            header = fromstring(decode_html(self.header_template))
+        elif self.header_template_id:
+            header = feretui.template.get_template(
+                self.header_template_id,
+                local.lang,
+                tostring=False,
+            )
+
+        if header is not None:
+            header = self.compile(header)
+            parent.append(header)
+
+    def set_form_template(
+        self: "TemplateMixinForView",
+        feretui: "FeretUI",  # noqa: ARG002
+        parent: Element,
+    ) -> Element:
+        """Add the form node in the template.
+
+        :param feretui: The feretui client
+        :type feretui: :class:`feretui.feretui.FeretUI`
+        :param parent: The parent node
+        :type parent: HtmlElement_
+        """
+        return SubElement(parent, 'form')
+
+    def set_body_template(
+        self: "TemplateMixinForView",
+        feretui: "FeretUI",  # noqa: ARG002
+        parent: Element,
+    ) -> Element:
+        """Add the body template.
+
+        :param feretui: The feretui client
+        :type feretui: :class:`feretui.feretui.FeretUI`
+        :param parent: The parent node
+        :type parent: HtmlElement_
+        """
+        body = None
+        if self.body_template:
+            body = fromstring(self.body_template)
+        elif self.body_template_id:
+            body = feretui.template.get_template(
+                self.body_template_id,
+                local.lang,
+                tostring=False,
+            )
+
+        if body is not None:
+            body = self.compile(body)
+            parent.append(body)
+
+    def set_footer_template(
+        self: "TemplateMixinForView",
+        feretui: "FeretUI",  # noqa: ARG002
+        parent: Element,
+    ) -> Element:
+        """Add the footer template.
+
+        :param feretui: The feretui client
+        :type feretui: :class:`feretui.feretui.FeretUI`
+        :param parent: The parent node
+        :type parent: HtmlElement_
+        """
+        footer = None
+        if self.footer_template:
+            footer = fromstring(self.footer_template)
+        elif self.footer_template_id:
+            footer = feretui.template.get_template(
+                self.footer_template_id,
+                local.lang,
+                tostring=False,
+            )
+
+        if footer is not None:
+            footer = self.compile(footer)
+            parent.append(footer)
+
+    def get_compiled_template(
+        self: "TemplateMixinForView",
+        feretui: "FeretUI",
+        template_id: str,
+    ) -> str:
+        """Get the template for this view.
+
+        :param feretui: The feretui client
+        :type feretui: :class:`feretui.feretui.FeretUI`
+        :param template_id: The id of the template
+        :type template_id: str
+        """
+        template = Element('template')
+        template.set('id', template_id)
+        div = SubElement(template, 'div')
+        div.set('id', template_id)
+        div.set('class', 'container is-fluid content')
+        form = self.set_form_template(feretui, div)
+        self.set_header_template(feretui, form)
+        self.set_body_template(feretui, form)
+        self.set_footer_template(feretui, form)
+        return tostring(template)
+
+    # ----- render -----
     def render_kwargs(
         self: "TemplateMixinForView",
         feretui: "FeretUI",
@@ -469,81 +611,32 @@ class TemplateMixinForView:
         :return: The kwargs
         :rtype: dict.
         """
-        pk = options.get('pk')
-        if isinstance(pk, list):
-            pk = pk[0]
-
-        if not pk:
-            raise ViewError()
-
         return {
-            'header_buttons': self.get_header_buttons(feretui, session, options),
-            'form': self.resource.read(self.form_cls, pk),
+            'header_buttons': self.get_header_buttons(
+                feretui, session, options,
+            ),
+            'rcode': self.resource.code,
+            'vcode': self.code,
         }
 
-    def compile(self, el):
-        return el
-
-    def set_header_template(self, feretui, div):
-        header = None
-        if self.header_template_id:
-            header = feretui.template.get_template(
-                local.lang,
-                self.header_template_id
-            )
-        elif self.header_template:
-            header = fromstring(self.header_template)
-
-        if header is not None:
-            header = self.compile(header)
-            div.append(header)
-
-    def set_form_template(self, div):
-        return SubElement(div, 'form')
-
-    def set_body_template(self, feretui, form):
-        body = None
-        if self.body_template_id:
-            body = feretui.template.get_template(
-                local.lang,
-                self.body_template_id
-            )
-        elif self.body_template:
-            body = fromstring(self.body_template)
-
-        if body is not None:
-            body = self.compile(body)
-            form.append(body)
-
-    def set_footer_template(self, feretui, div):
-        footer = None
-        if self.footer_template_id:
-            footer = feretui.template.get_template(
-                local.lang,
-                self.footer_template_id
-            )
-        elif self.footer_template:
-            footer = fromstring(self.footer_template)
-
-        if footer is not None:
-            footer = self.compile(footer)
-            div.append(footer)
-
-    def get_compiled_template(
+    def get_header_buttons(
         self: "TemplateMixinForView",
-        feretui,
-        view,
-    ) -> str:
-        template = Element('template')
-        template.set('id', view)
-        div = SubElement(template, 'div')
-        div.set('id', view)
-        div.set('class', 'container is-fluid content')
-        form = self.set_form_template(div)
-        self.set_header_template(feretui, form)
-        self.set_body_template(feretui, form)
-        self.set_footer_template(feretui, form)
-        return tostring(template)
+        feretui: "FeretUI",  # noqa: ARG002
+        session: Session,  # noqa: ARG002
+        options: dict,  # noqa: ARG002
+    ) -> list[Markup]:
+        """Return the buttons for the multi view.
+
+        :param feretui: The feretui client
+        :type feretui: :class:`feretui.feretui.FeretUI`
+        :param session: The Session
+        :type session: :class:`feretui.session.Session`
+        :param options: The options come from the body or the query string
+        :type options: dict
+        :return: The html pages
+        :rtype: list[Markup].
+        """
+        return []
 
     def render(
         self: "TemplateMixinForView",
@@ -562,60 +655,14 @@ class TemplateMixinForView:
         :return: The html page in
         :rtype: str.
         """
-        view = f'resource-{self.resource.code}-view-{self.code}'
-        if not feretui.template.has_template(view):
+        template_id = f'resource-{self.resource.code}-view-{self.code}'
+        if not feretui.template.has_template(template_id):
             feretui.register_template_from_str(
-                self.get_compiled_template(feretui, view)
+                self.get_compiled_template(feretui, template_id),
             )
 
         return feretui.render_template(
             session,
-            view,
-            **self.render_kwargs(feretui, session, options)
+            template_id,
+            **self.render_kwargs(feretui, session, options),
         )
-
-    def get_header_buttons(
-        self: "MultiView",
-        feretui: "FeretUI",
-        session: Session,
-        options: dict,
-    ) -> list[Markup]:
-        """Return the buttons for the multi view.
-
-        :param feretui: The feretui client
-        :type feretui: :class:`feretui.feretui.FeretUI`
-        :param session: The Session
-        :type session: :class:`feretui.session.Session`
-        :param options: The options come from the body or the query string
-        :type options: dict
-        :return: The html pages
-        :rtype: list[Markup]
-        """
-        res = []
-        if self.create_button_redirect_to:
-            res.append(
-                Markup(feretui.render_template(
-                    session,
-                    'view-create-button',
-                    create_view_qs=self.get_transition_querystring(
-                        options,
-                        view=self.create_button_redirect_to,
-                    ),
-                )),
-            )
-        if self.delete_button_redirect_to:
-            res.append(
-                Markup(feretui.render_template(
-                    session,
-                    'view-delete-button',
-                    delete_view_qs=self.get_transition_querystring(
-                        options,
-                        view=self.delete_button_redirect_to,
-                    ),
-                    rcode=self.resource.code,
-                    vcode=self.code,
-                    disabled=None
-                )),
-            )
-
-        return res

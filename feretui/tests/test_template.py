@@ -34,6 +34,7 @@ class TestTemplate:
         t1 = """<template id='test'><a><b1/><b2/></a></template>"""
         f.write(t1)
         f.seek(0)
+        assert self.Template.has_template('test') is False
         self.Template.load_file(f)
         assert (
             self.format_element(self.Template.known['test']['tmpl'][0]) ==
@@ -46,6 +47,7 @@ class TestTemplate:
             ' </a>\n'
             '</template>\n'
         )
+        assert self.Template.has_template('test') is True
 
     def test_load_file_2(self) -> None:
         """Test load a file with comment."""

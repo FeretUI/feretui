@@ -23,7 +23,7 @@ the resource in feretui.
 ::
 
     @myferet.register_resource()
-    class MyResource(LResouce, Resource):
+    class MyResource(LResource, Resource):
         code = 'the identifier of the resource'
         label = 'The label'
 
@@ -52,7 +52,8 @@ class LCRUDResource(LResource, RResource):
 
     This class is a mixin, it inherit the mixins:
 
-    *
+    * :class:`feretui.resources.list.LResource`
+    * :class:`feretui.resources.read.RResource`
 
     """
 

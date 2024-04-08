@@ -23,12 +23,12 @@ The List resource represent data under html table.
         class MetaViewList:
             pass
 """
-from lxml.etree import SubElement
 from typing import TYPE_CHECKING
+
+from lxml.etree import SubElement
 
 # from markupsafe import Markup
 # from polib import POFile
-
 from feretui.resources.common import (
     ActionsMixinForView,
     TemplateMixinForView,
@@ -37,7 +37,6 @@ from feretui.resources.view import View
 from feretui.session import Session
 
 # from feretui.thread import local
-
 from .resource import Resource
 
 if TYPE_CHECKING:
@@ -95,7 +94,7 @@ class ReadView(ActionsMixinForView, TemplateMixinForView, View):
 
     code: str = 'read'
 
-    def set_body_template(self, feretui, form):
+    def set_body_template(self, feretui, form) -> None:
         root = SubElement(form, 'div')
         root.set('class', 'columns')
         div = SubElement(root, 'div')
@@ -129,7 +128,7 @@ class ReadView(ActionsMixinForView, TemplateMixinForView, View):
         """
         res = super().render_kwargs(feretui, session, options)
         res.update({
-            'actions': self.get_actions(feretui, session)
+            'actions': self.get_actions(feretui, session),
         })
         return res
 

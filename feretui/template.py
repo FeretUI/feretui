@@ -327,6 +327,9 @@ class Template:
         if lang not in self.compiled:
             self.compile(lang=lang)
 
+        if name not in self.compiled[lang]:
+            self.compile_template(lang, name)
+
         tmpl = deepcopy(self.compiled[lang][name])[0]
 
         if tostring:
@@ -480,7 +483,7 @@ class Template:
 
         :param template_id: the template id
         :type template_id: str
-        :return: bool
+        :return: bool.
         """
         return template_id in self.known
 
