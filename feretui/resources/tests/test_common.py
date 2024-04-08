@@ -50,6 +50,7 @@ class TestMultiView:
 
         class MyView(MultiView, View):
             create_button_redirect_to = 'other'
+            delete_button_redirect_to = 'other'
             do_click_on_entry_redirect_to = 'other'
 
             class Form:
@@ -64,6 +65,7 @@ class TestMultiView:
 
         class MyView(MultiView, View):
             limit = 15
+            delete_button_redirect_to = 'other'
             do_click_on_entry_redirect_to = 'other'
 
             class Form:
@@ -79,6 +81,7 @@ class TestMultiView:
         class MyView(MultiView, View):
             limit = 15
             create_button_redirect_to = 'other'
+            delete_button_redirect_to = 'other'
 
             class Form:
                 pk = StringField()
@@ -92,7 +95,23 @@ class TestMultiView:
 
         class MyView(MultiView, View):
             limit = 15
+            do_click_on_entry_redirect_to = 'other'
             create_button_redirect_to = 'other'
+
+            class Form:
+                pk = StringField()
+
+        resource = MultiResource()
+        resource.context = 'test'
+        with pytest.raises(ViewError):
+            MyView(resource)
+
+    def test_init_5(self):
+
+        class MyView(MultiView, View):
+            limit = 15
+            create_button_redirect_to = 'other'
+            delete_button_redirect_to = 'other'
             do_click_on_entry_redirect_to = 'other'
 
             class Form:
@@ -108,6 +127,7 @@ class TestMultiView:
         class MyView(MultiView, View):
             limit = 15
             create_button_redirect_to = 'other'
+            delete_button_redirect_to = 'other'
             do_click_on_entry_redirect_to = 'other'
 
             class Form:
@@ -128,6 +148,7 @@ class TestMultiView:
         class MyView(MultiView, View):
             limit = 15
             create_button_redirect_to = 'other'
+            delete_button_redirect_to = 'other'
             do_click_on_entry_redirect_to = 'other'
 
             class Form:
@@ -138,6 +159,7 @@ class TestMultiView:
         view = MyView(resource)
         local.feretui = feretui = FeretUI()
         session = Session()
+        local.request = Request(session=session)
 
         assert view.render_kwargs(feretui, session, {'offset': [0]})
 
@@ -154,6 +176,7 @@ class TestMultiView:
         class MyView(MultiView, View):
             limit = 15
             create_button_redirect_to = 'other'
+            delete_button_redirect_to = 'other'
             do_click_on_entry_redirect_to = 'other'
 
             class Form:
@@ -163,6 +186,85 @@ class TestMultiView:
         resource.context = 'test'
         view = MyView(resource)
         assert view.pagination(myferet, request).body is not None
+
+    def test_call_filters_post(self):
+        local.feretui = myferet = FeretUI()
+        session = Session()
+        request = Request(
+            method=Request.POST,
+            params={'foo': ['Bar'], 'action': ['filters']},
+            session=session,
+            headers={'Hx-Current-Url': '/test?resource=test'},
+        )
+
+        class MyView(MultiView, View):
+            limit = 15
+            create_button_redirect_to = 'other'
+            delete_button_redirect_to = 'other'
+            do_click_on_entry_redirect_to = 'other'
+
+            class Form:
+                pk = StringField()
+
+        resource = MultiResource()
+        resource.context = 'test'
+        view = MyView(resource)
+        res = view.filters(myferet, request)
+        assert res.body is not None
+        assert (
+            res.headers['HX-Push-Url']
+            == '/test?resource=test&offset=0&filter%5Bfoo%5D=Bar'
+        )
+
+    def test_call_filters_delete(self):
+        local.feretui = myferet = FeretUI()
+        session = Session()
+        request = Request(
+            method=Request.DELETE,
+            params={'foo': ['Bar']},
+            session=session,
+            headers={
+                'Hx-Current-Url': '/test?resource=test&filter%5Bfoo%5D=Bar'
+            },
+        )
+
+        class MyView(MultiView, View):
+            limit = 15
+            create_button_redirect_to = 'other'
+            delete_button_redirect_to = 'other'
+            do_click_on_entry_redirect_to = 'other'
+
+            class Form:
+                pk = StringField()
+
+        resource = MultiResource()
+        resource.context = 'test'
+        view = MyView(resource)
+        res = view.filters(myferet, request)
+        assert res.body is not None
+        assert res.headers['HX-Push-Url'] == '/test?resource=test&offset=0'
+
+    def test_export_catalog(self):
+
+        class MyView(MultiView, View):
+            limit = 15
+            create_button_redirect_to = 'other'
+            delete_button_redirect_to = 'other'
+            do_click_on_entry_redirect_to = 'other'
+
+            class Form:
+                pk = StringField()
+
+            class Filter:
+                other = StringField()
+
+        local.feretui = myferet = FeretUI()
+        po = POFile()
+        resource = MultiResource()
+        resource.context = 'test'
+        view = MyView(resource)
+        view.export_catalog(myferet.translation, po)
+        assert len(po) == 3
 
 
 class TestCommonActionsMixinForView:
