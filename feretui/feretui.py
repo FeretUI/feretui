@@ -1127,6 +1127,7 @@ class FeretUI:
         :param addons: The addons where the message come from
         :type addons: str
         """
+        local.feretui = self  # need for some export
         if self.auth['menus']:
             for menu in (self.auth['menus'].children or []):
                 self.translation.add_translated_menu(

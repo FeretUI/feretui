@@ -1,5 +1,5 @@
 <templates>
-  <template id="view-create-button">
+  <template id="view-goto-create-button">
     <button
       class="button is-primary"
       hx-get="{{ feretui.base_url }}/action/goto?{{ create_view_qs }}"
@@ -10,7 +10,18 @@
       <span>Create</span>
     </button>
   </template>
-  <template id="view-delete-button">
+  <template id="view-do-create-button">
+    <button
+      class="button is-primary"
+      type="submit"
+    >
+      <span class="icon">
+        <i class="fa-solid fa-plus"></i>
+      </span>
+      <span>Create</span>
+    </button>
+  </template>
+  <template id="view-goto-selected-delete-button">
     <button
       class="button is-danger selected-buttons-resource-{{ rcode }}-view-{{ vcode }}"
       hx-get="{{ feretui.base_url }}/action/goto?{{ delete_view_qs }}"
@@ -22,14 +33,96 @@
       <span>Delete</span>
     </button>
   </template>
+  <template id="view-goto-delete-button">
+    <button
+      class="button is-danger"
+      hx-get="{{ feretui.base_url }}/action/goto?{{ delete_view_qs }}"
+    >
+      <span class="icon">
+        <i class="fa-solid fa-trash"></i>
+      </span>
+      <span>Delete</span>
+    </button>
+  </template>
+  <template id="view-do-delete-button">
+    <button
+      class="button is-danger"
+      type="submit"
+    >
+      <span class="icon">
+        <i class="fa-solid fa-trash"></i>
+      </span>
+      <span>Delete</span>
+    </button>
+  </template>
+  <template id="view-goto-edit-button">
+    <button
+      class="button is-info"
+      hx-get="{{ feretui.base_url }}/action/goto?{{ edit_view_qs }}"
+    >
+      <span class="icon">
+        <i class="fa-regular fa-pen-to-square"></i>
+      </span>
+      <span>Edit</span>
+    </button>
+  </template>
+  <template id="view-do-edit-button">
+    <button
+      class="button is-info"
+      type="submit"
+    >
+      <span class="icon">
+        <i class="fa-regular fa-pen-to-square"></i>
+      </span>
+      <span>Update</span>
+    </button>
+  </template>
+  <template id="view-return-button">
+    <button
+      class="button is-primary"
+      hx-get="{{ feretui.base_url }}/action/goto?{{ return_view_qs }}"
+    >
+      <span class="icon">
+        <i class="fa-solid fa-arrow-left"></i>
+      </span>
+      <span>Return</span>
+    </button>
+  </template>
+  <template id="view-new-cancel-button">
+    <button 
+      class="button is-ghost"
+      type="reset"
+      onclick="window.history.back()"
+    >
+      <span class="icon">
+        <i class="fa-solid fa-xmark"></i>
+      </span>
+      <span>Cancel</span>
+    </button>
+  </template>
+  <template id="view-edit-cancel-button">
+    <button 
+      class="button is-ghost"
+      type="reset"
+      hx-get="{{ feretui.base_url }}/action/goto?{{ return_view_qs }}"
+    >
+      <span class="icon">
+        <i class="fa-solid fa-xmark"></i>
+      </span>
+      <span>Cancel</span>
+    </button>
+  </template>
+  <template id="view-buttons-header">
+    <div class="buttons">
+      {% for button in header_buttons %}
+      {{ button }}
+      {% endfor %}
+    </div>
+  </template>
   <template id="view-pagination">
     <div class="columns is-vcentered">
       <div class="column is-narrow">
-        <div class="buttons">
-          {% for button in header_buttons %}
-          {{ button }}
-          {% endfor %}
-        </div>
+        <include template="view-buttons-header" />
       </div>
       <div class="column">
         {% if paginations %}
@@ -61,7 +154,7 @@
             <li>
               {% if pagination == offset %}
               <a class="pagination-link is-current">
-                {{ pagination }}-{{ [pagination + limit - 1, dataset.total]|min }}
+                {{ pagination + 1 }}-{{ [pagination + limit, dataset.total]|min }}
               </a>
               {% endif %}
               {% if pagination != offset %}
@@ -69,7 +162,7 @@
                 class="pagination-link"
                 hx-get="{{ feretui.base_url}}/action/resource?action=pagination&offset={{ pagination }}"
               >
-                {{ pagination }}-{{ [pagination + limit - 1, dataset.total]|min }}
+                {{ pagination + 1 }}-{{ [pagination + limit, dataset.total]|min }}
               </a>
               {% endif %}
             </li>
@@ -119,6 +212,20 @@
         {{ field(**{'hx-post': hx_post, 'hx-params': field.name, 'hx-trigger': "keyup[key=='Enter'],blur"}) }}
       </div>
       </div>
+      {% endfor %}
+    </div>
+  </template>
+  <template id="view-readonly-form">
+    <div class="container">
+      {% for field in form %}
+      {{ field(readonly=True) }}
+      {% endfor %}
+    </div>
+  </template>
+  <template id="view-readwrite-form">
+    <div class="container">
+      {% for field in form %}
+      {{ field(readonly=True) }}
       {% endfor %}
     </div>
   </template>

@@ -327,6 +327,9 @@ class Template:
         if lang not in self.compiled:
             self.compile(lang=lang)
 
+        if name not in self.compiled[lang]:
+            self.compile_template(lang, name)
+
         tmpl = deepcopy(self.compiled[lang][name])[0]
 
         if tostring:
@@ -474,6 +477,15 @@ class Template:
         """
         el = html.fromstring(decode_html(template))
         self.load_template(el)
+
+    def has_template(self: "Template", template_id: str) -> bool:
+        """Return True if the template exist in the view.
+
+        :param template_id: the template id
+        :type template_id: str
+        :return: bool.
+        """
+        return template_id in self.known
 
     def get_xpath(
         self: "Template",
@@ -819,7 +831,8 @@ class Template:
 
     def compile_template(
         self: "Template",
-        lang: str, name: str,
+        lang: str,
+        name: str,
     ) -> html.HtmlElement:
         """Compile a specific template in function of the lang.
 

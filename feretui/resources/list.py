@@ -32,8 +32,6 @@ from wtforms.fields import Field
 from feretui.resources.common import MultiView
 from feretui.resources.view import View
 from feretui.session import Session
-
-# from feretui.response import Response
 from feretui.thread import local
 
 from .resource import Resource

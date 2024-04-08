@@ -17,7 +17,11 @@ from feretui.exceptions import ViewActionError, ViewError
 from feretui.feretui import FeretUI
 from feretui.request import Request
 from feretui.resources.actions import Actionset, SelectedRowsAction
-from feretui.resources.common import ActionsMixinForView, MultiView
+from feretui.resources.common import (
+    ActionsMixinForView,
+    MultiView,
+    TemplateMixinForView,
+)
 from feretui.resources.resource import Resource
 from feretui.resources.view import View
 from feretui.session import Session
@@ -357,3 +361,94 @@ class TestCommonActionsMixinForView:
         resource.context = 'test'
         view = MyViewWithAction(resource)
         assert view.call(myferet, request).body is not None
+
+
+class TestTemplateMixinForView:
+
+    def test_render_1(self, snapshot) -> None:
+
+        class MyResource(Resource):
+            code = 'foo'
+
+            class Form:
+                pk = StringField()
+
+        class MyView(TemplateMixinForView, View):
+            code = 'bar'
+
+        resource = MyResource()
+        resource.context = 'test'
+        view = MyView(resource)
+        local.feretui = feretui = FeretUI()
+        session = Session()
+        local.request = Request(session=session)
+
+        snapshot.assert_match(
+            view.render(feretui, session, {}),
+            'snapshot.html',
+        )
+
+    def test_render_2(self, snapshot) -> None:
+
+        class MyResource(Resource):
+            code = 'foo'
+
+            class Form:
+                pk = StringField()
+
+        class MyView(TemplateMixinForView, View):
+            code = 'bar'
+            header_template = "<div>Header</div>"
+            body_template = "<div>Body</div>"
+            footer_template = "<div>Footer</div>"
+
+        resource = MyResource()
+        resource.context = 'test'
+        view = MyView(resource)
+        local.feretui = feretui = FeretUI()
+        session = Session()
+        local.request = Request(session=session)
+
+        snapshot.assert_match(
+            view.render(feretui, session, {}),
+            'snapshot.html',
+        )
+
+    def test_export_catalog_1(self) -> None:
+        class MyResource(Resource):
+            code = 'foo'
+
+            class Form:
+                pk = StringField()
+
+        class MyView(TemplateMixinForView, View):
+            code = 'bar'
+
+        local.feretui = myferet = FeretUI()
+        po = POFile()
+        resource = MyResource()
+        resource.context = 'test'
+        view = MyView(resource)
+        view.export_catalog(myferet.translation, po)
+        assert len(po) == 1
+
+    def test_export_catalog_2(self) -> None:
+        class MyResource(Resource):
+            code = 'foo'
+
+            class Form:
+                pk = StringField()
+
+        class MyView(TemplateMixinForView, View):
+            code = 'bar'
+            header_template = "<div>Header</div>"
+            body_template = "<div>Body</div>"
+            footer_template = "<div>Footer</div>"
+
+        local.feretui = myferet = FeretUI()
+        po = POFile()
+        resource = MyResource()
+        resource.context = 'test'
+        view = MyView(resource)
+        view.export_catalog(myferet.translation, po)
+        assert len(po) == 4
