@@ -327,6 +327,9 @@ class Template:
         if lang not in self.compiled:
             self.compile(lang=lang)
 
+        if name not in self.compiled[lang]:
+            self.compile_template(lang, name)
+
         tmpl = deepcopy(self.compiled[lang][name])[0]
 
         if tostring:
@@ -477,9 +480,10 @@ class Template:
 
     def has_template(self: "Template", template_id: str) -> bool:
         """Return True if the template exist in the view.
+
         :param template_id: the template id
         :type template_id: str
-        :return: bool
+        :return: bool.
         """
         return template_id in self.known
 

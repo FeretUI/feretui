@@ -112,14 +112,17 @@
       <span>Cancel</span>
     </button>
   </template>
+  <template id="view-buttons-header">
+    <div class="buttons">
+      {% for button in header_buttons %}
+      {{ button }}
+      {% endfor %}
+    </div>
+  </template>
   <template id="view-pagination">
     <div class="columns is-vcentered">
       <div class="column is-narrow">
-        <div class="buttons">
-          {% for button in header_buttons %}
-          {{ button }}
-          {% endfor %}
-        </div>
+        <include template="view-buttons-header" />
       </div>
       <div class="column">
         {% if paginations %}
@@ -209,6 +212,20 @@
         {{ field(**{'hx-post': hx_post, 'hx-params': field.name, 'hx-trigger': "keyup[key=='Enter'],blur"}) }}
       </div>
       </div>
+      {% endfor %}
+    </div>
+  </template>
+  <template id="view-readonly-form">
+    <div class="container">
+      {% for field in form %}
+      {{ field(readonly=True) }}
+      {% endfor %}
+    </div>
+  </template>
+  <template id="view-readwrite-form">
+    <div class="container">
+      {% for field in form %}
+      {{ field(readonly=True) }}
       {% endfor %}
     </div>
   </template>
