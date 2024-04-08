@@ -2,6 +2,7 @@ from typing import NoReturn
 
 import pytest
 from multidict import MultiDict
+from wtforms import StringField
 
 from feretui.actions import (
     goto,
@@ -25,7 +26,6 @@ from feretui.resources.view import View
 from feretui.response import Response
 from feretui.session import Session
 from feretui.thread import local
-from wtforms import StringField
 
 
 class TestAction:

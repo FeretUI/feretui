@@ -196,6 +196,7 @@ The resource is a set of page and form to represent a data and tools
 to manipulate this data.
 
 * :class:`feretui.resources.resource.Resource`
+* :class:`feretui.resources.list.LResource`
 
 
 The client FeretUI add translation mechanism. This mecanism can be declared
@@ -266,6 +267,7 @@ from feretui.request import Request  # noqa : F401
 from feretui.resources import (  # noqa: F401
     Action,
     Actionset,
+    LResource,
     LCRUDResource,
     Resource,
     SelectedRowsAction,

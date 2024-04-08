@@ -10,15 +10,15 @@
 with pytest.
 """
 import pytest  # noqa: F401
-
-from feretui.resources.resource import Resource
-from feretui.resources.view import View
-from feretui.feretui import FeretUI
-from feretui.session import Session
-from feretui.thread import local
 from polib import POFile
 from wtforms import StringField
+
 from feretui.exceptions import ViewFormError
+from feretui.feretui import FeretUI
+from feretui.resources.resource import Resource
+from feretui.resources.view import View
+from feretui.session import Session
+from feretui.thread import local
 
 
 class TView(View):
@@ -54,39 +54,39 @@ class MyResource(TResource, Resource):
 
 class TestResourceView:
 
-    def test_view_render(self):
+    def test_view_render(self) -> None:
         local.feretui = feretui = FeretUI()
         session = Session()
         resource = MyResource.build()
         assert resource.views['test'].render(feretui, session, {})
 
-    def test_view_get_label(self):
+    def test_view_get_label(self) -> None:
         local.feretui = FeretUI()
         resource = MyResource.build()
         assert resource.views['test'].get_label()
 
-    def test_get_transition_querystring_1(self):
+    def test_get_transition_querystring_1(self) -> None:
         resource = MyResource.build()
         assert resource.views['test'].get_transition_querystring(
             {'foo': 'bar'},
             foo=None,
         ) == ''
 
-    def test_get_transition_querystring_2(self):
+    def test_get_transition_querystring_2(self) -> None:
         resource = MyResource.build()
         assert resource.views['test'].get_transition_querystring(
             {'foo': 'bar'},
             bar='bar',
         ) == 'foo=bar&bar=bar'
 
-    def test_get_transition_querystring_3(self):
+    def test_get_transition_querystring_3(self) -> None:
         resource = MyResource.build()
         assert resource.views['test'].get_transition_querystring(
             {'foo': 'bar'},
             bar=['bar'],
         ) == 'foo=bar&bar=bar'
 
-    def test_export_catalog(self):
+    def test_export_catalog(self) -> None:
         local.feretui = myferet = FeretUI()
         po = POFile()
         resource = MyResource.build()

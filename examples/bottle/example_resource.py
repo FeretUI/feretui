@@ -17,14 +17,17 @@ from sqlalchemy.orm import (
 from sqlalchemy.orm import (
     Session as SQLASession,
 )
-from wtforms import RadioField, StringField  # , SelectField, PasswordField
+from wtforms import RadioField, SelectField, StringField  # , PasswordField
 from wtforms.validators import InputRequired
 
 from feretui import (
+    Action,
+    Actionset,
     FeretUI,
     LCRUDResource,
     Request,
     Resource,
+    SelectedRowsAction,
     Session,
 )
 
@@ -79,6 +82,7 @@ class MySession(Session):
     def __init__(self, user_id=None, **kwargs) -> None:
         super().__init__(**kwargs)
         self.user_id = user_id
+        self.theme = 'darkly'
 
     def login(self, form) -> bool:
         with SQLASession(engine) as session:
@@ -101,6 +105,9 @@ class MySession(Session):
 class RUser(LCRUDResource, Resource):
     code = 'c1'
     label = 'User'
+
+    page_security = None
+    action_security = None
 
     class Form:
         login = StringField(validators=[InputRequired()])
@@ -125,22 +132,27 @@ class RUser(LCRUDResource, Resource):
             return self.login
 
     class MetaViewList:
-        pass
 
-        # class List:
-        #     login = True
-        #     name = True
-        #     theme = SelectField()
-        #     print_1 = PostButtonField()
+        class Form:
+            theme = SelectField(
+                choices=[
+                    ('journal', 'Journal'),
+                    ('minthy', 'Minthy'),
+                    ('darkly', 'Darkly'),
+                ],
+            )
+            lang = None
+            # print_1 = PostButtonField()
 
-        # class ActionSet_1:
-        #     label = "Python print"
+        class Filter:
+            lang = SelectField(choices=[('en', 'English'), ('fr', 'Français')])
 
-        #     print_1 = PostButtonField('Print(1)', description='test')
-        #     print_10 = PostButtonField()
-
-        # class Filter:
-        #     pass
+        actions = [
+            Actionset('Print', [
+                Action('Print 1', 'print_1'),
+                SelectedRowsAction('Print 10', 'print_10'),
+            ]),
+        ]
 
     def print_1(self, *a, **kw) -> None:
         print(1, a, kw)

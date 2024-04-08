@@ -1,2 +1,108 @@
 <templates>
+  <template id="feretui-resource-list">
+    <div id="resource-{{ rcode }}-view-{{ vcode }}" class="container is-fluid">
+      <form>
+        <include template="view-multi-header" />
+        <div class="columns">
+          <div class="column">
+            <include template="view-pagination" />
+            <div class="table-container">
+              <table class="table is-fullwidth is-striped">
+                <thead>
+                  <tr>
+                    <th class="is-narrow">
+                      <input
+                        type="checkbox"
+                        name="selected-table-resource-{{ rcode }}-view-{{ vcode }}"
+                        _="
+                          on click 
+                          set <input[name='selected-rows-resource-{{ rcode }}-view-{{ vcode }}']/>'s checked to my.checked 
+                          set <input[name='selected-table-resource-{{ rcode }}-view-{{ vcode }}']/>'s checked to my.checked 
+                          if me.checked
+                            set .selected-buttons-resource-{{ rcode }}-view-{{ vcode }} @disabled to undefined
+                          else
+                            set .selected-buttons-resource-{{ rcode }}-view-{{ vcode }} @disabled to 'disabled'
+                          end
+                        "
+                      />
+                    </th>
+                    {% for field in form %}
+                    <th id="{{ field.name }}">{{ field.label.text }}</th>
+                    {% endfor %}
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for row in dataset.forms %}
+                  <tr
+                    hx-trigger="dblclick"
+                    hx-get="/feretui/action/goto?{{ open_view_qs }}&pk={{ row.pk.data }}"
+                  >
+                    <td>
+                      <input 
+                        type="checkbox" 
+                        name="selected-rows-resource-{{ rcode }}-view-{{ vcode }}" 
+                        class="selected-rows-resource-{{ rcode }}-view-{{ vcode }}" 
+                        value="{{ row.pk.data }}"
+                        _="
+                          on click 
+                          if me.checked
+                            if (<input[name='selected-rows-resource-{{ rcode }}-view-{{ vcode }}']/>'s checked) do not contains false
+                              set <input[name='selected-table-resource-{{ rcode }}-view-{{ vcode }}']/>'s checked to me.checked
+                            end
+                            set .selected-buttons-resource-{{ rcode }}-view-{{ vcode }} @disabled to undefined
+                          else
+                            set <input[name='selected-table-resource-{{ rcode }}-view-{{ vcode }}']/>'s checked to me.checked
+                            if (<input[name='selected-rows-resource-{{ rcode }}-view-{{ vcode }}']/>'s checked) do not contains true
+                              set .selected-buttons-resource-{{ rcode }}-view-{{ vcode }} @disabled to 'disabled'
+                            end
+                          end
+                        "
+                      />
+                    </td>
+                    {% for field in form %}
+                    <td>
+                      {{ widget(row[field.name]) }}
+                    </td>
+                    {% endfor %}
+                  </tr>
+                  {% endfor %}
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <th class="is-narrow">
+                      <input
+                        type="checkbox"
+                        name="selected-table-resource-{{ rcode }}-view-{{ vcode }}"
+                        _="
+                          on click 
+                          set <input[name='selected-rows-resource-{{ rcode }}-view-{{ vcode }}']/>'s checked to my.checked 
+                          set <input[name='selected-table-resource-{{ rcode }}-view-{{ vcode }}']/>'s checked to my.checked 
+                          if me.checked
+                            set .selected-buttons-resource-{{ rcode }}-view-{{ vcode }} @disabled to undefined
+                          else
+                            set .selected-buttons-resource-{{ rcode }}-view-{{ vcode }} @disabled to 'disabled'
+                          end
+                        "
+                      />
+                    </th>
+                    {% for field in form %}
+                    <th id="{{ field.name }}">{{ field.label.text }}</th>
+                    {% endfor %}
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+            <include template="view-pagination" />
+        </div>
+          {% if actions %}
+            <div class="column is-2">
+              {% for action in actions %}
+              {{ action }}
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+      </form>
+    </div>
+  </template>
 </templates>

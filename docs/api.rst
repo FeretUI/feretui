@@ -103,6 +103,10 @@ feretui.resources modules
    :members:
    :private-members:
 
+.. automodule:: feretui.resources.list
+   :members:
+   :private-members:
+
 
 feretui.helper module
 ---------------------
