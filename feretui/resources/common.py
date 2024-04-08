@@ -239,7 +239,7 @@ class MultiView(ActionsMixinForView):
             res.append(
                 Markup(feretui.render_template(
                     session,
-                    'view-create-button',
+                    'view-goto-create-button',
                     create_view_qs=self.get_transition_querystring(
                         options,
                         view=self.create_button_redirect_to,
@@ -250,7 +250,7 @@ class MultiView(ActionsMixinForView):
             res.append(
                 Markup(feretui.render_template(
                     session,
-                    'view-delete-button',
+                    'view-goto-selected-delete-button',
                     delete_view_qs=self.get_transition_querystring(
                         options,
                         view=self.delete_button_redirect_to,

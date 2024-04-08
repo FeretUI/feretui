@@ -59,6 +59,6 @@ class LCRUDResource(LResource):
     class MetaViewList:
         """Meta view class for list."""
 
-        create_button_redirect_to: str = 'new'
+        create_button_redirect_to: str = 'create'
         delete_button_redirect_to: str = 'delete'
-        do_click_on_row_redirect_to: str = 'visual'
+        do_click_on_row_redirect_to: str = 'read'
