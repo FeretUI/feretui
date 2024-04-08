@@ -144,8 +144,8 @@ class RUser(LCRUDResource, Resource):
             lang = None
             # print_1 = PostButtonField()
 
-        # class Filter:
-        #     pass
+        class Filter:
+            lang = SelectField(choices=[('en', 'English'), ('fr', 'Français')])
 
         actions = [
             Actionset('Print', [

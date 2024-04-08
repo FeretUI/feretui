@@ -5,20 +5,23 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License,
 # v. 2.0. If a copy of the MPL was not distributed with this file,You can
 # obtain one at http://mozilla.org/MPL/2.0/.
-"""Module feretui.resource.
+"""Module feretui.resources.list.
 
-The resource is a set of View to représente one data.
+The List resource represent data under html table.
 
-* :class:`.Resource`
+* :class:`.ListView`
+* :class:`.LResource`
 
 ::
 
     myferet.register_resource(
-        'code of the resource',
-        'label',
     )
-    class MyResource(Resource):
-        pass
+    class MyResource(LResource, Resource):
+        code = 'code of the resource',
+        label = 'label',
+
+        class MetaViewList:
+            pass
 """
 from typing import TYPE_CHECKING
 
@@ -27,13 +30,9 @@ from polib import POFile
 from wtforms.fields import Field
 
 from feretui.resources.common import MultiView
-
-# from feretui.exceptions import ResourceError
-from feretui.form import FeretUIForm
-from feretui.request import Request
-from feretui.response import Response
-from feretui.session import Session
 from feretui.resources.view import View
+from feretui.session import Session
+
 # from feretui.response import Response
 from feretui.thread import local
 
@@ -44,7 +43,14 @@ if TYPE_CHECKING:
     from feretui.translation import Translation
 
 
-def span_widget(field):
+def span_widget(field: Field) -> Markup:
+    """Render a field in the td node.
+
+    :param field: The field of the form to render.
+    :type: Field_
+    :return: The html
+    :rtype: Markup_
+    """
     data = field.data
     if hasattr(field, 'choices'):
         for choice in field.choices:
@@ -56,36 +62,20 @@ def span_widget(field):
 
 
 class DefaultViewList:
+    """Default value for the view list."""
+
     label: str = None
     limit: int = 20
     create_button_redirect_to: str = None
     delete_button_redirect_to: str = None
     do_click_on_entry_redirect_to: str = None
 
-    class Filter:
-        pass
-
 
 class ListView(MultiView, View):
+    """List view."""
+
     code: str = 'list'
     WIDGETS: dict[str, Field] = {}
-
-    def __init__(
-        self: "ListView",
-        *args: tuple,
-        **kwargs: dict,
-    ) -> None:
-        """ActionsMixinForView constructor."""
-        super().__init__(*args, **kwargs)
-        self.filter_cls = self.get_filter_cls()
-
-    def get_filter_cls(self: "ListView") -> FeretUIForm:
-        """Return the Form for the view."""
-        return type(
-            f'Filter_{self.resource.code}_{self.code}',
-            (self.Filter, self.form_cls),
-            {'view': self},
-        )
 
     def get_label(self: "View") -> str:
         """Return the translated label."""
@@ -112,37 +102,12 @@ class ListView(MultiView, View):
         if self.label:
             po.append(translation.define(f'{self.context}:label', self.label))
 
-        self.filter_cls.export_catalog(translation, po)
-
-    def widget(self, field, **kwargs):
+    def widget(self: "ListView", field: Field, **kwargs: dict) -> Markup:
+        """Render the field for the view list."""
         return self.WIDGETS.get(field.__class__, span_widget)(field, **kwargs)
 
-    def get_actions(
-        self: "ListView",
-        feretui: "FeretUI",
-        session: Session,
-    ) -> list[Markup]:
-        """Return the actionset list renderer.
-
-        :param feretui: The feretui client
-        :type feretui: :class:`feretui.feretui.FeretUI`
-        :param session: The Session
-        :type session: :class:`feretui.session.Session`
-        :return: The html pages
-        :rtype: list[str]
-        """
-        res = [
-            Markup(feretui.render_template(
-                session,
-                'view-filter',
-                form=self.filter_cls(),
-                hx_post=f'{ feretui.base_url}/action/resource?action=filters'
-            ))
-        ]
-        res.extend(super().get_actions(feretui, session))
-        return res
-
-    def get_call_kwargs(self, params):
+    def get_call_kwargs(self: "ListView", params: dict) -> dict:
+        """Return the kwargs of the call method."""
         res = super().get_call_kwargs(params)
         key = f'selected-rows-resource-{self.resource.code}-view-{self.code}'
         if key in params:
@@ -150,70 +115,35 @@ class ListView(MultiView, View):
 
         return res
 
-    def get_header_buttons(self, feretui, session, options):
-        res = super().get_header_buttons(feretui, session, options)
-        if self.delete_button_redirect_to:
-            res.append(
-                Markup(feretui.render_template(
-                    session,
-                    'view-delete-button',
-                    delete_view_qs=self.get_transition_querystring(
-                        options,
-                        view=self.delete_button_redirect_to,
-                    ),
-                    rcode=self.resource.code,
-                    vcode=self.code,
-                )),
-            )
-
-        return res
-
     def render(
-        self,
-        feretui,
-        session,
+        self: "ListView",
+        feretui: "FeretUI",
+        session: Session,
         options: dict,
     ) -> str:
+        """Render the view.
+
+        :param feretui: The feretui client
+        :type feretui: :class:`feretui.feretui.FeretUI`
+        :param session: The Session
+        :type session: :class:`feretui.session.Session`
+        :param options: The options come from the body or the query string
+        :type options: dict
+        :return: The html page in
+        :rtype: str.
+        """
         return feretui.render_template(
             session,
             'feretui-resource-list',
             widget=self.widget,
-            **self.render_kwargs(feretui, session, options)
-        )
-
-    def filters(self, feretui, request):
-        qs = request.get_query_string_from_current_url()
-        qs['offset'] = 0
-
-        for param, values in request.params.items():
-            if param == 'action':
-                continue
-
-            existing = qs.setdefault(f'filter[{param}]', [])
-            if request.method == Request.POST:
-                for value in values:
-                    if value not in existing:
-                        existing.append(value)
-            elif request.method == Request.DELETE:
-                for value in values:
-                    if value in existing:
-                        existing.remove(value)
-
-                if not existing:
-                    del qs[f'filter[{param}]']
-
-        base_url = request.get_base_url_from_current_url()
-        url = request.get_url_from_dict(base_url=base_url, querystring=qs)
-        return Response(
-            self.render(feretui, request.session, qs),
-            headers={
-                'HX-Push-Url': url,
-            }
+            **self.render_kwargs(feretui, session, options),
         )
 
 
 class LResource:
-    default_view = 'list'
+    """LResource class."""
+
+    default_view: str = 'list'
 
     MetaViewList = DefaultViewList
 
@@ -221,6 +151,13 @@ class LResource:
         self: "LResource",
         view_cls_name: str,
     ) -> Resource:
+        """Return the view instance in fonction of the MetaView attributes.
+
+        :param view_cls_name: name of the meta attribute
+        :type view_cls_name: str
+        :return: An instance of the view
+        :rtype: :class:`feretui.resources.view.View`
+        """
         if view_cls_name.startswith('MetaViewList'):
             meta_view_cls = self.get_meta_view_class(view_cls_name)
             meta_view_cls.append(ListView)
@@ -234,4 +171,4 @@ class LResource:
 
             return view_cls(self)
 
-        return super().build_view(view_cls_name, view_cls)
+        return super().build_view(view_cls_name)

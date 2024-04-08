@@ -1,0 +1,634 @@
+<div class="container is-fluid" id="resource-foo-view-list">
+ <form>
+  <div class="columns is-vcentered">
+   <div class="column content">
+    <h1>
+     Bar
+     <small>
+      (10)
+     </small>
+    </h1>
+   </div>
+   <div class="column is-narrow">
+    <div class="field is-grouped is-grouped-multiline">
+     
+     <div class="control">
+      <div class="tags has-addons">
+       <span class="tag is-dark">
+        foo
+       </span>
+       
+       <span class="tag is-info">
+        Foo
+        <button class="delete" hx-delete="/feretui/action/resource?action=filters&amp;foo=Foo">
+        </button>
+       </span>
+       
+      </div>
+     </div>
+     
+    </div>
+   </div>
+  </div>
+  <div class="columns">
+   <div class="column">
+    <div class="columns is-vcentered">
+     <div class="column is-narrow">
+      <div class="buttons">
+       
+      </div>
+     </div>
+     <div class="column">
+      
+      <nav arial-label="pagination" class="pagination" role="pagination">
+       
+       <a class="pagination-previous" disabled="disabled">
+        <i class="fa-solid fa-chevron-left">
+        </i>
+       </a>
+       
+          
+          
+       <a class="pagination-next" disabled="disabled">
+        <i class="fa-solid fa-chevron-right">
+        </i>
+       </a>
+       
+          
+       <ul class="pagination-list">
+        
+        <li>
+         
+         <a class="pagination-link is-current">
+          0-10
+         </a>
+         
+              
+        </li>
+        
+       </ul>
+      </nav>
+      
+     </div>
+    </div>
+    <div class="table-container">
+     <table class="table is-fullwidth is-striped">
+      <thead>
+       <tr>
+        <th class="is-narrow">
+         <input _="
+                          on click 
+                          set &lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked to my.checked 
+                          set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to my.checked 
+                          if me.checked
+                            set .selected-buttons-resource-foo-view-list @disabled to undefined
+                          else
+                            set .selected-buttons-resource-foo-view-list @disabled to 'disabled'
+                          end
+                        " name="selected-table-resource-foo-view-list" type="checkbox">
+        </th>
+        
+        <th id="pk">
+         Pk
+        </th>
+        
+        <th id="foo">
+         Foo
+        </th>
+        
+        <th id="test">
+         Test
+        </th>
+        
+       </tr>
+      </thead>
+      <tbody>
+       
+       <tr hx-get="/feretui/action/goto?None&amp;pk=0" hx-trigger="dblclick">
+        <td>
+         <input _="
+                          on click 
+                          if me.checked
+                            if (&lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked) do not contains false
+                              set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to me.checked
+                            end
+                            set .selected-buttons-resource-foo-view-list @disabled to undefined
+                          else
+                            set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to me.checked
+                            if (&lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked) do not contains true
+                              set .selected-buttons-resource-foo-view-list @disabled to 'disabled'
+                            end
+                          end
+                        " class="selected-rows-resource-foo-view-list" name="selected-rows-resource-foo-view-list" type="checkbox" value="0">
+        </td>
+        
+        <td>
+         <span>0</span>
+        </td>
+        
+        <td>
+         <span>Foo</span>
+        </td>
+        
+        <td>
+         <span>Test 1</span>
+        </td>
+        
+       </tr>
+       
+       <tr hx-get="/feretui/action/goto?None&amp;pk=1" hx-trigger="dblclick">
+        <td>
+         <input _="
+                          on click 
+                          if me.checked
+                            if (&lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked) do not contains false
+                              set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to me.checked
+                            end
+                            set .selected-buttons-resource-foo-view-list @disabled to undefined
+                          else
+                            set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to me.checked
+                            if (&lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked) do not contains true
+                              set .selected-buttons-resource-foo-view-list @disabled to 'disabled'
+                            end
+                          end
+                        " class="selected-rows-resource-foo-view-list" name="selected-rows-resource-foo-view-list" type="checkbox" value="1">
+        </td>
+        
+        <td>
+         <span>1</span>
+        </td>
+        
+        <td>
+         <span>Foo</span>
+        </td>
+        
+        <td>
+         <span>Test 1</span>
+        </td>
+        
+       </tr>
+       
+       <tr hx-get="/feretui/action/goto?None&amp;pk=2" hx-trigger="dblclick">
+        <td>
+         <input _="
+                          on click 
+                          if me.checked
+                            if (&lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked) do not contains false
+                              set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to me.checked
+                            end
+                            set .selected-buttons-resource-foo-view-list @disabled to undefined
+                          else
+                            set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to me.checked
+                            if (&lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked) do not contains true
+                              set .selected-buttons-resource-foo-view-list @disabled to 'disabled'
+                            end
+                          end
+                        " class="selected-rows-resource-foo-view-list" name="selected-rows-resource-foo-view-list" type="checkbox" value="2">
+        </td>
+        
+        <td>
+         <span>2</span>
+        </td>
+        
+        <td>
+         <span>Foo</span>
+        </td>
+        
+        <td>
+         <span>Test 1</span>
+        </td>
+        
+       </tr>
+       
+       <tr hx-get="/feretui/action/goto?None&amp;pk=3" hx-trigger="dblclick">
+        <td>
+         <input _="
+                          on click 
+                          if me.checked
+                            if (&lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked) do not contains false
+                              set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to me.checked
+                            end
+                            set .selected-buttons-resource-foo-view-list @disabled to undefined
+                          else
+                            set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to me.checked
+                            if (&lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked) do not contains true
+                              set .selected-buttons-resource-foo-view-list @disabled to 'disabled'
+                            end
+                          end
+                        " class="selected-rows-resource-foo-view-list" name="selected-rows-resource-foo-view-list" type="checkbox" value="3">
+        </td>
+        
+        <td>
+         <span>3</span>
+        </td>
+        
+        <td>
+         <span>Foo</span>
+        </td>
+        
+        <td>
+         <span>Test 1</span>
+        </td>
+        
+       </tr>
+       
+       <tr hx-get="/feretui/action/goto?None&amp;pk=4" hx-trigger="dblclick">
+        <td>
+         <input _="
+                          on click 
+                          if me.checked
+                            if (&lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked) do not contains false
+                              set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to me.checked
+                            end
+                            set .selected-buttons-resource-foo-view-list @disabled to undefined
+                          else
+                            set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to me.checked
+                            if (&lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked) do not contains true
+                              set .selected-buttons-resource-foo-view-list @disabled to 'disabled'
+                            end
+                          end
+                        " class="selected-rows-resource-foo-view-list" name="selected-rows-resource-foo-view-list" type="checkbox" value="4">
+        </td>
+        
+        <td>
+         <span>4</span>
+        </td>
+        
+        <td>
+         <span>Foo</span>
+        </td>
+        
+        <td>
+         <span>Test 1</span>
+        </td>
+        
+       </tr>
+       
+       <tr hx-get="/feretui/action/goto?None&amp;pk=5" hx-trigger="dblclick">
+        <td>
+         <input _="
+                          on click 
+                          if me.checked
+                            if (&lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked) do not contains false
+                              set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to me.checked
+                            end
+                            set .selected-buttons-resource-foo-view-list @disabled to undefined
+                          else
+                            set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to me.checked
+                            if (&lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked) do not contains true
+                              set .selected-buttons-resource-foo-view-list @disabled to 'disabled'
+                            end
+                          end
+                        " class="selected-rows-resource-foo-view-list" name="selected-rows-resource-foo-view-list" type="checkbox" value="5">
+        </td>
+        
+        <td>
+         <span>5</span>
+        </td>
+        
+        <td>
+         <span>Foo</span>
+        </td>
+        
+        <td>
+         <span>Test 1</span>
+        </td>
+        
+       </tr>
+       
+       <tr hx-get="/feretui/action/goto?None&amp;pk=6" hx-trigger="dblclick">
+        <td>
+         <input _="
+                          on click 
+                          if me.checked
+                            if (&lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked) do not contains false
+                              set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to me.checked
+                            end
+                            set .selected-buttons-resource-foo-view-list @disabled to undefined
+                          else
+                            set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to me.checked
+                            if (&lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked) do not contains true
+                              set .selected-buttons-resource-foo-view-list @disabled to 'disabled'
+                            end
+                          end
+                        " class="selected-rows-resource-foo-view-list" name="selected-rows-resource-foo-view-list" type="checkbox" value="6">
+        </td>
+        
+        <td>
+         <span>6</span>
+        </td>
+        
+        <td>
+         <span>Foo</span>
+        </td>
+        
+        <td>
+         <span>Test 1</span>
+        </td>
+        
+       </tr>
+       
+       <tr hx-get="/feretui/action/goto?None&amp;pk=7" hx-trigger="dblclick">
+        <td>
+         <input _="
+                          on click 
+                          if me.checked
+                            if (&lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked) do not contains false
+                              set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to me.checked
+                            end
+                            set .selected-buttons-resource-foo-view-list @disabled to undefined
+                          else
+                            set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to me.checked
+                            if (&lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked) do not contains true
+                              set .selected-buttons-resource-foo-view-list @disabled to 'disabled'
+                            end
+                          end
+                        " class="selected-rows-resource-foo-view-list" name="selected-rows-resource-foo-view-list" type="checkbox" value="7">
+        </td>
+        
+        <td>
+         <span>7</span>
+        </td>
+        
+        <td>
+         <span>Foo</span>
+        </td>
+        
+        <td>
+         <span>Test 1</span>
+        </td>
+        
+       </tr>
+       
+       <tr hx-get="/feretui/action/goto?None&amp;pk=8" hx-trigger="dblclick">
+        <td>
+         <input _="
+                          on click 
+                          if me.checked
+                            if (&lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked) do not contains false
+                              set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to me.checked
+                            end
+                            set .selected-buttons-resource-foo-view-list @disabled to undefined
+                          else
+                            set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to me.checked
+                            if (&lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked) do not contains true
+                              set .selected-buttons-resource-foo-view-list @disabled to 'disabled'
+                            end
+                          end
+                        " class="selected-rows-resource-foo-view-list" name="selected-rows-resource-foo-view-list" type="checkbox" value="8">
+        </td>
+        
+        <td>
+         <span>8</span>
+        </td>
+        
+        <td>
+         <span>Foo</span>
+        </td>
+        
+        <td>
+         <span>Test 1</span>
+        </td>
+        
+       </tr>
+       
+       <tr hx-get="/feretui/action/goto?None&amp;pk=9" hx-trigger="dblclick">
+        <td>
+         <input _="
+                          on click 
+                          if me.checked
+                            if (&lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked) do not contains false
+                              set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to me.checked
+                            end
+                            set .selected-buttons-resource-foo-view-list @disabled to undefined
+                          else
+                            set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to me.checked
+                            if (&lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked) do not contains true
+                              set .selected-buttons-resource-foo-view-list @disabled to 'disabled'
+                            end
+                          end
+                        " class="selected-rows-resource-foo-view-list" name="selected-rows-resource-foo-view-list" type="checkbox" value="9">
+        </td>
+        
+        <td>
+         <span>9</span>
+        </td>
+        
+        <td>
+         <span>Foo</span>
+        </td>
+        
+        <td>
+         <span>Test 1</span>
+        </td>
+        
+       </tr>
+       
+      </tbody>
+      <tfoot>
+       <tr>
+        <th class="is-narrow">
+         <input _="
+                          on click 
+                          set &lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked to my.checked 
+                          set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to my.checked 
+                          if me.checked
+                            set .selected-buttons-resource-foo-view-list @disabled to undefined
+                          else
+                            set .selected-buttons-resource-foo-view-list @disabled to 'disabled'
+                          end
+                        " name="selected-table-resource-foo-view-list" type="checkbox">
+        </th>
+        
+        <th id="pk">
+         Pk
+        </th>
+        
+        <th id="foo">
+         Foo
+        </th>
+        
+        <th id="test">
+         Test
+        </th>
+        
+       </tr>
+      </tfoot>
+     </table>
+    </div>
+    <div class="columns is-vcentered">
+     <div class="column is-narrow">
+      <div class="buttons">
+       
+      </div>
+     </div>
+     <div class="column">
+      
+      <nav arial-label="pagination" class="pagination" role="pagination">
+       
+       <a class="pagination-previous" disabled="disabled">
+        <i class="fa-solid fa-chevron-left">
+        </i>
+       </a>
+       
+          
+          
+       <a class="pagination-next" disabled="disabled">
+        <i class="fa-solid fa-chevron-right">
+        </i>
+       </a>
+       
+          
+       <ul class="pagination-list">
+        
+        <li>
+         
+         <a class="pagination-link is-current">
+          0-10
+         </a>
+         
+              
+        </li>
+        
+       </ul>
+      </nav>
+      
+     </div>
+    </div>
+   </div>
+   
+   <div class="column is-2">
+    
+              <div class="panel mb-4">
+ <p class="panel-heading">
+  <span>
+   Filter
+  </span>
+ </p>
+ 
+ <div class="panel-block">
+  <div class="container">
+   <div class="field">
+ 
+ <label class="label" for="pk">
+  Pk
+      
+  <span>
+   
+  </span>
+ </label>
+ 
+ <div class="control">
+  <input class="input " hx-params="pk" hx-post="/feretui/action/resource?action=filters" hx-trigger="keyup[key==&#39;Enter&#39;],blur" id="pk" name="pk" type="text" value="">
+ </div>
+ 
+</div>
+  </div>
+ </div>
+ 
+ <div class="panel-block">
+  <div class="container">
+   <div class="field">
+ 
+ <label class="label" for="foo">
+  Foo
+      
+  <span>
+   
+  </span>
+ </label>
+ 
+ <div class="control">
+  <input class="input " hx-params="foo" hx-post="/feretui/action/resource?action=filters" hx-trigger="keyup[key==&#39;Enter&#39;],blur" id="foo" name="foo" type="text" value="">
+ </div>
+ 
+</div>
+  </div>
+ </div>
+ 
+ <div class="panel-block">
+  <div class="container">
+   <div class="field">
+ 
+ <label class="label" for="test">
+  Test
+      
+  <span>
+   
+  </span>
+ </label>
+ 
+ <div class="control">
+  <select class="input " hx-params="test" hx-post="/feretui/action/resource?action=filters" hx-trigger="keyup[key==&#39;Enter&#39;],blur" id="test" name="test"><option value="test1">Test 1</option></select>
+ </div>
+ 
+</div>
+  </div>
+ </div>
+ 
+ <div class="panel-block">
+  <div class="container">
+   <div class="field">
+ 
+ <label class="label" for="bar">
+  Bar
+      
+  <span>
+   
+  </span>
+ </label>
+ 
+ <div class="control">
+  <input class="input " hx-params="bar" hx-post="/feretui/action/resource?action=filters" hx-trigger="keyup[key==&#39;Enter&#39;],blur" id="bar" name="bar" type="text" value="">
+ </div>
+ 
+</div>
+  </div>
+ </div>
+ 
+</div>
+              
+              <div class="panel mb-4">
+ <p class="panel-heading">
+  <span>
+   
+  </span>
+  <span>
+   Print
+  </span>
+  <span>
+   
+  </span>
+ </p>
+ 
+      <a class="button panel-block" hx-post="/feretui/action/resource?action=call&amp;method=print_1">
+ <span>
+  
+ </span>
+ <span>
+  Print 1
+ </span>
+ <span>
+  
+ </span>
+</a>
+      
+      <a class="button panel-block selected-buttons-resource-foo-view-list" disabled="disabled" hx-post="/feretui/action/resource?action=call&amp;method=print_10">
+ <span>
+  
+ </span>
+ <span>
+  Print 10
+ </span>
+ <span>
+  
+ </span>
+</a>
+      
+</div>
+              
+   </div>
+   
+  </div>
+ </form>
+</div>
