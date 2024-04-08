@@ -9,7 +9,7 @@
 CHANGELOG
 =========
 
-0.0.1 (unreleased)
+0.1.0 (unreleased)
 ------------------
 
 Main version of FeretUI, based on the POC
@@ -22,7 +22,7 @@ Main version of FeretUI, based on the POC
 * Added pages callbacks mechanism.
 * Added WTForm 
 * Added menus
-* Added Resource
+* Added Resource (list,)
 * Added static file register
 * Added themes
 * Added translation behaviours
