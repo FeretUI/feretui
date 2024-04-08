@@ -475,6 +475,15 @@ class Template:
         el = html.fromstring(decode_html(template))
         self.load_template(el)
 
+    def has_template(self: "Template", template_id: str) -> bool:
+        """Return True if the template exist in the view.
+
+        :param template_id: the template id
+        :type template_id: str
+        :return: bool
+        """
+        return template_id in self.known
+
     def get_xpath(
         self: "Template",
         element: html.HtmlElement,
@@ -819,7 +828,8 @@ class Template:
 
     def compile_template(
         self: "Template",
-        lang: str, name: str,
+        lang: str,
+        name: str,
     ) -> html.HtmlElement:
         """Compile a specific template in function of the lang.
 

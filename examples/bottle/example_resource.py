@@ -82,7 +82,6 @@ class MySession(Session):
     def __init__(self, user_id=None, **kwargs) -> None:
         super().__init__(**kwargs)
         self.user_id = user_id
-        self.theme = 'darkly'
 
     def login(self, form) -> bool:
         with SQLASession(engine) as session:
@@ -154,6 +153,25 @@ class RUser(LCRUDResource, Resource):
             ]),
         ]
 
+    class MetaViewRead:
+
+        class Form:
+            theme = SelectField(
+                choices=[
+                    ('journal', 'Journal'),
+                    ('minthy', 'Minthy'),
+                    ('darkly', 'Darkly'),
+                ],
+            )
+            lang = SelectField(choices=[('en', 'English'), ('fr', 'Français')])
+
+        actions = [
+            Actionset('Print', [
+                Action('Print 1', 'print_1'),
+                Action('Print 10', 'print_10'),
+            ]),
+        ]
+
     def print_1(self, *a, **kw) -> None:
         print(1, a, kw)
 
@@ -169,9 +187,9 @@ class RUser(LCRUDResource, Resource):
 
         return user.login
 
-    def read(self, form_cls):
+    def read(self, form_cls, pk):
         with SQLASession(engine) as session:
-            user = session.get(User, self.pk)
+            user = session.get(User, pk)
             if user:
                 return form_cls(MultiDict(user.__dict__))
             return None
@@ -202,18 +220,18 @@ class RUser(LCRUDResource, Resource):
             'forms': forms,
         }
 
-    def update(self, form):
+    def update(self, form, pk):
         with SQLASession(engine) as session:
-            user = session.get(User, self.pk)
+            user = session.get(User, pk)
             if user:
                 form.populate_obj(user)
                 session.commit()
                 return user.login
             return None
 
-    def delete(self) -> None:
+    def delete(self, pk) -> None:
         with SQLASession(engine) as session:
-            session.delete(session.get(User, self.pk))
+            session.delete(session.get(User, pk))
             session.commit()
 
 

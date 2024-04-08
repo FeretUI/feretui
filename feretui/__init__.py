@@ -197,6 +197,8 @@ to manipulate this data.
 
 * :class:`feretui.resources.resource.Resource`
 * :class:`feretui.resources.list.LResource`
+* :class:`feretui.resources.list.RResource`
+* :class:`feretui.resources.list.LCRUDResource`
 
 
 The client FeretUI add translation mechanism. This mecanism can be declared
@@ -270,6 +272,7 @@ from feretui.resources import (  # noqa: F401
     LResource,
     LCRUDResource,
     Resource,
+    RResource,
     SelectedRowsAction,
 )
 from feretui.response import Response  # noqa : F401

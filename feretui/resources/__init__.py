@@ -13,6 +13,7 @@ the page and define the render and the action for the resource.
 To help the contruction of the view some mixins exist:
 
 * :class:`feretui.resources.list.LResource`
+* :class:`feretui.resources.read.RResource`
 * :class:`.LCRUDResource`
 
 The decorator :meth:`feretui.feretui.FeretUI.register_resource` call the
@@ -42,10 +43,11 @@ from feretui.resources.actions import (  # noqa: F401
     SelectedRowsAction,
 )
 from feretui.resources.list import LResource  # noqa: F401
+from feretui.resources.read import RResource  # noqa: F401
 from feretui.resources.resource import Resource  # noqa: F401
 
 
-class LCRUDResource(LResource):
+class LCRUDResource(LResource, RResource):
     """LCRUDResource class.
 
     This class is a mixin, it inherit the mixins:
@@ -59,6 +61,14 @@ class LCRUDResource(LResource):
     class MetaViewList:
         """Meta view class for list."""
 
-        create_button_redirect_to: str = 'new'
+        create_button_redirect_to: str = 'create'
         delete_button_redirect_to: str = 'delete'
-        do_click_on_row_redirect_to: str = 'visual'
+        do_click_on_entry_redirect_to: str = 'read'
+
+    class MetaViewRead:
+        """Meta view class for list."""
+
+        create_button_redirect_to: str = 'create'
+        delete_button_redirect_to: str = 'delete'
+        edit_button_redirect_to: str = 'edit'
+        return_button_redirect_to: str = 'list'
