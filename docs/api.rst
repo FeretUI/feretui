@@ -107,6 +107,10 @@ feretui.resources modules
    :members:
    :private-members:
 
+.. automodule:: feretui.resources.read
+   :members:
+   :private-members:
+
 
 feretui.helper module
 ---------------------
