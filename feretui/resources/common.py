@@ -247,7 +247,8 @@ class MultiView(ActionsMixinForView):
                 Markup(feretui.render_template(
                     session,
                     'view-goto-create-button',
-                    create_view_qs=self.get_transition_querystring(
+                    url=self.get_transition_url(
+                        feretui,
                         options,
                         view=self.create_button_redirect_to,
                     ),
