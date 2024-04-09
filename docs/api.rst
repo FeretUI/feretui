@@ -107,6 +107,10 @@ feretui.resources modules
    :members:
    :private-members:
 
+.. automodule:: feretui.resources.create
+   :members:
+   :private-members:
+
 .. automodule:: feretui.resources.read
    :members:
    :private-members:

@@ -28,9 +28,10 @@ from lxml.etree import Element
 from markupsafe import Markup
 from polib import POFile
 
+from feretui.form import FeretUIForm
 from feretui.request import Request
 from feretui.resources.common import TemplateMixinForView
-from feretui.resources.view import View
+from feretui.resources.view import View, view_action_validator
 from feretui.response import Response
 from feretui.session import Session
 from feretui.thread import local
@@ -53,7 +54,7 @@ class DefaultViewCreate:
 
 
 class CreateView(TemplateMixinForView, View):
-    """List view."""
+    """Create view."""
 
     code: str = 'create'
 
@@ -156,6 +157,7 @@ class CreateView(TemplateMixinForView, View):
         })
         return res
 
+    @view_action_validator(methods=[Request.POST])
     def save(
         self: "CreateView",
         feretui: "FeretUI",
@@ -230,3 +232,14 @@ class CResource:
             return view_cls(self)
 
         return super().build_view(view_cls_name)
+
+    def create(self: "CResource", form: FeretUIForm) -> str:
+        """Create an object from the form and return the primary key.
+
+        .. warning:: must be overwriting
+
+        :param form: The instance of Form
+        :type form: :class:`feretui.form.FeretUIForm`
+        :return: The primary key
+        :rtype: str
+        """
