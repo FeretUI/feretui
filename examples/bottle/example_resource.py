@@ -153,6 +153,25 @@ class RUser(LCRUDResource, Resource):
             ]),
         ]
 
+    class MetaViewRead:
+
+        class Form:
+            theme = SelectField(
+                choices=[
+                    ('journal', 'Journal'),
+                    ('minthy', 'Minthy'),
+                    ('darkly', 'Darkly'),
+                ],
+            )
+            lang = SelectField(choices=[('en', 'English'), ('fr', 'Français')])
+
+        actions = [
+            Actionset('Print', [
+                Action('Print 1', 'print_1'),
+                Action('Print 10', 'print_10'),
+            ]),
+        ]
+
     def print_1(self, *a, **kw) -> None:
         print(1, a, kw)
 

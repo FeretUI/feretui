@@ -66,7 +66,7 @@
       <span>Edit</span>
     </button>
   </template>
-  <template id="view-do-edit-button">
+  <template id="view-do-update-button">
     <button
       class="button is-info"
       type="submit"
@@ -77,9 +77,9 @@
       <span>Update</span>
     </button>
   </template>
-  <template id="view-return-button">
+  <template id="view-goto-return-button">
     <button
-      class="button is-primary"
+      class="button"
       hx-get="{{ feretui.base_url }}/action/goto?{{ return_view_qs }}"
     >
       <span class="icon">
@@ -88,7 +88,7 @@
       <span>Return</span>
     </button>
   </template>
-  <template id="view-new-cancel-button">
+  <template id="view-goto-new-cancel-button">
     <button 
       class="button is-ghost"
       type="reset"
@@ -100,7 +100,7 @@
       <span>Cancel</span>
     </button>
   </template>
-  <template id="view-edit-cancel-button">
+  <template id="view-goto-edit-cancel-button">
     <button 
       class="button is-ghost"
       type="reset"
@@ -113,7 +113,7 @@
     </button>
   </template>
   <template id="view-buttons-header">
-    <div class="buttons">
+    <div class="buttons is-centered">
       {% for button in header_buttons %}
       {{ button }}
       {% endfor %}
@@ -212,20 +212,6 @@
         {{ field(**{'hx-post': hx_post, 'hx-params': field.name, 'hx-trigger': "keyup[key=='Enter'],blur"}) }}
       </div>
       </div>
-      {% endfor %}
-    </div>
-  </template>
-  <template id="view-readonly-form">
-    <div class="container">
-      {% for field in form %}
-      {{ field(readonly=True) }}
-      {% endfor %}
-    </div>
-  </template>
-  <template id="view-readwrite-form">
-    <div class="container">
-      {% for field in form %}
-      {{ field(readonly=True) }}
       {% endfor %}
     </div>
   </template>

@@ -29,6 +29,7 @@ from markupsafe import Markup
 from polib import POFile
 from wtforms.fields import Field
 
+from feretui.request import Request
 from feretui.resources.common import MultiView
 from feretui.resources.view import View
 from feretui.session import Session
@@ -104,12 +105,12 @@ class ListView(MultiView, View):
         """Render the field for the view list."""
         return self.WIDGETS.get(field.__class__, span_widget)(field, **kwargs)
 
-    def get_call_kwargs(self: "ListView", params: dict) -> dict:
+    def get_call_kwargs(self: "ListView", request: Request) -> dict:
         """Return the kwargs of the call method."""
-        res = super().get_call_kwargs(params)
+        res = super().get_call_kwargs(request)
         key = f'selected-rows-resource-{self.resource.code}-view-{self.code}'
-        if key in params:
-            res['pks'] = params[key]
+        if key in request.params:
+            res['pks'] = request.params[key]
 
         return res
 

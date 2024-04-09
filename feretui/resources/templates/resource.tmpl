@@ -105,4 +105,30 @@
       </form>
     </div>
   </template>
+  <template id="view-readonly-form">
+    <div class="container">
+      {% for field in form %}
+      {{ field(readonly=True) }}
+      {% endfor %}
+    </div>
+  </template>
+  <template id="view-readwrite-form">
+    <div class="container">
+      {% for field in form %}
+      {{ field(readonly=True) }}
+      {% endfor %}
+    </div>
+  </template>
+  <template id="feretui-resource-read-header">
+    <div class="columns">
+      <div id="label" class="column is-3">
+        <h1>{{ form.pk.data }}</h1>
+      </div>
+      <div id="buttons" class="column">
+        <include template="view-buttons-header"/>
+      </div>
+      <div is="status" class="column is-3">
+      </div>
+    </div>
+  </template>
 </templates>

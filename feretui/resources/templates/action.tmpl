@@ -22,11 +22,11 @@
   </template>
   <template id="feretui-page-resource-action-set">
     <div class="panel mb-4">
-      <p class="panel-heading">
+      <div class="panel-heading">
         <include template="feretui-icon" />
         <span>{{ label }}</span>
         <include template="feretui-description"/>
-      </p>
+      </div>
       {% for action in actions %}
       {{ action }}
       {% endfor %}
