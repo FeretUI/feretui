@@ -45,8 +45,6 @@ if TYPE_CHECKING:
 class DefaultViewRead:
     """Default value for the view read."""
 
-    label: str = None
-    limit: int = 20
     create_button_redirect_to: str = None
     delete_button_redirect_to: str = None
     edit_button_redirect_to: str = None
@@ -54,11 +52,10 @@ class DefaultViewRead:
 
     header_template_id: str = "feretui-resource-read-header"
     body_template_id: str = "view-readonly-form"
-    footer_template_id: str = "view-buttons-header"
 
 
 class ReadView(ActionsMixinForView, TemplateMixinForView, View):
-    """List view."""
+    """Read view."""
 
     code: str = 'read'
 
@@ -136,7 +133,7 @@ class ReadView(ActionsMixinForView, TemplateMixinForView, View):
         :return: The html pages
         :rtype: list[Markup]
         """
-        res = []
+        res = super().get_header_buttons(feretui, session, options)
         if self.create_button_redirect_to:
             res.append(
                 Markup(feretui.render_template(
@@ -199,7 +196,7 @@ class ReadView(ActionsMixinForView, TemplateMixinForView, View):
 
 
 class RResource:
-    """LResource class."""
+    """RResource class."""
 
     MetaViewRead = DefaultViewRead
 
