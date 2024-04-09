@@ -124,6 +124,18 @@
       {% endfor %}
     </div>
   </template>
+  <template id="feretui-resource-create-header">
+    <div class="columns">
+      <div id="label" class="column is-3">
+        <h1>{{ label }}</h1>
+      </div>
+      <div id="buttons" class="column">
+        <include template="view-buttons-header"/>
+      </div>
+      <div is="status" class="column is-3">
+      </div>
+    </div>
+  </template>
   <template id="feretui-resource-read-header">
     <div class="columns">
       <div id="label" class="column is-3">

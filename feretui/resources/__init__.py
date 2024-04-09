@@ -42,17 +42,19 @@ from feretui.resources.actions import (  # noqa: F401
     Actionset,
     SelectedRowsAction,
 )
+from feretui.resources.create import CResource
 from feretui.resources.list import LResource
 from feretui.resources.read import RResource
 from feretui.resources.resource import Resource  # noqa: F401
 
 
-class LCRUDResource(LResource, RResource):
+class LCRUDResource(LResource, CResource, RResource):
     """LCRUDResource class.
 
     This class is a mixin, it inherit the mixins:
 
     * :class:`feretui.resources.list.LResource`
+    * :class:`feretui.resources.create.CResource`
     * :class:`feretui.resources.read.RResource`
 
     """
@@ -65,6 +67,11 @@ class LCRUDResource(LResource, RResource):
         create_button_redirect_to: str = 'create'
         delete_button_redirect_to: str = 'delete'
         do_click_on_entry_redirect_to: str = 'read'
+
+    class MetaViewCreate:
+        """Meta view class for create."""
+
+        after_create_redirect_to: str = 'read'
 
     class MetaViewRead:
         """Meta view class for read."""

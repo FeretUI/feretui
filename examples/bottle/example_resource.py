@@ -17,14 +17,15 @@ from sqlalchemy.orm import (
 from sqlalchemy.orm import (
     Session as SQLASession,
 )
-from wtforms import RadioField, SelectField, StringField  # , PasswordField
-from wtforms.validators import InputRequired
+from wtforms import PasswordField, RadioField, SelectField, StringField
+from wtforms.validators import EqualTo, InputRequired
 
 from feretui import (
     Action,
     Actionset,
     FeretUI,
     LCRUDResource,
+    Password,
     Request,
     Resource,
     SelectedRowsAction,
@@ -153,6 +154,14 @@ class RUser(LCRUDResource, Resource):
             ]),
         ]
 
+    class MetaViewCreate:
+
+        class Form:
+            password = PasswordField(validators=[Password()])
+            password_confirm = PasswordField(
+                validators=[InputRequired(), EqualTo('password')],
+            )
+
     class MetaViewRead:
 
         class Form:
@@ -188,6 +197,7 @@ class RUser(LCRUDResource, Resource):
             form.populate_obj(user)
             session.add(user)
             session.commit()
+
             return user.login
 
     def read(self, form_cls, pk):
