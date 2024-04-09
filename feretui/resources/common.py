@@ -21,7 +21,7 @@ from polib import POFile
 from feretui.exceptions import ViewActionError, ViewError
 from feretui.form import FeretUIForm
 from feretui.request import Request
-from feretui.resources.actions import Actionset, SelectedRowsAction
+from feretui.resources.actions import Actionset
 from feretui.response import Response
 from feretui.session import Session
 from feretui.template import Template, decode_html
@@ -90,12 +90,12 @@ class ActionsMixinForView:
 
     def get_call_kwargs(
         self: "ActionsMixinForView",
-        params: dict,  # noqa: ARG002
+        request: Request,  # noqa: ARG002
     ) -> dict:
         """Return the kwargs for the call with this view.
 
-        :param params: request params
-        :type params: dict
+        :param request: request params
+        :type request: :class:`feretui.request.Request`
         :return: the kwargs from params
         :rtype: dict
         """
@@ -136,9 +136,7 @@ class ActionsMixinForView:
                     action.is_visible(request.session)
                     and action.method == method
                 ):
-                    if isinstance(action, SelectedRowsAction):
-                        view_kwargs.update(self.get_call_kwargs(request.params))
-
+                    view_kwargs.update(self.get_call_kwargs(request))
                     is_declared = True
                     break
 
@@ -657,7 +655,7 @@ class TemplateMixinForView:
         """
         template_id = f'resource-{self.resource.code}-view-{self.code}'
         if not feretui.template.has_template(template_id):
-            feretui.register_template_from_str(
+            feretui.template.load_template_from_str(
                 self.get_compiled_template(feretui, template_id),
             )
 

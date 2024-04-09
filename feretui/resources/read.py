@@ -27,6 +27,7 @@ from typing import TYPE_CHECKING
 from lxml.etree import SubElement
 from markupsafe import Markup
 
+from feretui.request import Request
 from feretui.resources.common import (
     ActionsMixinForView,
     TemplateMixinForView,
@@ -203,14 +204,16 @@ class ReadView(ActionsMixinForView, TemplateMixinForView, View):
 
         return res
 
-    # def get_call_kwargs(self: "ListView", params: dict) -> dict:
-    #     """Return the kwargs of the call method."""
-    #     res = super().get_call_kwargs(params)
-    #     key = f'selected-rows-resource-{self.resource.code}-view-{self.code}'
-    #     if key in params:
-    #         res['pks'] = params[key]
+    def get_call_kwargs(self: "ReadView", request: Request) -> dict:
+        """Return the kwargs of the call method."""
+        res = super().get_call_kwargs(request)
+        qs = request.get_query_string_from_current_url()
+        pks = qs.get('pk')
+        if not pks:
+            raise Exception
 
-    #     return res
+        res['pks'] = pks
+        return res
 
 
 class RResource:
