@@ -22,7 +22,6 @@ from feretui.pages import page_404
 from feretui.request import Request, RequestMethod
 from feretui.response import Response
 from feretui.session import Session
-from feretui.response import Response
 
 if TYPE_CHECKING:
     from feretui.feretui import FeretUI
@@ -214,56 +213,6 @@ class View:
 
         return Response(
             body,
-            headers={
-                'HX-Push-Url': url,
-            },
-        )
-
-    def get_transition_url(
-        self: "View",
-        feretui: "FeretUI",
-        options: dict,
-        **kwargs: dict[str, str],
-    ) -> str:
-        """Return the query string of a transition.
-
-        :param feretui: The feretui client
-        :type feretui: :class:`feretui.feretui.FeretUI`
-        :param options: the main query string
-        :type options: dict
-        :param kwargs: the new entries
-        :type kwargs: dict
-        :return: The querystring
-        :rtype: str
-        """
-        options = options.copy()
-        options['action'] = 'goto'
-        for key, value in kwargs.items():
-            if value is None:
-                options.pop(key, None)
-            elif isinstance(value, list):
-                options[key] = value
-            else:
-                options[key] = [value]
-
-        return (
-            f'{ feretui.base_url }/action/resource?'
-            f'{urllib.parse.urlencode(options, doseq=True)}'
-        )
-
-    def goto(self, feretui, request):
-        # TODO get validator
-        options = request.query.copy()
-        options.pop('action', None)
-        view = options.get('view')
-        if isinstance(view, list):
-            view = view[0]
-
-        base_url = request.get_base_url_from_current_url()
-        url = request.get_url_from_dict(base_url, options)
-
-        return Response(
-            self.resource.views[view].render(feretui, request.session, options),
             headers={
                 'HX-Push-Url': url,
             },
