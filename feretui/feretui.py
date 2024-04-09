@@ -524,15 +524,6 @@ class FeretUI:
         return self.statics.get(filename)
 
     # ---------- Templating  ----------
-    def has_template(self: "FeretUI", template_id: str) -> bool:
-        """Return True if the template exist in the view.
-
-        :param template_id: the template id
-        :type template_id: str
-        :return: bool
-        """
-        return self.template.has_template(template_id)
-
     def register_template_file(
         self: "FeretUI",
         template_path: str,
