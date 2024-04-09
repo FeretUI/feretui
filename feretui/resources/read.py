@@ -28,6 +28,7 @@ from lxml.etree import Element, SubElement
 from markupsafe import Markup
 
 from feretui.exceptions import ViewActionError
+from feretui.form import FeretUIForm
 from feretui.request import Request
 from feretui.resources.common import (
     ActionsMixinForView,
@@ -139,7 +140,8 @@ class ReadView(ActionsMixinForView, TemplateMixinForView, View):
                 Markup(feretui.render_template(
                     session,
                     'view-goto-create-button',
-                    create_view_qs=self.get_transition_querystring(
+                    url=self.get_transition_url(
+                        feretui,
                         options,
                         pk=None,
                         view=self.create_button_redirect_to,
@@ -151,7 +153,8 @@ class ReadView(ActionsMixinForView, TemplateMixinForView, View):
                 Markup(feretui.render_template(
                     session,
                     'view-goto-edit-button',
-                    edit_view_qs=self.get_transition_querystring(
+                    url=self.get_transition_url(
+                        feretui,
                         options,
                         view=self.edit_button_redirect_to,
                     ),
@@ -162,7 +165,8 @@ class ReadView(ActionsMixinForView, TemplateMixinForView, View):
                 Markup(feretui.render_template(
                     session,
                     'view-goto-delete-button',
-                    delete_view_qs=self.get_transition_querystring(
+                    url=self.get_transition_url(
+                        feretui,
                         options,
                         view=self.delete_button_redirect_to,
                     ),
@@ -173,7 +177,8 @@ class ReadView(ActionsMixinForView, TemplateMixinForView, View):
                 Markup(feretui.render_template(
                     session,
                     'view-goto-return-button',
-                    return_view_qs=self.get_transition_querystring(
+                    url=self.get_transition_url(
+                        feretui,
                         options,
                         pk=None,
                         view=self.return_button_redirect_to,
@@ -225,3 +230,16 @@ class RResource:
             return view_cls(self)
 
         return super().build_view(view_cls_name)
+
+    def read(self: "RResource", form_cls: FeretUIForm, pk: str) -> FeretUIForm:
+        """Return an intance of the form.
+
+        .. warning:: must be overwriting
+
+        :param form_cls: Form of the list view
+        :type form_cls: :class:`feretui.form.FeretUIForm`
+        :param pk: The primary key
+        :type pk: str
+        :return: the form instance
+        :type form_cls: :class:`feretui.form.FeretUIForm`
+        """

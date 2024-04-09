@@ -35,7 +35,7 @@
                   {% for row in dataset.forms %}
                   <tr
                     hx-trigger="dblclick"
-                    hx-get="/feretui/action/goto?{{ open_view_qs }}&pk={{ row.pk.data }}"
+                    hx-get="{{ open_view_url }}&pk={{ row.pk.data }}"
                   >
                     <td>
                       <input 

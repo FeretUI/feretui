@@ -171,7 +171,7 @@ class TestMultiView:
         local.feretui = myferet = FeretUI()
         session = Session()
         request = Request(
-            method=Request.POST,
+            method=Request.GET,
             querystring='offset=0',
             session=session,
             headers={'Hx-Current-Url': '/test?resource=test'},

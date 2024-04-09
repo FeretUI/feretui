@@ -22,6 +22,7 @@ from feretui.exceptions import ViewActionError, ViewError
 from feretui.form import FeretUIForm
 from feretui.request import Request
 from feretui.resources.actions import Actionset
+from feretui.resources.view import view_action_validator
 from feretui.response import Response
 from feretui.session import Session
 from feretui.template import Template, decode_html
@@ -101,6 +102,7 @@ class ActionsMixinForView:
         """
         return {}
 
+    @view_action_validator(methods=[Request.POST])
     def call(
         self: "ActionsMixinForView",
         feretui: "FeretUI",
@@ -121,9 +123,6 @@ class ActionsMixinForView:
         :rtype: :class:`feretui.response.Response`
         :exception: ViewActionError
         """
-        if request.method is not Request.POST:
-            raise ViewActionError(f'{request.method} is not the POST method')
-
         method = request.params.get('method')
         if isinstance(method, list):
             method = method[0]
@@ -259,7 +258,8 @@ class MultiView(ActionsMixinForView):
                 Markup(feretui.render_template(
                     session,
                     'view-goto-selected-delete-button',
-                    delete_view_qs=self.get_transition_querystring(
+                    url=self.get_transition_url(
+                        feretui,
                         options,
                         view=self.delete_button_redirect_to,
                     ),
@@ -333,8 +333,9 @@ class MultiView(ActionsMixinForView):
         )
         paginations = range(0, dataset['total'], self.limit)
 
-        open_view_qs = (
-            self.get_transition_querystring(
+        open_view_url = (
+            self.get_transition_url(
+                feretui,
                 options,
                 pk=None,
                 view=self.do_click_on_entry_redirect_to,
@@ -351,7 +352,7 @@ class MultiView(ActionsMixinForView):
             "paginations": paginations,
             "dataset": dataset,
             "filters": filters,
-            "open_view_qs": open_view_qs,
+            "open_view_url": open_view_url,
             "header_buttons": self.get_header_buttons(
                 feretui,
                 session,
@@ -362,6 +363,7 @@ class MultiView(ActionsMixinForView):
 
     # ---------------- View actions -------------------------
 
+    @view_action_validator(methods=[Request.GET])
     def pagination(
         self: "MultiView",
         feretui: "FeretUI",
@@ -386,6 +388,7 @@ class MultiView(ActionsMixinForView):
             },
         )
 
+    @view_action_validator(methods=[Request.POST, Request.DELETE])
     def filters(
         self: "MultiView",
         feretui: "FeretUI",

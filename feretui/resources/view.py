@@ -10,13 +10,17 @@
 The main class to construct a view
 """
 import urllib
+from collections.abc import Callable
+from functools import wraps
 from typing import TYPE_CHECKING
 
 from polib import POFile
 
-from feretui.exceptions import ViewFormError
+from feretui.exceptions import ViewActionError, ViewFormError
 from feretui.form import FeretUIForm
 from feretui.pages import page_404
+from feretui.request import Request, RequestMethod
+from feretui.response import Response
 from feretui.session import Session
 from feretui.response import Response
 
@@ -24,6 +28,60 @@ if TYPE_CHECKING:
     from feretui.feretui import FeretUI
     from feretui.resources.resource import Resource
     from feretui.translation import Translation
+
+
+def view_action_validator(
+    methods: list[RequestMethod] = None,
+) -> Callable:
+    """Validate the action callback.
+
+    ::
+
+        class MyView:
+
+            @view_action_validator(methods=[RequestMethod.POST])
+            def my_action(self, feretui, request):
+                return Response(...)
+
+    .. note::
+
+        The response of the callback must be a
+        :class:`feretui.response.Response`
+
+    :param methods: The request methods of the action, if None the action can
+                    be called with any request method, else allow only the
+                    defined request methods.
+    :type methods: list[:class:`feretui.request.RequestMethod`]
+    :return: a wrapper function:
+    :rtype: Callable
+    """
+    if methods is not None and not isinstance(methods, list):
+        methods = [methods]
+
+    def wrapper_function(func: Callable) -> Callable:
+        @wraps(func)
+        def wrapper_call(
+            self: "View",
+            feret: "FeretUI",
+            request: Response,
+        ) -> Response:
+            if methods is not None and request.method not in methods:
+                raise ViewActionError(
+                    f"The received method is {request.method} "
+                    f"but waiting method {methods}",
+                )
+
+            response = func(self, feret, request)
+            if not isinstance(response, Response):
+                raise ViewActionError(
+                    f"The response '{response}' is not an instance of Response",
+                )
+
+            return response
+
+        return wrapper_call
+
+    return wrapper_function
 
 
 class ViewForm:
@@ -93,21 +151,25 @@ class View:
         """
         return page_404(feretui, session, options)
 
-    def get_transition_querystring(
+    def get_transition_url(
         self: "View",
+        feretui: "FeretUI",
         options: dict,
         **kwargs: dict[str, str],
     ) -> str:
         """Return the query string of a transition.
 
+        :param feretui: The feretui client
+        :type feretui: :class:`feretui.feretui.FeretUI`
         :param options: the main query string
         :type options: dict
         :param kwargs: the new entries
         :type kwargs: dict
         :return: The querystring
-        :rtype: str
+        :rtype: str.
         """
         options = options.copy()
+        options['action'] = 'goto'
         for key, value in kwargs.items():
             if value is None:
                 options.pop(key, None)
@@ -116,7 +178,46 @@ class View:
             else:
                 options[key] = [value]
 
-        return urllib.parse.urlencode(options, doseq=True)
+        return (
+            f'{ feretui.base_url }/action/resource?'
+            f'{urllib.parse.urlencode(options, doseq=True)}'
+        )
+
+    @view_action_validator(methods=Request.GET)
+    def goto(self: "View", feretui: "FeretUI", request: Request) -> Response:
+        """Change the view type and renderer it.
+
+        :param feretui: The feretui client
+        :type feretui: :class:`feretui.feretui.FeretUI`
+        :param request: The request
+        :type request: :class:`feretui.request.Request`
+        :return: The page to display
+        :rtype: :class:`feretui.response.Response`
+        """
+        options = request.query.copy()
+        options.pop('action', None)
+        view = options.get('view')
+        if isinstance(view, list):
+            view = view[0]
+
+        base_url = request.get_base_url_from_current_url()
+        url = request.get_url_from_dict(base_url, options)
+
+        if view not in self.resource.views:
+            body = page_404(feretui, request.session, options)
+        else:
+            body = self.resource.views[view].render(
+                feretui,
+                request.session,
+                options,
+            )
+
+        return Response(
+            body,
+            headers={
+                'HX-Push-Url': url,
+            },
+        )
 
     def get_transition_url(
         self: "View",
