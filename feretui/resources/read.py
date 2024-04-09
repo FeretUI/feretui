@@ -14,21 +14,19 @@ The List resource represent data under html table.
 
 ::
 
-    myferet.register_resource(
-    )
-    class MyResource(LResource, Resource):
+    myferet.register_resource()
+    class MyResource(RResource, Resource):
         code = 'code of the resource',
         label = 'label',
 
-        class MetaViewList:
+        class MetaViewRead:
             pass
 """
 from typing import TYPE_CHECKING
 
 from lxml.etree import SubElement
+from markupsafe import Markup
 
-# from markupsafe import Markup
-# from polib import POFile
 from feretui.resources.common import (
     ActionsMixinForView,
     TemplateMixinForView,
@@ -36,12 +34,10 @@ from feretui.resources.common import (
 from feretui.resources.view import View
 from feretui.session import Session
 
-# from feretui.thread import local
 from .resource import Resource
 
 if TYPE_CHECKING:
     from feretui.feretui import FeretUI
-    # from feretui.translation import Translation
 
 
 class DefaultViewRead:
@@ -127,24 +123,85 @@ class ReadView(ActionsMixinForView, TemplateMixinForView, View):
         :rtype: dict.
         """
         res = super().render_kwargs(feretui, session, options)
+        pk = options.get('pk')
+        if isinstance(pk, list):
+            pk = pk[0]
+
+        # if not pk:
+        #     raise ViewError()
+
         res.update({
             'actions': self.get_actions(feretui, session),
+            'form': self.resource.read(self.form_cls, pk),
         })
         return res
 
-    # def export_catalog(
-    #     self: "ListView",
-    #     translation: "Translation",
-    #     po: POFile,
-    # ) -> None:
-    #     """Export the translations in the catalog.
+    def get_header_buttons(
+        self: "ReadView",
+        feretui: "FeretUI",
+        session: Session,
+        options: dict,
+    ) -> list[Markup]:
+        """Return the buttons for the multi view.
 
-    #     :param translation: The translation instance to add also inside it.
-    #     :type translation: :class:`.Translation`
-    #     :param po: The catalog instance
-    #     :type po: PoFile_
-    #     """
-    #     super().export_catalog(translation, po)
+        :param feretui: The feretui client
+        :type feretui: :class:`feretui.feretui.FeretUI`
+        :param session: The Session
+        :type session: :class:`feretui.session.Session`
+        :param options: The options come from the body or the query string
+        :type options: dict
+        :return: The html pages
+        :rtype: list[Markup]
+        """
+        res = []
+        if self.create_button_redirect_to:
+            res.append(
+                Markup(feretui.render_template(
+                    session,
+                    'view-goto-create-button',
+                    create_view_qs=self.get_transition_querystring(
+                        options,
+                        pk=None,
+                        view=self.create_button_redirect_to,
+                    ),
+                )),
+            )
+        if self.edit_button_redirect_to:
+            res.append(
+                Markup(feretui.render_template(
+                    session,
+                    'view-goto-edit-button',
+                    edit_view_qs=self.get_transition_querystring(
+                        options,
+                        view=self.edit_button_redirect_to,
+                    ),
+                )),
+            )
+        if self.delete_button_redirect_to:
+            res.append(
+                Markup(feretui.render_template(
+                    session,
+                    'view-goto-delete-button',
+                    delete_view_qs=self.get_transition_querystring(
+                        options,
+                        view=self.delete_button_redirect_to,
+                    ),
+                )),
+            )
+        if self.return_button_redirect_to:
+            res.append(
+                Markup(feretui.render_template(
+                    session,
+                    'view-goto-return-button',
+                    return_view_qs=self.get_transition_querystring(
+                        options,
+                        pk=None,
+                        view=self.return_button_redirect_to,
+                    ),
+                )),
+            )
+
+        return res
 
     # def get_call_kwargs(self: "ListView", params: dict) -> dict:
     #     """Return the kwargs of the call method."""
@@ -154,30 +211,6 @@ class ReadView(ActionsMixinForView, TemplateMixinForView, View):
     #         res['pks'] = params[key]
 
     #     return res
-
-    # def render(
-    #     self: "ListView",
-    #     feretui: "FeretUI",
-    #     session: Session,
-    #     options: dict,
-    # ) -> str:
-    #     """Render the view.
-
-    #     :param feretui: The feretui client
-    #     :type feretui: :class:`feretui.feretui.FeretUI`
-    #     :param session: The Session
-    #     :type session: :class:`feretui.session.Session`
-    #     :param options: The options come from the body or the query string
-    #     :type options: dict
-    #     :return: The html page in
-    #     :rtype: str.
-    #     """
-    #     return feretui.render_template(
-    #         session,
-    #         'feretui-resource-list',
-    #         widget=self.widget,
-    #         **self.render_kwargs(feretui, session, options),
-    #     )
 
 
 class RResource:
