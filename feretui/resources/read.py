@@ -28,6 +28,7 @@ from lxml.etree import Element, SubElement
 from markupsafe import Markup
 
 from feretui.exceptions import ViewActionError
+from feretui.form import FeretUIForm
 from feretui.request import Request
 from feretui.resources.common import (
     ActionsMixinForView,
@@ -45,8 +46,6 @@ if TYPE_CHECKING:
 class DefaultViewRead:
     """Default value for the view read."""
 
-    label: str = None
-    limit: int = 20
     create_button_redirect_to: str = None
     delete_button_redirect_to: str = None
     edit_button_redirect_to: str = None
@@ -54,11 +53,10 @@ class DefaultViewRead:
 
     header_template_id: str = "feretui-resource-read-header"
     body_template_id: str = "view-readonly-form"
-    footer_template_id: str = "view-buttons-header"
 
 
 class ReadView(ActionsMixinForView, TemplateMixinForView, View):
-    """List view."""
+    """Read view."""
 
     code: str = 'read'
 
@@ -136,13 +134,14 @@ class ReadView(ActionsMixinForView, TemplateMixinForView, View):
         :return: The html pages
         :rtype: list[Markup]
         """
-        res = []
+        res = super().get_header_buttons(feretui, session, options)
         if self.create_button_redirect_to:
             res.append(
                 Markup(feretui.render_template(
                     session,
                     'view-goto-create-button',
-                    create_view_qs=self.get_transition_querystring(
+                    url=self.get_transition_url(
+                        feretui,
                         options,
                         pk=None,
                         view=self.create_button_redirect_to,
@@ -154,7 +153,8 @@ class ReadView(ActionsMixinForView, TemplateMixinForView, View):
                 Markup(feretui.render_template(
                     session,
                     'view-goto-edit-button',
-                    edit_view_qs=self.get_transition_querystring(
+                    url=self.get_transition_url(
+                        feretui,
                         options,
                         view=self.edit_button_redirect_to,
                     ),
@@ -165,7 +165,8 @@ class ReadView(ActionsMixinForView, TemplateMixinForView, View):
                 Markup(feretui.render_template(
                     session,
                     'view-goto-delete-button',
-                    delete_view_qs=self.get_transition_querystring(
+                    url=self.get_transition_url(
+                        feretui,
                         options,
                         view=self.delete_button_redirect_to,
                     ),
@@ -176,7 +177,8 @@ class ReadView(ActionsMixinForView, TemplateMixinForView, View):
                 Markup(feretui.render_template(
                     session,
                     'view-goto-return-button',
-                    return_view_qs=self.get_transition_querystring(
+                    url=self.get_transition_url(
+                        feretui,
                         options,
                         pk=None,
                         view=self.return_button_redirect_to,
@@ -199,7 +201,7 @@ class ReadView(ActionsMixinForView, TemplateMixinForView, View):
 
 
 class RResource:
-    """LResource class."""
+    """RResource class."""
 
     MetaViewRead = DefaultViewRead
 
@@ -228,3 +230,16 @@ class RResource:
             return view_cls(self)
 
         return super().build_view(view_cls_name)
+
+    def read(self: "RResource", form_cls: FeretUIForm, pk: str) -> FeretUIForm:
+        """Return an intance of the form.
+
+        .. warning:: must be overwriting
+
+        :param form_cls: Form of the list view
+        :type form_cls: :class:`feretui.form.FeretUIForm`
+        :param pk: The primary key
+        :type pk: str
+        :return: the form instance
+        :type form_cls: :class:`feretui.form.FeretUIForm`
+        """

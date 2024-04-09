@@ -35,7 +35,7 @@
                   {% for row in dataset.forms %}
                   <tr
                     hx-trigger="dblclick"
-                    hx-get="/feretui/action/goto?{{ open_view_qs }}&pk={{ row.pk.data }}"
+                    hx-get="{{ open_view_url }}&pk={{ row.pk.data }}"
                   >
                     <td>
                       <input 
@@ -114,8 +114,13 @@
   </template>
   <template id="view-readwrite-form">
     <div class="container">
+      {% if error %}
+      <div class="notification is-danger">
+        {{ error }}
+      </div>
+      {% endif %}
       {% for field in form %}
-      {{ field(readonly=True) }}
+      {{ field }}
       {% endfor %}
     </div>
   </template>

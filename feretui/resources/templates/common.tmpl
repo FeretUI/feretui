@@ -2,7 +2,7 @@
   <template id="view-goto-create-button">
     <button
       class="button is-primary"
-      hx-get="{{ feretui.base_url }}/action/goto?{{ create_view_qs }}"
+      hx-get="{{ url }}"
     >
       <span class="icon">
         <i class="fa-solid fa-plus"></i>
@@ -10,21 +10,21 @@
       <span>Create</span>
     </button>
   </template>
-  <template id="view-do-create-button">
+  <template id="view-do-save-button">
     <button
       class="button is-primary"
       type="submit"
     >
       <span class="icon">
-        <i class="fa-solid fa-plus"></i>
+        <i class="fa-regular fa-pen-to-square"></i>
       </span>
-      <span>Create</span>
+      <span>Save</span>
     </button>
   </template>
   <template id="view-goto-selected-delete-button">
     <button
       class="button is-danger selected-buttons-resource-{{ rcode }}-view-{{ vcode }}"
-      hx-get="{{ feretui.base_url }}/action/goto?{{ delete_view_qs }}"
+      hx-get="{{ url }}"
       disabled="{{ disabled }}"
     >
       <span class="icon">
@@ -36,7 +36,7 @@
   <template id="view-goto-delete-button">
     <button
       class="button is-danger"
-      hx-get="{{ feretui.base_url }}/action/goto?{{ delete_view_qs }}"
+      hx-get="{{ url }}"
     >
       <span class="icon">
         <i class="fa-solid fa-trash"></i>
@@ -58,7 +58,7 @@
   <template id="view-goto-edit-button">
     <button
       class="button is-info"
-      hx-get="{{ feretui.base_url }}/action/goto?{{ edit_view_qs }}"
+      hx-get="{{ url }}"
     >
       <span class="icon">
         <i class="fa-regular fa-pen-to-square"></i>
@@ -66,21 +66,10 @@
       <span>Edit</span>
     </button>
   </template>
-  <template id="view-do-update-button">
-    <button
-      class="button is-info"
-      type="submit"
-    >
-      <span class="icon">
-        <i class="fa-regular fa-pen-to-square"></i>
-      </span>
-      <span>Update</span>
-    </button>
-  </template>
   <template id="view-goto-return-button">
     <button
       class="button"
-      hx-get="{{ feretui.base_url }}/action/goto?{{ return_view_qs }}"
+      hx-get="{{ url }}"
     >
       <span class="icon">
         <i class="fa-solid fa-arrow-left"></i>

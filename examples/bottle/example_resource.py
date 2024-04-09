@@ -180,12 +180,15 @@ class RUser(LCRUDResource, Resource):
 
     def create(self, form):
         with SQLASession(engine) as session:
+            user = session.get(User, form.login.data)
+            if user:
+                raise Exception('User already exist')
+
             user = User()
             form.populate_obj(user)
             session.add(user)
             session.commit()
-
-        return user.login
+            return user.login
 
     def read(self, form_cls, pk):
         with SQLASession(engine) as session:
@@ -202,7 +205,7 @@ class RUser(LCRUDResource, Resource):
             for key, values in filters:
                 if len(values) == 1:
                     stmt = stmt.filter(
-                        getattr(User, key).ilike(f'%{values[0]}%')
+                        getattr(User, key).ilike(f'%{values[0]}%'),
                     )
                 elif len(values) > 1:
                     stmt = stmt.filter(getattr(User, key).in_(values))
