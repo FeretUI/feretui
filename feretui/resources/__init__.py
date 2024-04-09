@@ -42,8 +42,8 @@ from feretui.resources.actions import (  # noqa: F401
     Actionset,
     SelectedRowsAction,
 )
-from feretui.resources.list import LResource  # noqa: F401
-from feretui.resources.read import RResource  # noqa: F401
+from feretui.resources.list import LResource
+from feretui.resources.read import RResource
 from feretui.resources.resource import Resource  # noqa: F401
 
 
@@ -67,7 +67,7 @@ class LCRUDResource(LResource, RResource):
         do_click_on_entry_redirect_to: str = 'read'
 
     class MetaViewRead:
-        """Meta view class for list."""
+        """Meta view class for read."""
 
         create_button_redirect_to: str = 'create'
         delete_button_redirect_to: str = 'delete'

@@ -29,6 +29,7 @@ from markupsafe import Markup
 from polib import POFile
 from wtforms.fields import Field
 
+from feretui.form import FeretUIForm
 from feretui.request import Request
 from feretui.resources.common import MultiView
 from feretui.resources.view import View
@@ -171,3 +172,30 @@ class LResource:
             return view_cls(self)
 
         return super().build_view(view_cls_name)
+
+    def filtered_reads(
+        self: "LResource",
+        form_cls: FeretUIForm,
+        filters: list[tuple[str, list[str]]],
+        offset: int,
+        limit: int,
+    ) -> dict:
+        """Return the dataset of the list.
+
+        should return a dict with 2 key
+        * forms: list of instance of form_cls
+        * total: number of the exisinting entries without offset and limit
+
+        .. warning:: must be overwriting
+
+        :param form_cls: Form of the list view
+        :type form_cls: :class:`feretui.form.FeretUIForm`
+        :param filters: The filters choosen in the list
+        :type filters: list[tuple[str, list[str]]]
+        :param offset: The start of the plage of the dataset
+        :type offset: int
+        :param limit: The size of the plage of the dataset
+        :type limit: int
+        :return: the dataset
+        :rtype: dict
+        """

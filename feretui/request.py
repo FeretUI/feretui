@@ -51,6 +51,18 @@ from feretui.session import Session
 class RequestMethod:
     """RequestMethod."""
 
+    def __init__(self: "RequestMethod", method: str) -> None:
+        """RequestMethod Constructor."""
+        self.method: str = method
+
+    def __str__(self: "RequestMethod") -> str:
+        """Return the method."""
+        return self.method
+
+    def __repr__(self: "RequestMethod") -> str:
+        """Return the method."""
+        return self.method
+
 
 class Request:
     """Description of the request.
@@ -74,15 +86,15 @@ class Request:
     :exception: :class:`feretui.exceptions.RequestWrongSessionError`
     """
 
-    DELETE = RequestMethod()
+    DELETE = RequestMethod("DELETE")
     """DELETE request method"""
-    GET = RequestMethod()
+    GET = RequestMethod("GET")
     """GET request method"""
-    PATCH = RequestMethod()
+    PATCH = RequestMethod("PATCH")
     """PATCH request method"""
-    POST = RequestMethod()
+    POST = RequestMethod("POST")
     """Post request method"""
-    PUT = RequestMethod()
+    PUT = RequestMethod("PUT")
     """PUT request method"""
 
     def __init__(

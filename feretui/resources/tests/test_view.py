@@ -13,10 +13,11 @@ import pytest  # noqa: F401
 from polib import POFile
 from wtforms import StringField
 
-from feretui.exceptions import ViewFormError
+from feretui.exceptions import ViewActionError, ViewFormError
 from feretui.feretui import FeretUI
+from feretui.request import Request
 from feretui.resources.resource import Resource
-from feretui.resources.view import View
+from feretui.resources.view import View, view_action_validator
 from feretui.session import Session
 from feretui.thread import local
 
@@ -65,26 +66,29 @@ class TestResourceView:
         resource = MyResource.build()
         assert resource.views['test'].get_label()
 
-    def test_get_transition_querystring_1(self) -> None:
+    def test_get_transition_url_1(self) -> None:
         resource = MyResource.build()
-        assert resource.views['test'].get_transition_querystring(
+        assert resource.views['test'].get_transition_url(
+            FeretUI(),
             {'foo': 'bar'},
             foo=None,
-        ) == ''
+        ) == '/feretui/action/resource?action=goto'
 
-    def test_get_transition_querystring_2(self) -> None:
+    def test_get_transition_url_2(self) -> None:
         resource = MyResource.build()
-        assert resource.views['test'].get_transition_querystring(
+        assert resource.views['test'].get_transition_url(
+            FeretUI(),
             {'foo': 'bar'},
             bar='bar',
-        ) == 'foo=bar&bar=bar'
+        ) == '/feretui/action/resource?foo=bar&action=goto&bar=bar'
 
-    def test_get_transition_querystring_3(self) -> None:
+    def test_get_transition_url_3(self) -> None:
         resource = MyResource.build()
-        assert resource.views['test'].get_transition_querystring(
+        assert resource.views['test'].get_transition_url(
+            FeretUI(),
             {'foo': 'bar'},
             bar=['bar'],
-        ) == 'foo=bar&bar=bar'
+        ) == '/feretui/action/resource?foo=bar&action=goto&bar=bar'
 
     def test_export_catalog(self) -> None:
         local.feretui = myferet = FeretUI()
@@ -100,3 +104,69 @@ class TestResourceView:
             resource = MyResource()
             resource.context = 'test'
             View(resource)
+
+    def test_goto_without_view(self, snapshot) -> None:
+        local.feretui = myferet = FeretUI()
+        session = Session()
+        request = Request(
+            method=Request.GET,
+            querystring='',
+            session=session,
+            headers={'Hx-Current-Url': '/test?'},
+        )
+
+        class MyView(View):
+            class Form:
+                pk = StringField()
+
+        resource = Resource()
+        resource.context = 'test'
+        view = MyView(resource)
+        snapshot.assert_match(
+            view.goto(myferet, request).body,
+            'snapshot.html',
+        )
+
+    def test_goto_with_view(self, snapshot) -> None:
+        local.feretui = myferet = FeretUI()
+        session = Session()
+        request = Request(
+            method=Request.GET,
+            querystring='view=test',
+            session=session,
+            headers={'Hx-Current-Url': '/test?'},
+        )
+
+        class MyView(View):
+            class Form:
+                pk = StringField()
+
+        resource = Resource()
+        resource.context = 'test'
+        view = MyView(resource)
+        resource.views = {'test': view}
+        snapshot.assert_match(
+            view.goto(myferet, request).body,
+            'snapshot.html',
+        )
+
+    def test_decorator(self, snapshot) -> None:
+        local.feretui = myferet = FeretUI()
+        session = Session()
+        request = Request(
+            session=session,
+        )
+
+        class MyView(View):
+            class Form:
+                pk = StringField()
+
+            @view_action_validator()
+            def foo(self, *a, **kw) -> str:
+                return 'bar'
+
+        resource = Resource()
+        resource.context = 'test'
+        view = MyView(resource)
+        with pytest.raises(ViewActionError):
+            view.foo(myferet, request)
