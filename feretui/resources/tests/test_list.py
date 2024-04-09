@@ -107,6 +107,9 @@ class TestLResource:
         resource = MyResource2.build()
         resource.context = 'test'
         view = resource.views['list']
-        assert view.get_call_kwargs(
-            {'selected-rows-resource-foo-view-list': ['foo', 'bar']},
-        ) == {'pks': ['foo', 'bar']}
+        session = Session()
+        local.request = request = Request(
+            session=session,
+            params={'selected-rows-resource-foo-view-list': ['foo', 'bar']},
+        )
+        assert view.get_call_kwargs(request) == {'pks': ['foo', 'bar']}

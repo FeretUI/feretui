@@ -24,9 +24,10 @@ The List resource represent data under html table.
 """
 from typing import TYPE_CHECKING
 
-from lxml.etree import SubElement
+from lxml.etree import Element, SubElement
 from markupsafe import Markup
 
+from feretui.exceptions import ViewActionError
 from feretui.request import Request
 from feretui.resources.common import (
     ActionsMixinForView,
@@ -51,39 +52,9 @@ class DefaultViewRead:
     edit_button_redirect_to: str = None
     return_button_redirect_to: str = None
 
-    header_template: str = """
-    <div class="columns">
-      <div class="column is-3">
-        <h1>User : {{ form.pk.data }}</h1>
-      </div>
-      <div class="column">
-        <div class="buttons is-centered">
-          {% for button in header_buttons %}
-          {{ button }}
-          {% endfor %}
-        </div>
-      </div>
-      <div class="column is-3">
-      other
-      </div>
-    </div>
-    """
-
-    body_template = """
-    <div class="container">
-      {% for field in form %}
-      {{ field(readonly=True) }}
-      {% endfor %}
-    </div>
-    """
-
-    footer_template: str = """
-    <div class="buttons is-centered">
-       {% for button in header_buttons %}
-       {{ button }}
-       {% endfor %}
-    </div>
-    """
+    header_template_id: str = "feretui-resource-read-header"
+    body_template_id: str = "view-readonly-form"
+    footer_template_id: str = "view-buttons-header"
 
 
 class ReadView(ActionsMixinForView, TemplateMixinForView, View):
@@ -91,7 +62,18 @@ class ReadView(ActionsMixinForView, TemplateMixinForView, View):
 
     code: str = 'read'
 
-    def set_body_template(self, feretui, form) -> None:
+    def set_body_template(
+        self: "ReadView",
+        feretui: "FeretUI",
+        form: Element,
+    ) -> None:
+        """Add the body template.
+
+        :param feretui: The feretui client
+        :type feretui: :class:`feretui.feretui.FeretUI`
+        :param parent: The parent node
+        :type parent: HtmlElement_
+        """
         root = SubElement(form, 'div')
         root.set('class', 'columns')
         div = SubElement(root, 'div')
@@ -210,7 +192,7 @@ class ReadView(ActionsMixinForView, TemplateMixinForView, View):
         qs = request.get_query_string_from_current_url()
         pks = qs.get('pk')
         if not pks:
-            raise Exception
+            raise ViewActionError('No primary key in the query string')
 
         res['pks'] = pks
         return res

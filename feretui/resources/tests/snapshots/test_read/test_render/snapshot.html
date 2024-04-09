@@ -1,0 +1,186 @@
+<div class="container is-fluid content" id="resource-foo-view-read">
+ <form>
+  <div class="columns">
+   <div class="column is-3" id="label">
+    <h1>
+     foo
+    </h1>
+   </div>
+   <div class="column" id="buttons">
+    <div class="buttons is-centered">
+     
+      <button class="button is-primary" hx-get="/feretui/action/goto?view=other">
+ <span class="icon">
+  <i class="fa-solid fa-plus">
+  </i>
+ </span>
+ <span>
+  Create
+ </span>
+</button>
+      
+      <button class="button is-info" hx-get="/feretui/action/goto?pk=foo&amp;view=other">
+ <span class="icon">
+  <i class="fa-regular fa-pen-to-square">
+  </i>
+ </span>
+ <span>
+  Edit
+ </span>
+</button>
+      
+      <button class="button is-danger" hx-get="/feretui/action/goto?pk=foo&amp;view=other">
+ <span class="icon">
+  <i class="fa-solid fa-trash">
+  </i>
+ </span>
+ <span>
+  Delete
+ </span>
+</button>
+      
+      <button class="button" hx-get="/feretui/action/goto?view=other">
+ <span class="icon">
+  <i class="fa-solid fa-arrow-left">
+  </i>
+ </span>
+ <span>
+  Return
+ </span>
+</button>
+      
+    </div>
+   </div>
+   <div class="column is-3" is="status">
+   </div>
+  </div>
+  <div class="columns">
+   <div class="column">
+    <div class="container">
+     
+      <div class="field">
+ 
+ <label class="label" for="pk">
+  Pk
+      
+  <span>
+   
+  </span>
+ </label>
+ 
+ <div class="control">
+  <input class="input is-static " disabled id="pk" name="pk" readonly type="text" value="foo">
+ </div>
+ 
+</div>
+      
+      <div class="field">
+ 
+ <label class="label" for="foo">
+  Foo
+      
+  <span>
+   
+  </span>
+ </label>
+ 
+ <div class="control">
+  <input class="input is-static " disabled id="foo" name="foo" readonly type="text" value="">
+ </div>
+ 
+</div>
+      
+      <div class="field">
+ 
+ <label class="label" for="test">
+  Test
+      
+  <span>
+   
+  </span>
+ </label>
+ 
+ <div class="control">
+  <select class="input is-static " disabled id="test" name="test" readonly><option value="test1">Test 1</option></select>
+ </div>
+ 
+</div>
+      
+    </div>
+   </div>
+   <div class="column is-2">
+    
+                <div class="panel mb-4">
+ <div class="panel-heading">
+  <span>
+   
+  </span>
+  <span>
+   Print
+  </span>
+  <span>
+   
+  </span>
+ </div>
+ 
+      <a class="button panel-block" hx-post="/feretui/action/resource?action=call&amp;method=print_1">
+ <span>
+  
+ </span>
+ <span>
+  Print 1
+ </span>
+ <span>
+  
+ </span>
+</a>
+      
+</div>
+                
+   </div>
+  </div>
+  <div class="buttons is-centered">
+   
+      <button class="button is-primary" hx-get="/feretui/action/goto?view=other">
+ <span class="icon">
+  <i class="fa-solid fa-plus">
+  </i>
+ </span>
+ <span>
+  Create
+ </span>
+</button>
+      
+      <button class="button is-info" hx-get="/feretui/action/goto?pk=foo&amp;view=other">
+ <span class="icon">
+  <i class="fa-regular fa-pen-to-square">
+  </i>
+ </span>
+ <span>
+  Edit
+ </span>
+</button>
+      
+      <button class="button is-danger" hx-get="/feretui/action/goto?pk=foo&amp;view=other">
+ <span class="icon">
+  <i class="fa-solid fa-trash">
+  </i>
+ </span>
+ <span>
+  Delete
+ </span>
+</button>
+      
+      <button class="button" hx-get="/feretui/action/goto?view=other">
+ <span class="icon">
+  <i class="fa-solid fa-arrow-left">
+  </i>
+ </span>
+ <span>
+  Return
+ </span>
+</button>
+      
+  </div>
+ </form>
+</div>
