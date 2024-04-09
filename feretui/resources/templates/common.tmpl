@@ -24,7 +24,7 @@
   <template id="view-goto-selected-delete-button">
     <button
       class="button is-danger selected-buttons-resource-{{ rcode }}-view-{{ vcode }}"
-      hx-get="{{ url }}"
+      hx-delete="{{ feretui.base_url }}/action/resource?action=goto_delete"
       disabled="{{ disabled }}"
     >
       <span class="icon">
@@ -77,7 +77,7 @@
       <span>Return</span>
     </button>
   </template>
-  <template id="view-goto-new-cancel-button">
+  <template id="view-goto-cancel-button">
     <button 
       class="button is-ghost"
       type="reset"

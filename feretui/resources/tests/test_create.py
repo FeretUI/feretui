@@ -91,20 +91,11 @@ class TestCreateView:
             'snapshot.html',
         )
 
-    def test_export_catalog_1(self) -> None:
+    def test_export_catalog(self) -> None:
         local.feretui = myferet = FeretUI()
         po = POFile()
         resource = MyResource.build()
         resource.context = 'test'
-        resource.views['create'].export_catalog(myferet.translation, po)
-        assert len(po) == 4
-
-    def test_export_catalog_2(self) -> None:
-        local.feretui = myferet = FeretUI()
-        po = POFile()
-        resource = MyResource.build()
-        resource.context = 'test'
-        resource.views['create'].label = 'Test'
         resource.views['create'].export_catalog(myferet.translation, po)
         assert len(po) == 5
 

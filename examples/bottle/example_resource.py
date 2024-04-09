@@ -242,9 +242,11 @@ class RUser(LCRUDResource, Resource):
                 return user.login
             return None
 
-    def delete(self, pk) -> None:
+    def delete(self, pks) -> None:
         with SQLASession(engine) as session:
-            session.delete(session.get(User, pk))
+            for pk in pks:
+                session.delete(session.get(User, pk))
+
             session.commit()
 
 
