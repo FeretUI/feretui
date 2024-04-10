@@ -201,7 +201,7 @@ to manipulate this data.
 * :class:`feretui.resources.list.RResource`
 * :class:`feretui.resources.update.UResource`
 * :class:`feretui.resources.delete.DResource`
-* :class:`feretui.resources.list.LCRUDResource`
+* :class:`feretui.resources.LCRUDResource`
 
 
 The client FeretUI add translation mechanism. This mecanism can be declared

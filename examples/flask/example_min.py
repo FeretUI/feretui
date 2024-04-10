@@ -123,7 +123,7 @@ def index():
     with feretui_session(MySession) as session:
         frequest = Request(
             method=Request.GET,
-            querystring=request.query_string,
+            querystring=request.query_string.decode('utf-8'),
             headers=dict(request.headers),
             session=session,
         )
