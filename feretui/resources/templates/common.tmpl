@@ -24,7 +24,7 @@
   <template id="view-goto-selected-delete-button">
     <button
       class="button is-danger selected-buttons-resource-{{ rcode }}-view-{{ vcode }}"
-      hx-delete="{{ feretui.base_url }}/action/resource?action=goto_delete"
+      hx-post="{{ feretui.base_url }}/action/resource?action=goto_delete"
       disabled="{{ disabled }}"
     >
       <span class="icon">

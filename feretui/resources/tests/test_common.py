@@ -248,6 +248,38 @@ class TestMultiView:
         assert res.body is not None
         assert res.headers['HX-Push-Url'] == '/test?resource=test&offset=0'
 
+    def test_goto_delete(self) -> None:
+        local.feretui = myferet = FeretUI()
+        session = Session()
+        request = Request(
+            method=Request.POST,
+            session=session,
+            headers={'Hx-Current-Url': '/test?resource=test'},
+        )
+
+        class MyView(MultiView, View):
+            limit = 15
+            create_button_redirect_to = 'other'
+            delete_button_redirect_to = 'other'
+            do_click_on_entry_redirect_to = 'other'
+
+            class Form:
+                pk = StringField()
+
+            def get_call_kwargs(self, request):
+                return {'pks': ['foo', 'bar']}
+
+        resource = MultiResource()
+        resource.context = 'test'
+        view = MyView(resource)
+        resource.views['other'] = view
+        res = view.goto_delete(myferet, request)
+        assert res.body is not None
+        assert (
+            res.headers['HX-Push-Url']
+            == '/test?resource=test&view=other&pk=foo&pk=bar'
+        )
+
     def test_export_catalog(self) -> None:
 
         class MyView(MultiView, View):

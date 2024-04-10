@@ -105,7 +105,7 @@ class DeleteView(TemplateMixinForView, LabelMixinForView, View):
 
     def get_label_from_pks(self: "DeleteView", pks: list[str]) -> list[str]:
         """Return the label of the primary keys."""
-        return pks
+        return pks or []
 
     def render_kwargs(
         self: "DeleteView",
@@ -161,8 +161,8 @@ class DeleteView(TemplateMixinForView, LabelMixinForView, View):
                     base_url = request.get_base_url_from_current_url()
                     options.update({
                         'view': self.after_delete_redirect_to,
-                        'pk': None,
                     })
+                    del options['pk']
                     url = request.get_url_from_dict(
                         base_url=base_url,
                         querystring=options,

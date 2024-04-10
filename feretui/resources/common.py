@@ -463,7 +463,7 @@ class MultiView(ActionsMixinForView):
             },
         )
 
-    @view_action_validator(methods=[Request.DELETE])
+    @view_action_validator(methods=[Request.POST])  # USE POST cause of params
     def goto_delete(
         self: "MultiView",
         feretui: "FeretUI",
