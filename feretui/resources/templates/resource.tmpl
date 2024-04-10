@@ -148,6 +148,18 @@
       </div>
     </div>
   </template>
+  <template id="feretui-resource-edit-header">
+    <div class="columns">
+      <div id="label" class="column is-3">
+        <h1>{{ form.pk.data }}</h1>
+      </div>
+      <div id="buttons" class="column">
+        <include template="view-buttons-header"/>
+      </div>
+      <div is="status" class="column is-3">
+      </div>
+    </div>
+  </template>
   <template id="view-delete-form">
     <div class="container">
       {% if error %}
@@ -155,6 +167,7 @@
         {{ error }}
       </div>
       {% endif %}
+      <h2>Selected {{ resource.get_label() }} :</h2>
       <ul>
         {% for entry in entries %}
         <li>
@@ -162,7 +175,7 @@
         </li>
         {% endfor %}
       </ul>
-      <p>Do you wanted delete its ?</p>
+      <p><strong>Do you wanted delete its ?</strong></p>
     </div>
   </template>
 </templates>

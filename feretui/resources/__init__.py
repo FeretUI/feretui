@@ -43,6 +43,7 @@ class (only if build).
 from feretui.resources.actions import (  # noqa: F401
     Action,
     Actionset,
+    GotoViewAction,
     SelectedRowsAction,
 )
 from feretui.resources.create import CResource

@@ -46,6 +46,7 @@ class DefaultViewUpdate:
     after_update_redirect_to: str = None
     cancel_button_redirect_to: str = None
 
+    header_template_id: str = "feretui-resource-edit-header"
     body_template_id: str = "view-readwrite-form"
 
 
@@ -163,6 +164,10 @@ class EditView(TemplateMixinForView, View):
             pk = pk[0]
 
         form = self.form_cls(request.form)
+        if not form.pk.data:
+            form.pk.data = pk  # getter
+            form.pk.raw_data.append(pk)  # validator
+
         if form.validate():
             try:
                 self.resource.update([form])
@@ -236,7 +241,7 @@ class UResource:
         """
 
     def update(self: "UResource", forms: list[FeretUIForm]) -> None:
-        """Update an object from the form and return the primary key.
+        """Update an object from the form.
 
         .. warning:: must be overwriting
 

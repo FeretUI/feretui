@@ -28,7 +28,7 @@ jobs:
       - name: Install FeretUI
         run: pip install -e .[test]
       - name: Run tests
-        run: pytest --cov feretui --cov-report term-missing --cov-report lcov
+        run: pytest --cov feretui --cov-report term-missing --cov-report lcov -n auto
       - name: Coveralls
         uses: coverallsapp/github-action@v2
         with:

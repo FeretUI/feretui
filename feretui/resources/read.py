@@ -112,7 +112,7 @@ class ReadView(ActionsMixinForView, TemplateMixinForView, View):
         #     raise ViewError()
 
         res.update({
-            'actions': self.get_actions(feretui, session),
+            'actions': self.get_actions(feretui, session, options),
             'form': self.resource.read(self.form_cls, pk),
         })
         return res

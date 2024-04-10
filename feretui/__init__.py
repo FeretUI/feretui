@@ -275,6 +275,7 @@ from feretui.resources import (  # noqa: F401
     LResource,
     CResource,
     DResource,
+    GotoViewAction,
     LCRUDResource,
     Resource,
     RResource,

@@ -1,7 +1,14 @@
 <div class="container is-fluid content" id="resource-foo-view-edit">
  <form hx-post="/feretui/action/resource?action=save">
-  <div class="buttons is-centered">
-   
+  <div class="columns">
+   <div class="column is-3" id="label">
+    <h1>
+     foo
+    </h1>
+   </div>
+   <div class="column" id="buttons">
+    <div class="buttons is-centered">
+     
       <button class="button is-primary" type="submit">
  <span class="icon">
   <i class="fa-regular fa-pen-to-square">
@@ -12,6 +19,10 @@
  </span>
 </button>
       
+    </div>
+   </div>
+   <div class="column is-3" is="status">
+   </div>
   </div>
   <div class="container mb-4">
    
@@ -27,7 +38,7 @@
  </label>
  
  <div class="control">
-  <input class="input " id="pk" name="pk" type="text" value="">
+  <input class="input " id="pk" name="pk" type="text" value="foo">
  </div>
  
 </div>

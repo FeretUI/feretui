@@ -211,3 +211,12 @@ class DResource:
             return view_cls(self)
 
         return super().build_view(view_cls_name)
+
+    def delete(self: "DResource", pks: list[str]) -> None:
+        """Delete an object from the pks.
+
+        .. warning:: must be overwriting
+
+        :param pks: The primary keys
+        :type pks: list[str]
+        """

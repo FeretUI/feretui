@@ -182,7 +182,7 @@ class View:
             f'{urllib.parse.urlencode(options, doseq=True)}'
         )
 
-    @view_action_validator(methods=Request.GET)
+    @view_action_validator(methods=[Request.GET, Request.POST])
     def goto(self: "View", feretui: "FeretUI", request: Request) -> Response:
         """Change the view type and renderer it.
 
