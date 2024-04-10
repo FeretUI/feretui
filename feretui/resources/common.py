@@ -104,6 +104,7 @@ class ActionsMixinForView:
         self: "ActionsMixinForView",
         feretui: "FeretUI",
         session: Session,
+        options: dict,
     ) -> list[Markup]:
         """Return the actionset list renderer.
 
@@ -111,11 +112,19 @@ class ActionsMixinForView:
         :type feretui: :class:`feretui.feretui.FeretUI`
         :param session: The Session
         :type session: :class:`feretui.session.Session`
+        :param options: The querystring
+        :type options: dict
         :return: The html pages
         :rtype: list[str]
         """
         return [
-            actionset.render(feretui, session, self.resource.code, self.code)
+            actionset.render(
+                feretui,
+                session,
+                options,
+                self.resource.code,
+                self.code,
+            )
             for actionset in self.actions
             if actionset.is_visible(session)
         ]
@@ -133,7 +142,7 @@ class ActionsMixinForView:
         """
         return {}
 
-    @view_action_validator(methods=[Request.POST])
+    @view_action_validator(methods=Request.POST)
     def call(
         self: "ActionsMixinForView",
         feretui: "FeretUI",
@@ -300,6 +309,7 @@ class MultiView(ActionsMixinForView):
         self: "MultiView",
         feretui: "FeretUI",
         session: Session,
+        options: dict,
     ) -> list[Markup]:
         """Return the actionset list renderer.
 
@@ -307,6 +317,8 @@ class MultiView(ActionsMixinForView):
         :type feretui: :class:`feretui.feretui.FeretUI`
         :param session: The Session
         :type session: :class:`feretui.session.Session`
+        :param options: The querystring
+        :type options: dict
         :return: The html pages
         :rtype: list[str]
         """
@@ -318,7 +330,7 @@ class MultiView(ActionsMixinForView):
                 hx_post=f'{feretui.base_url}/action/resource?action=filters',
             )),
         ]
-        res.extend(super().get_actions(feretui, session))
+        res.extend(super().get_actions(feretui, session, options))
         return res
 
     def render_kwargs(
@@ -384,7 +396,7 @@ class MultiView(ActionsMixinForView):
                 session,
                 options,
             ),
-            "actions": self.get_actions(feretui, session),
+            "actions": self.get_actions(feretui, session, options),
         }
 
     # ---------------- View actions -------------------------
@@ -671,6 +683,7 @@ class TemplateMixinForView:
         :rtype: dict.
         """
         return {
+            'resource': self.resource,
             'header_buttons': self.get_header_buttons(
                 feretui, session, options,
             ),

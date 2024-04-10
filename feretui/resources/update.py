@@ -9,17 +9,17 @@
 
 The List resource represent data under html table.
 
-* :class:`.DreateView`
-* :class:`.DResource`
+* :class:`.CreateView`
+* :class:`.CResource`
 
 ::
 
     myferet.register_resource()
-    class MyResource(DResource, Resource):
+    class MyResource(CResource, Resource):
         code = 'code of the resource',
         label = 'label',
 
-        class MetaViewDelete:
+        class MetaViewCreate:
             pass
 """
 from typing import TYPE_CHECKING
@@ -27,8 +27,9 @@ from typing import TYPE_CHECKING
 from lxml.etree import Element
 from markupsafe import Markup
 
+from feretui.form import FeretUIForm
 from feretui.request import Request
-from feretui.resources.common import LabelMixinForView, TemplateMixinForView
+from feretui.resources.common import TemplateMixinForView
 from feretui.resources.view import View, view_action_validator
 from feretui.response import Response
 from feretui.session import Session
@@ -39,23 +40,23 @@ if TYPE_CHECKING:
     from feretui.feretui import FeretUI
 
 
-class DefaultViewDelete:
-    """Default value for the view delete."""
+class DefaultViewUpdate:
+    """Default value for the view read."""
 
-    label: str = "Delete"
-    after_delete_redirect_to: str = None
+    after_update_redirect_to: str = None
+    cancel_button_redirect_to: str = None
 
-    header_template_id: str = "feretui-resource-label-header"
-    body_template_id: str = "view-delete-form"
+    header_template_id: str = "feretui-resource-edit-header"
+    body_template_id: str = "view-readwrite-form"
 
 
-class DeleteView(TemplateMixinForView, LabelMixinForView, View):
-    """Delete view."""
+class EditView(TemplateMixinForView, View):
+    """Create view."""
 
-    code: str = 'delete'
+    code: str = 'edit'
 
     def set_form_template(
-        self: "DeleteView",
+        self: "EditView",
         feretui: "FeretUI",  # noqa: ARG002
         parent: Element,
     ) -> Element:
@@ -68,13 +69,13 @@ class DeleteView(TemplateMixinForView, LabelMixinForView, View):
         """
         form = super().set_form_template(feretui, parent)
         form.set(
-            'hx-delete',
-            f'{feretui.base_url}/action/resource?action=delete',
+            'hx-post',
+            f'{feretui.base_url}/action/resource?action=save',
         )
         return form
 
     def get_header_buttons(
-        self: "DeleteView",
+        self: "EditView",
         feretui: "FeretUI",
         session: Session,
         options: dict,
@@ -90,25 +91,32 @@ class DeleteView(TemplateMixinForView, LabelMixinForView, View):
         :return: The html pages
         :rtype: list[Markup]
         """
+        options = options.copy()
+        options.pop('error', None)
+        options.pop('form', None)
         res = super().get_header_buttons(feretui, session, options)
-        res.extend([
+        res.append(
             Markup(feretui.render_template(
                 session,
-                'view-do-delete-button',
+                'view-do-save-button',
             )),
-            Markup(feretui.render_template(
-                session,
-                'view-goto-cancel-button',
-            )),
-        ])
+        )
+        if self.cancel_button_redirect_to:
+            res.append(
+                Markup(feretui.render_template(
+                    session,
+                    'view-goto-edit-cancel-button',
+                    url=self.get_transition_url(
+                        feretui,
+                        options,
+                        view=self.cancel_button_redirect_to,
+                    ),
+                )),
+            )
         return res
 
-    def get_label_from_pks(self: "DeleteView", pks: list[str]) -> list[str]:
-        """Return the label of the primary keys."""
-        return pks or []
-
     def render_kwargs(
-        self: "DeleteView",
+        self: "EditView",
         feretui: "FeretUI",
         session: Session,
         options: dict,
@@ -125,21 +133,19 @@ class DeleteView(TemplateMixinForView, LabelMixinForView, View):
         :rtype: dict.
         """
         res = super().render_kwargs(feretui, session, options)
-
-        pks = options.get('pk')
-        if pks and not isinstance(pks, list):
-            pks = [pks]
+        pk = options.get('pk')
+        if isinstance(pk, list):
+            pk = pk[0]
 
         res.update({
-            'label': self.get_label(),
-            'entries': self.get_label_from_pks(pks),
+            'form': options.pop('form', self.resource.read(self.form_cls, pk)),
             'error': options.get('error'),
         })
         return res
 
-    @view_action_validator(methods=[Request.DELETE])
-    def delete(
-        self: "DeleteView",
+    @view_action_validator(methods=[Request.POST])
+    def save(
+        self: "EditView",
         feretui: "FeretUI",
         request: Request,
     ) -> Response:
@@ -153,23 +159,31 @@ class DeleteView(TemplateMixinForView, LabelMixinForView, View):
         :rtype: :class:`feretui.response.Response`
         """
         options = request.get_query_string_from_current_url().copy()
-        pks = options.get('pk')
-        if pks:
+        pk = options.get('pk')
+        if isinstance(pk, list):
+            pk = pk[0]
+
+        form = self.form_cls(request.form)
+        if not form.pk.data:
+            form.pk.data = pk  # getter
+            form.pk.raw_data.append(pk)  # validator
+
+        if form.validate():
             try:
-                self.resource.delete(pks)
-                if self.after_delete_redirect_to:
+                self.resource.update([form])
+                if self.after_update_redirect_to:
                     base_url = request.get_base_url_from_current_url()
                     options.update({
-                        'view': self.after_delete_redirect_to,
+                        'view': self.after_update_redirect_to,
+                        'pk': pk,
                     })
-                    del options['pk']
                     url = request.get_url_from_dict(
                         base_url=base_url,
                         querystring=options,
                     )
                     return Response(
                         self.resource.views[
-                            self.after_delete_redirect_to
+                            self.after_update_redirect_to
                         ].render(feretui, request.session, options),
                         headers={
                             'HX-Push-Url': url,
@@ -178,16 +192,17 @@ class DeleteView(TemplateMixinForView, LabelMixinForView, View):
             except Exception as e:
                 options['error'] = str(e)
 
+        options['form'] = form
         return Response(self.render(feretui, request.session, options))
 
 
-class DResource:
-    """DResource class."""
+class UResource:
+    """UResource class."""
 
-    MetaViewDelete = DefaultViewDelete
+    MetaViewUpdate = DefaultViewUpdate
 
     def build_view(
-        self: "DResource",
+        self: "UResource",
         view_cls_name: str,
     ) -> Resource:
         """Return the view instance in fonction of the MetaView attributes.
@@ -197,11 +212,11 @@ class DResource:
         :return: An instance of the view
         :rtype: :class:`feretui.resources.view.View`
         """
-        if view_cls_name.startswith('MetaViewDelete'):
+        if view_cls_name.startswith('MetaViewUpdate'):
             meta_view_cls = self.get_meta_view_class(view_cls_name)
-            meta_view_cls.append(DeleteView)
+            meta_view_cls.append(EditView)
             view_cls = type(
-                'DeleteView',
+                'EditView',
                 tuple(meta_view_cls),
                 {},
             )
@@ -212,11 +227,24 @@ class DResource:
 
         return super().build_view(view_cls_name)
 
-    def delete(self: "DResource", pks: list[str]) -> None:
-        """Delete an object from the pks.
+    def read(self: "UResource", form_cls: FeretUIForm, pk: str) -> FeretUIForm:
+        """Return an intance of the form.
 
         .. warning:: must be overwriting
 
-        :param pks: The primary keys
-        :type pks: list[str]
+        :param form_cls: Form of the list view
+        :type form_cls: :class:`feretui.form.FeretUIForm`
+        :param pk: The primary key
+        :type pk: str
+        :return: the form instance
+        :type form_cls: :class:`feretui.form.FeretUIForm`
+        """
+
+    def update(self: "UResource", forms: list[FeretUIForm]) -> None:
+        """Update an object from the form.
+
+        .. warning:: must be overwriting
+
+        :param form: The instance of Form
+        :type form: :class:`feretui.form.FeretUIForm`
         """

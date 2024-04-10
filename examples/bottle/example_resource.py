@@ -23,14 +23,21 @@ from wtforms.validators import EqualTo, InputRequired
 from feretui import (
     Action,
     Actionset,
+    AsideHeaderMenu,
+    AsideMenu,
     FeretUI,
+    GotoViewAction,
     LCRUDResource,
     Password,
     Request,
     Resource,
     SelectedRowsAction,
     Session,
+    ToolBarDropDownMenu,
+    ToolBarMenu,
+    menu_for_authenticated_user,
 )
+from feretui.resources.update import DefaultViewUpdate
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -106,9 +113,6 @@ class RUser(LCRUDResource, Resource):
     code = 'c1'
     label = 'User'
 
-    page_security = None
-    action_security = None
-
     class Form:
         login = StringField(validators=[InputRequired()])
         name = StringField()
@@ -176,10 +180,50 @@ class RUser(LCRUDResource, Resource):
 
         actions = [
             Actionset('Print', [
+                GotoViewAction('Update password', 'update_password'),
                 Action('Print 1', 'print_1'),
                 Action('Print 10', 'print_10'),
             ]),
         ]
+
+    class MetaViewUpdatePassword(DefaultViewUpdate):
+        code = 'update_password'
+        after_update_redirect_to = 'read'
+        cancel_button_redirect_to = 'read'
+
+        header_template = """
+        <h1>Update the password for {{ form.pk.data }}</h1>
+        """
+
+        body_template = """
+          <div class="container mb-4">
+            {% if error %}
+            <div class="notification is-danger">
+              {{ error }}
+            </div>
+            {% endif %}
+            {{ form.password }}
+            {{ form.password_confirm }}
+          </div>
+        """
+
+        class Form:
+            name = None
+            lang = None
+            theme = None
+            password = PasswordField(validators=[Password()])
+            password_confirm = PasswordField(
+                validators=[InputRequired(), EqualTo('password')],
+            )
+
+    class MetaViewDelete:
+
+        def get_label_from_pks(self, pks):
+            with SQLASession(engine) as session:
+                return [
+                    session.get(User, pk).name
+                    for pk in pks
+                ]
 
     def print_1(self, *a, **kw) -> None:
         print(1, a, kw)
@@ -233,14 +277,13 @@ class RUser(LCRUDResource, Resource):
             'forms': forms,
         }
 
-    def update(self, form, pk):
+    def update(self, forms):
         with SQLASession(engine) as session:
-            user = session.get(User, pk)
-            if user:
-                form.populate_obj(user)
-                session.commit()
-                return user.login
-            return None
+            for form in forms:
+                user = session.get(User, form.pk.data)
+                if user:
+                    form.populate_obj(user)
+                    session.commit()
 
     def delete(self, pks) -> None:
         with SQLASession(engine) as session:
@@ -250,8 +293,27 @@ class RUser(LCRUDResource, Resource):
             session.commit()
 
 
+myferet.register_aside_menus('aside1', [
+    AsideHeaderMenu('My aside menu', children=[
+        AsideMenu('Home page', page='homepage', icon="fa-solid fa-ghost"),
+        AsideMenu('User', page='resource', resource='c1')
+    ]),
+])
 myferet.register_toolbar_left_menus([
     RUser.menu,
+    ToolBarDropDownMenu(
+        'My left menu',
+        visible_callback=menu_for_authenticated_user,
+        children=[
+            ToolBarMenu(
+                'Other Menu',
+                page="aside-menu",
+                aside="aside1",
+                aside_page='resource',
+                resource='c1',
+            ),
+        ],
+    ),
 ])
 
 # -- app --

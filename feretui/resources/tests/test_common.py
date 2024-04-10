@@ -16,7 +16,11 @@ from wtforms import StringField
 from feretui.exceptions import ViewActionError, ViewError
 from feretui.feretui import FeretUI
 from feretui.request import Request
-from feretui.resources.actions import Actionset, SelectedRowsAction
+from feretui.resources.actions import (
+    Actionset,
+    GotoViewAction,
+    SelectedRowsAction,
+)
 from feretui.resources.common import (
     ActionsMixinForView,
     MultiView,
@@ -36,7 +40,10 @@ class MyViewWithAction(ActionsMixinForView, View):
     actions = [
         Actionset(
             'Test',
-            [SelectedRowsAction('foo', 'foo', description='Bar')],
+            [
+                SelectedRowsAction('foo', 'foo', description='Bar'),
+                GotoViewAction('Bar', 'bar'),
+            ],
             description='Other',
         ),
     ]
@@ -312,7 +319,7 @@ class TestCommonActionsMixinForView:
         local.feretui = feretui = FeretUI()
         session = Session()
         snapshot.assert_match(
-            view.get_actions(feretui, session)[0],
+            view.get_actions(feretui, session, {})[0],
             'snapshot.html',
         )
 
@@ -329,7 +336,7 @@ class TestCommonActionsMixinForView:
         resource.context = 'test'
         view = MyViewWithAction(resource)
         view.export_catalog(myferet.translation, po)
-        assert len(po) == 5
+        assert len(po) == 6
 
     def test_call_1(self) -> None:
         local.feretui = myferet = FeretUI()
