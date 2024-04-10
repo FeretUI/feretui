@@ -119,7 +119,7 @@ def feretui_static_file(filepath):
     abort(404)
 
 
-@route('/feretui/action/<action>', method=['GET', 'POST'])
+@route('/feretui/action/<action>', method=['DELETE', 'GET', 'POST'])
 def call_action(action):
     with feretui_session(MySession) as session:
         frequest = Request(
