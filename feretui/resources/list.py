@@ -26,21 +26,18 @@ The List resource represent data under html table.
 from typing import TYPE_CHECKING
 
 from markupsafe import Markup
-from polib import POFile
 from wtforms.fields import Field
 
 from feretui.form import FeretUIForm
 from feretui.request import Request
-from feretui.resources.common import MultiView
+from feretui.resources.common import LabelMixinForView, MultiView
 from feretui.resources.view import View
 from feretui.session import Session
-from feretui.thread import local
 
 from .resource import Resource
 
 if TYPE_CHECKING:
     from feretui.feretui import FeretUI
-    from feretui.translation import Translation
 
 
 def span_widget(field: Field) -> Markup:
@@ -71,36 +68,11 @@ class DefaultViewList:
     do_click_on_entry_redirect_to: str = None
 
 
-class ListView(MultiView, View):
+class ListView(MultiView, LabelMixinForView, View):
     """List view."""
 
     code: str = 'list'
     WIDGETS: dict[str, Field] = {}
-
-    def get_label(self: "View") -> str:
-        """Return the translated label."""
-        if not self.label:
-            return super().get_label()
-
-        return local.feretui.translation.get(
-            local.lang, f'{self.context}:label', self.label,
-        )
-
-    def export_catalog(
-        self: "ListView",
-        translation: "Translation",
-        po: POFile,
-    ) -> None:
-        """Export the translations in the catalog.
-
-        :param translation: The translation instance to add also inside it.
-        :type translation: :class:`.Translation`
-        :param po: The catalog instance
-        :type po: PoFile_
-        """
-        super().export_catalog(translation, po)
-        if self.label:
-            po.append(translation.define(f'{self.context}:label', self.label))
 
     def widget(self: "ListView", field: Field, **kwargs: dict) -> Markup:
         """Render the field for the view list."""

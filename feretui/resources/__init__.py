@@ -14,6 +14,7 @@ To help the contruction of the view some mixins exist:
 
 * :class:`feretui.resources.list.LResource`
 * :class:`feretui.resources.read.RResource`
+* :class:`feretui.resources.read.DResource`
 * :class:`.LCRUDResource`
 
 The decorator :meth:`feretui.feretui.FeretUI.register_resource` call the
@@ -43,12 +44,13 @@ from feretui.resources.actions import (  # noqa: F401
     SelectedRowsAction,
 )
 from feretui.resources.create import CResource
+from feretui.resources.delete import DResource
 from feretui.resources.list import LResource
 from feretui.resources.read import RResource
 from feretui.resources.resource import Resource  # noqa: F401
 
 
-class LCRUDResource(LResource, CResource, RResource):
+class LCRUDResource(LResource, CResource, RResource, DResource):
     """LCRUDResource class.
 
     This class is a mixin, it inherit the mixins:
@@ -80,3 +82,8 @@ class LCRUDResource(LResource, CResource, RResource):
         delete_button_redirect_to: str = 'delete'
         edit_button_redirect_to: str = 'edit'
         return_button_redirect_to: str = 'list'
+
+    class MetaViewDelete:
+        """Meta view class for delete."""
+
+        after_delete_redirect_to: str = 'list'

@@ -113,7 +113,7 @@
     </div>
   </template>
   <template id="view-readwrite-form">
-    <div class="container">
+    <div class="container mb-4">
       {% if error %}
       <div class="notification is-danger">
         {{ error }}
@@ -124,7 +124,7 @@
       {% endfor %}
     </div>
   </template>
-  <template id="feretui-resource-create-header">
+  <template id="feretui-resource-label-header">
     <div class="columns">
       <div id="label" class="column is-3">
         <h1>{{ label }}</h1>
@@ -146,6 +146,23 @@
       </div>
       <div is="status" class="column is-3">
       </div>
+    </div>
+  </template>
+  <template id="view-delete-form">
+    <div class="container">
+      {% if error %}
+      <div class="notification is-danger">
+        {{ error }}
+      </div>
+      {% endif %}
+      <ul>
+        {% for entry in entries %}
+        <li>
+            {{ entry }}
+        </li>
+        {% endfor %}
+      </ul>
+      <p>Do you wanted delete its ?</p>
     </div>
   </template>
 </templates>

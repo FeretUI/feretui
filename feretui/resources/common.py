@@ -33,6 +33,37 @@ if TYPE_CHECKING:
     from feretui.feretui import FeretUI
 
 
+class LabelMixinForView:
+    """LabelMixinForView class."""
+
+    label: str = None
+
+    def export_catalog(
+        self: "LabelMixinForView",
+        translation: Translation,
+        po: POFile,
+    ) -> None:
+        """Export the translations in the catalog.
+
+        :param translation: The translation instance to add also inside it.
+        :type translation: :class:`.Translation`
+        :param po: The catalog instance
+        :type po: PoFile_
+        """
+        super().export_catalog(translation, po)
+        if self.label:
+            po.append(translation.define(f'{self.context}:label', self.label))
+
+    def get_label(self: "LabelMixinForView") -> str:
+        """Return the translated label."""
+        if not self.label:
+            return super().get_label()
+
+        return local.feretui.translation.get(
+            local.lang, f'{self.context}:label', self.label,
+        )
+
+
 class ActionsMixinForView:
     """ActionsMixinForView class.
 
@@ -258,11 +289,6 @@ class MultiView(ActionsMixinForView):
                 Markup(feretui.render_template(
                     session,
                     'view-goto-selected-delete-button',
-                    url=self.get_transition_url(
-                        feretui,
-                        options,
-                        view=self.delete_button_redirect_to,
-                    ),
                     rcode=self.resource.code,
                     vcode=self.code,
                 )),
@@ -434,6 +460,37 @@ class MultiView(ActionsMixinForView):
             self.render(feretui, request.session, qs),
             headers={
                 'HX-Push-Url': url,
+            },
+        )
+
+    @view_action_validator(methods=[Request.POST])  # USE POST cause of params
+    def goto_delete(
+        self: "MultiView",
+        feretui: "FeretUI",
+        request: Request,
+    ) -> Response:
+        """Goto the delete page.
+
+        :param feretui: The feretui client
+        :type feretui: :class:`feretui.feretui.FeretUI`
+        :param request: The request
+        :type request: :class:`feretui.request.Request`
+        :return: The page to display
+        :rtype: :class:`feretui.response.Response`
+        """
+        view_kwargs = self.get_call_kwargs(request)
+        newqs = request.get_query_string_from_current_url().copy()
+        base_url = request.get_base_url_from_current_url()
+        newqs.update({
+            'view': self.delete_button_redirect_to,
+            'pk': view_kwargs['pks'],
+        })
+        return Response(
+            self.resource.views[
+                self.delete_button_redirect_to
+            ].render(feretui, request.session, newqs),
+            headers={
+                'HX-Push-Url': request.get_url_from_dict(base_url, newqs),
             },
         )
 

@@ -1,0 +1,126 @@
+<div class="container is-fluid" id="resource-foo-view-list">
+ <form>
+  <div class="columns is-vcentered">
+   <div class="column content">
+    <h1>
+     Foo
+     <small>
+      (0)
+     </small>
+    </h1>
+   </div>
+   <div class="column is-narrow">
+    <div class="field is-grouped is-grouped-multiline">
+     
+    </div>
+   </div>
+  </div>
+  <div class="columns">
+   <div class="column">
+    <div class="columns is-vcentered">
+     <div class="column is-narrow">
+      <div class="buttons is-centered">
+       
+      </div>
+     </div>
+     <div class="column">
+      
+     </div>
+    </div>
+    <div class="table-container">
+     <table class="table is-fullwidth is-striped">
+      <thead>
+       <tr>
+        <th class="is-narrow">
+         <input _="
+                          on click 
+                          set &lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked to my.checked 
+                          set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to my.checked 
+                          if me.checked
+                            set .selected-buttons-resource-foo-view-list @disabled to undefined
+                          else
+                            set .selected-buttons-resource-foo-view-list @disabled to 'disabled'
+                          end
+                        " name="selected-table-resource-foo-view-list" type="checkbox">
+        </th>
+        
+        <th id="pk">
+         Pk
+        </th>
+        
+       </tr>
+      </thead>
+      <tbody>
+       
+      </tbody>
+      <tfoot>
+       <tr>
+        <th class="is-narrow">
+         <input _="
+                          on click 
+                          set &lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked to my.checked 
+                          set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to my.checked 
+                          if me.checked
+                            set .selected-buttons-resource-foo-view-list @disabled to undefined
+                          else
+                            set .selected-buttons-resource-foo-view-list @disabled to 'disabled'
+                          end
+                        " name="selected-table-resource-foo-view-list" type="checkbox">
+        </th>
+        
+        <th id="pk">
+         Pk
+        </th>
+        
+       </tr>
+      </tfoot>
+     </table>
+    </div>
+    <div class="columns is-vcentered">
+     <div class="column is-narrow">
+      <div class="buttons is-centered">
+       
+      </div>
+     </div>
+     <div class="column">
+      
+     </div>
+    </div>
+   </div>
+   
+   <div class="column is-2">
+    
+              <div class="panel mb-4">
+ <p class="panel-heading">
+  <span>
+   Filter
+  </span>
+ </p>
+ 
+ <div class="panel-block">
+  <div class="container">
+   <div class="field">
+ 
+ <label class="label" for="pk">
+  Pk
+      
+  <span>
+   
+  </span>
+ </label>
+ 
+ <div class="control">
+  <input class="input " hx-params="pk" hx-post="/feretui/action/resource?action=filters" hx-trigger="keyup[key==&#39;Enter&#39;],blur" id="pk" name="pk" type="text" value="">
+ </div>
+ 
+</div>
+  </div>
+ </div>
+ 
+</div>
+              
+   </div>
+   
+  </div>
+ </form>
+</div>

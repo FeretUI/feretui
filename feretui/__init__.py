@@ -199,6 +199,7 @@ to manipulate this data.
 * :class:`feretui.resources.list.LResource`
 * :class:`feretui.resources.create.CResource`
 * :class:`feretui.resources.list.RResource`
+* :class:`feretui.resources.delete.DResource`
 * :class:`feretui.resources.list.LCRUDResource`
 
 
@@ -272,6 +273,7 @@ from feretui.resources import (  # noqa: F401
     Actionset,
     LResource,
     CResource,
+    DResource,
     LCRUDResource,
     Resource,
     RResource,
