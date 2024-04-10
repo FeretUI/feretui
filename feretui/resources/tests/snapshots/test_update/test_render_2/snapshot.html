@@ -1,0 +1,106 @@
+<div class="container is-fluid content" id="resource-foo-view-edit">
+ <form hx-post="/feretui/action/resource?action=save">
+  <div class="buttons is-centered">
+   
+      <button class="button is-primary" type="submit">
+ <span class="icon">
+  <i class="fa-regular fa-pen-to-square">
+  </i>
+ </span>
+ <span>
+  Save
+ </span>
+</button>
+      
+      <button class="button is-ghost" hx-get="/feretui/action/resource?action=goto&amp;view=other" type="reset">
+ <span class="icon">
+  <i class="fa-solid fa-xmark">
+  </i>
+ </span>
+ <span>
+  Cancel
+ </span>
+</button>
+      
+  </div>
+  <div class="container mb-4">
+   
+      
+      <div class="field">
+ 
+ <label class="label" for="pk">
+  Pk
+      
+  <span>
+   
+  </span>
+ </label>
+ 
+ <div class="control">
+  <input class="input " id="pk" name="pk" type="text" value="1">
+ </div>
+ 
+</div>
+      
+      <div class="field">
+ 
+ <label class="label" for="foo">
+  Foo
+      
+  <span>
+   
+  </span>
+ </label>
+ 
+ <div class="control">
+  <input class="input " id="foo" name="foo" type="text" value="">
+ </div>
+ 
+</div>
+      
+      <div class="field">
+ 
+ <label class="label" for="test">
+  Test
+      
+  <span>
+   
+  </span>
+ </label>
+ 
+ <div class="control">
+  <select class="input is-danger " id="test" name="test"><option value="test1">Test 1</option></select>
+ </div>
+ 
+ <p class="help is-danger">
+  Not a valid choice.
+ </p>
+ 
+</div>
+      
+  </div>
+  <div class="buttons is-centered">
+   
+      <button class="button is-primary" type="submit">
+ <span class="icon">
+  <i class="fa-regular fa-pen-to-square">
+  </i>
+ </span>
+ <span>
+  Save
+ </span>
+</button>
+      
+      <button class="button is-ghost" hx-get="/feretui/action/resource?action=goto&amp;view=other" type="reset">
+ <span class="icon">
+  <i class="fa-solid fa-xmark">
+  </i>
+ </span>
+ <span>
+  Cancel
+ </span>
+</button>
+      
+  </div>
+ </form>
+</div>

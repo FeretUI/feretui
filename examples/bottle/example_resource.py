@@ -233,14 +233,13 @@ class RUser(LCRUDResource, Resource):
             'forms': forms,
         }
 
-    def update(self, form, pk):
+    def update(self, forms):
         with SQLASession(engine) as session:
-            user = session.get(User, pk)
-            if user:
-                form.populate_obj(user)
-                session.commit()
-                return user.login
-            return None
+            for form in forms:
+                user = session.get(User, form.pk.data)
+                if user:
+                    form.populate_obj(user)
+                    session.commit()
 
     def delete(self, pks) -> None:
         with SQLASession(engine) as session:

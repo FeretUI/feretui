@@ -199,6 +199,7 @@ to manipulate this data.
 * :class:`feretui.resources.list.LResource`
 * :class:`feretui.resources.create.CResource`
 * :class:`feretui.resources.list.RResource`
+* :class:`feretui.resources.update.UResource`
 * :class:`feretui.resources.delete.DResource`
 * :class:`feretui.resources.list.LCRUDResource`
 
@@ -278,6 +279,7 @@ from feretui.resources import (  # noqa: F401
     Resource,
     RResource,
     SelectedRowsAction,
+    UResource,
 )
 from feretui.response import Response  # noqa : F401
 from feretui.session import Session  # noqa : F401

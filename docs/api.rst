@@ -115,6 +115,10 @@ feretui.resources modules
    :members:
    :private-members:
 
+.. automodule:: feretui.resources.update
+   :members:
+   :private-members:
+
 .. automodule:: feretui.resources.delete
    :members:
    :private-members:
