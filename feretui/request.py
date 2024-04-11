@@ -34,7 +34,6 @@ Example with bottle::
         res = myferet.do_action(frequest, action)
         ...
 """
-import json
 import urllib
 from typing import Any
 
@@ -73,12 +72,12 @@ class Request:
     :type session: Session
     :param method: [Request.POST], the request method
     :type method: RequestMethod
-    :param body: [None]
-    :type body: str
     :param form: [None]
     :type form: MultiDict_
     :param querystring: [None]
     :type querystring: str
+    :param params: [None]
+    :type params: dict
     :param headers: [None]
     :type headers: dict[str, str]
     :exception: :class:`feretui.exceptions.RequestFormError`
@@ -99,10 +98,9 @@ class Request:
 
     def __init__(
         self: "Request",
-        session: Session,
+        session: Session = None,
         method: RequestMethod = POST,
         form: MultiDict = None,
-        body: str = None,
         params: MultiDict = None,
         querystring: str = None,
         headers: dict[str, str] = None,
@@ -114,7 +112,6 @@ class Request:
         self.session = session
         self.method = method
         self.form = form
-        self.body = body
         self.params = params
         self.raw_querystring = querystring
         self.headers = headers
@@ -132,14 +129,6 @@ class Request:
         if not isinstance(session, Session):
             raise RequestWrongSessionError(
                 'the session must be an instance of FeretUI Session')
-
-    @property
-    def json(self: "Request") -> MultiDict:
-        """Return the body as a dict."""
-        if self.body:
-            return MultiDict(json.loads(self.body))
-
-        return {}
 
     def get_url_from_dict(
         self: "Request",

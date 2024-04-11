@@ -9,9 +9,6 @@
 
 with pytest.
 """
-import json
-from json.decoder import JSONDecodeError
-
 import pytest  # noqa: F401
 from multidict import MultiDict
 
@@ -33,23 +30,12 @@ class TestRequest:
         request = Request(
             session,
             method=Request.POST,
-            body=json.dumps({'a': 'b'}),
             form=MultiDict({'foo': 'bar'}),
             querystring="a=b",
         )
         assert request.session is session
         assert request.method is Request.POST
-        assert request.json == {'a': 'b'}
         assert request.query == {'a': ['b']}
-
-    def test_request_no_body(self) -> None:
-        """Test simple request."""
-        session = Session()
-        request = Request(
-            session,
-            method=Request.POST,
-        )
-        assert request.json == {}
 
     def test_request_wrong_form(self) -> None:
         """Test simple request."""
@@ -70,13 +56,6 @@ class TestRequest:
         """Test request with wrong session type."""
         with pytest.raises(RequestWrongSessionError):
             Request("session", querystring="a=b")
-
-    def test_request_wrong_body(self) -> None:
-        """Test request with wrong body."""
-        session = Session()
-        request = Request(session, body="not a json")
-        with pytest.raises(JSONDecodeError):
-            request.json
 
     def test_get_url_from_dict(self) -> None:
         """Test get_url_from_dict with querystring."""
