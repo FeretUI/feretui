@@ -35,115 +35,12 @@ Installation via source distribution is via the ``pyproject.toml`` script:
 pip install .
 ```
 
-Installation will add the ``feretui`` commands to the environment.
+## web server
 
-## Example with bottle
+You can use your favorite web server
 
-For this example you need  to install some additional package
+* `tutorial with bottle <https://feretui.readthedocs.io/en/latest/tutorials.html#serve-feretui-with-bottle`_
+* `tutorial with flask <https://feretui.readthedocs.io/en/latest/tutorials.html#serve-feretui-with-flask`_
+* `tutorial with pyramid <https://feretui.readthedocs.io/en/latest/tutorials.html#serve-feretui-with-pyramid`_
 
-```pip install bottle BottleSessions```
-
-```
-import logging
-from contextlib import contextmanager
-from os import path
-
-from bottle import (
-    abort, app, debug, request, response, route, run, static_file
-)
-from BottleSessions import BottleSessions
-from multidict import MultiDict
-
-from feretui import (
-    AsideHeaderMenu,
-    AsideMenu,
-    FeretUI,
-    Request,
-    Session,
-    ToolBarDropDownMenu,
-    ToolBarMenu,
-)
-
-logging.basicConfig(level=logging.DEBUG)
-
-
-@contextmanager
-def feretui_session(cls):
-    session = None
-    try:
-        session = cls(**request.session)
-        yield session
-    finally:
-        if session:
-            request.session.update(session.to_dict())
-
-
-def add_response_headers(headers) -> None:
-    for k, v in headers.items():
-        response.set_header(k, v)
-
-
-class MySession(Session):
-
-    def __init__(self, **options) -> None:
-        options.setdefault('theme', 'minty')
-        options.setdefault('lang', 'fr')
-        super().__init__(**options)
-
-
-myferet = FeretUI()
-myferet.load_internal_catalog('fr')
-
-
-@route('/')
-def index():
-    with feretui_session(MySession) as session:
-        frequest = Request(
-            method=Request.GET,
-            querystring=request.query_string,
-            headers=dict(request.headers),
-            session=session,
-        )
-        res = myferet.render(frequest)
-        add_response_headers(res.headers)
-        return res.body
-
-
-@route('/feretui/static/<filepath:path>')
-def feretui_static_file(filepath):
-    filepath = myferet.get_static_file_path(filepath)
-    if filepath:
-        root, name = path.split(filepath)
-        return static_file(name, root)
-
-    abort(404)
-
-
-@route('/feretui/action/<action>', method=['DELETE', 'GET', 'POST'])
-def call_action(action):
-    with feretui_session(MySession) as session:
-        frequest = Request(
-            method=getattr(Request, request.method),
-            querystring=request.query_string,
-            form=MultiDict(request.forms),
-            params=request.params.dict,
-            headers=dict(request.headers),
-            session=session,
-        )
-        res = myferet.execute_action(frequest, action)
-        add_response_headers(res.headers)
-        return res.body
-
-
-if __name__ == "__main__":
-    app = app()
-    cache_config = {
-        'cache_type': 'FileSystem',
-        'cache_dir': './sess_dir',
-        'threshold': 2000,
-    }
-    BottleSessions(
-        app, session_backing=cache_config, session_cookie='appcookie')
-    debug(True)
-    run(host="localhost", port=8080)
-```
+## the ORM.

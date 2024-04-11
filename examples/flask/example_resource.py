@@ -382,5 +382,5 @@ def call_action(action):
 if __name__ == "__main__":
 
     with make_server('', 8080, app) as httpd:
-        logging.info("Serving on port 8000...")
+        logging.info("Serving on port 8080...")
         httpd.serve_forever()

@@ -136,7 +136,6 @@ def feretui_static_file(filepath):
         return static_file(name, root)
 
     abort(404)
-    return None
 
 
 @route('/feretui/action/<action>', method=['GET', 'POST'])
