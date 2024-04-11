@@ -1,2 +1,4 @@
-bottle
-BottleSessions
+flask
+Flask-SQLAlchemy
+sqlalchemy
+aiosqlite

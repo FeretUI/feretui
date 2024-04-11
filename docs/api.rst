@@ -87,6 +87,10 @@ feretui.resources modules
 
 .. automodule:: feretui.resources
 
+.. autoclass:: LCRUDResource
+   :members:
+   :private-members:
+
 .. automodule:: feretui.resources.resource
    :members:
    :private-members:
