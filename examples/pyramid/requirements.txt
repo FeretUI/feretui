@@ -1,0 +1,6 @@
+pyramid
+pyramid_tm
+zope.sqlalchemy
+sqlalchemy
+aiosqlite
+pyramid_beaker
