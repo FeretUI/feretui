@@ -277,7 +277,7 @@ class RUser(LCRUDResource, Resource):
             'forms': forms,
         }
 
-    def update(self, forms):
+    def update(self, forms) -> None:
         with SQLASession(engine) as session:
             for form in forms:
                 user = session.get(User, form.pk.data)
@@ -296,7 +296,7 @@ class RUser(LCRUDResource, Resource):
 myferet.register_aside_menus('aside1', [
     AsideHeaderMenu('My aside menu', children=[
         AsideMenu('Home page', page='homepage', icon="fa-solid fa-ghost"),
-        AsideMenu('User', page='resource', resource='c1')
+        AsideMenu('User', page='resource', resource='c1'),
     ]),
 ])
 myferet.register_toolbar_left_menus([

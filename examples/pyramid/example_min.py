@@ -1,13 +1,13 @@
-from pyramid_beaker import session_factory_from_settings
-from pyramid.config import Configurator
-from pyramid.response import FileResponse, Response
-from pyramid.view import view_config
-from pyramid.httpexceptions import exception_response
-
 import logging
 from contextlib import contextmanager
-from multidict import MultiDict
 from wsgiref.simple_server import make_server
+
+from multidict import MultiDict
+from pyramid.config import Configurator
+from pyramid.httpexceptions import exception_response
+from pyramid.response import FileResponse, Response
+from pyramid.view import view_config
+from pyramid_beaker import session_factory_from_settings
 
 from feretui import (
     AsideHeaderMenu,
@@ -131,7 +131,9 @@ def feretui(request):
 
 @view_config(route_name='feretui_static_file', request_method='GET')
 def feretui_static_file(request):
-    filepath = myferet.get_static_file_path(request.matchdict['filepath'])
+    filepath = myferet.get_static_file_path(
+        '/'.join(request.matchdict['filepath']),
+    )
     if filepath:
         return FileResponse(filepath)
 
@@ -140,7 +142,7 @@ def feretui_static_file(request):
 
 @view_config(
     route_name='call_action',
-    request_method=('DELETE', 'GET', 'POST')
+    request_method=('DELETE', 'GET', 'POST'),
 )
 def call_action(request):
     action = request.matchdict['action']
@@ -166,7 +168,7 @@ if __name__ == "__main__":
         config.include('pyramid_beaker')
         config.set_session_factory(session_factory)
         config.add_route('feretui', '/')
-        config.add_route('feretui_static_file', '/feretui/static/{filepath}')
+        config.add_route('feretui_static_file', '/feretui/static/*filepath')
         config.add_route('call_action', '/feretui/action/{action}')
         config.scan()
         app = config.make_wsgi_app()

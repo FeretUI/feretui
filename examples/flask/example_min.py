@@ -1,10 +1,10 @@
 import logging
 import urllib
 from contextlib import contextmanager
-
-from flask import abort, request, Flask, send_file, make_response
-from multidict import MultiDict
 from wsgiref.simple_server import make_server
+
+from flask import Flask, abort, make_response, request, send_file
+from multidict import MultiDict
 
 from feretui import (
     AsideHeaderMenu,
@@ -138,6 +138,7 @@ def feretui_static_file(filepath):
         return send_file(filepath)
 
     abort(404)
+    return None
 
 
 @app.route('/feretui/action/<action>', methods=['DELETE', 'GET', 'POST'])
@@ -146,10 +147,10 @@ def call_action(action):
     if request.method in ['DELETE', 'POST']:
         params = {
             x: request.form.getlist(x)
-            for x in request.form.keys()
+            for x in request.form
         }
         params.update(urllib.parse.parse_qs(
-            request.query_string.decode('utf-8')
+            request.query_string.decode('utf-8'),
         ))
 
     with feretui_session(MySession) as session:
