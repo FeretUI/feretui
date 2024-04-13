@@ -8,7 +8,6 @@
 import pytest
 
 from feretui.exceptions import MenuError
-from feretui.feretui import FeretUI
 from feretui.helper import (
     menu_for_authenticated_user,
     menu_for_unauthenticated_user,
@@ -25,71 +24,62 @@ from feretui.menus import (
     ToolBarMenu,
     ToolBarUrlMenu,
 )
-from feretui.request import Request
-from feretui.session import Session
-from feretui.thread import local
 
 
 class TestMenu:
 
-    def test_ToolBarDividerMenu(self) -> None:
-        myferet = FeretUI()
-        session = Session()
+    def test_ToolBarDividerMenu(self, feretui, session) -> None:
         assert ToolBarDividerMenu().render(
-            myferet, session) == '<hr class="navbar-divider">'
+            feretui, session) == '<hr class="navbar-divider">'
 
-    def test_ToolBarDividerMenu_is_visible_1(self) -> None:
-        session = Session()
+    def test_ToolBarDividerMenu_is_visible_1(self, session) -> None:
         assert ToolBarDividerMenu(
             visible_callback=menu_for_authenticated_user,
         ).is_visible(session) is False
 
-    def test_ToolBarDividerMenu_is_visible_2(self) -> None:
-        session = Session(user="Test")
+    def test_ToolBarDividerMenu_is_visible_2(
+        self, authenticated_session
+    ) -> None:
         assert ToolBarDividerMenu(
             visible_callback=menu_for_authenticated_user,
-        ).is_visible(session) is True
+        ).is_visible(authenticated_session) is True
 
-    def test_ToolBarDividerMenu_is_visible_3(self) -> None:
-        session = Session()
+    def test_ToolBarDividerMenu_is_visible_3(self, session) -> None:
         assert ToolBarDividerMenu(
             visible_callback=menu_for_unauthenticated_user,
         ).is_visible(session) is True
 
-    def test_ToolBarDividerMenu_is_visible_4(self) -> None:
-        session = Session(user="Test")
+    def test_ToolBarDividerMenu_is_visible_4(
+        self, authenticated_session
+    ) -> None:
         assert ToolBarDividerMenu(
             visible_callback=menu_for_unauthenticated_user,
-        ).is_visible(session) is False
+        ).is_visible(authenticated_session) is False
 
     def test_ToolBarDropDownMenu_without_children(self) -> None:
         with pytest.raises(MenuError):
             ToolBarDropDownMenu('Test')
 
-    def test_ToolBarDropDownMenu(self, snapshot) -> None:
-        myferet = FeretUI()
-        session = Session()
-        request = Request(session=session)
-        local.request = request
+    def test_ToolBarDropDownMenu(
+        self, snapshot, feretui, session, frequest
+    ) -> None:
         snapshot.assert_match(
             ToolBarDropDownMenu(
                 'Test',
                 children=[ToolBarMenu('Test', page='test')],
-            ).render(myferet, session),
+            ).render(feretui, session),
             'snapshot.html',
         )
 
-    def test_ToolBarDropDownMenu_description(self, snapshot) -> None:
-        myferet = FeretUI()
-        session = Session()
-        request = Request(session=session)
-        local.request = request
+    def test_ToolBarDropDownMenu_description(
+        self, snapshot, feretui, session, frequest,
+    ) -> None:
         snapshot.assert_match(
             ToolBarDropDownMenu(
                 'Test',
                 description='Test',
                 children=[ToolBarMenu('Test', page='test')],
-            ).render(myferet, session),
+            ).render(feretui, session),
             'snapshot.html',
         )
 
@@ -107,8 +97,7 @@ class TestMenu:
                 ],
             )
 
-    def test_ToolBarDropDownMenu_is_visible_1(self) -> None:
-        session = Session()
+    def test_ToolBarDropDownMenu_is_visible_1(self, session) -> None:
         assert ToolBarDropDownMenu(
             'Test',
             children=[
@@ -117,18 +106,20 @@ class TestMenu:
             visible_callback=menu_for_authenticated_user,
         ).is_visible(session) is False
 
-    def test_ToolBarDropDownMenu_is_visible_2(self) -> None:
-        session = Session(user="Test")
+    def test_ToolBarDropDownMenu_is_visible_2(
+        self, authenticated_session,
+    ) -> None:
         assert ToolBarDropDownMenu(
             'Test',
             children=[
                 ToolBarMenu('Test', page='test'),
             ],
             visible_callback=menu_for_authenticated_user,
-        ).is_visible(session) is True
+        ).is_visible(authenticated_session) is True
 
-    def test_ToolBarDropDownMenu_is_visible_3(self) -> None:
-        session = Session(user="Test")
+    def test_ToolBarDropDownMenu_is_visible_3(
+        self, authenticated_session
+    ) -> None:
         assert ToolBarDropDownMenu(
             'Test',
             children=[
@@ -138,10 +129,9 @@ class TestMenu:
                     visible_callback=menu_for_authenticated_user,
                 ),
             ],
-        ).is_visible(session) is True
+        ).is_visible(authenticated_session) is True
 
-    def test_ToolBarDropDownMenu_is_visible_4(self) -> None:
-        session = Session()
+    def test_ToolBarDropDownMenu_is_visible_4(self, session) -> None:
         assert ToolBarDropDownMenu(
             'Test',
             children=[
@@ -150,18 +140,20 @@ class TestMenu:
             visible_callback=menu_for_unauthenticated_user,
         ).is_visible(session) is True
 
-    def test_ToolBarDropDownMenu_is_visible_5(self) -> None:
-        session = Session(user="Test")
+    def test_ToolBarDropDownMenu_is_visible_5(
+        self, authenticated_session
+    ) -> None:
         assert ToolBarDropDownMenu(
             'Test',
             children=[
                 ToolBarMenu('Test', page='test'),
             ],
             visible_callback=menu_for_unauthenticated_user,
-        ).is_visible(session) is False
+        ).is_visible(authenticated_session) is False
 
-    def test_ToolBarDropDownMenu_is_visible_6(self) -> None:
-        session = Session(user="Test")
+    def test_ToolBarDropDownMenu_is_visible_6(
+        self, authenticated_session
+    ) -> None:
         assert ToolBarDropDownMenu(
             'Test',
             children=[
@@ -171,31 +163,25 @@ class TestMenu:
                     visible_callback=menu_for_unauthenticated_user,
                 ),
             ],
-        ).is_visible(session) is False
+        ).is_visible(authenticated_session) is False
 
     def test_ToolBarMenu_without_qs(self) -> None:
         with pytest.raises(MenuError):
             ToolBarMenu('Test')
 
-    def test_ToolBarMenu(self, snapshot) -> None:
-        myferet = FeretUI()
-        session = Session()
-        request = Request(session=session)
-        local.request = request
+    def test_ToolBarMenu(self, snapshot, feretui, session, frequest) -> None:
         snapshot.assert_match(
-            ToolBarMenu('Test', page='test').render(myferet, session),
+            ToolBarMenu('Test', page='test').render(feretui, session),
             'snapshot.html',
         )
 
-    def test_ToolBarMenu_description(self, snapshot) -> None:
-        myferet = FeretUI()
-        session = Session()
-        request = Request(session=session)
-        local.request = request
+    def test_ToolBarMenu_description(
+        self, snapshot, feretui, session, frequest
+    ) -> None:
         snapshot.assert_match(
             ToolBarMenu(
                 'Test', page='test', description="Test",
-            ).render(myferet, session),
+            ).render(feretui, session),
             'snapshot.html',
         )
 
@@ -203,98 +189,86 @@ class TestMenu:
         with pytest.raises(MenuError):
             ToolBarMenu('Test', page='test', children=[])
 
-    def test_ToolBarMenu_is_visible_1(self) -> None:
-        session = Session()
+    def test_ToolBarMenu_is_visible_1(self, session) -> None:
         assert ToolBarMenu(
             'Test', page='test',
             visible_callback=menu_for_authenticated_user,
         ).is_visible(session) is False
 
-    def test_ToolBarMenu_is_visible_2(self) -> None:
-        session = Session(user="Test")
+    def test_ToolBarMenu_is_visible_2(self, authenticated_session) -> None:
         assert ToolBarMenu(
             'Test', page='test',
             visible_callback=menu_for_authenticated_user,
-        ).is_visible(session) is True
+        ).is_visible(authenticated_session) is True
 
-    def test_ToolBarMenu_is_visible_3(self) -> None:
-        session = Session()
+    def test_ToolBarMenu_is_visible_3(self, session) -> None:
         assert ToolBarMenu(
             'Test', page='test',
             visible_callback=menu_for_unauthenticated_user,
         ).is_visible(session) is True
 
-    def test_ToolBarMenu_is_visible_4(self) -> None:
-        session = Session(user="Test")
+    def test_ToolBarMenu_is_visible_4(self, authenticated_session) -> None:
         assert ToolBarMenu(
             'Test', page='test',
             visible_callback=menu_for_unauthenticated_user,
-        ).is_visible(session) is False
+        ).is_visible(authenticated_session) is False
 
-    def test_ToolBarUrlMenu(self, snapshot) -> None:
-        myferet = FeretUI()
-        session = Session()
+    def test_ToolBarUrlMenu(self, snapshot, feretui, session) -> None:
         snapshot.assert_match(
             ToolBarUrlMenu(
                 'Test',
                 'https://feretui.readthedocs.io/en/latest/',
-            ).render(myferet, session),
+            ).render(feretui, session),
             'snapshot.html',
         )
 
-    def test_ToolBarUrlMenu_description(self, snapshot) -> None:
-        myferet = FeretUI()
-        session = Session()
+    def test_ToolBarUrlMenu_description(
+        self, snapshot, feretui, session
+    ) -> None:
         snapshot.assert_match(
             ToolBarUrlMenu(
                 'Test',
                 'https://feretui.readthedocs.io/en/latest/',
                 description='Test',
-            ).render(myferet, session),
+            ).render(feretui, session),
             'snapshot.html',
         )
 
-    def test_ToolBarUrlMenu_is_visible_1(self) -> None:
-        session = Session()
+    def test_ToolBarUrlMenu_is_visible_1(self, session) -> None:
         assert ToolBarUrlMenu(
             'Test',
             'https://feretui.readthedocs.io/en/latest/',
             visible_callback=menu_for_authenticated_user,
         ).is_visible(session) is False
 
-    def test_ToolBarUrlMenu_is_visible_2(self) -> None:
-        session = Session(user="Test")
+    def test_ToolBarUrlMenu_is_visible_2(self, authenticated_session) -> None:
         assert ToolBarUrlMenu(
             'Test',
             'https://feretui.readthedocs.io/en/latest/',
             visible_callback=menu_for_authenticated_user,
-        ).is_visible(session) is True
+        ).is_visible(authenticated_session) is True
 
-    def test_ToolBarUrlMenu_is_visible_3(self) -> None:
-        session = Session()
+    def test_ToolBarUrlMenu_is_visible_3(self, session) -> None:
         assert ToolBarUrlMenu(
             'Test',
             'https://feretui.readthedocs.io/en/latest/',
             visible_callback=menu_for_unauthenticated_user,
         ).is_visible(session) is True
 
-    def test_ToolBarUrlMenu_is_visible_4(self) -> None:
-        session = Session(user="Test")
+    def test_ToolBarUrlMenu_is_visible_4(self, authenticated_session) -> None:
         assert ToolBarUrlMenu(
             'Test',
             'https://feretui.readthedocs.io/en/latest/',
             visible_callback=menu_for_unauthenticated_user,
-        ).is_visible(session) is False
+        ).is_visible(authenticated_session) is False
 
-    def test_ToolBarButtonsMenu(self, snapshot) -> None:
-        myferet = FeretUI()
-        session = Session()
-        request = Request(session=session)
-        local.request = request
+    def test_ToolBarButtonsMenu(
+        self, snapshot, feretui, session, frequest
+    ) -> None:
         snapshot.assert_match(
             ToolBarButtonsMenu(
                 [ToolBarButtonMenu('Test', page='test')],
-            ).render(myferet, session),
+            ).render(feretui, session),
             'snapshot.html',
         )
 
@@ -306,8 +280,7 @@ class TestMenu:
                 ]),
             ])
 
-    def test_ToolBarButtonsMenu_is_visible_1(self) -> None:
-        session = Session()
+    def test_ToolBarButtonsMenu_is_visible_1(self, session) -> None:
         assert ToolBarButtonsMenu(
             [
                 ToolBarButtonMenu('Test', page='test'),
@@ -315,17 +288,19 @@ class TestMenu:
             visible_callback=menu_for_authenticated_user,
         ).is_visible(session) is False
 
-    def test_ToolBarButtonsMenu_is_visible_2(self) -> None:
-        session = Session(user="Test")
+    def test_ToolBarButtonsMenu_is_visible_2(
+        self, authenticated_session
+    ) -> None:
         assert ToolBarButtonsMenu(
             [
                 ToolBarButtonMenu('Test', page='test'),
             ],
             visible_callback=menu_for_authenticated_user,
-        ).is_visible(session) is True
+        ).is_visible(authenticated_session) is True
 
-    def test_ToolBarButtonsMenu_is_visible_3(self) -> None:
-        session = Session(user="Test")
+    def test_ToolBarButtonsMenu_is_visible_3(
+        self, authenticated_session
+    ) -> None:
         assert ToolBarButtonsMenu(
             [
                 ToolBarButtonMenu(
@@ -334,10 +309,9 @@ class TestMenu:
                     visible_callback=menu_for_authenticated_user,
                 ),
             ],
-        ).is_visible(session) is True
+        ).is_visible(authenticated_session) is True
 
-    def test_ToolBarButtonsMenu_is_visible_4(self) -> None:
-        session = Session()
+    def test_ToolBarButtonsMenu_is_visible_4(self, session) -> None:
         assert ToolBarButtonsMenu(
             [
                 ToolBarButtonMenu('Test', page='test'),
@@ -345,17 +319,19 @@ class TestMenu:
             visible_callback=menu_for_unauthenticated_user,
         ).is_visible(session) is True
 
-    def test_ToolBarButtonsMenu_is_visible_5(self) -> None:
-        session = Session(user="Test")
+    def test_ToolBarButtonsMenu_is_visible_5(
+        self, authenticated_session
+    ) -> None:
         assert ToolBarButtonsMenu(
             [
                 ToolBarButtonMenu('Test', page='test'),
             ],
             visible_callback=menu_for_unauthenticated_user,
-        ).is_visible(session) is False
+        ).is_visible(authenticated_session) is False
 
-    def test_ToolBarButtonsMenu_is_visible_6(self) -> None:
-        session = Session(user="Test")
+    def test_ToolBarButtonsMenu_is_visible_6(
+        self, authenticated_session
+    ) -> None:
         assert ToolBarButtonsMenu(
             [
                 ToolBarButtonMenu(
@@ -364,32 +340,27 @@ class TestMenu:
                     visible_callback=menu_for_unauthenticated_user,
                 ),
             ],
-        ).is_visible(session) is False
+        ).is_visible(authenticated_session) is False
 
-    def test_ToolBarButtonMenu(self, snapshot) -> None:
-        myferet = FeretUI()
-        session = Session()
-        request = Request(session=session)
-        local.request = request
+    def test_ToolBarButtonMenu(
+        self, snapshot, feretui, session, frequest
+    ) -> None:
         snapshot.assert_match(
-            ToolBarButtonMenu('Test', page='test').render(myferet, session),
+            ToolBarButtonMenu('Test', page='test').render(feretui, session),
             'snapshot.html',
         )
 
-    def test_ToolBarButtonMenu_desciption(self, snapshot) -> None:
-        myferet = FeretUI()
-        session = Session()
-        request = Request(session=session)
-        local.request = request
+    def test_ToolBarButtonMenu_desciption(
+        self, snapshot, feretui, session, frequest
+    ) -> None:
         snapshot.assert_match(
             ToolBarButtonMenu(
                 'Test', page='test', description="Test",
-            ).render(myferet, session),
+            ).render(feretui, session),
             'snapshot.html',
         )
 
-    def test_ToolBarButtonMenu_is_visible(self) -> None:
-        session = Session()
+    def test_ToolBarButtonMenu_is_visible(self, session) -> None:
         assert ToolBarButtonMenu(
             'Test', page='test',
             visible_callback=menu_for_authenticated_user,
@@ -399,31 +370,28 @@ class TestMenu:
         with pytest.raises(MenuError):
             ToolBarButtonMenu('Test', page='test', children=[])
 
-    def test_ToolBarButtonUrlMenu(self, snapshot) -> None:
-        myferet = FeretUI()
-        session = Session()
+    def test_ToolBarButtonUrlMenu(self, snapshot, feretui, session) -> None:
         snapshot.assert_match(
             ToolBarButtonUrlMenu(
                 'Test',
                 'https://feretui.readthedocs.io/en/latest/',
-            ).render(myferet, session),
+            ).render(feretui, session),
             'snapshot.html',
         )
 
-    def test_ToolBarButtonUrlMenu_description(self, snapshot) -> None:
-        myferet = FeretUI()
-        session = Session()
+    def test_ToolBarButtonUrlMenu_description(
+        self, snapshot, feretui, session
+    ) -> None:
         snapshot.assert_match(
             ToolBarButtonUrlMenu(
                 'Test',
                 'https://feretui.readthedocs.io/en/latest/',
                 description='Test',
-            ).render(myferet, session),
+            ).render(feretui, session),
             'snapshot.html',
         )
 
-    def test_ToolBarButtonUrlMenu_is_visible(self) -> None:
-        session = Session()
+    def test_ToolBarButtonUrlMenu_is_visible(self, session) -> None:
         assert ToolBarButtonUrlMenu(
             'Test',
             'https://feretui.readthedocs.io/en/latest/',
@@ -434,37 +402,32 @@ class TestMenu:
         with pytest.raises(MenuError):
             AsideHeaderMenu('Test')
 
-    def test_AsideHeaderMenu(self, snapshot) -> None:
-        myferet = FeretUI()
-        session = Session()
-        request = Request(session=session)
-        local.request = request
+    def test_AsideHeaderMenu(
+        self, snapshot, feretui, session, frequest
+    ) -> None:
         snapshot.assert_match(
             AsideHeaderMenu(
                 'Test',
                 children=[AsideMenu('Test', page='test')],
-            ).render(myferet, session),
+            ).render(feretui, session),
             'snapshot.html',
         )
 
-    def test_AsideHeaderMenu_description(self, snapshot) -> None:
-        myferet = FeretUI()
-        session = Session()
-        request = Request(session=session)
-        local.request = request
+    def test_AsideHeaderMenu_description(
+        self, snapshot, feretui, session, frequest
+    ) -> None:
         snapshot.assert_match(
             AsideHeaderMenu(
                 'Test',
                 description='Test',
                 children=[AsideMenu('Test', page='test')],
-            ).render(myferet, session),
+            ).render(feretui, session),
             'snapshot.html',
         )
 
-    def test_AsideHeaderMenu_cascade(self, snapshot) -> None:
-        local.feretui = myferet = FeretUI()
-        session = Session()
-        local.request = Request(session)
+    def test_AsideHeaderMenu_cascade(
+        self, snapshot, feretui, session, frequest
+    ) -> None:
         snapshot.assert_match(
             AsideHeaderMenu(
                 'Test',
@@ -474,20 +437,18 @@ class TestMenu:
                         children=[AsideMenu('Test', page='test')],
                     ),
                 ],
-            ).render(myferet, session),
+            ).render(feretui, session),
             'snapshot.html',
         )
 
-    def test_AsideHeaderMenu_is_visible_1(self) -> None:
-        session = Session()
+    def test_AsideHeaderMenu_is_visible_1(self, session) -> None:
         assert AsideHeaderMenu(
             'Test',
             children=[AsideMenu('Test', page='test')],
             visible_callback=menu_for_authenticated_user,
         ).is_visible(session) is False
 
-    def test_AsideHeaderMenu_is_visible_2(self) -> None:
-        session = Session()
+    def test_AsideHeaderMenu_is_visible_2(self, session) -> None:
         assert AsideHeaderMenu(
             'Test',
             children=[AsideMenu(
@@ -501,25 +462,19 @@ class TestMenu:
         with pytest.raises(MenuError):
             AsideMenu('Test')
 
-    def test_AsideMenu(self, snapshot) -> None:
-        myferet = FeretUI()
-        session = Session()
-        request = Request(session=session)
-        local.request = request
+    def test_AsideMenu(self, snapshot, feretui, session, frequest) -> None:
         snapshot.assert_match(
-            AsideMenu('Test', page='test').render(myferet, session),
+            AsideMenu('Test', page='test').render(feretui, session),
             'snapshot.html',
         )
 
-    def test_AsideMenu_description(self, snapshot) -> None:
-        myferet = FeretUI()
-        session = Session()
-        request = Request(session=session)
-        local.request = request
+    def test_AsideMenu_description(
+        self, snapshot, feretui, session, frequest
+    ) -> None:
         snapshot.assert_match(
             AsideMenu(
                 'Test', page='test', description="Test",
-            ).render(myferet, session),
+            ).render(feretui, session),
             'snapshot.html',
         )
 
@@ -527,39 +482,35 @@ class TestMenu:
         with pytest.raises(MenuError):
             AsideMenu('Test', page='test', children=[])
 
-    def test_AsideMenu_is_visible(self) -> None:
-        session = Session()
+    def test_AsideMenu_is_visible(self, session) -> None:
         assert AsideMenu(
             'Test',
             page='test',
             visible_callback=menu_for_authenticated_user,
         ).is_visible(session) is False
 
-    def test_AsideUrlMenu(self, snapshot) -> None:
-        myferet = FeretUI()
-        session = Session()
+    def test_AsideUrlMenu(self, snapshot, feretui, session) -> None:
         snapshot.assert_match(
             AsideUrlMenu(
                 'Test',
                 'https://feretui.readthedocs.io/en/latest/',
-            ).render(myferet, session),
+            ).render(feretui, session),
             'snapshot.html',
         )
 
-    def test_AsideUrlMenu_description(self, snapshot) -> None:
-        myferet = FeretUI()
-        session = Session()
+    def test_AsideUrlMenu_description(
+        self, snapshot, feretui, session
+    ) -> None:
         snapshot.assert_match(
             AsideUrlMenu(
                 'Test',
                 'https://feretui.readthedocs.io/en/latest/',
                 description='Test',
-            ).render(myferet, session),
+            ).render(feretui, session),
             'snapshot.html',
         )
 
-    def test_AsideUrlMenu_is_visible(self) -> None:
-        session = Session()
+    def test_AsideUrlMenu_is_visible(self, session) -> None:
         assert AsideUrlMenu(
             'test',
             'https://feretui.readthedocs.io/en/latest/',

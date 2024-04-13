@@ -26,7 +26,6 @@ from feretui.resources.view import view_action_validator
 from feretui.response import Response
 from feretui.session import Session
 from feretui.template import Template, decode_html
-from feretui.thread import local
 from feretui.translation import Translation
 
 if TYPE_CHECKING:
@@ -59,8 +58,8 @@ class LabelMixinForView:
         if not self.label:
             return super().get_label()
 
-        return local.feretui.translation.get(
-            local.lang, f'{self.context}:label', self.label,
+        return self.feretui.translation.get(
+            self.request.session.lang, f'{self.context}:label', self.label,
         )
 
 
@@ -534,7 +533,7 @@ class TemplateMixinForView:
         template_id = f'resource-{self.resource.code}-view-{self.code}'
         tmpls = Template(Translation())
         tmpls.load_template_from_str(
-            self.get_compiled_template(local.feretui, template_id),
+            self.get_compiled_template(self.feretui, template_id),
         )
         tmpls.export_catalog(po)
 
@@ -567,7 +566,7 @@ class TemplateMixinForView:
         elif self.header_template_id:
             header = feretui.template.get_template(
                 self.header_template_id,
-                local.lang,
+                self.request.session.lang,
                 tostring=False,
             )
 
@@ -607,7 +606,7 @@ class TemplateMixinForView:
         elif self.body_template_id:
             body = feretui.template.get_template(
                 self.body_template_id,
-                local.lang,
+                self.request.session.lang,
                 tostring=False,
             )
 
@@ -633,7 +632,7 @@ class TemplateMixinForView:
         elif self.footer_template_id:
             footer = feretui.template.get_template(
                 self.footer_template_id,
-                local.lang,
+                self.request.session.lang,
                 tostring=False,
             )
 

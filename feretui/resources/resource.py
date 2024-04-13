@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING
 from markupsafe import Markup
 from polib import POFile
 
+from feretui.context import ContextProperties
 from feretui.exceptions import ResourceError
 from feretui.helper import (
     action_for_authenticated_user,
@@ -28,14 +29,13 @@ from feretui.request import Request
 from feretui.resources.view import View
 from feretui.response import Response
 from feretui.session import Session
-from feretui.thread import local
 
 if TYPE_CHECKING:
     from feretui.feretui import FeretUI
     from feretui.translation import Translation
 
 
-class Resource:
+class Resource(ContextProperties):
     """Resource class."""
 
     code: str = None
@@ -131,8 +131,8 @@ class Resource:
 
     def get_label(self: "Resource") -> None:
         """Return the translated label."""
-        return local.feretui.translation.get(
-            local.lang, f'{self.context}:label', self.label,
+        return self.feretui.translation.get(
+            self.request.session.lang, f'{self.context}:label', self.label,
         )
 
     def render(

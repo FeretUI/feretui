@@ -49,6 +49,7 @@ from jinja2 import Environment, PackageLoader, select_autoescape
 from markupsafe import Markup
 
 from feretui.actions import goto, login_password, login_signup, logout, resource
+from feretui.context import set_context
 from feretui.exceptions import (
     MenuError,
     UnexistingActionError,
@@ -78,7 +79,6 @@ from feretui.resources.resource import Resource
 from feretui.response import Response
 from feretui.session import Session
 from feretui.template import Template
-from feretui.thread import local
 from feretui.translation import (
     TranslatedFileTemplate,
     TranslatedForm,
@@ -385,25 +385,21 @@ class FeretUI:
         """
         # First put the instance of feretui and the request in
         # the local thread to keep the information
-        local.feretui = self
-        local.request = request
-        local.lang = request.session.lang
-
-        page = request.query.get('page', ['homepage'])[0]
-
-        template = self.render_template(
-            request.session,
-            'feretui-client',
-            page=Markup(self.get_page(page)(
-                self, request.session, request.query,
-            )),
-        )
-        # lxml remove the tags html, head and body. So in template
-        # they are named feretui-html, feretui-head, feretui-body
-        template = template.replace('feretui-html', 'html')
-        template = template.replace('feretui-head', 'head')
-        template = template.replace('feretui-body', 'body')
-        return Response(f'<!DOCTYPE html5>\n{template}')
+        with set_context(self, request):
+            page = request.query.get('page', ['homepage'])[0]
+            template = self.render_template(
+                request.session,
+                'feretui-client',
+                page=Markup(self.get_page(page)(
+                    self, request.session, request.query,
+                )),
+            )
+            # lxml remove the tags html, head and body. So in template
+            # they are named feretui-html, feretui-head, feretui-body
+            template = template.replace('feretui-html', 'html')
+            template = template.replace('feretui-head', 'head')
+            template = template.replace('feretui-body', 'body')
+            return Response(f'<!DOCTYPE html5>\n{template}')
 
     # ---------- statics  ----------
     def register_js(self: "FeretUI", name: str, filepath: str) -> None:
@@ -684,12 +680,9 @@ class FeretUI:
 
         # First put the instance of feretui, the request and
         # the lang in the local thread to keep the information
-        local.feretui = self
-        local.request = request
-        local.lang = request.session.lang
-
-        function = self.actions[action_name]
-        return function(self, request)
+        with set_context(self, request):
+            function = self.actions[action_name]
+            return function(self, request)
 
     # ---------- Page  ----------
     def register_page(
@@ -1127,13 +1120,13 @@ class FeretUI:
         :param addons: The addons where the message come from
         :type addons: str
         """
-        local.feretui = self  # need for some export
-        if self.auth['menus']:
-            for menu in (self.auth['menus'].children or []):
-                self.translation.add_translated_menu(
-                    TranslatedMenu(menu, addons=self.auth['addons']),
-                )
-        self.translation.export_catalog(output_path, version, addons=addons)
+        with set_context(self, None):
+            if self.auth['menus']:
+                for menu in (self.auth['menus'].children or []):
+                    self.translation.add_translated_menu(
+                        TranslatedMenu(menu, addons=self.auth['addons']),
+                    )
+            self.translation.export_catalog(output_path, version, addons=addons)
 
     def load_catalog(self: "FeretUI", catalog_path: str, lang: str) -> None:
         """Load a specific catalog for a language.

@@ -44,7 +44,7 @@ from wtforms.validators import InputRequired, ValidationError
 from wtforms.widgets.core import clean_key
 from wtforms_components import read_only
 
-from feretui.thread import local
+from feretui.context import cvar_feretui, cvar_request
 
 if TYPE_CHECKING:
 
@@ -59,8 +59,8 @@ def wrap_input(field: Field, **kwargs: dict) -> Markup:
     :return: The renderer of the widget as html.
     :rtype: Markup_
     """
-    myferet = local.feretui
-    session = local.request.session
+    feretui = cvar_feretui.get()
+    session = cvar_request.get().session
 
     input_class = ["input"]
     required = False
@@ -85,7 +85,7 @@ def wrap_input(field: Field, **kwargs: dict) -> Markup:
     c = kwargs.pop('class', '') or kwargs.pop('class_', '')
     kwargs['class'] = '{} {}'.format(' '.join(input_class), c)
 
-    return Markup(myferet.render_template(
+    return Markup(feretui.render_template(
         session,
         "feretui-input-field",
         label=None if kwargs.pop('nolabel', False) else field.label,
@@ -106,14 +106,14 @@ def wrap_bool(field: "Field", **kwargs: dict) -> Markup:
     :rtype: Markup_
     """
     readonly = False
-    myferet = local.feretui
-    session = local.request.session
+    feretui = cvar_feretui.get()
+    session = cvar_request.get().session
 
     if kwargs.pop('readonly', False):
         read_only(field)
         readonly = True
 
-    return Markup(myferet.render_template(
+    return Markup(feretui.render_template(
         session,
         "feretui-bool-field",
         label=None if kwargs.pop('nolabel', False) else field.label,
@@ -135,8 +135,8 @@ def wrap_radio(
     :return: The renderer of the widget as html.
     :rtype: Markup_
     """
-    myferet = local.feretui
-    session = local.request.session
+    feretui = cvar_feretui.get()
+    session = cvar_request.get().session
     vertical = kwargs.pop('vertical', True)
     if vertical:
         template_id = "feretui-radio-field-vertical"
@@ -154,7 +154,7 @@ def wrap_radio(
         kwargs['disabled'] = True
         readonly = True
 
-    return Markup(myferet.render_template(
+    return Markup(feretui.render_template(
         session,
         template_id,
         label=None if kwargs.pop('nolabel', False) else field.label,
@@ -184,8 +184,8 @@ def gettext(
     context_suffix: str = '',
 ) -> str:
     """Translate the string."""
-    translation = local.feretui.translation
-    lang = local.lang
+    translation = cvar_feretui.get().translation
+    lang = cvar_request.get().session.lang
     for form_cls in form.__mro__:
         if hasattr(form_cls, 'get_context'):
             context = form_cls.get_context() + context_suffix

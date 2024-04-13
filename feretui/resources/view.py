@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING
 
 from polib import POFile
 
+from feretui.context import ContextProperties
 from feretui.exceptions import ViewActionError, ViewFormError
 from feretui.form import FeretUIForm
 from feretui.pages import page_404
@@ -95,7 +96,7 @@ class ViewForm:
         return ''
 
 
-class View:
+class View(ContextProperties):
     """View class."""
 
     code: str = None

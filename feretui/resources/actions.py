@@ -17,8 +17,8 @@ from typing import TYPE_CHECKING
 from markupsafe import Markup
 from polib import POFile
 
+from feretui.context import ContextProperties
 from feretui.session import Session
-from feretui.thread import local
 
 if TYPE_CHECKING:
     from feretui.feretui import FeretUI
@@ -26,7 +26,7 @@ if TYPE_CHECKING:
     from feretui.translation import Translation
 
 
-class ActionI18nMixin:
+class ActionI18nMixin(ContextProperties):
     """Mixin to declare and get the translation."""
 
     def get_label(self: "Action") -> str:
@@ -35,8 +35,8 @@ class ActionI18nMixin:
         :return: The label translated in the user lang
         :rtype: str
         """
-        return local.feretui.translation.get(
-            local.lang,
+        return self.feretui.translation.get(
+            self.request.session.lang,
             f'{self.context}:label',
             self.label,
         )
@@ -47,8 +47,8 @@ class ActionI18nMixin:
         :return: The label translated in the user lang
         :rtype: str
         """
-        return local.feretui.translation.get(
-            local.lang,
+        return self.feretui.translation.get(
+            self.request.session.lang,
             f'{self.context}:description',
             self.description,
         )

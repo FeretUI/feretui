@@ -46,7 +46,6 @@ from feretui.form import FeretUIForm
 from feretui.menus import Menu
 from feretui.resources.resource import Resource
 from feretui.session import Session
-from feretui.thread import local
 
 if TYPE_CHECKING:
     from feretui.template import Template
@@ -418,25 +417,6 @@ class Translation:
         :rtype: bool
         """
         return lang in self.langs
-
-    def set_lang(self: "Translation", lang: str = 'en') -> None:
-        """Define the lang as the default language of this thread.
-
-        :param lang: [en], The language code
-        :type lang: str
-        """
-        if lang not in self.langs:
-            logger.warning("%s does not defined in %s", lang, self.langs)
-
-        local.lang = lang
-
-    def get_lang(self: "Translation") -> str:
-        """Return the default language code from local thread.
-
-        :return: Language code.
-        :rtype: str
-        """
-        return local.lang
 
     def set(self: "Translation", lang: str, poentry: POEntry) -> None:
         """Add a new translation in translations.

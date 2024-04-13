@@ -14,11 +14,9 @@ from typing import NoReturn
 import pytest  # noqa: F401
 from wtforms import StringField
 
-from feretui.feretui import FeretUI
 from feretui.request import Request
 from feretui.resources import DResource, LResource, Resource
-from feretui.session import Session
-from feretui.thread import local
+from feretui.context import cvar_request
 
 
 class MyResource(DResource, Resource):
@@ -37,16 +35,14 @@ class MyResource(DResource, Resource):
 
 class TestDeleteView:
 
-    def test_render_1(self, snapshot) -> None:
-
+    def test_render_1(self, snapshot, feretui, session) -> None:
         resource = MyResource.build()
-        local.feretui = feretui = FeretUI()
-        session = Session()
-        local.request = Request(
+        request = Request(
             method=Request.GET,
             session=session,
             headers={'Hx-Current-Url': '/?'},
         )
+        cvar_request.set(request)
 
         snapshot.assert_match(
             resource.views['delete'].render(
@@ -57,16 +53,14 @@ class TestDeleteView:
             'snapshot.html',
         )
 
-    def test_render_2(self, snapshot) -> None:
-
+    def test_render_2(self, snapshot, feretui, session) -> None:
         resource = MyResource.build()
-        local.feretui = feretui = FeretUI()
-        session = Session()
-        local.request = Request(
+        request = Request(
             method=Request.GET,
             session=session,
             headers={'Hx-Current-Url': '/?'},
         )
+        cvar_request.set(request)
 
         snapshot.assert_match(
             resource.views['delete'].render(
@@ -75,7 +69,7 @@ class TestDeleteView:
             'snapshot.html',
         )
 
-    def test_delete(self, snapshot) -> None:
+    def test_delete(self, snapshot, feretui, session) -> None:
         class MyResource2(LResource, MyResource):
             class MetaViewDelete:
                 after_delete_redirect_to = 'list'
@@ -86,20 +80,19 @@ class TestDeleteView:
                     'forms': [],
                 }
 
-        local.feretui = feretui = FeretUI()
         resource = MyResource2.build()
-        session = Session()
-        local.request = request = Request(
+        request = request = Request(
             method=Request.DELETE,
             session=session,
             headers={'Hx-Current-Url': '/?pk=foo&pk=bar'},
         )
+        cvar_request.set(request)
         snapshot.assert_match(
             resource.views['delete'].delete(feretui, request).body,
             'snapshot.html',
         )
 
-    def test_delete_raise(self, snapshot) -> None:
+    def test_delete_raise(self, snapshot, feretui, session) -> None:
         class MyResource2(LResource, MyResource):
             class MetaViewDelete:
                 after_delete_redirect_to = 'list'
@@ -113,14 +106,13 @@ class TestDeleteView:
             def delete(self, *a) -> NoReturn:
                 raise Exception
 
-        local.feretui = feretui = FeretUI()
         resource = MyResource2.build()
-        session = Session()
-        local.request = request = Request(
+        request = request = Request(
             method=Request.DELETE,
             session=session,
             headers={'Hx-Current-Url': '/?pk=foo&pk=bar'},
         )
+        cvar_request.set(request)
         snapshot.assert_match(
             resource.views['delete'].delete(feretui, request).body,
             'snapshot.html',

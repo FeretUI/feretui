@@ -12,23 +12,13 @@ from multidict import MultiDict
 from wtforms import BooleanField, RadioField, SelectField, StringField
 from wtforms.validators import InputRequired, Length, ValidationError
 
-import feretui
-from feretui.feretui import FeretUI
+import feretui as fui
 from feretui.form import FeretUIForm, Password, get_field_translations, no_wrap
-from feretui.request import Request
-from feretui.session import Session
-from feretui.thread import local
 
 
 class TestForm:
 
-    def test_form(self) -> None:
-        myferet = FeretUI()
-        local.feretui = myferet
-        session = Session()
-        request = Request(session=session)
-        local.request = request
-        local.lang = 'en'
+    def test_form(self, feretui, frequest) -> None:
 
         class MyForm(FeretUIForm):
             name = StringField()
@@ -36,13 +26,7 @@ class TestForm:
         myform = MyForm(MultiDict(name='test'))
         assert myform.validate() is True
 
-    def test_form_render_field(self, snapshot) -> None:
-        myferet = FeretUI()
-        local.feretui = myferet
-        session = Session()
-        request = Request(session=session)
-        local.request = request
-        local.lang = 'en'
+    def test_form_render_field(self, snapshot, feretui, frequest) -> None:
 
         class MyForm(FeretUIForm):
             name = StringField()
@@ -53,18 +37,15 @@ class TestForm:
             'snapshot.html',
         )
 
-    def test_form_render_field_translation(self, snapshot) -> None:
-        myferet = FeretUI()
-        local.feretui = myferet
-        session = Session()
-        request = Request(session=session)
-        local.request = request
-        local.lang = 'fr'
+    def test_form_render_field_translation(
+        self, snapshot, feretui, session, frequest,
+    ) -> None:
+        session.lang = 'fr'
 
         class MyForm(FeretUIForm):
             name = StringField()
 
-        myferet.translation.translations[(
+        feretui.translation.translations[(
             'fr',
             f'form:{MyForm.__module__}:{MyForm.__name__}:field:name:label',
             'Name',
@@ -75,13 +56,9 @@ class TestForm:
             'snapshot.html',
         )
 
-    def test_form_render_field_render_kw(self, snapshot) -> None:
-        myferet = FeretUI()
-        local.feretui = myferet
-        session = Session()
-        request = Request(session=session)
-        local.request = request
-        local.lang = 'en'
+    def test_form_render_field_render_kw(
+        self, snapshot, feretui, frequest,
+    ) -> None:
 
         class MyForm(FeretUIForm):
             name = StringField(render_kw={'foo': 'bar'})
@@ -92,13 +69,9 @@ class TestForm:
             'snapshot.html',
         )
 
-    def test_form_render_field_with_errors(self, snapshot) -> None:
-        myferet = FeretUI()
-        local.feretui = myferet
-        session = Session()
-        request = Request(session=session)
-        local.request = request
-        local.lang = 'en'
+    def test_form_render_field_with_errors(
+        self, snapshot, feretui, frequest,
+    ) -> None:
 
         class MyForm(FeretUIForm):
             name = StringField(validators=[InputRequired()])
@@ -110,13 +83,9 @@ class TestForm:
             'snapshot.html',
         )
 
-    def test_form_render_field_required(self, snapshot) -> None:
-        myferet = FeretUI()
-        local.feretui = myferet
-        session = Session()
-        request = Request(session=session)
-        local.request = request
-        local.lang = 'en'
+    def test_form_render_field_required(
+        self, snapshot, feretui, frequest,
+    ) -> None:
 
         class MyForm(FeretUIForm):
             name = StringField(validators=[InputRequired()])
@@ -128,13 +97,9 @@ class TestForm:
             'snapshot.html',
         )
 
-    def test_form_render_field_readonly(self, snapshot) -> None:
-        myferet = FeretUI()
-        local.feretui = myferet
-        session = Session()
-        request = Request(session=session)
-        local.request = request
-        local.lang = 'en'
+    def test_form_render_field_readonly(
+        self, snapshot, feretui, frequest,
+    ) -> None:
 
         class MyForm(FeretUIForm):
             name = StringField(validators=[InputRequired()])
@@ -146,13 +111,9 @@ class TestForm:
             'snapshot.html',
         )
 
-    def test_form_render_field_no_label(self, snapshot) -> None:
-        myferet = FeretUI()
-        local.feretui = myferet
-        session = Session()
-        request = Request(session=session)
-        local.request = request
-        local.lang = 'en'
+    def test_form_render_field_no_label(
+        self, snapshot, feretui, frequest,
+    ) -> None:
 
         class MyForm(FeretUIForm):
             name = StringField(validators=[InputRequired()])
@@ -167,13 +128,9 @@ class TestForm:
     def test_get_field_choices_readonly(
         self,
         snapshot,
+        feretui,
+        frequest,
     ) -> None:
-        myferet = FeretUI()
-        local.feretui = myferet
-        session = Session()
-        request = Request(session=session)
-        local.request = request
-        local.lang = 'en'
 
         class MyForm(FeretUIForm):
             name = SelectField(choices={'foo': 'Foo', 'bar': 'Bar'})
@@ -188,13 +145,9 @@ class TestForm:
     def test_get_field_choices_readonly_2(
         self,
         snapshot,
+        feretui,
+        frequest,
     ) -> None:
-        myferet = FeretUI()
-        local.feretui = myferet
-        session = Session()
-        request = Request(session=session)
-        local.request = request
-        local.lang = 'en'
 
         class MyForm(FeretUIForm):
             name = SelectField(choices={'foo': 'Foo', 'bar': 'Bar'})
@@ -209,13 +162,9 @@ class TestForm:
     def test_get_field_choices_no_label(
         self,
         snapshot,
+        feretui,
+        frequest,
     ) -> None:
-        myferet = FeretUI()
-        local.feretui = myferet
-        session = Session()
-        request = Request(session=session)
-        local.request = request
-        local.lang = 'en'
 
         class MyForm(FeretUIForm):
             name = SelectField(choices={'foo': 'Foo', 'bar': 'Bar'})
@@ -230,13 +179,9 @@ class TestForm:
     def test_get_field_choices_no_label_2(
         self,
         snapshot,
+        feretui,
+        frequest,
     ) -> None:
-        myferet = FeretUI()
-        local.feretui = myferet
-        session = Session()
-        request = Request(session=session)
-        local.request = request
-        local.lang = 'en'
 
         class MyForm(FeretUIForm):
             name = SelectField(choices={'foo': 'Foo', 'bar': 'Bar'})
@@ -248,18 +193,14 @@ class TestForm:
             'snapshot.html',
         )
 
-    def test_form_render_field_password(self, snapshot) -> None:
-        myferet = FeretUI()
-
-        path = Path(feretui.__file__).parent
+    def test_form_render_field_password(
+        self, snapshot, feretui, session, frequest,
+    ) -> None:
+        path = Path(fui.__file__).parent
         path = path / 'locale' / 'fr.po'
-        myferet.load_catalog(path, 'fr')
+        feretui.load_catalog(path, 'fr')
 
-        local.feretui = myferet
-        session = Session()
-        request = Request(session=session)
-        local.request = request
-        local.lang = 'fr'
+        session.lang = 'fr'
 
         class MyForm(FeretUIForm):
             password = StringField(validators=[Password()])
@@ -271,13 +212,9 @@ class TestForm:
             'snapshot.html',
         )
 
-    def test_form_render_field_length_1(self, snapshot) -> None:
-        myferet = FeretUI()
-        local.feretui = myferet
-        session = Session()
-        request = Request(session=session)
-        local.request = request
-        local.lang = 'en'
+    def test_form_render_field_length_1(
+        self, snapshot, feretui, frequest,
+    ) -> None:
 
         class MyForm(FeretUIForm):
             name = StringField(validators=[Length(max=1)])
@@ -289,13 +226,9 @@ class TestForm:
             'snapshot.html',
         )
 
-    def test_form_render_field_length_2(self, snapshot) -> None:
-        myferet = FeretUI()
-        local.feretui = myferet
-        session = Session()
-        request = Request(session=session)
-        local.request = request
-        local.lang = 'en'
+    def test_form_render_field_length_2(
+        self, snapshot, feretui, frequest,
+    ) -> None:
 
         class MyForm(FeretUIForm):
             name = StringField(validators=[Length(max=0)])
@@ -307,13 +240,9 @@ class TestForm:
             'snapshot.html',
         )
 
-    def test_form_render_bool(self, snapshot) -> None:
-        myferet = FeretUI()
-        local.feretui = myferet
-        session = Session()
-        request = Request(session=session)
-        local.request = request
-        local.lang = 'en'
+    def test_form_render_bool(
+        self, snapshot, feretui, frequest,
+    ) -> None:
 
         class MyForm(FeretUIForm):
             test = BooleanField()
@@ -324,13 +253,9 @@ class TestForm:
             'snapshot.html',
         )
 
-    def test_form_render_bool_readonly(self, snapshot) -> None:
-        myferet = FeretUI()
-        local.feretui = myferet
-        session = Session()
-        request = Request(session=session)
-        local.request = request
-        local.lang = 'en'
+    def test_form_render_bool_readonly(
+        self, snapshot, feretui, frequest,
+    ) -> None:
 
         class MyForm(FeretUIForm):
             test = BooleanField()
@@ -341,13 +266,9 @@ class TestForm:
             'snapshot.html',
         )
 
-    def test_form_render_bool_no_label(self, snapshot) -> None:
-        myferet = FeretUI()
-        local.feretui = myferet
-        session = Session()
-        request = Request(session=session)
-        local.request = request
-        local.lang = 'en'
+    def test_form_render_bool_no_label(
+        self, snapshot, feretui, frequest,
+    ) -> None:
 
         class MyForm(FeretUIForm):
             test = BooleanField()
@@ -358,13 +279,9 @@ class TestForm:
             'snapshot.html',
         )
 
-    def test_form_render_bool_description(self, snapshot) -> None:
-        myferet = FeretUI()
-        local.feretui = myferet
-        session = Session()
-        request = Request(session=session)
-        local.request = request
-        local.lang = 'en'
+    def test_form_render_bool_description(
+        self, snapshot, feretui, frequest,
+    ) -> None:
 
         class MyForm(FeretUIForm):
             test = BooleanField(description="Test")
@@ -375,13 +292,7 @@ class TestForm:
             'snapshot.html',
         )
 
-    def test_form_render_radio(self, snapshot) -> None:
-        myferet = FeretUI()
-        local.feretui = myferet
-        session = Session()
-        request = Request(session=session)
-        local.request = request
-        local.lang = 'en'
+    def test_form_render_radio(self, snapshot, feretui, frequest) -> None:
 
         class MyForm(FeretUIForm):
             test = RadioField(choices=[('foo', 'Foo'), ('bar', 'Bar')])
@@ -392,13 +303,9 @@ class TestForm:
             'snapshot.html',
         )
 
-    def test_form_render_radio_readonly(self, snapshot) -> None:
-        myferet = FeretUI()
-        local.feretui = myferet
-        session = Session()
-        request = Request(session=session)
-        local.request = request
-        local.lang = 'en'
+    def test_form_render_radio_readonly(
+        self, snapshot, feretui, frequest,
+    ) -> None:
 
         class MyForm(FeretUIForm):
             test = RadioField(choices=[('foo', 'Foo'), ('bar', 'Bar')])
@@ -409,13 +316,9 @@ class TestForm:
             'snapshot.html',
         )
 
-    def test_form_render_radio_readonly_2(self, snapshot) -> None:
-        myferet = FeretUI()
-        local.feretui = myferet
-        session = Session()
-        request = Request(session=session)
-        local.request = request
-        local.lang = 'en'
+    def test_form_render_radio_readonly_2(
+        self, snapshot, feretui, frequest,
+    ) -> None:
 
         class MyForm(FeretUIForm):
             test = RadioField(choices=[('foo', 'Foo'), ('bar', 'Bar')])
@@ -426,13 +329,9 @@ class TestForm:
             'snapshot.html',
         )
 
-    def test_form_render_radio_no_label(self, snapshot) -> None:
-        myferet = FeretUI()
-        local.feretui = myferet
-        session = Session()
-        request = Request(session=session)
-        local.request = request
-        local.lang = 'en'
+    def test_form_render_radio_no_label(
+        self, snapshot, feretui, frequest,
+    ) -> None:
 
         class MyForm(FeretUIForm):
             test = RadioField(choices=[('foo', 'Foo'), ('bar', 'Bar')])
@@ -443,13 +342,9 @@ class TestForm:
             'snapshot.html',
         )
 
-    def test_form_render_radio_nolabel_2(self, snapshot) -> None:
-        myferet = FeretUI()
-        local.feretui = myferet
-        session = Session()
-        request = Request(session=session)
-        local.request = request
-        local.lang = 'en'
+    def test_form_render_radio_nolabel_2(
+        self, snapshot, feretui, frequest,
+    ) -> None:
 
         class MyForm(FeretUIForm):
             test = RadioField(choices=[('foo', 'Foo'), ('bar', 'Bar')])
@@ -460,13 +355,9 @@ class TestForm:
             'snapshot.html',
         )
 
-    def test_form_render_radio_required(self, snapshot) -> None:
-        myferet = FeretUI()
-        local.feretui = myferet
-        session = Session()
-        request = Request(session=session)
-        local.request = request
-        local.lang = 'en'
+    def test_form_render_radio_required(
+        self, snapshot, feretui, frequest,
+    ) -> None:
 
         class MyForm(FeretUIForm):
             test = RadioField(
@@ -479,13 +370,9 @@ class TestForm:
             'snapshot.html',
         )
 
-    def test_form_render_radio_description(self, snapshot) -> None:
-        myferet = FeretUI()
-        local.feretui = myferet
-        session = Session()
-        request = Request(session=session)
-        local.request = request
-        local.lang = 'en'
+    def test_form_render_radio_description(
+        self, snapshot, feretui, frequest,
+    ) -> None:
 
         class MyForm(FeretUIForm):
             test = RadioField(
@@ -497,13 +384,9 @@ class TestForm:
             'snapshot.html',
         )
 
-    def test_form_render_radio_honrizontal(self, snapshot) -> None:
-        myferet = FeretUI()
-        local.feretui = myferet
-        session = Session()
-        request = Request(session=session)
-        local.request = request
-        local.lang = 'en'
+    def test_form_render_radio_honrizontal(
+        self, snapshot, feretui, frequest,
+    ) -> None:
 
         class MyForm(FeretUIForm):
             test = RadioField(
@@ -517,13 +400,7 @@ class TestForm:
             'snapshot.html',
         )
 
-    def test_no_wrap(self, snapshot) -> None:
-        myferet = FeretUI()
-        local.feretui = myferet
-        session = Session()
-        request = Request(session=session)
-        local.request = request
-        local.lang = 'en'
+    def test_no_wrap(self, snapshot, feretui, frequest) -> None:
 
         class MyForm(FeretUIForm):
             test = StringField()
@@ -536,8 +413,7 @@ class TestForm:
     def test_add_translation(self) -> None:
         FeretUIForm.register_translation('One test')
 
-    def test_password_validator(self) -> None:
-        local.feretui = FeretUI()
+    def test_password_validator(self, feretui) -> None:
         validator = Password()
 
         class MyForm(FeretUIForm):
@@ -547,8 +423,7 @@ class TestForm:
         with pytest.raises(ValidationError):
             validator(myform, myform.password)
 
-    def test_password_validator_2(self) -> None:
-        local.feretui = FeretUI()
+    def test_password_validator_2(self, feretui, frequest) -> None:
         validator = Password(
             max_size=14,
             has_lowercase=False,
