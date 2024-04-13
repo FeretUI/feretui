@@ -23,7 +23,7 @@ cvar_request: ContextVar["Request"] = ContextVar('request')
 
 
 @contextmanager
-def set_context(feretui: "FeretUI", request: "Request"):
+def set_context(feretui: "FeretUI", request: "Request") -> None:
     """Context manager to tokenize contextvar."""
     token_feretui = cvar_feretui.set(feretui)
     token_request = cvar_request.set(request)

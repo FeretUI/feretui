@@ -16,24 +16,28 @@ from feretui.session import Session
 
 
 @pytest.fixture(scope="function")
-def feretui():
+def feretui() -> FeretUI:
+    """Return a feretui."""
     feretui = FeretUI()
     cvar_feretui.set(feretui)
     return feretui
 
 
 @pytest.fixture(scope="function")
-def session():
+def session() -> Session:
+    """Return a session."""
     return Session()
 
 
 @pytest.fixture(scope="function")
-def authenticated_session():
+def authenticated_session() -> Session:
+    """Return a session."""
     return Session(user='test')
 
 
 @pytest.fixture(scope="function")
-def frequest(session):
+def frequest(session: Session) -> Request:
+    """Return a request."""
     request = Request(session=session)
     cvar_request.set(request)
     return request
