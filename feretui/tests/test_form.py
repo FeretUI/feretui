@@ -400,13 +400,13 @@ class TestForm:
             'snapshot.html',
         )
 
-    def test_no_wrap(self, snapshot, feretui, frequest) -> None:
+    def test_no_wrap(self, snapshot, feretui, session, frequest) -> None:
 
         class MyForm(FeretUIForm):
             test = StringField()
 
         form = MyForm()
-        assert no_wrap(form.test) == (
+        assert no_wrap(feretui, session, form.test) == (
             '<input id="test" name="test" type="text" value="">'
         )
 

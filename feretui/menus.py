@@ -92,7 +92,7 @@ from typing import TYPE_CHECKING
 
 from markupsafe import Markup
 
-from feretui.context import cvar_request
+from feretui.context import ContextProperties
 from feretui.exceptions import MenuError
 from feretui.session import Session
 
@@ -100,7 +100,7 @@ if TYPE_CHECKING:
     from feretui.feretui import FeretUI
 
 
-class Menu:
+class Menu(ContextProperties):
     """Mixin class Menu.
 
     All the menu inherit this class. It is added behaviours:
@@ -233,7 +233,7 @@ class Menu:
         :return: The url
         :rtype: str
         """
-        return cvar_request.get().get_url_from_dict(
+        return self.request.get_url_from_dict(
             base_url=f'{ feretui.base_url }/action/goto',
             querystring=querystring,
         )

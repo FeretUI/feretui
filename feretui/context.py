@@ -48,4 +48,4 @@ class ContextProperties:
         if attribute == 'request':
             return cvar_request.get()
 
-        return super().__getattr__(attribute)
+        return super().__getattr__(attribute)  # pragma: no cover
