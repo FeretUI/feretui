@@ -87,9 +87,9 @@ class TestTranslation:
         with pytest.raises(TranslationResourceError):
             TranslatedResource(A)
 
-    def test_has_langs(self) -> None:
+    def test_has_langs(self, feretui) -> None:
         """Test has_lang."""
-        translation = Translation()
+        translation = Translation(feretui)
         assert translation.has_lang('a_lang') is False
         translation.langs.add('a_lang')
         assert translation.has_lang('a_lang') is True

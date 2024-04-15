@@ -18,7 +18,6 @@ from lxml.html import fromstring
 from markupsafe import Markup
 from polib import POFile
 
-from feretui.context import cvar_feretui
 from feretui.exceptions import ViewActionError, ViewError
 from feretui.form import FeretUIForm
 from feretui.request import Request
@@ -541,13 +540,14 @@ class TemplateMixinForView:
         :param po: The catalog instance
         :type po: PoFile_
         """
-        feretui = cvar_feretui.get()
         super().export_catalog(translation, po)
         template_id = f'resource-{self.resource.code}-view-{self.code}'
-        tmpls = Template(Translation())
-        tmpls.load_template_from_str(
-            self.get_compiled_template(feretui, Session(), template_id),
-        )
+        tmpls = Template(Translation(translation.feretui))
+        tmpls.load_template_from_str(self.get_compiled_template(
+            translation.feretui,
+            Session(),
+            template_id,
+        ))
         tmpls.export_catalog(po)
 
     # ----- templating ------

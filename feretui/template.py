@@ -963,16 +963,3 @@ class Template:
         """
         for tmpl in self.known:
             self.compile_template(lang, tmpl)
-
-    def copy(self: "Template") -> "Template":
-        """Copy all the known templates."""
-        self_copy = Template(Translation())
-        for tmpl_name in self.known:
-            self_copy.known[tmpl_name] = {
-                'tmpl': list(self.known[tmpl_name]['tmpl']),
-            }
-            if 'extend' in self.known[tmpl_name]:
-                self_copy.known[tmpl_name]['extend'] = self.known[tmpl_name][
-                    'extend']
-
-        return self_copy

@@ -271,7 +271,7 @@ class FeretUI:
         self.title: str = title
 
         # Translation for this instance
-        self.translation = Translation()
+        self.translation = Translation(self)
 
         self.jinja_env = Environment(
             loader=PackageLoader("feretui"),
@@ -1120,13 +1120,12 @@ class FeretUI:
         :param addons: The addons where the message come from
         :type addons: str
         """
-        with set_context(self, None):
-            if self.auth['menus']:
-                for menu in (self.auth['menus'].children or []):
-                    self.translation.add_translated_menu(
-                        TranslatedMenu(menu, addons=self.auth['addons']),
-                    )
-            self.translation.export_catalog(output_path, version, addons=addons)
+        if self.auth['menus']:
+            for menu in (self.auth['menus'].children or []):
+                self.translation.add_translated_menu(
+                    TranslatedMenu(menu, addons=self.auth['addons']),
+                )
+        self.translation.export_catalog(output_path, version, addons=addons)
 
     def load_catalog(self: "FeretUI", catalog_path: str, lang: str) -> None:
         """Load a specific catalog for a language.

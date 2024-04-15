@@ -14,11 +14,12 @@ language with `PoEdit <https://poedit.net/>`_.
 
 The translated object are:
 
-* :class:`feretui.translation.TranslatedFileTemplate`
 * :class:`feretui.translation.TranslatedForm`
 * :class:`feretui.translation.TranslatedMenu`
-* :class:`feretui.translation.TranslatedStringTemplate`
 * :class:`feretui.translation.TranslatedTemplate`
+* :class:`feretui.translation.TranslatedFileTemplate`
+* :class:`feretui.translation.TranslatedStringTemplate`
+* :class:`feretui.translation.TranslatedResource`
 
 The Translation class have two methods to manipulate the catalogs:
 
@@ -48,6 +49,7 @@ from feretui.resources.resource import Resource
 from feretui.session import Session
 
 if TYPE_CHECKING:
+    from feretui.feretui import FeretUI
     from feretui.template import Template
 
 logger = getLogger(__name__)
@@ -399,8 +401,9 @@ class Translation:
         The behaviour work with thread local
     """
 
-    def __init__(self: "Translation") -> "Translation":
+    def __init__(self: "Translation", feretui: "FeretUI") -> "Translation":
         """Instance of the Translation class."""
+        self.feretui = feretui
         self.langs: set = set()
         self.translations: dict[tuple[str, str, str], str] = {}
         self.templates: list[TranslatedTemplate] = []
@@ -569,7 +572,7 @@ class Translation:
                 form_translated_message,
             ))
 
-        tmpls = Template(Translation())
+        tmpls = Template(Translation(self.feretui))
         for template in templates:
             template.load(tmpls)
 
