@@ -18,6 +18,7 @@ from lxml.html import fromstring
 from markupsafe import Markup
 from polib import POFile
 
+from feretui.context import cvar_feretui
 from feretui.exceptions import ViewActionError, ViewError
 from feretui.form import FeretUIForm
 from feretui.request import Request
@@ -53,13 +54,24 @@ class LabelMixinForView:
         if self.label:
             po.append(translation.define(f'{self.context}:label', self.label))
 
-    def get_label(self: "LabelMixinForView") -> str:
-        """Return the translated label."""
-        if not self.label:
-            return super().get_label()
+    def get_label(
+        self: "LabelMixinForView",
+        feretui: "FeretUI",
+        session: Session,
+    ) -> str:
+        """Return the translated label.
 
-        return self.feretui.translation.get(
-            self.request.session.lang, f'{self.context}:label', self.label,
+        :param feretui: The feretui client
+        :type feretui: :class:`feretui.feretui.FeretUI`
+        :param session: The Session
+        :type session: :class:`feretui.session.Session`
+        :rtype: str.
+        """
+        if not self.label:
+            return super().get_label(feretui, session)
+
+        return feretui.translation.get(
+            session.lang, f'{self.context}:label', self.label,
         )
 
 
@@ -382,7 +394,7 @@ class MultiView(ActionsMixinForView):
         return {
             "rcode": self.resource.code,
             "vcode": self.code,
-            "label": self.get_label(),
+            "label": self.get_label(feretui, session),
             "form": self.form_cls(),
             "offset": offset,
             "limit": self.limit,
@@ -529,11 +541,12 @@ class TemplateMixinForView:
         :param po: The catalog instance
         :type po: PoFile_
         """
+        feretui = cvar_feretui.get()
         super().export_catalog(translation, po)
         template_id = f'resource-{self.resource.code}-view-{self.code}'
         tmpls = Template(Translation())
         tmpls.load_template_from_str(
-            self.get_compiled_template(self.feretui, template_id),
+            self.get_compiled_template(feretui, Session(), template_id),
         )
         tmpls.export_catalog(po)
 
@@ -551,12 +564,15 @@ class TemplateMixinForView:
     def set_header_template(
         self: "TemplateMixinForView",
         feretui: "FeretUI",
+        session: Session,
         parent: Element,
     ) -> None:
         """Add the header template.
 
         :param feretui: The feretui client
         :type feretui: :class:`feretui.feretui.FeretUI`
+        :param session: The feretui session
+        :type session: :class:`feretui.session.Session`
         :param parent: The parent node
         :type parent: HtmlElement_
         """
@@ -566,7 +582,7 @@ class TemplateMixinForView:
         elif self.header_template_id:
             header = feretui.template.get_template(
                 self.header_template_id,
-                self.request.session.lang,
+                session.lang,
                 tostring=False,
             )
 
@@ -577,12 +593,15 @@ class TemplateMixinForView:
     def set_form_template(
         self: "TemplateMixinForView",
         feretui: "FeretUI",  # noqa: ARG002
+        session: Session,  # noqa: ARG002
         parent: Element,
     ) -> Element:
         """Add the form node in the template.
 
         :param feretui: The feretui client
         :type feretui: :class:`feretui.feretui.FeretUI`
+        :param session: The feretui session
+        :type session: :class:`feretui.session.Session`
         :param parent: The parent node
         :type parent: HtmlElement_
         """
@@ -591,12 +610,15 @@ class TemplateMixinForView:
     def set_body_template(
         self: "TemplateMixinForView",
         feretui: "FeretUI",  # noqa: ARG002
+        session: Session,
         parent: Element,
     ) -> Element:
         """Add the body template.
 
         :param feretui: The feretui client
         :type feretui: :class:`feretui.feretui.FeretUI`
+        :param session: The feretui session
+        :type session: :class:`feretui.session.Session`
         :param parent: The parent node
         :type parent: HtmlElement_
         """
@@ -606,7 +628,7 @@ class TemplateMixinForView:
         elif self.body_template_id:
             body = feretui.template.get_template(
                 self.body_template_id,
-                self.request.session.lang,
+                session.lang,
                 tostring=False,
             )
 
@@ -617,12 +639,15 @@ class TemplateMixinForView:
     def set_footer_template(
         self: "TemplateMixinForView",
         feretui: "FeretUI",  # noqa: ARG002
+        session: Session,
         parent: Element,
     ) -> Element:
         """Add the footer template.
 
         :param feretui: The feretui client
         :type feretui: :class:`feretui.feretui.FeretUI`
+        :param session: The feretui session
+        :type session: :class:`feretui.session.Session`
         :param parent: The parent node
         :type parent: HtmlElement_
         """
@@ -632,7 +657,7 @@ class TemplateMixinForView:
         elif self.footer_template_id:
             footer = feretui.template.get_template(
                 self.footer_template_id,
-                self.request.session.lang,
+                session.lang,
                 tostring=False,
             )
 
@@ -643,12 +668,15 @@ class TemplateMixinForView:
     def get_compiled_template(
         self: "TemplateMixinForView",
         feretui: "FeretUI",
+        session: Session,
         template_id: str,
     ) -> str:
         """Get the template for this view.
 
         :param feretui: The feretui client
         :type feretui: :class:`feretui.feretui.FeretUI`
+        :param session: The feretui session
+        :type session: :class:`feretui.session.Session`
         :param template_id: The id of the template
         :type template_id: str
         """
@@ -657,10 +685,10 @@ class TemplateMixinForView:
         div = SubElement(template, 'div')
         div.set('id', template_id)
         div.set('class', 'container is-fluid content')
-        form = self.set_form_template(feretui, div)
-        self.set_header_template(feretui, form)
-        self.set_body_template(feretui, form)
-        self.set_footer_template(feretui, form)
+        form = self.set_form_template(feretui, session, div)
+        self.set_header_template(feretui, session, form)
+        self.set_body_template(feretui, session, form)
+        self.set_footer_template(feretui, session, form)
         return tostring(template)
 
     # ----- render -----
@@ -729,7 +757,7 @@ class TemplateMixinForView:
         template_id = f'resource-{self.resource.code}-view-{self.code}'
         if not feretui.template.has_template(template_id):
             feretui.template.load_template_from_str(
-                self.get_compiled_template(feretui, template_id),
+                self.get_compiled_template(feretui, session, template_id),
             )
 
         return feretui.render_template(

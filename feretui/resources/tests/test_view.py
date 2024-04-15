@@ -57,9 +57,9 @@ class TestResourceView:
         resource = MyResource.build()
         assert resource.views['test'].render(feretui, session, {})
 
-    def test_view_get_label(self, feretui, frequest) -> None:
+    def test_view_get_label(self, feretui, session, frequest) -> None:
         resource = MyResource.build()
-        assert resource.views['test'].get_label()
+        assert resource.views['test'].get_label(feretui, session)
 
     def test_get_transition_url_1(self, feretui) -> None:
         resource = MyResource.build()

@@ -90,10 +90,12 @@ class TestLResource:
         resource.views['list'].export_catalog(feretui.translation, po)
         assert len(po) == 13
 
-    def test_get_label(self, feretui) -> None:
+    def test_get_label(self, feretui, session) -> None:
         resource = MyResource2.build()
         resource.context = 'test'
-        assert resource.views['list'].get_label() == 'other label'
+        assert resource.views['list'].get_label(
+            feretui, session
+        ) == 'other label'
 
     def test_get_call_kwargs(self, session) -> None:
         resource = MyResource2.build()

@@ -16,7 +16,6 @@ from typing import TYPE_CHECKING
 
 from polib import POFile
 
-from feretui.context import ContextProperties
 from feretui.exceptions import ViewActionError, ViewFormError
 from feretui.form import FeretUIForm
 from feretui.pages import page_404
@@ -96,7 +95,7 @@ class ViewForm:
         return ''
 
 
-class View(ContextProperties):
+class View:
     """View class."""
 
     code: str = None
@@ -114,9 +113,20 @@ class View(ContextProperties):
         self.context = resource.context + f':view:{self.code}'
         self.form_cls = self.get_form_cls()
 
-    def get_label(self: "View") -> str:
-        """Return the translated label."""
-        return self.resource.get_label()
+    def get_label(
+        self: "View",
+        feretui: "FeretUI",
+        session: Session,
+    ) -> str:
+        """Return the translated label.
+
+        :param feretui: The feretui client
+        :type feretui: :class:`feretui.feretui.FeretUI`
+        :param session: The Session
+        :type session: :class:`feretui.session.Session`
+        :rtype: str.
+        """
+        return self.resource.get_label(feretui, session)
 
     def export_catalog(
         self: "View",
