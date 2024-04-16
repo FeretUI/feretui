@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: 0.0.1\n"
-"POT-Creation-Date: 2024-03-21T11:16:56.453124\n"
+"POT-Creation-Date: 2024-04-15T13:55:51.124307\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -39,7 +39,7 @@ msgstr "N'est pas une heure valide."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Not a valid week value."
-msgstr "N'est pas une semaine valide"
+msgstr "N'est pas une semaine valide."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Invalid Choice: could not coerce."
@@ -51,39 +51,39 @@ msgstr "La liste des choix ne peut être vide."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Not a valid choice."
-msgstr "N'est pas une choix valide"
+msgstr "N'est pas une choix valide."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Invalid choice(s): one or more data inputs could not be coerced."
-msgstr ""
+msgstr "Choix invalide(s) : une ou plusieurs entrées de données n'ont pas pu être forcées."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "'%(value)s' is not a valid choice for this field."
-msgstr ""
+msgstr "'%(value)s' n'est pas un choix valide pour ce champ."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "'%(value)s' are not valid choices for this field."
-msgstr ""
+msgstr "'%(value)s' ne sont pas des choix valides pour ce champ."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Invalid CSRF Token."
-msgstr ""
+msgstr "Jeton CSRF invalide."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "CSRF token missing."
-msgstr ""
+msgstr "Jeton CSRF manquant."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "CSRF failed."
-msgstr ""
+msgstr "CSRF a échoué."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "CSRF token expired."
-msgstr ""
+msgstr "Le jeton CSRF a expiré."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Invalid field name '%s'."
-msgstr ""
+msgstr "Nom de champ '%s' non valide."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Field must be equal to %(other_name)s."
@@ -91,151 +91,151 @@ msgstr "Le champs doit être égale à %(other_name)s."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Field must be at least %(min)d character long."
-msgstr ""
+msgstr "Le champ doit contenir au moins %(min)d caractères."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Field must be at least %(min)d characters long."
-msgstr ""
+msgstr "Le champ doit contenir au moins %(min)d caractères."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Field cannot be longer than %(max)d character."
-msgstr ""
+msgstr "Le champ ne peut pas contenir plus de %(max)d caractères."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Field cannot be longer than %(max)d characters."
-msgstr ""
+msgstr "Le champ ne peut pas contenir plus de %(max)d caractères."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Field must be exactly %(max)d character long."
-msgstr ""
+msgstr "Le champ doit contenir exactement %(max)d caractères."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Field must be exactly %(max)d characters long."
-msgstr ""
+msgstr "Le champ doit contenir exactement %(max)d caractères."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Field must be between %(min)d and %(max)d characters long."
-msgstr ""
+msgstr "Le champ doit contenir entre %(min)d et %(max)d caractères."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Number must be at least %(min)s."
-msgstr ""
+msgstr "Le nombre doit être d'au moins %(min)s."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Number must be at most %(max)s."
-msgstr ""
+msgstr "Le nombre doit être au plus %(max)s."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Number must be between %(min)s and %(max)s."
-msgstr ""
+msgstr "Le nombre doit être compris entre %(min)s et %(max)s."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "This field is required."
-msgstr ""
+msgstr "Ce champ est obligatoire."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Invalid input."
-msgstr ""
+msgstr "Entrée invalide."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Invalid email address."
-msgstr ""
+msgstr "Adresse e-mail invalide."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Invalid IP address."
-msgstr ""
+msgstr "Adresse IP invalide."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Invalid Mac address."
-msgstr ""
+msgstr "Adresse Mac invalide."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Invalid URL."
-msgstr ""
+msgstr "URL invalide."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Invalid UUID."
-msgstr ""
+msgstr "UUID non valide."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Invalid value, must be one of: %(values)s."
-msgstr ""
+msgstr "Valeur non valide, doit être l'une des suivantes : %(values)s."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Invalid value, can't be any of: %(values)s."
-msgstr ""
+msgstr "Valeur non valide. Il ne peut pas s'agir de : %(values)s."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "This field cannot be edited"
-msgstr ""
+msgstr "Ce champ ne peut pas être édité"
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "This field is disabled and cannot have a value"
-msgstr ""
+msgstr "Ce champ est désactivé et ne peut pas avoir de valeur"
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Not a valid time."
-msgstr ""
+msgstr "Pas une heure valide."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Not a valid decimal range value"
-msgstr ""
+msgstr "Il ne s'agit pas d'une valeur de plage décimale valide"
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Not a valid float range value"
-msgstr ""
+msgstr "Il ne s'agit pas d'une valeur de plage flottante valide."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Not a valid int range value"
-msgstr ""
+msgstr "Il ne s'agit pas d'une valeur de plage entière valide"
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Not a valid date range value"
-msgstr ""
+msgstr "Il ne s'agit pas d'une valeur de plage de dates valide"
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Not a valid datetime range value"
-msgstr ""
+msgstr "Il ne s'agit pas d'une valeur de plage date/heure valide"
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Not a valid choice"
-msgstr ""
+msgstr "N'est pas un choix valide"
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Not a valid color."
-msgstr ""
+msgstr "Ce n'est pas une couleur valide."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Invalid choice(s): one or more data inputs could not be coerced"
-msgstr ""
+msgstr "Choix invalide(s) : une ou plusieurs entrées de données n'ont pas pu être forcées."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "'%(value)s' is not a valid choice for this field"
-msgstr ""
+msgstr "'%(value)s' n'est pas un choix valide pour ce champ."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Date must be greater than %(min)s."
-msgstr ""
+msgstr "La date doit être supérieure à %(min)s."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Date must be less than %(max)s."
-msgstr ""
+msgstr "La date doit être inférieure à %(max)s."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Date must be between %(min)s and %(max)s."
-msgstr ""
+msgstr "La date doit être comprise entre %(min)s et %(max)s."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Time must be greater than %(min)s."
-msgstr ""
+msgstr "Le temps doit être supérieur à %(min)s."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Time must be less than %(max)s."
-msgstr ""
+msgstr "Le temps doit être inférieur à %(max)s."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Time must be between %(min)s and %(max)s."
-msgstr ""
+msgstr "Le temps doit être compris entre %(min)s et %(max)s."
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "This field contains invalid JSON"
@@ -307,7 +307,7 @@ msgstr "Aller à la page d'accueil"
 
 msgctxt "template:feretui-client-header"
 msgid "Log out"
-msgstr ""
+msgstr "Se déconnecter"
 
 msgctxt "template:feretui-client-footer"
 msgid "FeretUI"
@@ -347,23 +347,23 @@ msgstr "Bienvenue sur le client FeretUI"
 
 msgctxt "template:feretui-page-homepage"
 msgid "Small and modular web client to administrate your service"
-msgstr ""
+msgstr "Petit client web pour administrer votre service"
 
 msgctxt "template:feretui-page-login"
 msgid "Log in"
-msgstr ""
+msgstr "Se connecter"
 
 msgctxt "template:feretui-page-signup"
 msgid "Register a new user"
-msgstr ""
+msgstr "Enregistrer un nouveau utilisateur"
 
 msgctxt "template:feretui-page-signup"
 msgid "Sign up"
-msgstr ""
+msgstr "Enregistrer"
 
 msgctxt "template:feretui-input-label"
 msgid "("
-msgstr ""
+msgstr "("
 
 msgctxt "template:feretui-input-label"
 msgid "required"
@@ -371,32 +371,76 @@ msgstr "requis"
 
 msgctxt "template:feretui-input-label"
 msgid ")"
-msgstr ""
+msgstr ")"
+
+msgctxt "template:view-delete-form"
+msgid "Do you wanted delete its ?"
+msgstr "Voulez vous supprimer les entrées?"
+
+msgctxt "template:view-goto-create-button"
+msgid "Create"
+msgstr "Créer"
+
+msgctxt "template:view-do-save-button"
+msgid "Save"
+msgstr "Sauvegarder"
+
+msgctxt "template:view-goto-selected-delete-button"
+msgid "Delete"
+msgstr "Supprimer"
+
+msgctxt "template:view-goto-delete-button"
+msgid "Delete"
+msgstr "Supprimer"
+
+msgctxt "template:view-do-delete-button"
+msgid "Delete"
+msgstr "Supprimer"
+
+msgctxt "template:view-goto-edit-button"
+msgid "Edit"
+msgstr "Modifier"
+
+msgctxt "template:view-goto-return-button"
+msgid "Return"
+msgstr "Retour"
+
+msgctxt "template:view-goto-cancel-button"
+msgid "Cancel"
+msgstr "Annuler"
+
+msgctxt "template:view-goto-edit-cancel-button"
+msgid "Cancel"
+msgstr "Annuler"
+
+msgctxt "template:view-filter"
+msgid "Filter"
+msgstr "Filtrer"
 
 msgctxt "form:feretui.session:LoginForm:field:login:label"
 msgid "Login"
-msgstr ""
+msgstr "Identifiant"
 
 msgctxt "form:feretui.session:LoginForm:field:password:label"
 msgid "Password"
-msgstr ""
+msgstr "Mot de passe"
 
 msgctxt "form:feretui.session:SignUpForm:field:lang:label"
 msgid "Language"
-msgstr ""
+msgstr "Langue"
 
 msgctxt "form:feretui.session:SignUpForm:field:lang:choice:en:label"
 msgid "English"
-msgstr ""
+msgstr "English"
 
 msgctxt "form:feretui.session:SignUpForm:field:login:label"
 msgid "Login"
-msgstr ""
+msgstr "Identifiant"
 
 msgctxt "form:feretui.session:SignUpForm:field:password:label"
 msgid "Password"
-msgstr ""
+msgstr "Mot de passe"
 
 msgctxt "form:feretui.session:SignUpForm:field:password_confirm:label"
 msgid "Password Confirm"
-msgstr ""
+msgstr "Confirmer le mot de passe"
