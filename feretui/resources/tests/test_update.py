@@ -13,14 +13,11 @@ from typing import NoReturn
 
 import pytest  # noqa: F401
 from multidict import MultiDict
-from polib import POFile
 from wtforms import SelectField, StringField
 
-from feretui.feretui import FeretUI
 from feretui.request import Request
 from feretui.resources import UResource, Resource
-from feretui.session import Session
-from feretui.thread import local
+from feretui.context import cvar_request
 
 
 class MyResource(UResource, Resource):
@@ -48,13 +45,8 @@ class MyResource(UResource, Resource):
 
 class TestEditView:
 
-    def test_render_1(self, snapshot) -> None:
-
+    def test_render_1(self, snapshot, feretui, session, frequest) -> None:
         resource = MyResource.build()
-        local.feretui = feretui = FeretUI()
-        session = Session()
-        local.request = Request(session=session)
-
         snapshot.assert_match(
             resource.views['edit'].render(
                 feretui, session, {'pk': ['foo'], 'error': 'With error'},
@@ -62,13 +54,8 @@ class TestEditView:
             'snapshot.html',
         )
 
-    def test_render_2(self, snapshot) -> None:
-
+    def test_render_2(self, snapshot, feretui, session, frequest) -> None:
         resource = MyResource.build()
-        local.feretui = feretui = FeretUI()
-        session = Session()
-        local.request = Request(session=session)
-
         resource.views['edit'].cancel_button_redirect_to = 'other'
         form = resource.views['edit'].form_cls(pk=1)
         form.validate()
@@ -79,52 +66,50 @@ class TestEditView:
             'snapshot.html',
         )
 
-    def test_save_empty(self, snapshot) -> None:
-        local.feretui = feretui = FeretUI()
+    def test_save_empty(self, snapshot, feretui, session) -> None:
         resource = MyResource.build()
-        session = Session()
-        local.request = request = Request(
+        request = Request(
             session=session,
             form=MultiDict(),
             headers={'Hx-Current-Url': '/?pk=foo'},
         )
+        cvar_request.set(request)
+
         snapshot.assert_match(
             resource.views['edit'].save(feretui, request).body,
             'snapshot.html',
         )
 
-    def test_save(self, snapshot) -> None:
+    def test_save(self, snapshot, feretui, session) -> None:
         class MyResource2(MyResource):
             class MetaViewUpdate:
                 after_update_redirect_to = 'edit'
 
-        local.feretui = feretui = FeretUI()
         resource = MyResource2.build()
-        session = Session()
-        local.request = request = Request(
+        request = Request(
             session=session,
             form=MultiDict(pk=1, foo='bar', test='test1'),
             headers={'Hx-Current-Url': '/?'},
         )
+        cvar_request.set(request)
         snapshot.assert_match(
             resource.views['edit'].save(feretui, request).body,
             'snapshot.html',
         )
 
-    def test_save_error(self, snapshot) -> None:
+    def test_save_error(self, snapshot, feretui, session) -> None:
         class MyResource2(MyResource):
 
             def update(self, *a) -> NoReturn:
                 raise Exception
 
-        local.feretui = feretui = FeretUI()
         resource = MyResource2.build()
-        session = Session()
-        local.request = request = Request(
+        request = Request(
             session=session,
             form=MultiDict(pk=1, foo='bar', test='test1'),
             headers={'Hx-Current-Url': '/?'},
         )
+        cvar_request.set(request)
         snapshot.assert_match(
             resource.views['edit'].save(feretui, request).body,
             'snapshot.html',

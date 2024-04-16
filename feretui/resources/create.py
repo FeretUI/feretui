@@ -57,17 +57,20 @@ class CreateView(TemplateMixinForView, LabelMixinForView, View):
 
     def set_form_template(
         self: "CreateView",
-        feretui: "FeretUI",  # noqa: ARG002
+        feretui: "FeretUI",
+        session: Session,
         parent: Element,
     ) -> Element:
         """Add the form node in the template.
 
         :param feretui: The feretui client
         :type feretui: :class:`feretui.feretui.FeretUI`
+        :param session: The Session
+        :type session: :class:`feretui.session.Session`
         :param parent: The parent node
         :type parent: HtmlElement_
         """
-        form = super().set_form_template(feretui, parent)
+        form = super().set_form_template(feretui, session, parent)
         form.set(
             'hx-post',
             f'{feretui.base_url}/action/resource?action=save',
@@ -123,7 +126,7 @@ class CreateView(TemplateMixinForView, LabelMixinForView, View):
         """
         res = super().render_kwargs(feretui, session, options)
         res.update({
-            'label': self.get_label(),
+            'label': self.get_label(feretui, session),
             'form': options.get('form', self.form_cls()),
             'error': options.get('error'),
         })

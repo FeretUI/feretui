@@ -63,12 +63,15 @@ class ReadView(ActionsMixinForView, TemplateMixinForView, View):
     def set_body_template(
         self: "ReadView",
         feretui: "FeretUI",
+        session: Session,
         form: Element,
     ) -> None:
         """Add the body template.
 
         :param feretui: The feretui client
         :type feretui: :class:`feretui.feretui.FeretUI`
+        :param session: The Session
+        :type session: :class:`feretui.session.Session`
         :param parent: The parent node
         :type parent: HtmlElement_
         """
@@ -76,7 +79,7 @@ class ReadView(ActionsMixinForView, TemplateMixinForView, View):
         root.set('class', 'columns')
         div = SubElement(root, 'div')
         div.set('class', 'column')
-        super().set_body_template(feretui, div)
+        super().set_body_template(feretui, session, div)
         if len(self.actions):
             div = SubElement(root, 'div')
             div.set('class', 'column is-2')

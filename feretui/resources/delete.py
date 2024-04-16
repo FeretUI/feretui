@@ -57,16 +57,19 @@ class DeleteView(TemplateMixinForView, LabelMixinForView, View):
     def set_form_template(
         self: "DeleteView",
         feretui: "FeretUI",  # noqa: ARG002
+        session: Session,
         parent: Element,
     ) -> Element:
         """Add the form node in the template.
 
         :param feretui: The feretui client
         :type feretui: :class:`feretui.feretui.FeretUI`
+        :param session: The Session
+        :type session: :class:`feretui.session.Session`
         :param parent: The parent node
         :type parent: HtmlElement_
         """
-        form = super().set_form_template(feretui, parent)
+        form = super().set_form_template(feretui, session, parent)
         form.set(
             'hx-delete',
             f'{feretui.base_url}/action/resource?action=delete',
@@ -131,7 +134,7 @@ class DeleteView(TemplateMixinForView, LabelMixinForView, View):
             pks = [pks]
 
         res.update({
-            'label': self.get_label(),
+            'label': self.get_label(feretui, session),
             'entries': self.get_label_from_pks(pks),
             'error': options.get('error'),
         })

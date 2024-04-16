@@ -14,17 +14,15 @@ from multidict import MultiDict
 from wtforms import SelectField, StringField
 
 from feretui.exceptions import ViewActionError
-from feretui.feretui import FeretUI
 from feretui.request import Request
 from feretui.resources import Resource, RResource
 from feretui.resources.actions import Action, Actionset
-from feretui.session import Session
-from feretui.thread import local
+from feretui.context import cvar_request
 
 
 class TestReadView:
 
-    def test_render(self, snapshot) -> None:
+    def test_render(self, snapshot, feretui, session, frequest) -> None:
 
         class MyResource(RResource, Resource):
             code = 'foo'
@@ -56,16 +54,12 @@ class TestReadView:
                 return form_cls(MultiDict(pk=pk))
 
         resource = MyResource.build()
-        local.feretui = feretui = FeretUI()
-        session = Session()
-        local.request = Request(session=session)
-
         snapshot.assert_match(
             resource.views['read'].render(feretui, session, {'pk': ['foo']}),
             'snapshot.html',
         )
 
-    def test_get_call_kwargs_1(self) -> None:
+    def test_get_call_kwargs_1(self, session) -> None:
 
         class MyResource(RResource, Resource):
             code = 'foo'
@@ -75,16 +69,16 @@ class TestReadView:
                 pk = StringField()
 
         resource = MyResource.build()
-        session = Session()
-        local.request = request = Request(
+        request = Request(
             session=session,
             headers={'Hx-Current-Url': '/?pk=foo'},
         )
+        cvar_request.set(request)
         assert resource.views['read'].get_call_kwargs(
             request,
         ) == {'pks': ['foo']}
 
-    def test_get_call_kwargs_2(self) -> None:
+    def test_get_call_kwargs_2(self, session) -> None:
 
         class MyResource(RResource, Resource):
             code = 'foo'
@@ -94,10 +88,10 @@ class TestReadView:
                 pk = StringField()
 
         resource = MyResource.build()
-        session = Session()
-        local.request = request = Request(
+        request = Request(
             session=session,
             headers={'Hx-Current-Url': '/'},
         )
+        cvar_request.set(request)
         with pytest.raises(ViewActionError):
             resource.views['read'].get_call_kwargs(request)

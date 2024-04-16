@@ -9,12 +9,35 @@
 
 import pytest
 
-from feretui.thread import local
+from feretui.context import cvar_feretui, cvar_request
+from feretui.feretui import FeretUI
+from feretui.request import Request
+from feretui.session import Session
 
 
-@pytest.fixture(scope="function", autouse=True)
-def clean_local() -> None:
-    """Re-initialize local."""
-    local.feretui = None
-    local.lang = 'en'
-    local.request = None
+@pytest.fixture(scope="function")
+def feretui() -> FeretUI:
+    """Return a feretui."""
+    feretui = FeretUI()
+    cvar_feretui.set(feretui)
+    return feretui
+
+
+@pytest.fixture(scope="function")
+def session() -> Session:
+    """Return a session."""
+    return Session()
+
+
+@pytest.fixture(scope="function")
+def authenticated_session() -> Session:
+    """Return a session."""
+    return Session(user='test')
+
+
+@pytest.fixture(scope="function")
+def frequest(session: Session) -> Request:
+    """Return a request."""
+    request = Request(session=session)
+    cvar_request.set(request)
+    return request
