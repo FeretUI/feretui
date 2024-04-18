@@ -87,6 +87,7 @@ from feretui.translation import (
     TranslatedStringTemplate,
     Translation,
 )
+from jac import CompressorExtension
 
 logger = getLogger(__name__)
 
@@ -143,6 +144,7 @@ def import_feretui_addons(feretui: "FeretUI") -> None:
             'css',
             'all.min.css',
         ),
+        compress=False,
     )
 
     # ---- Font ----
@@ -276,7 +278,15 @@ class FeretUI:
         self.jinja_env = Environment(
             loader=PackageLoader("feretui"),
             autoescape=select_autoescape(),
+            extensions=[CompressorExtension],
         )
+
+        def compressor_source_dirs(path):
+            return self.statics[path]
+
+        self.jinja_env.compressor_source_dirs = compressor_source_dirs
+        self.jinja_env.compressor_output_dir = f'static/dist/{ base_url }'
+        self.jinja_env.compressor_static_prefix = f'{ base_url }/static'
 
         # List the template to use to generate the UI
         feretui_path = Path(__file__).parent
@@ -417,13 +427,12 @@ class FeretUI:
         if name in self.statics:
             logger.warning('The js script %s is overwriting', name)
         else:
-            url = f"{self.base_url}/static/{name}"
-            logger.debug('Add the js script %s', url)
-            self.js_import.append(url)
+            logger.debug('Add the js script %s', name)
+            self.js_import.append(name)
 
         self.statics[name] = filepath
 
-    def register_css(self: "FeretUI", name: str, filepath: str) -> None:
+    def register_css(self: "FeretUI", name: str, filepath: str, compress=True) -> None:
         """Register a stylesheet file to import in the client.
 
         :param name: name of the file see in the html url
@@ -436,7 +445,10 @@ class FeretUI:
         else:
             url = f"{self.base_url}/static/{name}"
             logger.debug('Add the stylesheet %s', url)
-            self.css_import.append(url)
+            if compress:
+                self.css_import.append((compress, name))
+            else:
+                self.css_import.append((compress, url))
 
         self.statics[name] = filepath
 
@@ -468,9 +480,8 @@ class FeretUI:
         if name in self.statics:
             logger.warning('The theme %s is overwriting', name)
         else:
-            url = f"{self.base_url}/static/{name}"
-            logger.debug('Add the available theme %s', url)
-            self.themes[name] = url
+            logger.debug('Add the available theme %s', name)
+            self.themes[name] = name
 
         self.statics[name] = filepath
 
@@ -521,6 +532,10 @@ class FeretUI:
         :return: The filesystem path
         :rtype: str
         """
+        path = Path(f'./static/dist/{self.base_url}/{filename}')
+        if path.exists():
+            return path  # pragma: no cover
+
         return self.statics.get(filename)
 
     # ---------- Templating  ----------

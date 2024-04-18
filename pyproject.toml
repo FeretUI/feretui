@@ -20,6 +20,7 @@ dependencies = [
     'WTForms-Components',
     'password-validator',
     'multidict',
+    'jac',
 ]
 dynamic = ["readme"]
 keywords = [
