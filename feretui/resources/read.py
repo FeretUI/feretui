@@ -79,7 +79,7 @@ class ReadView(ActionsMixinForView, TemplateMixinForView, View):
         super().set_body_template(feretui, div)
         if len(self.actions):
             div = SubElement(root, 'div')
-            div.set('class', 'column is-2')
+            div.set('class', 'column is-2 is-hidden-print')
             div.text = """
                 {% for action in actions %}
                 {{ action }}

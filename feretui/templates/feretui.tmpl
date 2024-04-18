@@ -19,6 +19,7 @@
         {% compress 'css' %}
         <link rel="stylesheet" type="text/css" href="{{ feretui.get_theme_url(session) }}" />
         {% endcompress %}
+        <link rel="stylesheet" type="text/css" media="print" href="{ feretui.base_url}/static/print.css" />
       </feretui-head>
       <feretui-body class="has-navbar-fixed-top">
         <include template="feretui-client-header"/>
@@ -37,7 +38,7 @@
     </feretui-html>
   </template>
   <template id="feretui-client-header">
-    <header>
+    <header class="is-hidden-print">
       <nav class="navbar is-fixed-top"  role="navigation" aria-label="main navigation">
         <div class="navbar-brand">
           <a 
@@ -113,7 +114,7 @@
     </header>
   </template>
   <template id="feretui-client-footer">
-    <footer>
+    <footer class="is-hidden-print">
       <div class="content has-text-centered">
         <p>
           <strong>FeretUI</strong>by Js Suzanne.

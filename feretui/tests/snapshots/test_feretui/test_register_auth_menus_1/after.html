@@ -20,10 +20,15 @@
   <link href="/feretui/static/fontawesome/css/all.css" rel="stylesheet" type="text/css">
   
         
+        
+          <link type="text/css" rel="stylesheet" href="/feretui/static/224297eddb619dafdd9f7dd4e258bf9f.css">
+        
+        
         <link type="text/css" rel="stylesheet" href="/feretui/static/3c17adafd5660ec1f889ee584995cbce.css">
+  <link href="{ feretui.base_url}/static/print.css" media="print" rel="stylesheet" type="text/css">
  </head>
  <body class="has-navbar-fixed-top">
-  <header>
+  <header class="is-hidden-print">
    <nav aria-label="main navigation" class="navbar is-fixed-top" role="navigation">
     <div class="navbar-brand">
      <a class="navbar-item has-tooltip-right has-tooltip-arrow" data-tooltip="Go to the homepage" hx-get="/feretui/action/goto?page=homepage" hx-swap="innerHTML" hx-target="#body">
@@ -92,7 +97,7 @@
 </div>
    </div>
   </main>
-  <footer>
+  <footer class="is-hidden-print">
    <div class="content has-text-centered">
     <p>
      <strong>

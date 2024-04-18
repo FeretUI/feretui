@@ -45,6 +45,7 @@ from importlib.metadata import entry_points
 from logging import getLogger
 from pathlib import Path
 
+from jac import CompressorExtension
 from jinja2 import Environment, PackageLoader, select_autoescape
 from markupsafe import Markup
 
@@ -87,7 +88,6 @@ from feretui.translation import (
     TranslatedStringTemplate,
     Translation,
 )
-from jac import CompressorExtension
 
 logger = getLogger(__name__)
 
@@ -145,6 +145,10 @@ def import_feretui_addons(feretui: "FeretUI") -> None:
             'all.min.css',
         ),
         compress=False,
+    )
+    feretui.register_css(
+        'bulma-print.css',
+        Path(feretui_path, 'static', 'bulma-print.1.0.1.css'),
     )
 
     # ---- Font ----
@@ -281,7 +285,8 @@ class FeretUI:
             extensions=[CompressorExtension],
         )
 
-        def compressor_source_dirs(path):
+        def compressor_source_dirs(path: str) -> str:
+            """Return the filepath."""
             return self.statics[path]
 
         self.jinja_env.compressor_source_dirs = compressor_source_dirs
@@ -432,13 +437,20 @@ class FeretUI:
 
         self.statics[name] = filepath
 
-    def register_css(self: "FeretUI", name: str, filepath: str, compress=True) -> None:
+    def register_css(
+        self: "FeretUI",
+        name: str,
+        filepath: str,
+        compress: bool = True,
+    ) -> None:
         """Register a stylesheet file to import in the client.
 
         :param name: name of the file see in the html url
         :type name: str
         :param filepath: Path in server file system
         :type filepath: str
+        :param compress: if True compress the csv
+        :type compress: bool
         """
         if name in self.statics:
             logger.warning('The stylesheet %s is overwriting', name)
