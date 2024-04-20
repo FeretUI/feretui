@@ -28,7 +28,6 @@ from feretui.request import Request
 from feretui.resources.view import View
 from feretui.response import Response
 from feretui.session import Session
-from feretui.thread import local
 
 if TYPE_CHECKING:
     from feretui.feretui import FeretUI
@@ -129,10 +128,21 @@ class Resource:
         :rtype: :class:`feretui.resources.view.View`
         """
 
-    def get_label(self: "Resource") -> None:
-        """Return the translated label."""
-        return local.feretui.translation.get(
-            local.lang, f'{self.context}:label', self.label,
+    def get_label(
+        self: "Resource",
+        feretui: "FeretUI",
+        session: Session,
+    ) -> str:
+        """Return the translated label.
+
+        :param feretui: The feretui client
+        :type feretui: :class:`feretui.feretui.FeretUI`
+        :param session: The Session
+        :type session: :class:`feretui.session.Session`
+        :rtype: str.
+        """
+        return feretui.translation.get(
+            session.lang, f'{self.context}:label', self.label,
         )
 
     def render(

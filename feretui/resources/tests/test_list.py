@@ -13,13 +13,10 @@ import pytest  # noqa: F401
 from polib import POFile
 from wtforms import SelectField, StringField
 
-from feretui.feretui import FeretUI
 from feretui.request import Request
 from feretui.resources.actions import Action, Actionset, SelectedRowsAction
 from feretui.resources.list import LResource
 from feretui.resources.resource import Resource
-from feretui.session import Session
-from feretui.thread import local
 
 
 class MyResource(LResource, Resource):
@@ -69,10 +66,8 @@ class MyResource2(MyResource):
 
 class TestLResource:
 
-    def test_view_render(self, snapshot) -> None:
-        local.feretui = feretui = FeretUI()
-        session = Session(user='Test')
-        local.request = Request(session=session)
+    def test_view_render(self, snapshot, feretui, session, frequest) -> None:
+        session.user = 'Test'
         resource = MyResource.build()
         snapshot.assert_match(
             resource.views['list'].render(
@@ -81,34 +76,32 @@ class TestLResource:
             'snapshot.html',
         )
 
-    def test_export_catalog_1(self) -> None:
-        local.feretui = myferet = FeretUI()
+    def test_export_catalog_1(self, feretui) -> None:
         po = POFile()
         resource = MyResource.build()
         resource.context = 'test'
-        resource.views['list'].export_catalog(myferet.translation, po)
+        resource.views['list'].export_catalog(feretui.translation, po)
         assert len(po) == 12
 
-    def test_export_catalog_2(self) -> None:
-        local.feretui = myferet = FeretUI()
+    def test_export_catalog_2(self, feretui) -> None:
         po = POFile()
         resource = MyResource2.build()
         resource.context = 'test'
-        resource.views['list'].export_catalog(myferet.translation, po)
+        resource.views['list'].export_catalog(feretui.translation, po)
         assert len(po) == 13
 
-    def test_get_label(self) -> None:
-        local.feretui = FeretUI()
+    def test_get_label(self, feretui, session) -> None:
         resource = MyResource2.build()
         resource.context = 'test'
-        assert resource.views['list'].get_label() == 'other label'
+        assert resource.views['list'].get_label(
+            feretui, session
+        ) == 'other label'
 
-    def test_get_call_kwargs(self) -> None:
+    def test_get_call_kwargs(self, session) -> None:
         resource = MyResource2.build()
         resource.context = 'test'
         view = resource.views['list']
-        session = Session()
-        local.request = request = Request(
+        request = Request(
             session=session,
             params={'selected-rows-resource-foo-view-list': ['foo', 'bar']},
         )

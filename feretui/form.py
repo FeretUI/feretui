@@ -44,24 +44,31 @@ from wtforms.validators import InputRequired, ValidationError
 from wtforms.widgets.core import clean_key
 from wtforms_components import read_only
 
-from feretui.thread import local
+from feretui.context import ContextProperties, cvar_feretui, cvar_request
 
 if TYPE_CHECKING:
-
+    from feretui.feretui import FeretUI
+    from feretui.session import Session
     from feretui.translation import Translation
 
 
-def wrap_input(field: Field, **kwargs: dict) -> Markup:
+def wrap_input(
+    feretui: "FeretUI",
+    session: "Session",
+    field: Field,
+    **kwargs: dict,
+) -> Markup:
     """Render input field.
 
+    :param feretui: The feretui client
+    :type feretui: :class:`feretui.feretui.FeretUI`
+    :param session: The Session
+    :type session: :class:`feretui.session.Session`
     :param field: The field to validate
     :type field: Field_
     :return: The renderer of the widget as html.
     :rtype: Markup_
     """
-    myferet = local.feretui
-    session = local.request.session
-
     input_class = ["input"]
     required = False
     readonly = False
@@ -85,7 +92,7 @@ def wrap_input(field: Field, **kwargs: dict) -> Markup:
     c = kwargs.pop('class', '') or kwargs.pop('class_', '')
     kwargs['class'] = '{} {}'.format(' '.join(input_class), c)
 
-    return Markup(myferet.render_template(
+    return Markup(feretui.render_template(
         session,
         "feretui-input-field",
         label=None if kwargs.pop('nolabel', False) else field.label,
@@ -97,23 +104,30 @@ def wrap_input(field: Field, **kwargs: dict) -> Markup:
     ))
 
 
-def wrap_bool(field: "Field", **kwargs: dict) -> Markup:
+def wrap_bool(
+    feretui: "FeretUI",
+    session: "Session",
+    field: Field,
+    **kwargs: dict,
+) -> Markup:
     """Render boolean field.
 
+    :param feretui: The feretui client
+    :type feretui: :class:`feretui.feretui.FeretUI`
+    :param session: The Session
+    :type session: :class:`feretui.session.Session`
     :param field: The field to validate
     :type field: Field_
     :return: The renderer of the widget as html.
     :rtype: Markup_
     """
     readonly = False
-    myferet = local.feretui
-    session = local.request.session
 
     if kwargs.pop('readonly', False):
         read_only(field)
         readonly = True
 
-    return Markup(myferet.render_template(
+    return Markup(feretui.render_template(
         session,
         "feretui-bool-field",
         label=None if kwargs.pop('nolabel', False) else field.label,
@@ -125,18 +139,22 @@ def wrap_bool(field: "Field", **kwargs: dict) -> Markup:
 
 
 def wrap_radio(
+    feretui: "FeretUI",
+    session: "Session",
     field: "Field",
     **kwargs: dict,  # noqa: ARG001
 ) -> Markup:
     """Render radio field.
 
+    :param feretui: The feretui client
+    :type feretui: :class:`feretui.feretui.FeretUI`
+    :param session: The Session
+    :type session: :class:`feretui.session.Session`
     :param field: The field to validate
     :type field: Field_
     :return: The renderer of the widget as html.
     :rtype: Markup_
     """
-    myferet = local.feretui
-    session = local.request.session
     vertical = kwargs.pop('vertical', True)
     if vertical:
         template_id = "feretui-radio-field-vertical"
@@ -154,7 +172,7 @@ def wrap_radio(
         kwargs['disabled'] = True
         readonly = True
 
-    return Markup(myferet.render_template(
+    return Markup(feretui.render_template(
         session,
         template_id,
         label=None if kwargs.pop('nolabel', False) else field.label,
@@ -167,9 +185,18 @@ def wrap_radio(
     ))
 
 
-def no_wrap(field: "Field", **kwargs: dict) -> Markup:
+def no_wrap(
+    feretui: "FeretUI",  # noqa: ARG001
+    session: "Session",  # noqa: ARG001
+    field: "Field",
+    **kwargs: dict,
+) -> Markup:
     """Render the field widget.
 
+    :param feretui: The feretui client
+    :type feretui: :class:`feretui.feretui.FeretUI`
+    :param session: The Session
+    :type session: :class:`feretui.session.Session`
     :param field: The field to validate
     :type field: Field_
     :return: The renderer of the widget as html.
@@ -184,8 +211,8 @@ def gettext(
     context_suffix: str = '',
 ) -> str:
     """Translate the string."""
-    translation = local.feretui.translation
-    lang = local.lang
+    translation = cvar_feretui.get().translation
+    lang = cvar_request.get().session.lang
     for form_cls in form.__mro__:
         if hasattr(form_cls, 'get_context'):
             context = form_cls.get_context() + context_suffix
@@ -416,7 +443,7 @@ class FeretUIForm(Form):
 
             get_field_translations(cls, field_cls, {'name': attr}, callback)
 
-    class Meta:
+    class Meta(ContextProperties):
         """Meta class.
 
         Added
@@ -461,7 +488,12 @@ class FeretUIForm(Form):
 
             wrapper = FeretUIForm.WRAPPERS.get(
                 field.__class__, FeretUIForm.DEFAULT_WRAPPER)
-            return wrapper(field, **render_kw)
+            return wrapper(
+                self.feretui,
+                self.request.session,
+                field,
+                **render_kw,
+            )
 
         def get_translations(
             self: Any,

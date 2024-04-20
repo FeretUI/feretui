@@ -167,7 +167,7 @@
         {{ error }}
       </div>
       {% endif %}
-      <h2>Selected {{ resource.get_label() }} :</h2>
+      <h2>Selected {{ resource.get_label(feretui, session) }} :</h2>
       <ul>
         {% for entry in entries %}
         <li>

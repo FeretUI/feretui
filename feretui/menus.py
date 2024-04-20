@@ -92,15 +92,15 @@ from typing import TYPE_CHECKING
 
 from markupsafe import Markup
 
+from feretui.context import ContextProperties
 from feretui.exceptions import MenuError
 from feretui.session import Session
-from feretui.thread import local
 
 if TYPE_CHECKING:
     from feretui.feretui import FeretUI
 
 
-class Menu:
+class Menu(ContextProperties):
     """Mixin class Menu.
 
     All the menu inherit this class. It is added behaviours:
@@ -180,35 +180,41 @@ class Menu:
 
         return True
 
-    def get_label(self: "Menu", feretui: "FeretUI") -> str:
+    def get_label(self: "Menu", feretui: "FeretUI", session: Session) -> str:
         """Return the translated label.
 
         :param feretui: The feretui client instance.
         :type feretui: :class:`feretui.feretui.FeretUI`
+        :param session: The session of the user
+        :type session: :class:`feretui.session.Session`
         :return: The label translated in the user lang
         :rtype: str
         """
-        lang = local.lang
         return feretui.translation.get(
-            lang,
+            session.lang,
             f'{self.context}:label',
             self.label,
         )
 
-    def get_description(self: "Menu", feretui: "FeretUI") -> str:
+    def get_description(
+        self: "Menu",
+        feretui: "FeretUI",
+        session: Session,
+    ) -> str:
         """Return the translated description.
 
         :param feretui: The feretui client instance.
         :type feretui: :class:`feretui.feretui.FeretUI`
+        :param session: The session of the user
+        :type session: :class:`feretui.session.Session`
         :return: The description translated in the user lang
         :rtype: str
         """
         if not self.description:
             return ''
 
-        lang = local.lang
         return feretui.translation.get(
-            lang,
+            session.lang,
             f'{self.context}:description',
             self.description,
         )
@@ -227,7 +233,7 @@ class Menu:
         :return: The url
         :rtype: str
         """
-        return local.request.get_url_from_dict(
+        return self.request.get_url_from_dict(
             base_url=f'{ feretui.base_url }/action/goto',
             querystring=querystring,
         )
@@ -245,8 +251,8 @@ class Menu:
         return Markup(feretui.render_template(
             session,
             self.template_id,
-            label=self.get_label(feretui),
-            description=self.get_description(feretui),
+            label=self.get_label(feretui, session),
+            description=self.get_description(feretui, session),
             icon=self.icon,
             url=self.get_url(feretui, self.querystring),
         ))
@@ -285,8 +291,8 @@ class ChildrenMenu:
         return Markup(feretui.render_template(
             session,
             self.template_id,
-            label=self.get_label(feretui),
-            description=self.get_description(feretui),
+            label=self.get_label(feretui, session),
+            description=self.get_description(feretui, session),
             icon=self.icon,
             children=self.children,
         ))
@@ -501,8 +507,8 @@ class ToolBarButtonMenu(Menu):
         return Markup(feretui.render_template(
             session,
             self.template_id,
-            label=self.get_label(feretui),
-            description=self.get_description(feretui),
+            label=self.get_label(feretui, session),
+            description=self.get_description(feretui, session),
             icon=self.icon,
             url=self.get_url(feretui, self.querystring),
             css_class=self.css_class,

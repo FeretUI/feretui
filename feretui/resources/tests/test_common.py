@@ -14,7 +14,6 @@ from polib import POFile
 from wtforms import StringField
 
 from feretui.exceptions import ViewActionError, ViewError
-from feretui.feretui import FeretUI
 from feretui.request import Request
 from feretui.resources.actions import (
     Actionset,
@@ -28,8 +27,6 @@ from feretui.resources.common import (
 )
 from feretui.resources.resource import Resource
 from feretui.resources.view import View
-from feretui.session import Session
-from feretui.thread import local
 
 
 class MyViewWithAction(ActionsMixinForView, View):
@@ -133,7 +130,7 @@ class TestMultiView:
         with pytest.raises(ViewError):
             MyView(resource)
 
-    def test_get_header_buttons(self, snapshot) -> None:
+    def test_get_header_buttons(self, snapshot, feretui, session) -> None:
 
         class MyView(MultiView, View):
             limit = 15
@@ -147,14 +144,12 @@ class TestMultiView:
         resource = MultiResource()
         resource.context = 'test'
         view = MyView(resource)
-        local.feretui = feretui = FeretUI()
-        session = Session()
         snapshot.assert_match(
             view.get_header_buttons(feretui, session, {})[0],
             'snapshot.html',
         )
 
-    def test_render_kwargs(self) -> None:
+    def test_render_kwargs(self, feretui, session, frequest) -> None:
 
         class MyView(MultiView, View):
             limit = 15
@@ -168,15 +163,10 @@ class TestMultiView:
         resource = MultiResource()
         resource.context = 'test'
         view = MyView(resource)
-        local.feretui = feretui = FeretUI()
-        session = Session()
-        local.request = Request(session=session)
 
         assert view.render_kwargs(feretui, session, {'offset': [0]})
 
-    def test_call_pagination(self) -> None:
-        local.feretui = myferet = FeretUI()
-        session = Session()
+    def test_call_pagination(self, feretui, session) -> None:
         request = Request(
             method=Request.GET,
             querystring='offset=0',
@@ -196,11 +186,9 @@ class TestMultiView:
         resource = MultiResource()
         resource.context = 'test'
         view = MyView(resource)
-        assert view.pagination(myferet, request).body is not None
+        assert view.pagination(feretui, request).body is not None
 
-    def test_call_filters_post(self) -> None:
-        local.feretui = myferet = FeretUI()
-        session = Session()
+    def test_call_filters_post(self, feretui, session) -> None:
         request = Request(
             method=Request.POST,
             params={'foo': ['Bar'], 'action': ['filters']},
@@ -220,16 +208,14 @@ class TestMultiView:
         resource = MultiResource()
         resource.context = 'test'
         view = MyView(resource)
-        res = view.filters(myferet, request)
+        res = view.filters(feretui, request)
         assert res.body is not None
         assert (
             res.headers['HX-Push-Url']
             == '/test?resource=test&offset=0&filter%5Bfoo%5D=Bar'
         )
 
-    def test_call_filters_delete(self) -> None:
-        local.feretui = myferet = FeretUI()
-        session = Session()
+    def test_call_filters_delete(self, feretui, session) -> None:
         request = Request(
             method=Request.DELETE,
             params={'foo': ['Bar']},
@@ -251,13 +237,11 @@ class TestMultiView:
         resource = MultiResource()
         resource.context = 'test'
         view = MyView(resource)
-        res = view.filters(myferet, request)
+        res = view.filters(feretui, request)
         assert res.body is not None
         assert res.headers['HX-Push-Url'] == '/test?resource=test&offset=0'
 
-    def test_goto_delete(self) -> None:
-        local.feretui = myferet = FeretUI()
-        session = Session()
+    def test_goto_delete(self, feretui, session) -> None:
         request = Request(
             method=Request.POST,
             session=session,
@@ -280,14 +264,14 @@ class TestMultiView:
         resource.context = 'test'
         view = MyView(resource)
         resource.views['other'] = view
-        res = view.goto_delete(myferet, request)
+        res = view.goto_delete(feretui, request)
         assert res.body is not None
         assert (
             res.headers['HX-Push-Url']
             == '/test?resource=test&view=other&pk=foo&pk=bar'
         )
 
-    def test_export_catalog(self) -> None:
+    def test_export_catalog(self, feretui, frequest) -> None:
 
         class MyView(MultiView, View):
             limit = 15
@@ -301,23 +285,20 @@ class TestMultiView:
             class Filter:
                 other = StringField()
 
-        local.feretui = myferet = FeretUI()
         po = POFile()
         resource = MultiResource()
         resource.context = 'test'
         view = MyView(resource)
-        view.export_catalog(myferet.translation, po)
+        view.export_catalog(feretui.translation, po)
         assert len(po) == 3
 
 
 class TestCommonActionsMixinForView:
 
-    def test_get_actions(self, snapshot) -> None:
+    def test_get_actions(self, snapshot, feretui, session) -> None:
         resource = Resource()
         resource.context = 'test'
         view = MyViewWithAction(resource)
-        local.feretui = feretui = FeretUI()
-        session = Session()
         snapshot.assert_match(
             view.get_actions(feretui, session, {})[0],
             'snapshot.html',
@@ -329,28 +310,23 @@ class TestCommonActionsMixinForView:
         view = MyViewWithAction(resource)
         assert view.get_call_kwargs({}) == {}
 
-    def test_export_catalog(self) -> None:
-        local.feretui = myferet = FeretUI()
+    def test_export_catalog(self, feretui, frequest) -> None:
         po = POFile()
         resource = Resource()
         resource.context = 'test'
         view = MyViewWithAction(resource)
-        view.export_catalog(myferet.translation, po)
+        view.export_catalog(feretui.translation, po)
         assert len(po) == 6
 
-    def test_call_1(self) -> None:
-        local.feretui = myferet = FeretUI()
-        session = Session()
+    def test_call_1(self, feretui, session) -> None:
         request = Request(method=Request.GET, session=session)
         resource = Resource()
         resource.context = 'test'
         view = MyViewWithAction(resource)
         with pytest.raises(ViewActionError):
-            view.call(myferet, request)
+            view.call(feretui, request)
 
-    def test_call_2(self) -> None:
-        local.feretui = myferet = FeretUI()
-        session = Session()
+    def test_call_2(self, feretui, session) -> None:
         request = Request(
             method=Request.POST,
             params={},
@@ -360,11 +336,9 @@ class TestCommonActionsMixinForView:
         resource.context = 'test'
         view = MyViewWithAction(resource)
         with pytest.raises(ViewActionError):
-            view.call(myferet, request)
+            view.call(feretui, request)
 
-    def test_call_3(self) -> None:
-        local.feretui = myferet = FeretUI()
-        session = Session()
+    def test_call_3(self, feretui, session) -> None:
         request = Request(
             method=Request.POST,
             params={'method': ['foo']},
@@ -379,11 +353,9 @@ class TestCommonActionsMixinForView:
         resource = MyResource()
         resource.context = 'test'
         view = MyViewWithAction(resource)
-        assert view.call(myferet, request).body == 'bar'
+        assert view.call(feretui, request).body == 'bar'
 
-    def test_call_4(self) -> None:
-        local.feretui = myferet = FeretUI()
-        session = Session()
+    def test_call_4(self, feretui, session) -> None:
         request = Request(
             method=Request.POST,
             params={'method': ['foo']},
@@ -399,12 +371,12 @@ class TestCommonActionsMixinForView:
         resource = MyResource()
         resource.context = 'test'
         view = MyViewWithAction(resource)
-        assert view.call(myferet, request).body is not None
+        assert view.call(feretui, request).body is not None
 
 
 class TestTemplateMixinForView:
 
-    def test_render_1(self, snapshot) -> None:
+    def test_render_1(self, snapshot, feretui, session, frequest) -> None:
 
         class MyResource(Resource):
             code = 'foo'
@@ -418,16 +390,13 @@ class TestTemplateMixinForView:
         resource = MyResource()
         resource.context = 'test'
         view = MyView(resource)
-        local.feretui = feretui = FeretUI()
-        session = Session()
-        local.request = Request(session=session)
 
         snapshot.assert_match(
             view.render(feretui, session, {}),
             'snapshot.html',
         )
 
-    def test_render_2(self, snapshot) -> None:
+    def test_render_2(self, snapshot, feretui, session, frequest) -> None:
 
         class MyResource(Resource):
             code = 'foo'
@@ -444,16 +413,13 @@ class TestTemplateMixinForView:
         resource = MyResource()
         resource.context = 'test'
         view = MyView(resource)
-        local.feretui = feretui = FeretUI()
-        session = Session()
-        local.request = Request(session=session)
 
         snapshot.assert_match(
             view.render(feretui, session, {}),
             'snapshot.html',
         )
 
-    def test_export_catalog_1(self) -> None:
+    def test_export_catalog_1(self, feretui, frequest) -> None:
         class MyResource(Resource):
             code = 'foo'
 
@@ -463,15 +429,14 @@ class TestTemplateMixinForView:
         class MyView(TemplateMixinForView, View):
             code = 'bar'
 
-        local.feretui = myferet = FeretUI()
         po = POFile()
         resource = MyResource()
         resource.context = 'test'
         view = MyView(resource)
-        view.export_catalog(myferet.translation, po)
+        view.export_catalog(feretui.translation, po)
         assert len(po) == 1
 
-    def test_export_catalog_2(self) -> None:
+    def test_export_catalog_2(self, feretui, frequest) -> None:
         class MyResource(Resource):
             code = 'foo'
 
@@ -484,10 +449,9 @@ class TestTemplateMixinForView:
             body_template = "<div>Body</div>"
             footer_template = "<div>Footer</div>"
 
-        local.feretui = myferet = FeretUI()
         po = POFile()
         resource = MyResource()
         resource.context = 'test'
         view = MyView(resource)
-        view.export_catalog(myferet.translation, po)
+        view.export_catalog(feretui.translation, po)
         assert len(po) == 4

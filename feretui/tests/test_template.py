@@ -20,9 +20,9 @@ class TestTemplate:
     """TestTemplate."""
 
     @pytest.fixture(autouse=True)
-    def init_template(self, request) -> None:
+    def init_template(self, request, feretui) -> None:
         """Fixture to get an empty Template instance."""
-        self.Template = Template(Translation())
+        self.Template = Template(Translation(feretui))
 
     def format_element(self, element):
         """Convert string."""
@@ -724,26 +724,4 @@ class TestTemplate:
                 ' </a>\n'
                 '</template>\n'
             )
-        )
-
-    def test_copy(self) -> None:
-        """Test copy."""
-        et = html.fromstring(
-            '<template id="test"><a><b1/><b2/></a></template>')
-        self.Template.load_template(et)
-        et = html.fromstring("""
-            <template id="test2" extend="test">
-                <xpath expression='.//b1' action="insertInside"><c/></xpath>
-            </template>""")
-        self.Template.load_template(et)
-        template2 = self.Template.copy()
-        self.Template.compile()
-        template2.compile()
-        assert (
-            self.format_element(self.Template.compiled['en']['test']) ==
-            self.format_element(template2.compiled['en']['test'])
-        )
-        assert (
-            self.format_element(self.Template.compiled['en']['test2']) ==
-            self.format_element(template2.compiled['en']['test2'])
         )

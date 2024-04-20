@@ -14,12 +14,10 @@ from polib import POFile
 from wtforms import StringField
 
 from feretui.exceptions import ViewActionError, ViewFormError
-from feretui.feretui import FeretUI
 from feretui.request import Request
 from feretui.resources.resource import Resource
 from feretui.resources.view import View, view_action_validator
-from feretui.session import Session
-from feretui.thread import local
+from feretui.context import cvar_request
 
 
 class TView(View):
@@ -55,46 +53,42 @@ class MyResource(TResource, Resource):
 
 class TestResourceView:
 
-    def test_view_render(self) -> None:
-        local.feretui = feretui = FeretUI()
-        session = Session()
+    def test_view_render(self, feretui, session) -> None:
         resource = MyResource.build()
         assert resource.views['test'].render(feretui, session, {})
 
-    def test_view_get_label(self) -> None:
-        local.feretui = FeretUI()
+    def test_view_get_label(self, feretui, session, frequest) -> None:
         resource = MyResource.build()
-        assert resource.views['test'].get_label()
+        assert resource.views['test'].get_label(feretui, session)
 
-    def test_get_transition_url_1(self) -> None:
+    def test_get_transition_url_1(self, feretui) -> None:
         resource = MyResource.build()
         assert resource.views['test'].get_transition_url(
-            FeretUI(),
+            feretui,
             {'foo': 'bar'},
             foo=None,
         ) == '/feretui/action/resource?action=goto'
 
-    def test_get_transition_url_2(self) -> None:
+    def test_get_transition_url_2(self, feretui) -> None:
         resource = MyResource.build()
         assert resource.views['test'].get_transition_url(
-            FeretUI(),
+            feretui,
             {'foo': 'bar'},
             bar='bar',
         ) == '/feretui/action/resource?foo=bar&action=goto&bar=bar'
 
-    def test_get_transition_url_3(self) -> None:
+    def test_get_transition_url_3(self, feretui) -> None:
         resource = MyResource.build()
         assert resource.views['test'].get_transition_url(
-            FeretUI(),
+            feretui,
             {'foo': 'bar'},
             bar=['bar'],
         ) == '/feretui/action/resource?foo=bar&action=goto&bar=bar'
 
-    def test_export_catalog(self) -> None:
-        local.feretui = myferet = FeretUI()
+    def test_export_catalog(self, feretui, frequest) -> None:
         po = POFile()
         resource = MyResource.build()
-        resource.export_catalog(myferet.translation, po)
+        resource.export_catalog(feretui.translation, po)
         assert len(po) == 2
         form = resource.views['test'].form_cls()
         assert form.pk.label.text == 'Pk'
@@ -105,15 +99,13 @@ class TestResourceView:
             resource.context = 'test'
             View(resource)
 
-    def test_goto_without_view(self, snapshot) -> None:
-        local.feretui = myferet = FeretUI()
-        session = Session()
+    def test_goto_without_view(self, snapshot, feretui, session) -> None:
         request = Request(
-            method=Request.GET,
-            querystring='',
             session=session,
+            method=Request.GET,
             headers={'Hx-Current-Url': '/test?'},
         )
+        cvar_request.set(request)
 
         class MyView(View):
             class Form:
@@ -123,19 +115,18 @@ class TestResourceView:
         resource.context = 'test'
         view = MyView(resource)
         snapshot.assert_match(
-            view.goto(myferet, request).body,
+            view.goto(feretui, request).body,
             'snapshot.html',
         )
 
-    def test_goto_with_view(self, snapshot) -> None:
-        local.feretui = myferet = FeretUI()
-        session = Session()
+    def test_goto_with_view(self, snapshot, feretui, session) -> None:
         request = Request(
             method=Request.GET,
             querystring='view=test',
             session=session,
             headers={'Hx-Current-Url': '/test?'},
         )
+        cvar_request.set(request)
 
         class MyView(View):
             class Form:
@@ -146,16 +137,11 @@ class TestResourceView:
         view = MyView(resource)
         resource.views = {'test': view}
         snapshot.assert_match(
-            view.goto(myferet, request).body,
+            view.goto(feretui, request).body,
             'snapshot.html',
         )
 
-    def test_decorator(self, snapshot) -> None:
-        local.feretui = myferet = FeretUI()
-        session = Session()
-        request = Request(
-            session=session,
-        )
+    def test_decorator(self, snapshot, feretui, frequest) -> None:
 
         class MyView(View):
             class Form:
@@ -169,4 +155,4 @@ class TestResourceView:
         resource.context = 'test'
         view = MyView(resource)
         with pytest.raises(ViewActionError):
-            view.foo(myferet, request)
+            view.foo(feretui, frequest)

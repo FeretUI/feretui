@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: 0.0.1\n"
-"POT-Creation-Date: 2024-03-21T11:16:56.453124\n"
+"POT-Creation-Date: 2024-04-15T13:55:51.124307\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -371,6 +371,50 @@ msgstr ""
 
 msgctxt "template:feretui-input-label"
 msgid ")"
+msgstr ""
+
+msgctxt "template:view-delete-form"
+msgid "Do you wanted delete its ?"
+msgstr ""
+
+msgctxt "template:view-goto-create-button"
+msgid "Create"
+msgstr ""
+
+msgctxt "template:view-do-save-button"
+msgid "Save"
+msgstr ""
+
+msgctxt "template:view-goto-selected-delete-button"
+msgid "Delete"
+msgstr ""
+
+msgctxt "template:view-goto-delete-button"
+msgid "Delete"
+msgstr ""
+
+msgctxt "template:view-do-delete-button"
+msgid "Delete"
+msgstr ""
+
+msgctxt "template:view-goto-edit-button"
+msgid "Edit"
+msgstr ""
+
+msgctxt "template:view-goto-return-button"
+msgid "Return"
+msgstr ""
+
+msgctxt "template:view-goto-cancel-button"
+msgid "Cancel"
+msgstr ""
+
+msgctxt "template:view-goto-edit-cancel-button"
+msgid "Cancel"
+msgstr ""
+
+msgctxt "template:view-filter"
+msgid "Filter"
 msgstr ""
 
 msgctxt "form:feretui.session:LoginForm:field:login:label"

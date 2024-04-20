@@ -14,11 +14,12 @@ language with `PoEdit <https://poedit.net/>`_.
 
 The translated object are:
 
-* :class:`feretui.translation.TranslatedFileTemplate`
 * :class:`feretui.translation.TranslatedForm`
 * :class:`feretui.translation.TranslatedMenu`
-* :class:`feretui.translation.TranslatedStringTemplate`
 * :class:`feretui.translation.TranslatedTemplate`
+* :class:`feretui.translation.TranslatedFileTemplate`
+* :class:`feretui.translation.TranslatedStringTemplate`
+* :class:`feretui.translation.TranslatedResource`
 
 The Translation class have two methods to manipulate the catalogs:
 
@@ -46,9 +47,9 @@ from feretui.form import FeretUIForm
 from feretui.menus import Menu
 from feretui.resources.resource import Resource
 from feretui.session import Session
-from feretui.thread import local
 
 if TYPE_CHECKING:
+    from feretui.feretui import FeretUI
     from feretui.template import Template
 
 logger = getLogger(__name__)
@@ -400,8 +401,9 @@ class Translation:
         The behaviour work with thread local
     """
 
-    def __init__(self: "Translation") -> "Translation":
+    def __init__(self: "Translation", feretui: "FeretUI") -> "Translation":
         """Instance of the Translation class."""
+        self.feretui = feretui
         self.langs: set = set()
         self.translations: dict[tuple[str, str, str], str] = {}
         self.templates: list[TranslatedTemplate] = []
@@ -418,25 +420,6 @@ class Translation:
         :rtype: bool
         """
         return lang in self.langs
-
-    def set_lang(self: "Translation", lang: str = 'en') -> None:
-        """Define the lang as the default language of this thread.
-
-        :param lang: [en], The language code
-        :type lang: str
-        """
-        if lang not in self.langs:
-            logger.warning("%s does not defined in %s", lang, self.langs)
-
-        local.lang = lang
-
-    def get_lang(self: "Translation") -> str:
-        """Return the default language code from local thread.
-
-        :return: Language code.
-        :rtype: str
-        """
-        return local.lang
 
     def set(self: "Translation", lang: str, poentry: POEntry) -> None:
         """Add a new translation in translations.
@@ -589,7 +572,7 @@ class Translation:
                 form_translated_message,
             ))
 
-        tmpls = Template(Translation())
+        tmpls = Template(Translation(self.feretui))
         for template in templates:
             template.load(tmpls)
 
