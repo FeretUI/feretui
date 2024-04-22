@@ -23,7 +23,9 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-      - uses: actions/setup-node@v4
+      - name: Set up npm
+        uses: actions/setup-node@v4
+        with:
          node-version: 'latest'
       - name: Install lessc
         run: sudo npm install -g less
