@@ -287,7 +287,7 @@ class FeretUI:
 
         def compressor_source_dirs(path: str) -> str:
             """Return the filepath."""
-            return self.statics[path]
+            return self.statics.get(path, path)
 
         self.jinja_env.compressor_source_dirs = compressor_source_dirs
         self.jinja_env.compressor_output_dir = f'static/dist/{ base_url }'
