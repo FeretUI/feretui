@@ -26,7 +26,7 @@ jobs:
       - name: Install lessc
         run: |
           sudo apt update
-          sudo apt install node-less -y
+          sudo apt install node-less yui-compressor -y
       - name: Update pip
         run: pip install -U pip
       - name: Install FeretUI
