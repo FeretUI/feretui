@@ -22,8 +22,18 @@ backoffice availlable for any framework.
 
 ## Installation
 
+### Installation of the dependencies
+
+* lessc is a tools need for the minification of the static
+
+```
+sudo npm install -g less
+```
+
+### Installation of the project
+
 Install released versions of FeretUI from the Python package index with
-`pip <http://pypi.python.org/pypi/pip>`_ or a similar tool:
+[pip](http://pypi.python.org/pypi/pip) or a similar tool:
 
 ```
 pip install feretui (Not ready yet)
@@ -39,8 +49,8 @@ pip install .
 
 You can use your favorite web server
 
-* `tutorial with bottle <https://feretui.readthedocs.io/en/latest/tutorials.html#serve-feretui-with-bottle`_
-* `tutorial with flask <https://feretui.readthedocs.io/en/latest/tutorials.html#serve-feretui-with-flask`_
-* `tutorial with pyramid <https://feretui.readthedocs.io/en/latest/tutorials.html#serve-feretui-with-pyramid`_
+* tutorial with [bottle](https://feretui.readthedocs.io/en/latest/tutorials.html#serve-feretui-with-bottle)
+* tutorial with [flask](https://feretui.readthedocs.io/en/latest/tutorials.html#serve-feretui-with-flask)
+* tutorial with [pyramid](https://feretui.readthedocs.io/en/latest/tutorials.html#serve-feretui-with-pyramid)
 
 ## the ORM.

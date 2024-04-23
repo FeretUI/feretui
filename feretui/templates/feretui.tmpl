@@ -7,10 +7,18 @@
         <meta name=viewport content="width=device-width,initial-scale=1">
         <title>{{ feretui.title }}</title>
         <link rel="icon" type="image/png" href="{{ feretui.get_image_url('logo.png') }}">
-        {% for css in feretui.css_import %}
-        <link rel="stylesheet" href="{{ css }}" />
+        {% for compressed, css in feretui.css_import %}
+        {% if compressed %}
+          {% compress 'css' %}
+          <link rel="stylesheet" type="text/css" href="{{ css }}" />
+          {% endcompress %}
+        {% else %}
+          <link rel="stylesheet" type="text/css" href="{{ css }}" />
+        {% endif %}
         {% endfor %}
-        <link rel="stylesheet" href="{{ feretui.get_theme_url(session) }}" />
+        {% compress 'css' %}
+        <link rel="stylesheet" type="text/css" href="{{ feretui.get_theme_url(session) }}" />
+        {% endcompress %}
       </feretui-head>
       <feretui-body class="has-navbar-fixed-top">
         <include template="feretui-client-header"/>
@@ -21,13 +29,15 @@
         </main>
         <include template="feretui-client-footer"/>
         {% for js in feretui.js_import %}
-        <script src="{{ js }}"></script>
+        {% compress 'js' %}
+        <script type="text/javascript" src="{{ js }}"></script>
+        {% endcompress %}
         {% endfor %}
       </feretui-body>
     </feretui-html>
   </template>
   <template id="feretui-client-header">
-    <header>
+    <header class="is-hidden-print">
       <nav class="navbar is-fixed-top"  role="navigation" aria-label="main navigation">
         <div class="navbar-brand">
           <a 
@@ -103,7 +113,7 @@
     </header>
   </template>
   <template id="feretui-client-footer">
-    <footer>
+    <footer class="is-hidden-print">
       <div class="content has-text-centered">
         <p>
           <strong>FeretUI</strong>by Js Suzanne.

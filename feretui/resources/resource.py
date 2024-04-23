@@ -23,7 +23,7 @@ from feretui.helper import (
     page_for_authenticated_user_or_goto,
 )
 from feretui.menus import Menu, ToolBarMenu
-from feretui.pages import page_404
+from feretui.pages import login, page_404
 from feretui.request import Request
 from feretui.resources.view import View
 from feretui.response import Response
@@ -45,7 +45,7 @@ class Resource:
         visible_callback=menu_for_authenticated_user,
     )
     page_security: Callable = staticmethod(
-        page_for_authenticated_user_or_goto(page_404))
+        page_for_authenticated_user_or_goto(login))
     action_security: Callable = staticmethod(action_for_authenticated_user)
     default_view: str = None
 

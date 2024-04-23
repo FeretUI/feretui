@@ -95,7 +95,7 @@
             <include template="view-pagination" />
         </div>
           {% if actions %}
-            <div class="column is-2">
+            <div class="column is-2 is-hidden-print">
               {% for action in actions %}
               {{ action }}
               {% endfor %}
@@ -129,7 +129,7 @@
       <div id="label" class="column is-3">
         <h1>{{ label }}</h1>
       </div>
-      <div id="buttons" class="column">
+      <div id="buttons" class="column is-hidden-print">
         <include template="view-buttons-header"/>
       </div>
       <div is="status" class="column is-3">
@@ -141,7 +141,7 @@
       <div id="label" class="column is-3">
         <h1>{{ form.pk.data }}</h1>
       </div>
-      <div id="buttons" class="column">
+      <div id="buttons" class="column is-hidden-print">
         <include template="view-buttons-header"/>
       </div>
       <div is="status" class="column is-3">
@@ -153,7 +153,7 @@
       <div id="label" class="column is-3">
         <h1>{{ form.pk.data }}</h1>
       </div>
-      <div id="buttons" class="column">
+      <div id="buttons" class="column is-hidden-print">
         <include template="view-buttons-header"/>
       </div>
       <div is="status" class="column is-3">

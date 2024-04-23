@@ -102,14 +102,14 @@
     </button>
   </template>
   <template id="view-buttons-header">
-    <div class="buttons is-centered">
+    <div class="buttons is-centered is-hidden-print">
       {% for button in header_buttons %}
       {{ button }}
       {% endfor %}
     </div>
   </template>
   <template id="view-pagination">
-    <div class="columns is-vcentered">
+    <div class="columns is-vcentered is-hidden-print">
       <div class="column is-narrow">
         <include template="view-buttons-header" />
       </div>
@@ -163,7 +163,7 @@
     </div>
   </template>
   <template id="view-multi-header">
-    <div class="columns is-vcentered">
+    <div class="columns is-vcentered is-hidden-print">
       <div class="column content">
         <h1>{{ label }} <small>({{ dataset.total }})</small></h1>
       </div>
