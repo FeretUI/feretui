@@ -13,6 +13,11 @@ Getting Started
 Installation
 ------------
 
+FeretUI needs some dependencies system::
+
+    sudo npm install -g less
+
+
 Install released versions of FeretUI from the Python package index with
 `pip <http://pypi.python.org/pypi/pip>`_ or a similar tool::
 
@@ -53,5 +58,6 @@ You can do without directly with SQL or just with full static page.
 Defined the content of your application
 ---------------------------------------
 
-.. include:: menu_action_page.rst
+.. include:: menus.rst
+.. include:: action_page.rst
 .. include:: resource.rst
