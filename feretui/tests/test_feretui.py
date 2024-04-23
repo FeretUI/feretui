@@ -32,6 +32,7 @@ from feretui.request import Request
 from feretui.resources.resource import Resource
 from feretui.response import Response
 from feretui.session import Session
+from feretui.helper import menu_for_unauthenticated_user
 
 
 class TestFeretUI:
@@ -280,7 +281,9 @@ class TestFeretUI:
         session = Session()
         request = Request(session=session)
         snapshot.assert_match(myferet.render(request).body, 'before.html')
-        myferet.register_auth_menus([ToolBarButtonMenu('Test', page='test')])
+        myferet.register_auth_menus([ToolBarButtonMenu(
+            'Test', page='test', visible_callback=menu_for_unauthenticated_user
+        )])
         snapshot.assert_match(myferet.render(request).body, 'after.html')
 
     def test_register_auth_menus_2(self, snapshot) -> None:

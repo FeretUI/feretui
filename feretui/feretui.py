@@ -57,6 +57,7 @@ from feretui.exceptions import (
     UnexistingResourceError,
 )
 from feretui.form import FeretUIForm
+from feretui.helper import menu_for_unauthenticated_user
 from feretui.menus import (
     AsideMenu,
     ChildrenMenu,
@@ -345,7 +346,11 @@ class FeretUI:
             'addons': None,
         }
         self.register_auth_menus([
-            ToolBarButtonMenu('Log In', page='login'),
+            ToolBarButtonMenu(
+                'Log In',
+                page='login',
+                visible_callback=menu_for_unauthenticated_user,
+            ),
         ])
 
         # Actions
