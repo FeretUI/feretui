@@ -43,6 +43,14 @@ FeretUI come without any web server. The web serving is not this job.
 .. include:: flask.rst
 .. include:: pyramid.rst
 
+---------------------------------------
+Defined the content of your application
+---------------------------------------
+
+.. include:: menus.rst
+.. include:: form_page_action.rst
+.. include:: resource.rst
+
 
 -------------------------
 Install your favorite ORM
@@ -52,12 +60,3 @@ FeretUI come without any ORM. It is not this job, It not required to have an ORM
 You can do without directly with SQL or just with full static page.
 
 .. include:: sqlalchemy.rst
-.. include:: flask_alchemy.rst
-
----------------------------------------
-Defined the content of your application
----------------------------------------
-
-.. include:: menus.rst
-.. include:: action_page.rst
-.. include:: resource.rst

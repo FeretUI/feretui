@@ -349,7 +349,7 @@ def index():
 def feretui_static_file(filepath):
     filepath = myferet.get_static_file_path(filepath)
     if filepath:
-        return send_file(filepath)
+        return send_file(filepath.resolve())
 
     abort(404)
     return None

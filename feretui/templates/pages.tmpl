@@ -58,7 +58,7 @@
   </template>
   <template id="feretui-page-login">
       <form
-        hx-post="/feretui/action/login_password"
+        hx-post="{{ feretui.base_url }}/action/login_password"
         hx-swap="outerHTML"
         hx-trigger="submit"
       >
@@ -85,7 +85,7 @@
   </template>
   <template id="feretui-page-signup">
     <form
-      hx-post="/feretui/action/login_signup"
+      hx-post="{{ feretui.base_url }}/action/login_signup"
       hx-swap="outerHTML"
       hx-trigger="submit"
     >
