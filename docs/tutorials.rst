@@ -47,6 +47,15 @@ FeretUI come without any web server. The web serving is not this job.
 Defined the content of your application
 ---------------------------------------
 
+It is the FeretUI stuff for your project.
+
+You may defined
+
+* Menu
+* page (with form or not)
+* action
+* resource (set of page and action for a database entries)
+
 .. include:: menus.rst
 .. include:: form_page_action.rst
 .. include:: resource.rst
@@ -60,3 +69,9 @@ FeretUI come without any ORM. It is not this job, It not required to have an ORM
 You can do without directly with SQL or just with full static page.
 
 .. include:: sqlalchemy.rst
+
+--------
+Examples
+--------
+
+Some `examples <https://github.com/FeretUI/feretui/tree/main/examples>`_ exist.
