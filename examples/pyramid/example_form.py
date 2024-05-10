@@ -12,15 +12,17 @@ from wtforms import fields
 from wtforms_components import ColorField
 
 from feretui import (
-    action_validator,
-    action_for_unauthenticated_user,
     FeretUI,
     FeretUIForm,
     Request,
-    Response as FResponse,
     Session,
     ToolBarMenu,
+    action_for_unauthenticated_user,
+    action_validator,
     menu_for_unauthenticated_user,
+)
+from feretui import (
+    Response as FResponse,
 )
 
 logging.basicConfig(level=logging.DEBUG)
