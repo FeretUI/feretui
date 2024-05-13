@@ -151,8 +151,6 @@ def feretui_static_file(filepath):
 @route('/feretui/action/<action>', method=['GET', 'POST'])
 def call_action(action):
     with feretui_session(Session) as session:
-        import ipdb
-        ipdb.set_trace()
         frequest = Request(
             method=getattr(Request, request.method),
             querystring=request.query_string,
