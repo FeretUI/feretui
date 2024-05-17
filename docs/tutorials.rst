@@ -59,6 +59,7 @@ You may defined
 .. include:: menus.rst
 .. include:: form_page_action.rst
 .. include:: resource.rst
+.. include:: translation.rst
 
 
 -------------------------

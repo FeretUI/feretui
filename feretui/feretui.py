@@ -103,6 +103,7 @@ def import_feretui_addons(feretui: "FeretUI") -> None:
     * css:
         * `bulma <https://bulma.io/>`_
         * `bulma-tooltip <https://bulma-tooltip.netlify.app/get-started/>`_
+        * `bulma-print <ihttps://github.com/suterma/bulma-print>`_
 
     * font
         * `Fontawesome <https://fontawesome.com/>`_
