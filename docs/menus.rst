@@ -92,9 +92,9 @@ Aside's menu
 
 The existing menu's types are:
 
-* :class:`.AsideMenu`
-* :class:`.AsideHeaderMenu`
-* :class:`.AsideUrlMenu`
+* :class:`feretui.menus.AsideMenu`
+* :class:`feretui.menus.AsideHeaderMenu`
+* :class:`feretui.menus.AsideUrlMenu`
 
 To register one or more menu use: :meth:`feretui.feretui.FeretUI.register_aside_menus`.
 
@@ -135,3 +135,43 @@ To display the aside's menu it shoul be declared in another menu.
 .. note::
 
     The page is display in the aside page.
+
+~~~~~~~~~~
+Visibility
+~~~~~~~~~~
+
+Each menu can be displayed or not in function of visibility rules.
+
+Some rules already exists:
+
+* :class:`feretui.helper.menu_for_authenticated_user`
+* :class:`feretui.helper.menu_for_unauthenticated_user` [default]
+* :class:`feretui.helper.menu_for_all_users`
+
+::
+
+    myferet.register_toolbar_left_menus([
+        ToolBarMenu(
+            'My menu', 
+            page="my-page",
+            visible_callback=menu_for_unauthenticated_user,
+        ),
+    ])
+
+To create your own function::
+
+    def my_visibilit_callback(session: Session) -> bool:
+        if some_check_with_sesion(session):
+            return True
+
+        return False
+
+The session can be overloaded and passed during the creation of the 
+request. By default only the **user** attribute exist on the session.
+
+~~~~~~~~~~~
+Translation
+~~~~~~~~~~~
+
+The menus are always translated, No action is needed to translate them
+that the standard translation of the project.

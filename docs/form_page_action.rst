@@ -147,7 +147,226 @@ The existing xpath action are:
 Static page
 ~~~~~~~~~~~
 
-If you need to write a litle and 
+If you need to write a litle template without any form or control some helper can help you
+
+Method 1::
+
+    from feretui.pages import static_page
+
+    myferet.register_page(name='my_page')(static_page('my-page'))
+
+Method 2::
+
+    myferet.register_static_page(
+        'my_page',
+        '''
+        <div>My HTML.</div>
+        ''',
+    )
+
+
+.. warning::
+
+    The second method register the template in the template instance
+    of feretui instance.
+
+    If the template id already exists then an error is raised. In this
+    cas the method can not be overwritten.
+
+
+Template directly in the register_page
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The goal is to defined the page with the template in the same location
+in the project.
+
+::
+
+    @myferet.register_page(
+        templates=['''
+          <template id="my-page">
+            <div>My HTML.</div>
+          </template>
+        '''],
+    )
+    def my_page(feretui, session, options):
+        return feretui.render_template(session, 'my-page')
+
+.. warning::
+
+    The second method register the template in the template instance
+    of feretui instance.
+
+    If the template id already exists then an error is raised. In this
+    cas the method can not be overwritten.
+
+Added form on your page
+~~~~~~~~~~~~~~~~~~~~~~~
+
+FeretUI implement a base class for `wtforms <https://wtforms.readthedocs.io/en/3.1.x/>`_.
+
+::
+
+    from feretui import FeretUIForm
+
+    class MyForm(FeretUIForm):
+        ...
+
+
+The base class:
+
+* overwrite gettext and ngettext for the translation
+* overwrite the render of the field to add bulma class on the input
+
+You use it directly in the page or the action.
+
+::
+
+    @myferet.register_page(
+        templates=['''
+          <template id="my-page">
+            <form
+              hx-post="{{ feretui.base_url }}/action/my_form"
+              hx-swap="outerHTML"
+              hx-trigger="submit"
+            >
+              <div class="container content">
+                <h1>My form</h1>
+                {% for field in form %}
+                {{ field }}
+                {% endfor %}
+                <div class="buttons">
+                  <button
+                    class="button is-primary is-fullwidth"
+                    type="submit"
+                  >
+                    Submit
+                  </button>
+                </div>
+              </div>
+            </form>
+          </template>
+        '''],
+    )
+    def my_page(feretui, session, options):
+        form = option.get('form', MyForm())
+        return feretui.render_template(session, 'my-page', form=form)
+
+You need to register the Form to export the translation.
+
+Method 1::
+
+    @myferet.register_form()
+    class MyForm(FeretUIForm):
+        ...
+
+
+Method 2::
+
+    @myferet.register_page(
+        templates=['''
+          <template id="my-page">
+            <form
+              hx-post="{{ feretui.base_url }}/action/my_form"
+              hx-swap="outerHTML"
+              hx-trigger="submit"
+            >
+              <div class="container content">
+                <h1>My form</h1>
+                {% for field in form %}
+                {{ field }}
+                {% endfor %}
+                <div class="buttons">
+                  <button
+                    class="button is-primary is-fullwidth"
+                    type="submit"
+                  >
+                    Submit
+                  </button>
+                </div>
+              </div>
+            </form>
+          </template>
+        '''],
+        forms=[MyForm],
+    )
+    def my_page(feretui, session, options):
+        form = option.get('form', MyForm())
+        return feretui.render_template(session, 'my-page', form=form)
+
+
+Visibility
+~~~~~~~~~~
+
+Each page can be visible in function rules. If the
+condition of the visibility is not validate the a redirect 
+to another page is done.
+
+Some rules already exists:
+
+* :class:`feretui.helper.page_for_authenticated_user_or_goto`
+* :class:`feretui.helper.page_for_unauthenticated_user_or_goto`
+
+By default they are no rule on the page, anybody can see them
+
+::
+
+    from feretui import page_for_authenticated_user_or_goto, page_404
+
+    @myferet.register_page()
+    @page_for_authenticated_user_or_goto(page_404)
+    def my_page(feretui, session, options):
+        return feretui.render_template(session, 'my-page')
+
+
+All the page can be choosen by the redirection, by default feretui give:
+
+* :func:`feretui.pages.page_404`
+* :func:`feretui.pages.page_forbidden`
+* :func:`feretui.pages.homepage`
+* :func:`feretui.pages.login`
+* :func:`feretui.pages.signup`
+
+.. note::
+
+    The template of these pages can be overwritten. You also create and use
+    your own page.
+
+To create your own function to redirect::
+
+    def page_for_authenticated_user_or_goto(
+        fallback_page: str | Callable,
+    ) -> Callable:
+        def wrap_func(func: Callable) -> Callable:
+
+            @wraps(func)
+            def wrap_call(
+                feretui: "FeretUI",
+                session: Session,
+                options: dict,
+            ) -> str:
+                if some_check_with_sesion(session):
+                    return func(feretui, session, options)
+
+                page = fallback_page
+                if isinstance(fallback_page, str):
+                    page = feretui.get_page(fallback_page)
+
+                return page(feretui, session, options)
+
+            return wrap_call
+
+        return wrap_func
+
+
+The session can be overloaded and passed during the creation of the 
+request. By default only the **user** attribute exist on the session.
+
+Translation
+~~~~~~~~~~~
+
+The templates are always translated, No action is needed to translate them
+other that the standard translation of the project.
 
 ~~~~~~
 Action
