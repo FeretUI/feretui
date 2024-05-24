@@ -334,7 +334,7 @@ All the page can be choosen by the redirection, by default feretui give:
 
 To create your own function to redirect::
 
-    def page_for_authenticated_user_or_goto(
+    def page_for_ ... _or_goto(
         fallback_page: str | Callable,
     ) -> Callable:
         def wrap_func(func: Callable) -> Callable:
@@ -371,3 +371,110 @@ other that the standard translation of the project.
 ~~~~~~
 Action
 ~~~~~~
+
+An action is function call by the api at the url **/{{ myferet.base_url }}/actions/{{ name of the action }}**
+
+::
+
+    from feretui import Response
+
+    @myferet.register_action
+    def my_action(feretui, request):
+        return Response(...)
+
+
+.. warning::
+
+    The action have to return a response instance, need by the web server.
+
+
+Validate the methods and the response.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+By default the actions can be called by any http method. To filter and validate the return 
+you must used the :func:`feretui.helper.action_validator`.
+
+::
+
+    from feretui import action_validator, Response, RequestMethod
+
+    @myferet.register_action
+    @action_validator(methods=[RequestMethod.POST])
+    def my_action(feretui, request):
+        return Response(...)
+
+Used form with your action
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+FeretUI implement a base class for `wtforms <https://wtforms.readthedocs.io/en/3.1.x/>`_.
+
+::
+
+    from feretui import FeretUIForm
+
+    class MyForm(FeretUIForm):
+        ...
+
+
+The base class:
+
+* overwrite gettext and ngettext for the translation
+* overwrite the render of the field to add bulma class on the input
+
+You use it directly in the page or the action.
+
+::
+
+    from feretui import action_validator, Response, RequestMethod
+
+    @myferet.register_action
+    @action_validator(methods=[RequestMethod.POST])
+    def my_action(feretui, request):
+        form = MyForm(request.form)
+        if form.validate():
+            ...
+            return Response(...)
+
+        return Response(my_page(feretui, request.session, {'form': form}))
+
+
+Security
+~~~~~~~~
+
+To protect the action and indicate if the action is callable you should
+use the decorator:
+
+* :class:`feretui.helper.action_for_authenticated_user`
+* :class:`feretui.helper.action_for_unauthenticated_user`
+
+By default they are no rule on the action, anybody can call them
+
+::
+
+    from feretui import action_validator, Response, RequestMethod, action_for_authenticated_user
+
+    @myferet.register_action
+    @action_validator(methods=[RequestMethod.POST])
+    @action_for_authenticated_user
+    def my_action(feretui, request):
+        return Response(...)
+
+
+To create your own function to protect you action::
+
+    class MyActionException(ActionError):
+        pass
+
+
+    def action_for_...(func: Callable) -> Callable:
+        @wraps(func)
+        def wrapper_call(
+            feret: "FeretUI",
+            request: Response,
+        ) -> Response:
+            if something_with_session(request.session):
+                raise MyActionException(...)
+
+            return func(feret, request)
+
+        return wrapper_call
