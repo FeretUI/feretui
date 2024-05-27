@@ -111,7 +111,7 @@ class TestPage:
         class MyResource(Resource):
             code = 'test'
             label = 'Test'
-            page_security = staticmethod(
+            page_visibility = staticmethod(
                 page_for_authenticated_user_or_goto(page_forbidden))
 
         snapshot.assert_match(
@@ -125,7 +125,7 @@ class TestPage:
         class MyResource(Resource):
             code = 'test'
             label = 'Test'
-            page_security = None
+            page_visibility = None
 
         snapshot.assert_match(
             resource_page(

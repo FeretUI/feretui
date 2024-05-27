@@ -42,7 +42,7 @@ class Resource:
     label: str = None
     menu: Menu = ToolBarMenu('', page="resource")
     menu_visibility: Callable = staticmethod(menu_for_authenticated_user)
-    page_security: Callable = staticmethod(
+    page_visibility: Callable = staticmethod(
         page_for_authenticated_user_or_goto(login))
     action_security: Callable = staticmethod(action_for_authenticated_user)
     default_view: str = None
@@ -175,8 +175,8 @@ class Resource:
             view = self.views.get(viewcode)
             func = page_404 if not view else view.render
 
-        if self.page_security:
-            func = self.page_security(func)
+        if self.page_visibility:
+            func = self.page_visibility(func)
 
         return feretui.render_template(
             session,
