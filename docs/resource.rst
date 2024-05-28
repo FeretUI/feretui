@@ -156,6 +156,97 @@ the resource other that the standard translation of the project.
 Examples
 ~~~~~~~~
 
+Example 2
+~~~~~~~~~
+
+This is an example with SQLAlchemy to manage the printer in the application.
+
+
+DB model::
+
+    class Printer(Base):
+        __tablename__ = "device_printer"
+
+        pk: Mapped[int] = mapped_column(Integer, primary_key=True)
+        url: Mapped[str] = mapped_column(String(30), nullable=False)
+        label: Mapped[str] = mapped_column(String(20), nullable=False)
+
+Resource::
+
+    from wtforms_components import read_only
+
+
+    @myferet.register_resource()
+    class RPrinter(LCRUDResource, Resource):
+        code = 'c2'
+        label = 'Printers'
+
+        class Form:
+            pk = IntegerField()
+            url = URLField(validators=[InputRequired()])
+            label = StringField(validators=[InputRequired()])
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                read_only(self.pk)
+
+        def create(self, form):
+            with SQLASession(engine) as session:
+                printer = session.get(Printer, form.pk.data)
+                if printer:
+                    raise Exception('printer already exist')
+
+                printer = Printer()
+                form.populate_obj(printer)
+                session.add(printer)
+                session.commit()
+
+                return printer.pk
+
+        def read(self, form_cls, pk):
+            with SQLASession(engine) as session:
+                printer = session.get(Printer, pk)
+                if user:
+                    return form_cls(MultiDict(printer.__dict__))
+                return None
+
+        def filtered_reads(self, form_cls, filters, offset, limit):
+            forms = []
+            total = 0
+            with SQLASession(engine) as session:
+                stmt = select(Printer).where()
+                stmt_count = select(func.count()).select_from(
+                    stmt.subquery())
+                total = session.execute(stmt_count).scalars().first()
+
+                stmt = stmt.offset(offset).limit(limit)
+                for printer in session.scalars(stmt):
+                    forms.append(form_cls(MultiDict(printer.__dict__)))
+
+            return {
+                'total': total,
+                'forms': forms,
+            }
+
+        def update(self, forms) -> None:
+            with SQLASession(engine) as session:
+                for form in forms:
+                    printer = session.get(Printer, form.pk.data)
+                    if printer:
+                        form.populate_obj(printer)
+                        session.commit()
+
+        def delete(self, pks) -> None:
+            with SQLASession(engine) as session:
+                for pk in pks:
+                    session.delete(session.get(Printer, pk))
+
+                session.commit()
+
+
+Example 2
+~~~~~~~~~
+
 This is an example with SQLAlchemy to manage the user in the application.
 
 
