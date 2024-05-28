@@ -349,7 +349,7 @@ class FeretUI:
         ])
 
         # Actions
-        self.actions: dict[str, Callable[["FeretUI", Request], Response]] = {}
+        self.actions: dict[str, Callable[[FeretUI, Request], Response]] = {}
         self.register_action(goto)
         self.register_action(login_password)
         self.register_action(login_signup)
@@ -358,7 +358,7 @@ class FeretUI:
 
         # Pages
         self.pages: dict[str, Callable[
-            ["FeretUI", Session, dict], Response],
+            [FeretUI, Session, dict], Response],
         ] = {}
         self.register_page(name='404')(page_404)
         self.register_page(name='forbidden')(page_forbidden)

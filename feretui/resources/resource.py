@@ -11,6 +11,7 @@ The main class to create a resource.
 """
 import inspect
 from collections.abc import Callable
+from copy import deepcopy
 from typing import TYPE_CHECKING
 
 from markupsafe import Markup
@@ -39,11 +40,8 @@ class Resource:
 
     code: str = None
     label: str = None
-    menu: Menu = ToolBarMenu(
-        '',
-        page="resource",
-        visible_callback=menu_for_authenticated_user,
-    )
+    menu: Menu = ToolBarMenu('', page="resource")
+    menu_visibility: Callable = staticmethod(menu_for_authenticated_user)
     page_security: Callable = staticmethod(
         page_for_authenticated_user_or_goto(login))
     action_security: Callable = staticmethod(action_for_authenticated_user)
@@ -85,8 +83,13 @@ class Resource:
         if not cls.label:
             raise ResourceError('No label defined')
 
+        cls.menu = deepcopy(cls.menu)
+
         if not cls.menu.label:
             cls.menu.label = cls.label
+
+        if cls.menu_visibility:
+            cls.menu.visible_callback = cls.menu_visibility
 
         cls.menu.querystring['resource'] = cls.code
         cls.context = f'resource:{cls.code}'
