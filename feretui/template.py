@@ -761,7 +761,7 @@ class Template:
         for el in elements:
             if el.tag != 'attribute':
                 raise TemplateError(
-                    "get %r node, waiting 'attribute' node" % el.tag)
+                    f"get {el.tag!r} node, waiting 'attribute' node")
 
             res.append(dict(el.items()))
 
@@ -827,7 +827,7 @@ class Template:
                 self.xpath_attributes(
                     lang, name, expression, mult, attributes)
         else:
-            raise TemplateError("Unknown action %r" % action)
+            raise TemplateError(f"Unknown action {action!r}")
 
     def compile_template(
         self: "Template",
