@@ -54,27 +54,124 @@ The two methods give the same result.
 Views
 ~~~~~
 
-Default view
-~~~~~~~~~~~~
-
-Forms
-~~~~~
-
-Actions
-~~~~~~~
+The views are the renders used by your application.
 
 Existing views
 ~~~~~~~~~~~~~~
 
-* :class:`feretui.resources.list.LResource`
-* :class:`feretui.resources.create.CResource`
-* :class:`feretui.resources.read.RResource`
-* :class:`feretui.resources.update.UResource`
-* :class:`feretui.resources.delete.DResource`
-* :class:`feretui.resources.LCRUDResource`
+* List : :class:`feretui.resources.list.LResource`
+* Create / New : :class:`feretui.resources.create.CResource`
+* Read : :class:`feretui.resources.read.RResource`
+* Update / Edit : :class:`feretui.resources.update.UResource`
+* Delete / Remove : :class:`feretui.resources.delete.DResource`
+* List + Create + Read + Update + Delete : :class:`feretui.resources.LCRUDResource`
+
+You can update the configuration of the view in your
+resource::
+
+    from feretui import Resource, LResource
+
+    @myferet.register_resource()
+    class MyResource(LResource, Resource):
+        code: str = 'my-resource'
+        label: str = 'My resource'
+
+        class MetaViewList:
+            limit: int = 5  # display only 5 lines in the pagination.
+
 
 Create your own view
 ~~~~~~~~~~~~~~~~~~~~
+
+To create a new view you need to create:
+
+* default class attribute defined in a class, this document the possibility
+  of the configuration of your view.
+
+  Example for the list view::
+  
+      class DefaultViewList:
+          """Default value for the view list."""
+  
+          label: str = None
+          limit: int = 20
+          create_button_redirect_to: str = None
+          delete_button_redirect_to: str = None
+          do_click_on_entry_redirect_to: str = None
+
+* The class View, define the render and the actions
+  Example for the list view::
+
+      class ListView(MultiView, LabelMixinForView, View):
+          """List view."""
+          code: str = 'list'
+      
+          def render(
+              self: "ListView",
+              feretui: "FeretUI",
+              session: Session,
+              options: dict,
+          ) -> str:
+              """Render the view.
+      
+              :param feretui: The feretui client
+              :type feretui: :class:`feretui.feretui.FeretUI`
+              :param session: The Session
+              :type session: :class:`feretui.session.Session`
+              :param options: The options come from the body or the query string
+              :type options: dict
+              :return: The html page in
+              :rtype: str.
+              """
+
+* Th mixin class to build the view in the resource.
+  Example for the list view::
+
+      class LResource:
+          """LResource class."""
+      
+          default_view: str = 'list'
+      
+          MetaViewList = DefaultViewList
+      
+          def build_view(
+              self: "LResource",
+              view_cls_name: str,
+          ) -> Resource:
+              """Return the view instance in fonction of the MetaView attributes.
+      
+              :param view_cls_name: name of the meta attribute
+              :type view_cls_name: str
+              :return: An instance of the view
+              :rtype: :class:`feretui.resources.view.View`
+              """
+              if view_cls_name.startswith('MetaViewList'):
+                  meta_view_cls = self.get_meta_view_class(view_cls_name)
+                  meta_view_cls.append(ListView)
+                  view_cls = type(
+                      'ListView',
+                      tuple(meta_view_cls),
+                      {},
+                  )
+                  if not self.default_view:
+                      self.default_view = view_cls.code
+      
+                  return view_cls(self)
+      
+              return super().build_view(view_cls_name)
+
+
+The name of the **MetaView** should be **MetaView`code`**.
+
+Forms
+~~~~~
+
+TODO
+
+Actions
+~~~~~~~
+
+TODO
 
 ~~~~~~~~~~~~~~~~~~~~~~~
 Visibility and security
