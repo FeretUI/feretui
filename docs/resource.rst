@@ -79,9 +79,149 @@ resource::
         class MetaViewList:
             limit: int = 5  # display only 5 lines in the pagination.
 
+Forms
+~~~~~
 
-Create your own view
-~~~~~~~~~~~~~~~~~~~~
+The Forms are the base of the representation of the all views.
+
+The declaration of the View is done in the :
+
+* Recource class
+* MetaView class
+
+::
+
+    class MyResource(LResource, Resource):
+
+        class Form:
+            code = StringField()
+
+        class MetaViewList:
+
+            class Form:
+                label = StringField()
+
+The **Form** class is a mixin not the final the Form.
+The MetaView's Form's class inherit also the Resource Form class.
+
+In the previous example the Resource, the build form have got two fields:
+
+* code
+* label
+
+The mecanism is not use full if you are only one MetaView's type.
+
+The build of the resource class :
+
+* transform the MetaView's Form's class as a Form
+* Add FeretUIForm in the inheritance
+* Declare in the FeretUI instance
+
+Actions
+~~~~~~~
+
+Some views can declare actions:
+
+* List : :class:`feretui.resources.list.LResource`
+* Read : :class:`feretui.resources.read.RResource`
+
+The actions is declared in the MetaView's class
+
+    class MyResource(RResource, Resource):
+
+        class MetaViewRead:
+
+            actions = [
+                Actionset('Title of the set of actions', [
+                    GotoViewAction('Title of the action', 'my_resource_method'),
+                ]),
+            ]
+
+        def my_resource_method(self, feretui, request, **kwargs):
+            ...
+
+
+The method called is defined on the resource the same method can be called by any view
+that declare the action set.
+
+The action's type are:
+
+* :class:`feretui.resources.actions.Action` : call the method
+* :class:`feretui.resources.actions.GotoViewAction` : call the goto main action to change page
+* :class:`feretui.resources.actions.SelectedRowsAction` : call the method only if a row is selected. 
+  This action can be called only on a MetaView List type
+
+~~~~~~~~~~~~~~~~~~~~~~~
+Visibility and security
+~~~~~~~~~~~~~~~~~~~~~~~
+
+The resource take the visibility and the autorisation mecanism
+of the main object.
+
+Menus
+~~~~~
+
+::
+
+    from feretui import Resource, menu_for_authenticated_user
+
+    @myferet.register_resource()
+    class MyResource(Resource):
+        code: str = 'my-resource'
+        label: str = 'My resource'
+        menu_visibility: Callable = staticmethod(menu_for_authenticated_user)
+
+you also create your own method inside ::
+
+    from feretui import Resource
+
+    @myferet.register_resource()
+    class MyResource(Resource):
+        code: str = 'my-resource'
+        label: str = 'My resource'
+
+        @staticmethod
+        def menu_visibility(session: Session) -> bool:
+            return True  # always displayed
+
+.. warning::
+
+    You can use classmethod or static method, but not
+    a method, because the menu is down with the class and
+    not the instance.
+
+Pages
+~~~~~
+
+::
+
+    from feretui import Resource, page_for_authenticated_user_or_goto, login
+
+    @myferet.register_resource()
+    class MyResource(Resource):
+        code: str = 'my-resource'
+        label: str = 'My resource'
+
+        page_visibility: Callable = staticmethod(
+            page_for_authenticated_user_or_goto(login))
+
+Actions
+~~~~~~~
+
+::
+
+    from feretui import Resource, action_for_authenticated_user
+
+    @myferet.register_resource()
+    class MyResource(Resource):
+        code: str = 'my-resource'
+        label: str = 'My resource'
+
+        action_security: Callable = staticmethod(action_for_authenticated_user)
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Create your own view's type
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To create a new view you need to create:
 
@@ -162,84 +302,6 @@ To create a new view you need to create:
 
 
 The name of the **MetaView** should be **MetaView`code`**.
-
-Forms
-~~~~~
-
-TODO
-
-Actions
-~~~~~~~
-
-TODO
-
-~~~~~~~~~~~~~~~~~~~~~~~
-Visibility and security
-~~~~~~~~~~~~~~~~~~~~~~~
-
-The resource take the visibility and the autorisation mecanism
-of the main object.
-
-Menus
-~~~~~
-
-::
-
-    from feretui import Resource, menu_for_authenticated_user
-
-    @myferet.register_resource()
-    class MyResource(Resource):
-        code: str = 'my-resource'
-        label: str = 'My resource'
-        menu_visibility: Callable = staticmethod(menu_for_authenticated_user)
-
-you also create your own method inside ::
-
-    from feretui import Resource
-
-    @myferet.register_resource()
-    class MyResource(Resource):
-        code: str = 'my-resource'
-        label: str = 'My resource'
-
-        @staticmethod
-        def menu_visibility(session: Session) -> bool:
-            return True  # always displayed
-
-.. warning::
-
-    You can use classmethod or static method, but not
-    a method, because the menu is down with the class and
-    not the instance.
-
-Pages
-~~~~~
-
-::
-
-    from feretui import Resource, page_for_authenticated_user_or_goto, login
-
-    @myferet.register_resource()
-    class MyResource(Resource):
-        code: str = 'my-resource'
-        label: str = 'My resource'
-
-        page_visibility: Callable = staticmethod(
-            page_for_authenticated_user_or_goto(login))
-
-Actions
-~~~~~~~
-
-::
-
-    from feretui import Resource, action_for_authenticated_user
-
-    @myferet.register_resource()
-    class MyResource(Resource):
-        code: str = 'my-resource'
-        label: str = 'My resource'
-
-        action_security: Callable = staticmethod(action_for_authenticated_user)
 
 ~~~~~~~~~~~
 Translation
