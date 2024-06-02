@@ -136,10 +136,10 @@ feretui.helper module
    :private-members:
 
 
-feretui.thread module
----------------------
+feretui.context module
+----------------------
 
-.. automodule:: feretui.thread
+.. automodule:: feretui.context
    :members:
    :private-members:
 

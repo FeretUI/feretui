@@ -57,6 +57,7 @@ from feretui.exceptions import (
     UnexistingResourceError,
 )
 from feretui.form import FeretUIForm
+from feretui.helper import menu_for_unauthenticated_user
 from feretui.menus import (
     AsideMenu,
     ChildrenMenu,
@@ -102,6 +103,7 @@ def import_feretui_addons(feretui: "FeretUI") -> None:
     * css:
         * `bulma <https://bulma.io/>`_
         * `bulma-tooltip <https://bulma-tooltip.netlify.app/get-started/>`_
+        * `bulma-print <ihttps://github.com/suterma/bulma-print>`_
 
     * font
         * `Fontawesome <https://fontawesome.com/>`_
@@ -345,7 +347,11 @@ class FeretUI:
             'addons': None,
         }
         self.register_auth_menus([
-            ToolBarButtonMenu('Log In', page='login'),
+            ToolBarButtonMenu(
+                'Log In',
+                page='login',
+                visible_callback=menu_for_unauthenticated_user,
+            ),
         ])
 
         # Actions

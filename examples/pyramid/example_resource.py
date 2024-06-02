@@ -13,12 +13,12 @@ from sqlalchemy.orm import (
     DeclarativeBase,
     Mapped,
     mapped_column,
-)
-from sqlalchemy.orm import (
-    Session as SQLASession,
+    scoped_session,
+    sessionmaker,
 )
 from wtforms import PasswordField, RadioField, SelectField, StringField
 from wtforms.validators import EqualTo, InputRequired
+from zope.sqlalchemy import register
 
 from feretui import (
     Action,
@@ -74,6 +74,9 @@ class User(Base):
 
 
 engine = create_engine("sqlite:///resource.db")
+DBSession = scoped_session(sessionmaker(bind=engine))
+register(DBSession)
+mysession = DBSession()
 Base.metadata.create_all(engine)
 # -- for feretui --
 
@@ -88,20 +91,19 @@ class MySession(Session):
         self.user_id = user_id
 
     def login(self, form) -> bool:
-        with SQLASession(engine) as session:
-            stmt = select(User).where(
-                User.login == form.login.data,
-                User.password == form.password.data,
-            )
-            user = session.scalars(stmt).one_or_none()
-            if user:
-                self.user = user.name or user.login
-                self.user_id = user.login
-                self.lang = user.lang or 'en'
-                self.theme = user.theme or 'journal'
-                return True
+        stmt = select(User).where(
+            User.login == form.login.data,
+            User.password == form.password.data,
+        )
+        user = mysession.scalars(stmt).one_or_none()
+        if user:
+            self.user = user.name or user.login
+            self.user_id = user.login
+            self.lang = user.lang or 'en'
+            self.theme = user.theme or 'journal'
+            return True
 
-            raise Exception('Login or password invalid')
+        raise Exception('Login or password invalid')
 
 
 @myferet.register_resource()
@@ -215,11 +217,10 @@ class RUser(LCRUDResource, Resource):
     class MetaViewDelete:
 
         def get_label_from_pks(self, pks):
-            with SQLASession(engine) as session:
-                return [
-                    session.get(User, pk).name
-                    for pk in pks
-                ]
+            return [
+                mysession.get(User, pk).name
+                for pk in pks
+            ]
 
     def print_1(self, *a, **kw) -> None:
         print(1, a, kw)
@@ -228,45 +229,41 @@ class RUser(LCRUDResource, Resource):
         print(10, a, kw)
 
     def create(self, form):
-        with SQLASession(engine) as session:
-            user = session.get(User, form.login.data)
-            if user:
-                raise Exception('User already exist')
+        user = mysession.get(User, form.login.data)
+        if user:
+            raise Exception('User already exist')
 
-            user = User()
-            form.populate_obj(user)
-            session.add(user)
-            session.commit()
+        user = User()
+        form.populate_obj(user)
+        mysession.add(user)
 
-            return user.login
+        return user.login
 
     def read(self, form_cls, pk):
-        with SQLASession(engine) as session:
-            user = session.get(User, pk)
-            if user:
-                return form_cls(MultiDict(user.__dict__))
-            return None
+        user = mysession.get(User, pk)
+        if user:
+            return form_cls(MultiDict(user.__dict__))
+        return None
 
     def filtered_reads(self, form_cls, filters, offset, limit):
         forms = []
         total = 0
-        with SQLASession(engine) as session:
-            stmt = select(User).where()
-            for key, values in filters:
-                if len(values) == 1:
-                    stmt = stmt.filter(
-                        getattr(User, key).ilike(f'%{values[0]}%'),
-                    )
-                elif len(values) > 1:
-                    stmt = stmt.filter(getattr(User, key).in_(values))
+        stmt = select(User).where()
+        for key, values in filters:
+            if len(values) == 1:
+                stmt = stmt.filter(
+                    getattr(User, key).ilike(f'%{values[0]}%'),
+                )
+            elif len(values) > 1:
+                stmt = stmt.filter(getattr(User, key).in_(values))
 
-            stmt_count = select(func.count()).select_from(
-                stmt.subquery())
-            total = session.execute(stmt_count).scalars().first()
+        stmt_count = select(func.count()).select_from(
+            stmt.subquery())
+        total = mysession.execute(stmt_count).scalars().first()
 
-            stmt = stmt.offset(offset).limit(limit)
-            for user in session.scalars(stmt):
-                forms.append(form_cls(MultiDict(user.__dict__)))
+        stmt = stmt.offset(offset).limit(limit)
+        for user in mysession.scalars(stmt):
+            forms.append(form_cls(MultiDict(user.__dict__)))
 
         return {
             'total': total,
@@ -274,19 +271,14 @@ class RUser(LCRUDResource, Resource):
         }
 
     def update(self, forms) -> None:
-        with SQLASession(engine) as session:
-            for form in forms:
-                user = session.get(User, form.pk.data)
-                if user:
-                    form.populate_obj(user)
-                    session.commit()
+        for form in forms:
+            user = mysession.get(User, form.pk.data)
+            if user:
+                form.populate_obj(user)
 
     def delete(self, pks) -> None:
-        with SQLASession(engine) as session:
-            for pk in pks:
-                session.delete(session.get(User, pk))
-
-            session.commit()
+        for pk in pks:
+            mysession.delete(mysession.get(User, pk))
 
 
 myferet.register_aside_menus('aside1', [
@@ -365,7 +357,7 @@ def call_action(request):
 
 
 if __name__ == "__main__":
-    with SQLASession(engine) as session:
+    with DBSession() as session:
         stmt = select(User).where(User.login == 'admin')
         user = session.scalars(stmt).one_or_none()
         if not user:

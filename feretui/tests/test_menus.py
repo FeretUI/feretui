@@ -11,6 +11,7 @@ from feretui.exceptions import MenuError
 from feretui.helper import (
     menu_for_authenticated_user,
     menu_for_unauthenticated_user,
+    menu_for_all_users,
 )
 from feretui.menus import (
     AsideHeaderMenu,
@@ -61,25 +62,25 @@ class TestMenu:
             ToolBarDropDownMenu('Test')
 
     def test_ToolBarDropDownMenu(
-        self, snapshot, feretui, session, frequest
+        self, snapshot, feretui, authenticated_session, frequest
     ) -> None:
         snapshot.assert_match(
             ToolBarDropDownMenu(
                 'Test',
                 children=[ToolBarMenu('Test', page='test')],
-            ).render(feretui, session),
+            ).render(feretui, authenticated_session),
             'snapshot.html',
         )
 
     def test_ToolBarDropDownMenu_description(
-        self, snapshot, feretui, session, frequest,
+        self, snapshot, feretui, authenticated_session, frequest,
     ) -> None:
         snapshot.assert_match(
             ToolBarDropDownMenu(
                 'Test',
                 description='Test',
                 children=[ToolBarMenu('Test', page='test')],
-            ).render(feretui, session),
+            ).render(feretui, authenticated_session),
             'snapshot.html',
         )
 
@@ -138,7 +139,7 @@ class TestMenu:
                 ToolBarMenu('Test', page='test'),
             ],
             visible_callback=menu_for_unauthenticated_user,
-        ).is_visible(session) is True
+        ).is_visible(session) is False
 
     def test_ToolBarDropDownMenu_is_visible_5(
         self, authenticated_session
@@ -267,7 +268,10 @@ class TestMenu:
     ) -> None:
         snapshot.assert_match(
             ToolBarButtonsMenu(
-                [ToolBarButtonMenu('Test', page='test')],
+                [ToolBarButtonMenu(
+                    'Test', page='test',
+                    visible_callback=menu_for_authenticated_user,
+                )],
             ).render(feretui, session),
             'snapshot.html',
         )
@@ -317,7 +321,7 @@ class TestMenu:
                 ToolBarButtonMenu('Test', page='test'),
             ],
             visible_callback=menu_for_unauthenticated_user,
-        ).is_visible(session) is True
+        ).is_visible(session) is False
 
     def test_ToolBarButtonsMenu_is_visible_5(
         self, authenticated_session
@@ -408,7 +412,10 @@ class TestMenu:
         snapshot.assert_match(
             AsideHeaderMenu(
                 'Test',
-                children=[AsideMenu('Test', page='test')],
+                children=[AsideMenu(
+                    'Test', page='test',
+                    visible_callback=menu_for_all_users,
+                )],
             ).render(feretui, session),
             'snapshot.html',
         )
@@ -420,7 +427,11 @@ class TestMenu:
             AsideHeaderMenu(
                 'Test',
                 description='Test',
-                children=[AsideMenu('Test', page='test')],
+                children=[AsideMenu(
+                    'Test',
+                    page='test',
+                    visible_callback=menu_for_all_users,
+                )],
             ).render(feretui, session),
             'snapshot.html',
         )
@@ -434,7 +445,11 @@ class TestMenu:
                 children=[
                     AsideHeaderMenu(
                         'Test',
-                        children=[AsideMenu('Test', page='test')],
+                        children=[AsideMenu(
+                            'Test',
+                            page='test',
+                            visible_callback=menu_for_all_users,
+                        )],
                     ),
                 ],
             ).render(feretui, session),

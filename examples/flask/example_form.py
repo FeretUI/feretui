@@ -5,17 +5,19 @@ from wsgiref.simple_server import make_server
 
 from flask import Flask, abort, make_response, request, send_file
 from multidict import MultiDict
+from wtforms import fields
+from wtforms_components import ColorField
 
 from feretui import (
-    AsideHeaderMenu,
-    AsideMenu,
     FeretUI,
+    FeretUIForm,
     Request,
+    Response,
     Session,
-    ToolBarButtonMenu,
-    ToolBarDropDownMenu,
     ToolBarMenu,
-    menu_for_authenticated_user,
+    action_for_unauthenticated_user,
+    action_validator,
+    menu_for_unauthenticated_user,
 )
 
 logging.basicConfig(level=logging.DEBUG)
@@ -47,72 +49,79 @@ def response(fresponse):
 
 
 myferet = FeretUI()
-myferet.load_internal_catalog('fr')
-Session.SignUpForm.lang.kwargs['choices'].append(('fr', 'Français'))
 
 
-class MySession(Session):
+class MyForm(FeretUIForm):
+    bool_field = fields.BooleanField()
+    date_field = fields.DateField()
+    datetime_field = fields.DateTimeLocalField()
+    decimal_field = fields.DecimalField()
+    decimal_range_field = fields.DecimalRangeField()
+    email_field = fields.EmailField()
+    float_field = fields.FloatField()
+    integer_field = fields.IntegerField()
+    integer_range_field = fields.IntegerRangeField()
+    month_field = fields.MonthField()
+    string_field = fields.StringField()
+    tel_field = fields.TelField()
+    time_field = fields.TimeField()
+    color_field = ColorField()
 
-    def __init__(self, **options) -> None:
-        options.setdefault('theme', 'minty')
-        options.setdefault('lang', 'fr')
-        super().__init__(**options)
 
-
-myferet.register_auth_menus([
-    ToolBarButtonMenu('Sign Up', page='signup', css_class="is-info"),
-    ToolBarButtonMenu('Log In', page='login'),
-])
-
-
-# /?page=hello
 @myferet.register_page(
+    name='my_form',
     templates=['''
-    <template id="hello">
-      <div class="container">
-        <div class="content">
-          <h1>Hello my feret</h1>
-          <p>Welcome</p>
-        </div>
-      </div>
-    </template>
+      <template id="my-form">
+        <form
+          hx-post="{{ feretui.base_url }}/action/my_form"
+          hx-swap="outerHTML"
+          hx-trigger="submit"
+        >
+          <div class="container content">
+            <h1>My form</h1>
+            {% for field in form %}
+            {{ field }}
+            {% endfor %}
+            <div class="buttons">
+              <button
+                class="button is-primary is-fullwidth"
+                type="submit"
+              >
+                Submit
+              </button>
+            </div>
+          </div>
+        </form>
+      </template>
     '''],
+    forms=[MyForm],
 )
-def hello(feretui, session, option):
-    return feretui.render_template(session, 'hello')
+def my_form_page(feretui, session, option):
+    form = option.get('form', MyForm())
+    return feretui.render_template(session, 'my-form', form=form)
 
 
-# /?page=foo
-myferet.register_static_page(
-    'foo',
-    '''
-    <div class="container">
-      <div class="content">
-        Bar
-      </div>
-    </div>
-    ''',
-)
-myferet.register_aside_menus('aside1', [
-    AsideHeaderMenu('My aside menu', children=[
-        AsideMenu('Hello', page='hello', description="Hello"),
-        AsideMenu('Foo', page='foo', icon="fa-solid fa-ghost"),
-    ]),
-])
+@myferet.register_action
+@action_validator(methods=[Request.POST])
+@action_for_unauthenticated_user
+def my_form(feretui, request):
+    form = MyForm(request.form)
+    if form.validate():
+        print(form.data)
+        base_url = request.get_base_url_from_current_url()
+        headers = {
+            'HX-Redirect': f'{base_url}?page=homepage',
+        }
+        return Response('', headers=headers)
+
+    return Response(my_form_page(feretui, request.session, {'form': form}))
+
+
 myferet.register_toolbar_left_menus([
-    ToolBarDropDownMenu(
-        'My left menu',
-        visible_callback=menu_for_authenticated_user,
-        children=[
-            ToolBarMenu(
-                'Hello', page="aside-menu", aside="aside1", aside_page='hello',
-                description="Go to the hello page",
-            ),
-            ToolBarMenu(
-                'Foo', page="aside-menu", aside="aside1", aside_page='foo',
-                icon="fa-solid fa-ghost",
-            ),
-        ],
+    ToolBarMenu(
+        'My form',
+        page='my_form',
+        visible_callback=menu_for_unauthenticated_user,
     ),
 ])
 
@@ -121,7 +130,7 @@ myferet.register_toolbar_left_menus([
 
 @app.route('/')
 def index():
-    with feretui_session(MySession) as session:
+    with feretui_session(Session) as session:
         frequest = Request(
             method=Request.GET,
             querystring=request.query_string.decode('utf-8'),
@@ -153,7 +162,7 @@ def call_action(action):
             request.query_string.decode('utf-8'),
         ))
 
-    with feretui_session(MySession) as session:
+    with feretui_session(Session) as session:
         frequest = Request(
             method=getattr(Request, request.method),
             querystring=request.query_string.decode('utf-8'),

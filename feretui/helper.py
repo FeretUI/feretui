@@ -25,6 +25,8 @@ project.
   if the user is authenticated.
 * :func:`.menu_for_unauthenticated_user`: Callback to return
   if the user is authenticated.
+* :func:`.menu_for_all_users`: No restriction
+  if the user is authenticated.
 """
 from collections.abc import Callable
 from functools import wraps
@@ -265,3 +267,16 @@ def menu_for_unauthenticated_user(session: Session) -> bool:
     :rtype: bool
     """
     return not session.user
+
+
+def menu_for_all_users(session: Session) -> bool:  # noqa: ARG001
+    """Return always True.
+
+    See the :class:`feretui.menus.Menu`
+
+    :param session: The user session
+    :type session: :class:`feretui.session.Session`
+    :return: True if the user is not authenticated
+    :rtype: bool
+    """
+    return True

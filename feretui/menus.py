@@ -94,6 +94,7 @@ from markupsafe import Markup
 
 from feretui.context import ContextProperties
 from feretui.exceptions import MenuError
+from feretui.helper import menu_for_authenticated_user
 from feretui.session import Session
 
 if TYPE_CHECKING:
@@ -130,7 +131,7 @@ class Menu(ContextProperties):
         label: str,
         icon: str = None,
         description: str = None,
-        visible_callback: Callable = None,
+        visible_callback: Callable = menu_for_authenticated_user,
         **querystring: dict[str, str],
     ) -> None:
         """Menu constructor.
@@ -175,10 +176,11 @@ class Menu(ContextProperties):
         :return: True
         :rtype: bool
         """
-        if self.visible_callback:
-            return self.visible_callback(session)
-
-        return True
+        return (
+            self.visible_callback(session)
+            if self.visible_callback
+            else True
+        )
 
     def get_label(self: "Menu", feretui: "FeretUI", session: Session) -> str:
         """Return the translated label.
@@ -385,6 +387,7 @@ class ToolBarDropDownMenu(ChildrenMenu, ToolBarMenu):
 
         Inherits of ToolbarMenu and ChildrenMenu
         """
+        kwargs.setdefault('visible_callback', None)
         ToolBarMenu.__init__(self, label, type='dropdown', **kwargs)
         ChildrenMenu.__init__(self, children)
         for child in children:
@@ -399,7 +402,7 @@ class ToolBarDividerMenu(ToolBarMenu):
 
     def __init__(
         self: "ToolBarDividerMenu",
-        visible_callback: Callable = None,
+        visible_callback: Callable = menu_for_authenticated_user,
     ) -> None:
         """Separate two menu in DropDown menu."""
         self.context = ''
@@ -568,7 +571,7 @@ class ToolBarButtonUrlMenu(UrlMenu, ToolBarButtonMenu):
         self: "ToolBarButtonUrlMenu",
         label: str,
         url: str,
-        visible_callback: Callable = None,
+        visible_callback: Callable = menu_for_authenticated_user,
         **kw: dict[str, str],
     ) -> None:
         """Call the menu constructor and update the context.
@@ -662,6 +665,7 @@ class AsideHeaderMenu(ChildrenMenu, AsideMenu):
 
         Inherits of ToolbarMenu and ChildrenMenu
         """
+        kwargs.setdefault('visible_callback', None)
         AsideMenu.__init__(self, label, type='header', **kwargs)
         ChildrenMenu.__init__(self, children)
 

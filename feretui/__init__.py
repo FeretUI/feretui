@@ -180,6 +180,8 @@ The helpers to register or get them are:
 * :meth:`feretui.feretui.FeretUI.register_toolbar_left_menus`.
 * :meth:`feretui.feretui.FeretUI.register_toolbar_right_menus`.
 * :meth:`feretui.feretui.FeretUI.register_aside_menus`.
+* :meth:`feretui.feretui.FeretUI.register_user_menus`
+* :meth:`feretui.feretui.FeretUI.register_auth_menus`
 * :meth:`feretui.feretui.FeretUI.get_aside_menus`.
 
 

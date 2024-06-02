@@ -37,7 +37,13 @@ from typing import TYPE_CHECKING, Any
 from markupsafe import Markup
 from password_validator import PasswordValidator
 from polib import POFile
-from wtforms.fields import BooleanField, Field, RadioField, SelectFieldBase
+from wtforms.fields import (
+    BooleanField,
+    Field,
+    FormField,
+    RadioField,
+    SelectFieldBase,
+)
 from wtforms.fields.core import UnboundField
 from wtforms.form import Form
 from wtforms.validators import InputRequired, ValidationError
@@ -333,6 +339,7 @@ class FeretUIForm(Form):
 
     WRAPPERS = {
         BooleanField: wrap_bool,
+        FormField: no_wrap,
         RadioField: wrap_radio,
         SelectFieldBase._Option: no_wrap,
     }

@@ -4,3 +4,4 @@ zope.sqlalchemy
 sqlalchemy
 aiosqlite
 pyramid_beaker
+colour
