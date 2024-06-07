@@ -18,7 +18,7 @@ from feretui import (
     ToolBarButtonMenu,
     ToolBarDropDownMenu,
     ToolBarMenu,
-    menu_for_authenticated_user,
+    menu_for_unauthenticated_user,
 )
 
 logging.basicConfig(level=logging.DEBUG)
@@ -54,8 +54,17 @@ class MySession(Session):
 
 
 myferet.register_auth_menus([
-    ToolBarButtonMenu('Sign Up', page='signup', css_class="is-info"),
-    ToolBarButtonMenu('Log In', page='login'),
+    ToolBarButtonMenu(
+        'Sign Up',
+        page='signup',
+        css_class="is-info",
+        visible_callback=menu_for_unauthenticated_user,
+    ),
+    ToolBarButtonMenu(
+        'Log In',
+        page='login',
+        visible_callback=menu_for_unauthenticated_user,
+    ),
 ])
 
 
@@ -96,7 +105,6 @@ myferet.register_aside_menus('aside1', [
 myferet.register_toolbar_left_menus([
     ToolBarDropDownMenu(
         'My left menu',
-        visible_callback=menu_for_authenticated_user,
         children=[
             ToolBarMenu(
                 'Hello', page="aside-menu", aside="aside1", aside_page='hello',

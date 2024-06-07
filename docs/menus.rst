@@ -64,8 +64,17 @@ To register one or more menu use: :meth:`feretui.feretui.FeretUI.register_auth_m
 ::
 
     myferet.register_auth_menus([
-        ToolBarButtonMenu('Sign Up', page='signup', css_class="is-info"),
-        ToolBarButtonMenu('Log In', page='login'),
+        ToolBarButtonMenu(
+            'Sign Up',
+            page='signup',
+            css_class="is-info",
+            visible_callback=menu_for_unauthenticated_user,
+        ),
+        ToolBarButtonMenu(
+            'Log In',
+            page='login',
+            visible_callback=menu_for_unauthenticated_user,
+        ),
     ])
 
 ~~~~~~~~~~~
