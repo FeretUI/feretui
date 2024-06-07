@@ -12,6 +12,9 @@ build/
 develop-eggs/
 dist/
 static/dist/
+examples/django/example_min/static/dist/
+examples/django/example_resource/static/dist/
+examples/django/example_form/static/dist/
 downloads/
 eggs/
 .eggs/
