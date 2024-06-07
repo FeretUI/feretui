@@ -42,6 +42,7 @@ FeretUI come without any web server. The web serving is not this job.
 .. include:: bottle.rst
 .. include:: flask.rst
 .. include:: pyramid.rst
+.. include:: django-routes.rst
 
 ---------------------------------------
 Defined the content of your application
@@ -70,6 +71,7 @@ FeretUI come without any ORM. It is not this job, It not required to have an ORM
 You can do without directly with SQL or just with full static page.
 
 .. include:: sqlalchemy.rst
+.. include:: django-orm.rst
 
 --------
 Examples

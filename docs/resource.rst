@@ -125,7 +125,7 @@ Some views can declare actions:
 * List : :class:`feretui.resources.list.LResource`
 * Read : :class:`feretui.resources.read.RResource`
 
-The actions is declared in the MetaView's class
+The actions is declared in the MetaView's class::
 
     class MyResource(RResource, Resource):
 

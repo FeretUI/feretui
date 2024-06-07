@@ -52,9 +52,11 @@ You can use your favorite web server.
 * tutorial with [bottle](https://feretui.readthedocs.io/en/latest/tutorials.html#serve-feretui-with-bottle)
 * tutorial with [flask](https://feretui.readthedocs.io/en/latest/tutorials.html#serve-feretui-with-flask)
 * tutorial with [pyramid](https://feretui.readthedocs.io/en/latest/tutorials.html#serve-feretui-with-pyramid)
+* tutorial with [django's views](https://feretui.readthedocs.io/en/latest/tutorials.html#serve-feretui-with-django)
 
 ## the ORM.
 
 You can use your favorite ORM.
 
 * tutorial with [SQLAlchemy](https://feretui.readthedocs.io/en/latest/tutorials.html#sqlalchemy)
+* tutorial with [django's ORM](https://feretui.readthedocs.io/en/latest/tutorials.html#django)
