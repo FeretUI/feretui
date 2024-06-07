@@ -43,6 +43,7 @@ FeretUI come without any web server. The web serving is not this job.
 .. include:: flask.rst
 .. include:: pyramid.rst
 .. include:: django-routes.rst
+.. include:: starlette.rst
 
 ---------------------------------------
 Defined the content of your application
