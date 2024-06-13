@@ -641,6 +641,24 @@ class AsideMenu(Menu):
         )
         self.aside = ''
 
+    def get_href(
+        self: "AsideMenu",
+        feretui: "FeretUI",
+        querystring: dict[str, str],
+    ) -> str:
+        """Return the url to put in href attribute of the a tag.
+
+        :param feretui: The feretui client instance.
+        :type feretui: :class:`feretui.feretui.FeretUI`
+        :param querystring: The querysting to pass at the api
+        :type querysting: dict[str, str]
+        :return: The url
+        :rtype: str
+        """
+        querystring = querystring.copy()
+        querystring['in-aside'] = [self.aside]
+        return super().get_href(feretui, querystring)
+
     def get_url(
         self: "AsideMenu",
         feretui: "FeretUI",
