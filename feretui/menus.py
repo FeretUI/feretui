@@ -223,7 +223,7 @@ class Menu(ContextProperties):
 
     def get_href(
         self: "Menu",
-        feretui: "FeretUI",
+        feretui: "FeretUI",  # noqa: ARG002
         querystring: dict[str, str],
     ) -> str:
         """Return the url to put in href attribute of the a tag.
@@ -237,7 +237,7 @@ class Menu(ContextProperties):
         """
         return self.request.get_url_from_dict(
             base_url='',
-            querystring=querystring
+            querystring=querystring,
         )
 
     def get_url(

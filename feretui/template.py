@@ -923,7 +923,7 @@ class Template:
             "hx-confirm",
             "data-tooltip",
             "aria-label",
-            "aria-description"
+            "aria-description",
         })):
             val = get_translated_message(tmpl.attrib[key])
             if val:
