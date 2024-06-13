@@ -221,6 +221,25 @@ class Menu(ContextProperties):
             self.description,
         )
 
+    def get_href(
+        self: "Menu",
+        feretui: "FeretUI",
+        querystring: dict[str, str],
+    ) -> str:
+        """Return the url to put in href attribute of the a tag.
+
+        :param feretui: The feretui client instance.
+        :type feretui: :class:`feretui.feretui.FeretUI`
+        :param querystring: The querysting to pass at the api
+        :type querysting: dict[str, str]
+        :return: The url
+        :rtype: str
+        """
+        return self.request.get_url_from_dict(
+            base_url='',
+            querystring=querystring
+        )
+
     def get_url(
         self: "Menu",
         feretui: "FeretUI",
@@ -256,6 +275,7 @@ class Menu(ContextProperties):
             label=self.get_label(feretui, session),
             description=self.get_description(feretui, session),
             icon=self.icon,
+            href=self.get_href(feretui, self.querystring),
             url=self.get_url(feretui, self.querystring),
         ))
 

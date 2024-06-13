@@ -2,6 +2,7 @@
   <template id="toolbar-menu">
     <a 
       class="navbar-item"
+      href="{{ href }}"
       hx-get="{{ url }}"
       hx-target="#feretui-body"
       hx-swap="innerHTML"
@@ -40,6 +41,7 @@
   <template id="toolbar-button-menu">
     <a 
       class="button {{ css_class }}"
+      href="{{ href }}"
       hx-get="{{ url }}"
       hx-target="#feretui-body"
       hx-swap="innerHTML"
@@ -70,6 +72,7 @@
   <template id="aside-menu">
     <a 
       class="menu-label"
+      href="{{ href }}"
       hx-get="{{ url }}"
       hx-target="#feretui-aside-body"
       hx-swap="innerHTML"
