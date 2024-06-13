@@ -57,31 +57,31 @@
     </div>
   </template>
   <template id="feretui-page-login">
-      <form
-        hx-post="{{ feretui.base_url }}/action/login_password"
-        hx-swap="outerHTML"
-        hx-trigger="submit"
-      >
-        <div class="container">
-          {% if error %}
-          <div class="notification is-danger">
-            {{ error }}
-          </div>
-          {% endif %}
-          <div class="has-text-centered">
-            {{ form.login(autocomplete="username") }}
-            {{ form.password(autocomplete="current-password") }}
-            <div class="buttons">
-              <button 
-                class="button is-primary is-fullwidth" 
-                type="submit" 
-              >
-                Log in
-              </button>
-            </div>
+    <form
+      hx-post="{{ feretui.base_url }}/action/login_password"
+      hx-swap="outerHTML"
+      hx-trigger="submit"
+    >
+      <div class="container">
+        {% if error %}
+        <div class="notification is-danger">
+          {{ error }}
+        </div>
+        {% endif %}
+        <div class="has-text-centered">
+          {{ form.login(autocomplete="username") }}
+          {{ form.password(autocomplete="current-password") }}
+          <div class="buttons">
+            <button 
+              class="button is-primary is-fullwidth" 
+              type="submit" 
+            >
+              Log in
+            </button>
           </div>
         </div>
-      </form>
+      </div>
+    </form>
   </template>
   <template id="feretui-page-signup">
     <form
