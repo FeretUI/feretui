@@ -6,6 +6,7 @@
       hx-get="{{ url }}"
       hx-target="#feretui-body"
       hx-swap="innerHTML"
+      aria-description="{{ description }}"
     >
       <include template="feretui-icon" />
       <strong>{{ label }}</strong>
@@ -14,7 +15,7 @@
   </template>
   <template id="toolbar-dropdown-menu">
     <div class="navbar-item has-dropdown is-hoverable">
-      <a class="navbar-link">
+      <a class="navbar-link" aria-description="{{ description }}">
         <include template="feretui-icon" />
         <strong>{{ label }}</strong>
         <include template="feretui-description" />
@@ -32,7 +33,7 @@
     <hr class="navbar-divider">
   </template>
   <template id="toolbar-url-menu">
-    <a class="navbar-item" href="{{ url }}">
+    <a class="navbar-item" href="{{ url }}" aria-description="{{ description }}">
       <include template="feretui-icon" />
       <strong>{{ label }}</strong>
       <include template="feretui-description" />
@@ -45,6 +46,7 @@
       hx-get="{{ url }}"
       hx-target="#feretui-body"
       hx-swap="innerHTML"
+      aria-description="{{ description }}"
     >
       <include template="feretui-icon" />
       <strong>{{ label }}</strong>
@@ -63,7 +65,7 @@
     </div>
   </template>
   <template id="toolbar-button-url-menu">
-    <a class="button {{ css_class }}" href="{{ url }}">
+    <a class="button {{ css_class }}" href="{{ url }}" aria-description="{{ description }}">
       <include template="feretui-icon" />
       <strong>{{ label }}</strong>
       <include template="feretui-description" />
@@ -76,6 +78,7 @@
       hx-get="{{ url }}"
       hx-target="#feretui-aside-body"
       hx-swap="innerHTML"
+      aria-description="{{ description }}"
     >
       <include template="feretui-icon" />
       <span>{{ label }}</span>
