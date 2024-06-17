@@ -115,19 +115,19 @@
       </div>
       <div class="column">
         {% if paginations %}
-        <nav class="pagination" role="pagination" arial-label="pagination">
+        <nav class="pagination" role="navigation" arial-label="pagination">
           <ul class="pagination-list">
             {% for pagination in paginations %}
             <li>
               {% if pagination == offset %}
-              <button class="pagination-link is-current">
+              <button class="button pagination-link is-current">
                 {{ pagination + 1 }}-{{ [pagination + limit, dataset.total]|min }}
                 <span class="is-sr-only">Selected</span>
               </button>
               {% endif %}
               {% if pagination != offset %}
               <button
-                class="pagination-link"
+                class="button pagination-link"
                 hx-get="{{ feretui.base_url}}/action/resource?action=pagination&offset={{ pagination }}"
               >
                 {{ pagination + 1 }}-{{ [pagination + limit, dataset.total]|min }}
@@ -137,14 +137,14 @@
             {% endfor %}
           </ul>
           {% if paginations[0] == offset %}
-          <button class="pagination-previous" disabled>
+          <button class="button pagination-previous" disabled>
             <i class="fa-solid fa-chevron-left"></i>
             <span class="is-sr-only">Previous</span>
           </button>
           {% endif %}
           {% if paginations[0] != offset %}
           <button
-            class="pagination-previous"
+            class="button pagination-previous"
             hx-get="{{ feretui.base_url}}/action/resource?action=pagination&offset={{offset - limit}}"
           >
             <i class="fa-solid fa-chevron-left"></i>
@@ -152,14 +152,14 @@
           </button>
           {% endif %}
           {% if paginations[-1] == offset %}
-          <button class="pagination-next" disabled>
+          <button class="button pagination-next" disabled>
             <i class="fa-solid fa-chevron-right"></i>
             <span class="is-sr-only">Next</span>
           </button>
           {% endif %}
           {% if paginations[-1] != offset %}
           <button
-            class="pagination-next"
+            class="button pagination-next"
             hx-get="{{ feretui.base_url}}/action/resource?action=pagination&offset={{offset + limit}}"
           >
             <i class="fa-solid fa-chevron-right"></i>
