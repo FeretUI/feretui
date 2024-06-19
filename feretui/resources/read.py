@@ -76,13 +76,13 @@ class ReadView(ActionsMixinForView, TemplateMixinForView, View):
         :type parent: HtmlElement_
         """
         root = SubElement(form, 'div')
-        root.set('class', 'columns')
+        root.set('class', 'columns is-desktop')
         div = SubElement(root, 'div')
         div.set('class', 'column')
         super().set_body_template(feretui, session, div)
         if len(self.actions):
             div = SubElement(root, 'div')
-            div.set('class', 'column is-2 is-hidden-print')
+            div.set('class', 'column is-narrow-desktop is-hidden-print')
             div.text = """
                 {% for action in actions %}
                 {{ action }}
