@@ -2,9 +2,11 @@
   <template id="toolbar-menu">
     <a 
       class="navbar-item"
+      href="{{ href }}"
       hx-get="{{ url }}"
       hx-target="#feretui-body"
       hx-swap="innerHTML"
+      aria-description="{{ description }}"
     >
       <include template="feretui-icon" />
       <strong>{{ label }}</strong>
@@ -12,7 +14,15 @@
     </a>
   </template>
   <template id="toolbar-dropdown-menu">
-    <div class="navbar-item has-dropdown is-hoverable">
+    <div 
+      class="navbar-item has-dropdown is-boxed"
+      aria-expanded="false"
+      aria-label="{{ label }}"
+      aria-description="{{ description }}"
+      tabindex="0"
+      role="navigation"
+      _="on click or keyup[key=='Enter'] toggle .is-active on me"
+    >
       <a class="navbar-link">
         <include template="feretui-icon" />
         <strong>{{ label }}</strong>
@@ -31,7 +41,7 @@
     <hr class="navbar-divider">
   </template>
   <template id="toolbar-url-menu">
-    <a class="navbar-item" href="{{ url }}">
+    <a class="navbar-item" href="{{ url }}" aria-description="{{ description }}">
       <include template="feretui-icon" />
       <strong>{{ label }}</strong>
       <include template="feretui-description" />
@@ -40,9 +50,11 @@
   <template id="toolbar-button-menu">
     <a 
       class="button {{ css_class }}"
+      href="{{ href }}"
       hx-get="{{ url }}"
       hx-target="#feretui-body"
       hx-swap="innerHTML"
+      aria-description="{{ description }}"
     >
       <include template="feretui-icon" />
       <strong>{{ label }}</strong>
@@ -61,7 +73,7 @@
     </div>
   </template>
   <template id="toolbar-button-url-menu">
-    <a class="button {{ css_class }}" href="{{ url }}">
+    <a class="button {{ css_class }}" href="{{ url }}" aria-description="{{ description }}">
       <include template="feretui-icon" />
       <strong>{{ label }}</strong>
       <include template="feretui-description" />
@@ -70,9 +82,11 @@
   <template id="aside-menu">
     <a 
       class="menu-label"
+      href="{{ href }}"
       hx-get="{{ url }}"
       hx-target="#feretui-aside-body"
       hx-swap="innerHTML"
+      aria-description="{{ description }}"
     >
       <include template="feretui-icon" />
       <span>{{ label }}</span>
@@ -80,7 +94,7 @@
     </a>
   </template>
   <template id="aside-header-menu">
-    <div>
+    <div aria-label="{{ label }}" aria-description="{{ description }}">
       <p class="menu-label">
         <include template="feretui-icon" />
         <span><strong>{{ label }}</strong></span>

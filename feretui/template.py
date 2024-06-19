@@ -918,9 +918,13 @@ class Template:
         if tail:
             tmpl.tail = action_callback(tail)
 
-        for key in (set(tmpl.attrib.keys()).intersection(
-            {"label", "hx-confirm", "data-tooltip"})
-        ):
+        for key in (set(tmpl.attrib.keys()).intersection({
+            "label",
+            "hx-confirm",
+            "data-tooltip",
+            "aria-label",
+            "aria-description",
+        })):
             val = get_translated_message(tmpl.attrib[key])
             if val:
                 tmpl.attrib[key] = action_callback(

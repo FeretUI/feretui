@@ -30,8 +30,11 @@
   <header class="is-hidden-print">
    <nav aria-label="main navigation" class="navbar is-fixed-top" role="navigation">
     <div class="navbar-brand">
-     <a class="navbar-item has-tooltip-right has-tooltip-arrow" data-tooltip="Go to the homepage" hx-get="/feretui/action/goto?page=homepage" hx-swap="innerHTML" hx-target="#body">
+     <a class="navbar-item has-tooltip-right has-tooltip-arrow" data-tooltip="Go to the homepage" href="?page=homepage" hx-get="/feretui/action/goto?page=homepage" hx-swap="innerHTML" hx-target="#body">
       <img alt src="/feretui/static/logo.png">
+      <span class="is-sr-only">
+       Go to the homepage
+      </span>
      </a>
      <a _="on click toggle .is-active on me then toggle .is-active on #feretui-app-header-burger" aria-expanded="false" aria-label="menu" class="navbar-burger" data-target="feretui-app-header-burger" id="feretui-app-header-burger-button" role="button">
       <span aria-hidden="true">
@@ -54,14 +57,14 @@
  <div class="buttons">
   
           
-            <a class="button None" hx-get="/feretui/action/goto?page=login" hx-swap="innerHTML" hx-target="#body">
- <span>
+            <a aria-description="" class="button None" href="" hx-get="/feretui/action/goto?page=login" hx-swap="innerHTML" hx-target="#body">
+ <span aria-hidden="true">
   
  </span>
  <strong>
   Log In
  </strong>
- <span>
+ <span aria-hidden="true">
   
  </span>
 </a>

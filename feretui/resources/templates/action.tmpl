@@ -1,24 +1,24 @@
 <templates>
    <template id="feretui-page-resource-action">
-    <a
-      class="button panel-block"
+    <button
+      class="button panel-block is-fullwidth"
       hx-post="{{ url }}"
     >
       <include template="feretui-icon" />
       <span>{{ label }}</span>
       <include template="feretui-description"/>
-    </a>
+    </button>
   </template>
   <template id="feretui-page-resource-action-for-selected-rows">
-    <a
-      class="button panel-block selected-buttons-resource-{{ rcode }}-view-{{ vcode }}"
+    <button
+      class="button panel-block selected-buttons-resource-{{ rcode }}-view-{{ vcode }} is-fullwidth"
       hx-post="{{ url }}"
       disabled
     >
       <include template="feretui-icon" />
       <span>{{ label }}</span>
       <include template="feretui-description"/>
-    </a>
+    </button>
   </template>
   <template id="feretui-page-resource-action-set">
     <div class="panel mb-4">

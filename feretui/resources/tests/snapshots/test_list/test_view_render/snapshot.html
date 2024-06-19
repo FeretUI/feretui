@@ -40,33 +40,42 @@
      </div>
      <div class="column">
       
-      <nav arial-label="pagination" class="pagination" role="pagination">
-       
-       <a class="pagination-previous" disabled="disabled">
-        <i class="fa-solid fa-chevron-left">
-        </i>
-       </a>
-       
-          
-          
-       <a class="pagination-next" disabled="disabled">
-        <i class="fa-solid fa-chevron-right">
-        </i>
-       </a>
-       
-          
+      <nav arial-label="pagination" class="pagination" role="navigation">
        <ul class="pagination-list">
         
         <li>
          
-         <a class="pagination-link is-current">
+         <button class="button pagination-link is-current">
           1-10
-         </a>
+          <span class="is-sr-only">
+           Selected
+          </span>
+         </button>
          
               
         </li>
         
        </ul>
+       
+       <button class="button pagination-previous" disabled="disabled">
+        <i class="fa-solid fa-chevron-left">
+        </i>
+        <span class="is-sr-only">
+         Previous
+        </span>
+       </button>
+       
+          
+          
+       <button class="button pagination-next" disabled="disabled">
+        <i class="fa-solid fa-chevron-right">
+        </i>
+        <span class="is-sr-only">
+         Next
+        </span>
+       </button>
+       
+          
       </nav>
       
      </div>
@@ -464,33 +473,42 @@
      </div>
      <div class="column">
       
-      <nav arial-label="pagination" class="pagination" role="pagination">
-       
-       <a class="pagination-previous" disabled="disabled">
-        <i class="fa-solid fa-chevron-left">
-        </i>
-       </a>
-       
-          
-          
-       <a class="pagination-next" disabled="disabled">
-        <i class="fa-solid fa-chevron-right">
-        </i>
-       </a>
-       
-          
+      <nav arial-label="pagination" class="pagination" role="navigation">
        <ul class="pagination-list">
         
         <li>
          
-         <a class="pagination-link is-current">
+         <button class="button pagination-link is-current">
           1-10
-         </a>
+          <span class="is-sr-only">
+           Selected
+          </span>
+         </button>
          
               
         </li>
         
        </ul>
+       
+       <button class="button pagination-previous" disabled="disabled">
+        <i class="fa-solid fa-chevron-left">
+        </i>
+        <span class="is-sr-only">
+         Previous
+        </span>
+       </button>
+       
+          
+          
+       <button class="button pagination-next" disabled="disabled">
+        <i class="fa-solid fa-chevron-right">
+        </i>
+        <span class="is-sr-only">
+         Next
+        </span>
+       </button>
+       
+          
       </nav>
       
      </div>
@@ -513,7 +531,7 @@
  <label class="label" for="pk">
   Pk
       
-  <span>
+  <span aria-hidden="true">
    
   </span>
  </label>
@@ -533,7 +551,7 @@
  <label class="label" for="foo">
   Foo
       
-  <span>
+  <span aria-hidden="true">
    
   </span>
  </label>
@@ -553,7 +571,7 @@
  <label class="label" for="test">
   Test
       
-  <span>
+  <span aria-hidden="true">
    
   </span>
  </label>
@@ -573,7 +591,7 @@
  <label class="label" for="bar">
   Bar
       
-  <span>
+  <span aria-hidden="true">
    
   </span>
  </label>
@@ -590,40 +608,40 @@
               
               <div class="panel mb-4">
  <div class="panel-heading">
-  <span>
+  <span aria-hidden="true">
    
   </span>
   <span>
    Print
   </span>
-  <span>
+  <span aria-hidden="true">
    
   </span>
  </div>
  
-      <a class="button panel-block" hx-post="/feretui/action/resource?action=call&amp;method=print_1">
- <span>
+      <button class="button panel-block is-fullwidth" hx-post="/feretui/action/resource?action=call&amp;method=print_1">
+ <span aria-hidden="true">
   
  </span>
  <span>
   Print 1
  </span>
- <span>
+ <span aria-hidden="true">
   
  </span>
-</a>
+</button>
       
-      <a class="button panel-block selected-buttons-resource-foo-view-list" disabled="disabled" hx-post="/feretui/action/resource?action=call&amp;method=print_10">
- <span>
+      <button class="button panel-block selected-buttons-resource-foo-view-list is-fullwidth" disabled="disabled" hx-post="/feretui/action/resource?action=call&amp;method=print_10">
+ <span aria-hidden="true">
   
  </span>
  <span>
   Print 10
  </span>
- <span>
+ <span aria-hidden="true">
   
  </span>
-</a>
+</button>
       
 </div>
               
