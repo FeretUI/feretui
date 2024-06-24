@@ -70,8 +70,8 @@ class ActionI18nMixin(ContextProperties):
         if self.description:
             po.append(
                 translation.define(
-                    f"{self.context}:description", self.description
-                )
+                    f"{self.context}:description", self.description,
+                ),
             )
 
 
@@ -163,7 +163,7 @@ class Action(ActionI18nMixin):
                 icon=self.icon,
                 rcode=resource_code,
                 vcode=view_code,
-            )
+            ),
         )
 
     def is_visible(
@@ -238,7 +238,7 @@ class GotoViewAction(Action):
             {
                 "action": "goto",
                 "view": self.method,
-            }
+            },
         )
         return (
             f"{feretui.base_url}/action/resource?"
@@ -343,7 +343,7 @@ class Actionset(ActionI18nMixin):
                     if action.is_visible(session)
                 ],
                 description=self.description,
-            )
+            ),
         )
 
     def is_visible(

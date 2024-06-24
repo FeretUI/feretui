@@ -265,13 +265,13 @@ class TranslatedMenu:
         :type po: PoFile_
         """
         po.append(
-            translation.define(f"{self.menu.context}:label", self.menu.label)
+            translation.define(f"{self.menu.context}:label", self.menu.label),
         )
         if self.menu.description:
             po.append(
                 translation.define(
-                    f"{self.menu.context}:description", self.menu.description
-                )
+                    f"{self.menu.context}:description", self.menu.description,
+                ),
             )
 
 
@@ -371,7 +371,7 @@ class TranslatedResource:
         """TranslatedForm class."""
         if not isinstance(resource, Resource):
             raise TranslationResourceError(
-                f"{resource} must be an instance of Resource"
+                f"{resource} must be an instance of Resource",
             )
 
         self.resource: Resource = resource
@@ -561,10 +561,10 @@ class Translation:
         resources = self.resources
 
         self.add_translated_form(
-            TranslatedForm(Session.LoginForm, addons="feretui")
+            TranslatedForm(Session.LoginForm, addons="feretui"),
         )
         self.add_translated_form(
-            TranslatedForm(Session.SignUpForm, addons="feretui")
+            TranslatedForm(Session.SignUpForm, addons="feretui"),
         )
 
         if addons is not None:
@@ -578,7 +578,7 @@ class Translation:
                 self.define(
                     FeretUIForm.get_context(),
                     form_translated_message,
-                )
+                ),
             )
 
         tmpls = Template(Translation(self.feretui))

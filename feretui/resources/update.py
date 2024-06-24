@@ -104,7 +104,7 @@ class EditView(TemplateMixinForView, View):
                 feretui.render_template(
                     session,
                     "view-do-save-button",
-                )
+                ),
             ),
         )
         if self.cancel_button_redirect_to:
@@ -118,7 +118,7 @@ class EditView(TemplateMixinForView, View):
                             options,
                             view=self.cancel_button_redirect_to,
                         ),
-                    )
+                    ),
                 ),
             )
         return res
@@ -148,10 +148,10 @@ class EditView(TemplateMixinForView, View):
         res.update(
             {
                 "form": options.pop(
-                    "form", self.resource.read(self.form_cls, pk)
+                    "form", self.resource.read(self.form_cls, pk),
                 ),
                 "error": options.get("error"),
-            }
+            },
         )
         return res
 
@@ -189,7 +189,7 @@ class EditView(TemplateMixinForView, View):
                         {
                             "view": self.after_update_redirect_to,
                             "pk": pk,
-                        }
+                        },
                     )
                     url = request.get_url_from_dict(
                         base_url=base_url,

@@ -305,7 +305,7 @@ class MultiView(ActionsMixinForView):
                             options,
                             view=self.create_button_redirect_to,
                         ),
-                    )
+                    ),
                 ),
             )
         if self.delete_button_redirect_to:
@@ -316,7 +316,7 @@ class MultiView(ActionsMixinForView):
                         "view-goto-selected-delete-button",
                         rcode=self.resource.code,
                         vcode=self.code,
-                    )
+                    ),
                 ),
             )
 
@@ -346,7 +346,7 @@ class MultiView(ActionsMixinForView):
                     "view-filter",
                     form=self.filter_cls(),
                     hx_post=f"{feretui.base_url}/action/resource?action=filters",
-                )
+                ),
             ),
         ]
         res.extend(super().get_actions(feretui, session, options))
@@ -514,11 +514,11 @@ class MultiView(ActionsMixinForView):
             {
                 "view": self.delete_button_redirect_to,
                 "pk": view_kwargs["pks"],
-            }
+            },
         )
         return Response(
             self.resource.views[self.delete_button_redirect_to].render(
-                feretui, request.session, newqs
+                feretui, request.session, newqs,
             ),
             headers={
                 "HX-Push-Url": request.get_url_from_dict(base_url, newqs),
@@ -557,7 +557,7 @@ class TemplateMixinForView:
                 translation.feretui,
                 Session(),
                 template_id,
-            )
+            ),
         )
         tmpls.export_catalog(po)
 

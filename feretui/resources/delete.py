@@ -101,15 +101,15 @@ class DeleteView(TemplateMixinForView, LabelMixinForView, View):
                     feretui.render_template(
                         session,
                         "view-do-delete-button",
-                    )
+                    ),
                 ),
                 Markup(
                     feretui.render_template(
                         session,
                         "view-goto-cancel-button",
-                    )
+                    ),
                 ),
-            ]
+            ],
         )
         return res
 
@@ -145,7 +145,7 @@ class DeleteView(TemplateMixinForView, LabelMixinForView, View):
                 "label": self.get_label(feretui, session),
                 "entries": self.get_label_from_pks(pks),
                 "error": options.get("error"),
-            }
+            },
         )
         return res
 
@@ -174,7 +174,7 @@ class DeleteView(TemplateMixinForView, LabelMixinForView, View):
                     options.update(
                         {
                             "view": self.after_delete_redirect_to,
-                        }
+                        },
                     )
                     del options["pk"]
                     url = request.get_url_from_dict(

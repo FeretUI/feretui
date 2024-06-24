@@ -68,7 +68,7 @@ def goto(
                 "page": ["aside-menu"],
                 "aside": options["in-aside"],
                 "aside_page": [page],
-            }
+            },
         )
     url = request.get_url_from_dict(base_url=base_url, querystring=options)
     return Response(
@@ -106,7 +106,7 @@ def login_password(
                     feretui,
                     request.session,
                     {"form": form, "error": str(e)},
-                )
+                ),
             )
         qs = request.get_query_string_from_current_url()
         if qs.get("page") == ["login"]:
@@ -151,7 +151,7 @@ def login_signup(
                     feretui,
                     request.session,
                     {"form": form, "error": str(e)},
-                )
+                ),
             )
         if redirect:
             qs = request.get_query_string_from_current_url()

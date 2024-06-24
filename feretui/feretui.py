@@ -382,7 +382,7 @@ class FeretUI:
                     page="login",
                     visible_callback=menu_for_unauthenticated_user,
                 ),
-            ]
+            ],
         )
 
         # Actions
@@ -449,7 +449,7 @@ class FeretUI:
                         self,
                         request.session,
                         request.query,
-                    )
+                    ),
                 ),
             )
             # lxml remove the tags html, head and body. So in template
@@ -1100,7 +1100,12 @@ class FeretUI:
         """
         return self.asides.setdefault(code, [])
 
-    def get_site_map_menus(self):
+    def get_site_map_menus(self: "FeretUI") -> None:
+        """Return the sitemap menus.
+
+        :return: The menus to render
+        :rtype: :class:`feretui.menus.SitemapMenu`
+        """
         return {
             "toolbar": [
                 SitemapMenu(self, menu)

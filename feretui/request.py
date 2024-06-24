@@ -129,7 +129,7 @@ class Request:
 
         if not isinstance(session, Session):
             raise RequestWrongSessionError(
-                "the session must be an instance of FeretUI Session"
+                "the session must be an instance of FeretUI Session",
             )
 
     def get_url_from_dict(

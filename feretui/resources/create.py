@@ -102,15 +102,15 @@ class CreateView(TemplateMixinForView, LabelMixinForView, View):
                     feretui.render_template(
                         session,
                         "view-do-save-button",
-                    )
+                    ),
                 ),
                 Markup(
                     feretui.render_template(
                         session,
                         "view-goto-cancel-button",
-                    )
+                    ),
                 ),
-            ]
+            ],
         )
         return res
 
@@ -137,7 +137,7 @@ class CreateView(TemplateMixinForView, LabelMixinForView, View):
                 "label": self.get_label(feretui, session),
                 "form": options.get("form", self.form_cls()),
                 "error": options.get("error"),
-            }
+            },
         )
         return res
 
@@ -167,7 +167,7 @@ class CreateView(TemplateMixinForView, LabelMixinForView, View):
                         {
                             "view": self.after_create_redirect_to,
                             "pk": pk,
-                        }
+                        },
                     )
                     url = request.get_url_from_dict(
                         base_url=base_url,

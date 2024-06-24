@@ -44,7 +44,7 @@ class Resource:
     menu: Menu = ToolBarMenu("", page="resource")
     menu_visibility: Callable = staticmethod(menu_for_authenticated_user)
     page_visibility: Callable = staticmethod(
-        page_for_authenticated_user_or_goto(login)
+        page_for_authenticated_user_or_goto(login),
     )
     action_security: Callable = staticmethod(action_for_authenticated_user)
     default_view: str = None
@@ -98,7 +98,7 @@ class Resource:
         resource = cls()
         for attr in dir(cls):
             if attr.startswith("MetaView") and inspect.isclass(
-                getattr(cls, attr)
+                getattr(cls, attr),
             ):
                 view = resource.build_view(attr)
                 if view:
@@ -226,7 +226,7 @@ class Resource:
 
         if not hasattr(view, action):
             raise ResourceError(
-                f"{self.code} - {viewcode} has no method {action}"
+                f"{self.code} - {viewcode} has no method {action}",
             )
 
         func = getattr(view, action)

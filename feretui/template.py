@@ -338,7 +338,7 @@ class Template:
             tmpl_str = self.tostring(tmpl, encoding)
             compiled_str_lang = self.compiled_str.setdefault(lang, {})
             compiled_str_lang_encoding = compiled_str_lang.setdefault(
-                encoding, {}
+                encoding, {},
             )
             compiled_str_lang_encoding[name] = tmpl_str
             return tmpl_str
@@ -398,7 +398,7 @@ class Template:
 
         if element.tag.lower() == "template":
             self.load_template(
-                element, ignore_missing_extend=ignore_missing_extend
+                element, ignore_missing_extend=ignore_missing_extend,
             )
         elif element.tag.lower() == "templates":
             for _element in element.getchildren():
@@ -407,7 +407,7 @@ class Template:
 
                 if _element.tag.lower() == "template":
                     self.load_template(
-                        _element, ignore_missing_extend=ignore_missing_extend
+                        _element, ignore_missing_extend=ignore_missing_extend,
                     )
                 else:
                     raise TemplateError(
@@ -766,7 +766,7 @@ class Template:
         for el in elements:
             if el.tag != "attribute":
                 raise TemplateError(
-                    f"get {el.tag!r} node, waiting 'attribute' node"
+                    f"get {el.tag!r} node, waiting 'attribute' node",
                 )
 
             res.append(dict(el.items()))
@@ -791,7 +791,7 @@ class Template:
         for el in elements:
             for el_include in el.findall(".//include"):
                 tmpl = self.compile_template(
-                    lang, el_include.attrib["template"]
+                    lang, el_include.attrib["template"],
                 )
                 for index, child in enumerate(tmpl.getchildren()):
                     el_include.insert(index, deepcopy(child))
@@ -932,12 +932,12 @@ class Template:
                 "data-tooltip",
                 "aria-label",
                 "aria-description",
-            }
+            },
         ):
             val = get_translated_message(tmpl.attrib[key])
             if val:
                 tmpl.attrib[key] = action_callback(
-                    val, suffix=f"{tmpl.tag}:{key}"
+                    val, suffix=f"{tmpl.tag}:{key}",
                 )
 
         for child in tmpl.getchildren():

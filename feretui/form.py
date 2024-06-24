@@ -109,7 +109,7 @@ def wrap_input(
             readonly=readonly,
             description=field.description,
             errors=field.errors,
-        )
+        ),
     )
 
 
@@ -145,7 +145,7 @@ def wrap_bool(
             readonly=readonly,
             description=field.description,
             errors=field.errors,
-        )
+        ),
     )
 
 
@@ -194,7 +194,7 @@ def wrap_radio(
             options=kwargs,
             description=field.description,
             errors=field.errors,
-        )
+        ),
     )
 
 
@@ -259,7 +259,7 @@ def get_field_translations(
         args = tuple(args)
     elif unbound_field.kwargs.get("label"):
         kwargs["label"] = callback(
-            form_cls, kwargs["label"], context_suffix + "label"
+            form_cls, kwargs["label"], context_suffix + "label",
         )
     else:
         label = options["name"].replace("_", " ").title()
@@ -503,7 +503,7 @@ class FeretUIForm(Form):
                 render_kw = dict(other_kw, **render_kw)
 
             wrapper = FeretUIForm.WRAPPERS.get(
-                field.__class__, FeretUIForm.DEFAULT_WRAPPER
+                field.__class__, FeretUIForm.DEFAULT_WRAPPER,
             )
             return wrapper(
                 self.feretui,
@@ -527,13 +527,13 @@ class FeretUIForm(Form):
 
 
 PasswordInvalid = FeretUIForm.register_translation(
-    "The password should have {msg}."
+    "The password should have {msg}.",
 )
 PasswordMinSize = FeretUIForm.register_translation(
-    "more than {min_size} caractere"
+    "more than {min_size} caractere",
 )
 PasswordMaxSize = FeretUIForm.register_translation(
-    "less than {max_size} caractere"
+    "less than {max_size} caractere",
 )
 PasswordWithLowerCase = FeretUIForm.register_translation("with lowercase")
 PasswordWithoutLowerCase = FeretUIForm.register_translation("without lowercase")
@@ -624,7 +624,7 @@ class Password(InputRequired):
                 (
                     PasswordMinSize,
                     {"min_size": min_size},
-                )
+                ),
             )
 
         if max_size:
@@ -633,7 +633,7 @@ class Password(InputRequired):
                 (
                     PasswordMaxSize,
                     {"max_size": max_size},
-                )
+                ),
             )
 
         for has, attr, true_msg, false_msg in (

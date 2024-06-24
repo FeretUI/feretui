@@ -10,7 +10,7 @@
 Define the menu class to display its and define the actions call when the
 menus are clicked.
 
-The menus are splited in two groups.
+The menus are splited in Three groups.
 
 * Toolbar menu
 
@@ -27,6 +27,10 @@ The menus are splited in two groups.
   * :class:`.AsideMenu`
   * :class:`.AsideHeaderMenu`
   * :class:`.AsideUrlMenu`
+
+* Sitemap: Only for the sitemap page
+
+  * :class:`.SitemapMenu`
 
 ::
 
@@ -275,7 +279,7 @@ class Menu(ContextProperties):
                 icon=self.icon,
                 href=self.get_href(feretui, self.querystring),
                 url=self.get_url(feretui, self.querystring),
-            )
+            ),
         )
 
 
@@ -317,7 +321,7 @@ class ChildrenMenu:
                 description=self.get_description(feretui, session),
                 icon=self.icon,
                 children=self.children,
-            )
+            ),
         )
 
     def is_visible(self: "Menu", session: Session) -> bool:  # noqa: ARG002
@@ -535,7 +539,7 @@ class ToolBarButtonMenu(Menu):
                 icon=self.icon,
                 url=self.get_url(feretui, self.querystring),
                 css_class=self.css_class,
-            )
+            ),
         )
 
 
@@ -744,7 +748,16 @@ class AsideUrlMenu(UrlMenu, AsideMenu):
 
 
 class SitemapMenu:
-    def __init__(self, feretui, menu) -> None:
+    """Menu class for sitemap page."""
+
+    def __init__(self: "SitemapMenu", feretui: "FeretUI", menu: Menu) -> None:
+        """Instanciate the Sitemap Menu.
+
+        :param feretui: The instance of client
+        :type feretui: `feretui.feretui.FeretUI`
+        :param menu: An instance of menu to wrap
+        :type menu: `feretui.menus.Menu`
+        """
         self.menu = menu
         self.children = [
             SitemapMenu(feretui, child)
@@ -756,13 +769,19 @@ class SitemapMenu:
                 [
                     SitemapMenu(feretui, child)
                     for child in feretui.get_aside_menus(aside)
-                ]
+                ],
             )
 
-    def is_visible(self, session):
+    def is_visible(self: "SitemapMenu", session: Session) -> bool:
+        """Check if the wrapped menu is visible."""
         return self.menu.is_visible(session)
 
-    def render(self, feretui, session):
+    def render(
+        self: "SitemapMenu",
+        feretui: "FeretUI",
+        session: Session,
+    ) -> Markup:
+        """Return the menu."""
         key = "sitemap-header-menu" if len(self.children) else "sitemap-menu"
         menu = self.menu
         return Markup(
@@ -775,5 +794,5 @@ class SitemapMenu:
                 href=menu.get_href(feretui, menu.querystring),
                 url=menu.get_url(feretui, menu.querystring),
                 children=self.children,
-            )
+            ),
         )

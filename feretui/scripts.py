@@ -50,7 +50,7 @@ def export_catalog() -> None:
     )
     parser.add_argument("--version", help="The version of the catalog.")
     parser.add_argument(
-        "--addons", default="feretui", help="The addons to export"
+        "--addons", default="feretui", help="The addons to export",
     )
 
     args = parser.parse_args(sys.argv[1:])

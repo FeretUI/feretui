@@ -119,7 +119,7 @@ class ReadView(ActionsMixinForView, TemplateMixinForView, View):
             {
                 "actions": self.get_actions(feretui, session, options),
                 "form": self.resource.read(self.form_cls, pk),
-            }
+            },
         )
         return res
 
@@ -153,7 +153,7 @@ class ReadView(ActionsMixinForView, TemplateMixinForView, View):
                             pk=None,
                             view=self.create_button_redirect_to,
                         ),
-                    )
+                    ),
                 ),
             )
         if self.edit_button_redirect_to:
@@ -167,7 +167,7 @@ class ReadView(ActionsMixinForView, TemplateMixinForView, View):
                             options,
                             view=self.edit_button_redirect_to,
                         ),
-                    )
+                    ),
                 ),
             )
         if self.delete_button_redirect_to:
@@ -181,7 +181,7 @@ class ReadView(ActionsMixinForView, TemplateMixinForView, View):
                             options,
                             view=self.delete_button_redirect_to,
                         ),
-                    )
+                    ),
                 ),
             )
         if self.return_button_redirect_to:
@@ -196,7 +196,7 @@ class ReadView(ActionsMixinForView, TemplateMixinForView, View):
                             pk=None,
                             view=self.return_button_redirect_to,
                         ),
-                    )
+                    ),
                 ),
             )
 
