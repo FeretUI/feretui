@@ -31,6 +31,7 @@ Added the also the validators
 
 * :class:`.Password`
 """
+
 from collections.abc import Callable
 from typing import TYPE_CHECKING, Any
 
@@ -79,8 +80,8 @@ def wrap_input(
     required = False
     readonly = False
 
-    if kwargs.get('readonly', False):
-        input_class.append('is-static')
+    if kwargs.get("readonly", False):
+        input_class.append("is-static")
         read_only(field)
         readonly = True
 
@@ -90,24 +91,26 @@ def wrap_input(
 
         for validator in field.validators:
             if isinstance(validator, InputRequired):
-                if (not field.errors):
+                if not field.errors:
                     input_class.append("is-link")
 
                 required = True
 
-    c = kwargs.pop('class', '') or kwargs.pop('class_', '')
-    kwargs['class'] = '{} {}'.format(' '.join(input_class), c)
+    c = kwargs.pop("class", "") or kwargs.pop("class_", "")
+    kwargs["class"] = "{} {}".format(" ".join(input_class), c)
 
-    return Markup(feretui.render_template(
-        session,
-        "feretui-input-field",
-        label=None if kwargs.pop('nolabel', False) else field.label,
-        widget=field.widget(field, **kwargs),
-        required=required,
-        readonly=readonly,
-        description=field.description,
-        errors=field.errors,
-    ))
+    return Markup(
+        feretui.render_template(
+            session,
+            "feretui-input-field",
+            label=None if kwargs.pop("nolabel", False) else field.label,
+            widget=field.widget(field, **kwargs),
+            required=required,
+            readonly=readonly,
+            description=field.description,
+            errors=field.errors,
+        )
+    )
 
 
 def wrap_bool(
@@ -129,19 +132,21 @@ def wrap_bool(
     """
     readonly = False
 
-    if kwargs.pop('readonly', False):
+    if kwargs.pop("readonly", False):
         read_only(field)
         readonly = True
 
-    return Markup(feretui.render_template(
-        session,
-        "feretui-bool-field",
-        label=None if kwargs.pop('nolabel', False) else field.label,
-        widget=field.widget(field, **kwargs),
-        readonly=readonly,
-        description=field.description,
-        errors=field.errors,
-    ))
+    return Markup(
+        feretui.render_template(
+            session,
+            "feretui-bool-field",
+            label=None if kwargs.pop("nolabel", False) else field.label,
+            widget=field.widget(field, **kwargs),
+            readonly=readonly,
+            description=field.description,
+            errors=field.errors,
+        )
+    )
 
 
 def wrap_radio(
@@ -161,7 +166,7 @@ def wrap_radio(
     :return: The renderer of the widget as html.
     :rtype: Markup_
     """
-    vertical = kwargs.pop('vertical', True)
+    vertical = kwargs.pop("vertical", True)
     if vertical:
         template_id = "feretui-radio-field-vertical"
     else:
@@ -173,22 +178,24 @@ def wrap_radio(
         if isinstance(validator, InputRequired):
             required = True
 
-    if kwargs.get('readonly'):
+    if kwargs.get("readonly"):
         read_only(field)
-        kwargs['disabled'] = True
+        kwargs["disabled"] = True
         readonly = True
 
-    return Markup(feretui.render_template(
-        session,
-        template_id,
-        label=None if kwargs.pop('nolabel', False) else field.label,
-        field=field,
-        required=required,
-        readonly=readonly,
-        options=kwargs,
-        description=field.description,
-        errors=field.errors,
-    ))
+    return Markup(
+        feretui.render_template(
+            session,
+            template_id,
+            label=None if kwargs.pop("nolabel", False) else field.label,
+            field=field,
+            required=required,
+            readonly=readonly,
+            options=kwargs,
+            description=field.description,
+            errors=field.errors,
+        )
+    )
 
 
 def no_wrap(
@@ -214,13 +221,13 @@ def no_wrap(
 def gettext(
     form: Form,
     string: str,
-    context_suffix: str = '',
+    context_suffix: str = "",
 ) -> str:
     """Translate the string."""
     translation = cvar_feretui.get().translation
     lang = cvar_request.get().session.lang
     for form_cls in form.__mro__:
-        if hasattr(form_cls, 'get_context'):
+        if hasattr(form_cls, "get_context"):
             context = form_cls.get_context() + context_suffix
             res = translation.get(
                 lang,
@@ -248,25 +255,25 @@ def get_field_translations(
 
     if args:
         args = list(args)
-        args[0] = callback(form_cls, args[0], context_suffix + 'label')
+        args[0] = callback(form_cls, args[0], context_suffix + "label")
         args = tuple(args)
-    elif unbound_field.kwargs.get('label'):
-        kwargs['label'] = callback(
-            form_cls, kwargs['label'], context_suffix + 'label')
+    elif unbound_field.kwargs.get("label"):
+        kwargs["label"] = callback(
+            form_cls, kwargs["label"], context_suffix + "label"
+        )
     else:
-        label = options['name'].replace('_', ' ').title()
-        kwargs['label'] = callback(
-            form_cls, label, context_suffix + 'label')
+        label = options["name"].replace("_", " ").title()
+        kwargs["label"] = callback(form_cls, label, context_suffix + "label")
 
-    if kwargs.get('description'):
-        kwargs['description'] = callback(
+    if kwargs.get("description"):
+        kwargs["description"] = callback(
             form_cls,
-            kwargs.get('description', ''),
-            context_suffix + 'description',
+            kwargs.get("description", ""),
+            context_suffix + "description",
         )
 
-    if 'choices' in kwargs:
-        choices = kwargs.pop('choices')
+    if "choices" in kwargs:
+        choices = kwargs.pop("choices")
         if callable(choices):
             choices = choices()
 
@@ -281,16 +288,16 @@ def get_field_translations(
             choice[1] = callback(
                 form_cls,
                 choice[1],
-                context_suffix + f'choice:{choice[0]}:label',
+                context_suffix + f"choice:{choice[0]}:label",
             )
-            if len(choice) == 3 and choice[2].get('description'):
-                choice[2]['description'] = callback(
+            if len(choice) == 3 and choice[2].get("description"):
+                choice[2]["description"] = callback(
                     form_cls,
-                    choice[2]['description'],
-                    context_suffix + f'choice:{choice[0]}:description',
+                    choice[2]["description"],
+                    context_suffix + f"choice:{choice[0]}:description",
                 )
 
-        kwargs['choices'] = new_choices
+        kwargs["choices"] = new_choices
 
     return args, kwargs
 
@@ -387,23 +394,23 @@ class FeretUIForm(Form):
         "This field cannot be edited",
         "This field is disabled and cannot have a value",
         # From WTForms Components
-        'Not a valid time.',
-        'Not a valid decimal range value',
-        'Not a valid float range value',
-        'Not a valid int range value',
-        'Not a valid date range value',
-        'Not a valid datetime range value',
-        'Not a valid choice',
-        'Not a valid color.',
-        'Invalid choice(s): one or more data inputs could not be coerced',
+        "Not a valid time.",
+        "Not a valid decimal range value",
+        "Not a valid float range value",
+        "Not a valid int range value",
+        "Not a valid date range value",
+        "Not a valid datetime range value",
+        "Not a valid choice",
+        "Not a valid color.",
+        "Invalid choice(s): one or more data inputs could not be coerced",
         "'%(value)s' is not a valid choice for this field",
-        'Date must be greater than %(min)s.',
-        'Date must be less than %(max)s.',
-        'Date must be between %(min)s and %(max)s.',
-        'Time must be greater than %(min)s.',
-        'Time must be less than %(max)s.',
-        'Time must be between %(min)s and %(max)s.',
-        'This field contains invalid JSON',
+        "Date must be greater than %(min)s.",
+        "Date must be less than %(max)s.",
+        "Date must be between %(min)s and %(max)s.",
+        "Time must be greater than %(min)s.",
+        "Time must be less than %(max)s.",
+        "Time must be between %(min)s and %(max)s.",
+        "This field contains invalid JSON",
     ]
 
     @classmethod
@@ -422,7 +429,7 @@ class FeretUIForm(Form):
     @classmethod
     def get_context(cls: "FeretUIForm") -> str:
         """Return the context for the translation."""
-        return f'form:{cls.__module__}:{cls.__name__}'
+        return f"form:{cls.__module__}:{cls.__name__}"
 
     @classmethod
     def export_catalog(
@@ -448,7 +455,7 @@ class FeretUIForm(Form):
             if not isinstance(field_cls, UnboundField):
                 continue
 
-            get_field_translations(cls, field_cls, {'name': attr}, callback)
+            get_field_translations(cls, field_cls, {"name": attr}, callback)
 
     class Meta(ContextProperties):
         """Meta class.
@@ -475,7 +482,9 @@ class FeretUIForm(Form):
                 gettext,
             )
             return UnboundField(
-                unbound_field.field_class, *args, **kwargs,
+                unbound_field.field_class,
+                *args,
+                **kwargs,
             ).bind(form=form, **options)
 
         def render_field(self: Any, field: Field, render_kw: dict) -> Markup:
@@ -494,7 +503,8 @@ class FeretUIForm(Form):
                 render_kw = dict(other_kw, **render_kw)
 
             wrapper = FeretUIForm.WRAPPERS.get(
-                field.__class__, FeretUIForm.DEFAULT_WRAPPER)
+                field.__class__, FeretUIForm.DEFAULT_WRAPPER
+            )
             return wrapper(
                 self.feretui,
                 self.request.session,
@@ -517,25 +527,26 @@ class FeretUIForm(Form):
 
 
 PasswordInvalid = FeretUIForm.register_translation(
-    'The password should have {msg}.')
+    "The password should have {msg}."
+)
 PasswordMinSize = FeretUIForm.register_translation(
-    'more than {min_size} caractere')
+    "more than {min_size} caractere"
+)
 PasswordMaxSize = FeretUIForm.register_translation(
-    'less than {max_size} caractere')
-PasswordWithLowerCase = FeretUIForm.register_translation('with lowercase')
-PasswordWithoutLowerCase = FeretUIForm.register_translation(
-    'without lowercase')
-PasswordWithUpperCase = FeretUIForm.register_translation('with uppercase')
-PasswordWithoutUpperCase = FeretUIForm.register_translation(
-    'without uppercase')
-PasswordWithLetters = FeretUIForm.register_translation('with letters')
-PasswordWithoutLetters = FeretUIForm.register_translation('without letters')
-PasswordWithDigits = FeretUIForm.register_translation('with digits')
-PasswordWithoutDigits = FeretUIForm.register_translation('without digits')
-PasswordWithSymbols = FeretUIForm.register_translation('with symbols')
-PasswordWithoutSymbols = FeretUIForm.register_translation('without symbols')
-PasswordWithSpaces = FeretUIForm.register_translation('with spaces')
-PasswordWithoutSpaces = FeretUIForm.register_translation('without spaces')
+    "less than {max_size} caractere"
+)
+PasswordWithLowerCase = FeretUIForm.register_translation("with lowercase")
+PasswordWithoutLowerCase = FeretUIForm.register_translation("without lowercase")
+PasswordWithUpperCase = FeretUIForm.register_translation("with uppercase")
+PasswordWithoutUpperCase = FeretUIForm.register_translation("without uppercase")
+PasswordWithLetters = FeretUIForm.register_translation("with letters")
+PasswordWithoutLetters = FeretUIForm.register_translation("without letters")
+PasswordWithDigits = FeretUIForm.register_translation("with digits")
+PasswordWithoutDigits = FeretUIForm.register_translation("without digits")
+PasswordWithSymbols = FeretUIForm.register_translation("with symbols")
+PasswordWithoutSymbols = FeretUIForm.register_translation("without symbols")
+PasswordWithSpaces = FeretUIForm.register_translation("with spaces")
+PasswordWithoutSpaces = FeretUIForm.register_translation("without spaces")
 
 
 class Password(InputRequired):
@@ -609,31 +620,49 @@ class Password(InputRequired):
         self.waiting = []
         if min_size:
             self.schema.min(min_size)
-            self.waiting.append((
-                PasswordMinSize,
-                {"min_size": min_size},
-            ))
+            self.waiting.append(
+                (
+                    PasswordMinSize,
+                    {"min_size": min_size},
+                )
+            )
 
         if max_size:
             self.schema.min(max_size)
-            self.waiting.append((
-                PasswordMaxSize,
-                {"max_size": max_size},
-            ))
+            self.waiting.append(
+                (
+                    PasswordMaxSize,
+                    {"max_size": max_size},
+                )
+            )
 
         for has, attr, true_msg, false_msg in (
-            (has_lowercase, 'lowercase', PasswordWithLowerCase,
-             PasswordWithoutLowerCase),
-            (has_uppercase, 'uppercase', PasswordWithUpperCase,
-             PasswordWithoutUpperCase),
-            (has_letters, 'letters', PasswordWithLetters,
-             PasswordWithoutLetters),
-            (has_digits, 'digits', PasswordWithDigits,
-             PasswordWithoutDigits),
-            (has_symbols, 'symbols', PasswordWithSymbols,
-             PasswordWithoutSymbols),
-            (has_spaces, 'spaces', PasswordWithSpaces,
-             PasswordWithoutSpaces),
+            (
+                has_lowercase,
+                "lowercase",
+                PasswordWithLowerCase,
+                PasswordWithoutLowerCase,
+            ),
+            (
+                has_uppercase,
+                "uppercase",
+                PasswordWithUpperCase,
+                PasswordWithoutUpperCase,
+            ),
+            (
+                has_letters,
+                "letters",
+                PasswordWithLetters,
+                PasswordWithoutLetters,
+            ),
+            (has_digits, "digits", PasswordWithDigits, PasswordWithoutDigits),
+            (
+                has_symbols,
+                "symbols",
+                PasswordWithSymbols,
+                PasswordWithoutSymbols,
+            ),
+            (has_spaces, "spaces", PasswordWithSpaces, PasswordWithoutSpaces),
         ):
             if has is True:
                 getattr(self.schema.has(), attr)()
@@ -657,9 +686,8 @@ class Password(InputRequired):
         """
         if not self.schema.validate(field.data):
             msg = field.gettext(PasswordInvalid).format(
-                msg=', '.join(
-                    field.gettext(x[0]).format(**x[1])
-                    for x in self.waiting
+                msg=", ".join(
+                    field.gettext(x[0]).format(**x[1]) for x in self.waiting
                 ),
             )
             raise ValidationError(msg)

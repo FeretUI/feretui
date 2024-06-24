@@ -87,6 +87,7 @@ Helper exist to compute the visibility:
 
 
 """
+
 from collections.abc import Callable
 from typing import TYPE_CHECKING
 
@@ -151,22 +152,22 @@ class Menu(ContextProperties):
         :exception: :class:`feretui.exceptions.MenuError`
         """
         if not querystring:
-            raise MenuError(f'{self.__class__.__name__} must have querystring')
+            raise MenuError(f"{self.__class__.__name__} must have querystring")
 
         for value in querystring.values():
             if not isinstance(value, str):
-                raise MenuError('The querystring entries must be string')
+                raise MenuError("The querystring entries must be string")
 
         self.label = label
         self.icon = icon
         self.description = description
         self.visible_callback = visible_callback
         self.querystring = querystring
-        self.context = 'menu:'
+        self.context = "menu:"
 
     def __str__(self: "Menu") -> str:
         """Return the instance as a string."""
-        return f'<{self.__class__.__name__} {self.context}>'
+        return f"<{self.__class__.__name__} {self.context}>"
 
     def is_visible(self: "Menu", session: Session) -> bool:  # noqa: ARG002
         """Return True if the menu can be rendering.
@@ -176,11 +177,7 @@ class Menu(ContextProperties):
         :return: True
         :rtype: bool
         """
-        return (
-            self.visible_callback(session)
-            if self.visible_callback
-            else True
-        )
+        return self.visible_callback(session) if self.visible_callback else True
 
     def get_label(self: "Menu", feretui: "FeretUI", session: Session) -> str:
         """Return the translated label.
@@ -194,7 +191,7 @@ class Menu(ContextProperties):
         """
         return feretui.translation.get(
             session.lang,
-            f'{self.context}:label',
+            f"{self.context}:label",
             self.label,
         )
 
@@ -213,11 +210,11 @@ class Menu(ContextProperties):
         :rtype: str
         """
         if not self.description:
-            return ''
+            return ""
 
         return feretui.translation.get(
             session.lang,
-            f'{self.context}:description',
+            f"{self.context}:description",
             self.description,
         )
 
@@ -236,7 +233,7 @@ class Menu(ContextProperties):
         :rtype: str
         """
         return self.request.get_url_from_dict(
-            base_url='',
+            base_url="",
             querystring=querystring,
         )
 
@@ -255,7 +252,7 @@ class Menu(ContextProperties):
         :rtype: str
         """
         return self.request.get_url_from_dict(
-            base_url=f'{ feretui.base_url }/action/goto',
+            base_url=f"{ feretui.base_url }/action/goto",
             querystring=querystring,
         )
 
@@ -269,15 +266,17 @@ class Menu(ContextProperties):
         :return: The html
         :rtype: str
         """
-        return Markup(feretui.render_template(
-            session,
-            self.template_id,
-            label=self.get_label(feretui, session),
-            description=self.get_description(feretui, session),
-            icon=self.icon,
-            href=self.get_href(feretui, self.querystring),
-            url=self.get_url(feretui, self.querystring),
-        ))
+        return Markup(
+            feretui.render_template(
+                session,
+                self.template_id,
+                label=self.get_label(feretui, session),
+                description=self.get_description(feretui, session),
+                icon=self.icon,
+                href=self.get_href(feretui, self.querystring),
+                url=self.get_url(feretui, self.querystring),
+            )
+        )
 
 
 class ChildrenMenu:
@@ -296,7 +295,7 @@ class ChildrenMenu:
         :type children: list[:class:`.Menu`
         """
         if not children:
-            raise MenuError(f'{self.__class__.__name__} must have children')
+            raise MenuError(f"{self.__class__.__name__} must have children")
 
         self.children = children
 
@@ -310,14 +309,16 @@ class ChildrenMenu:
         :return: The html
         :rtype: str
         """
-        return Markup(feretui.render_template(
-            session,
-            self.template_id,
-            label=self.get_label(feretui, session),
-            description=self.get_description(feretui, session),
-            icon=self.icon,
-            children=self.children,
-        ))
+        return Markup(
+            feretui.render_template(
+                session,
+                self.template_id,
+                label=self.get_label(feretui, session),
+                description=self.get_description(feretui, session),
+                icon=self.icon,
+                children=self.children,
+            )
+        )
 
     def is_visible(self: "Menu", session: Session) -> bool:  # noqa: ARG002
         """Return True if the menu can be rendering.
@@ -350,7 +351,7 @@ class UrlMenu:
         :return: The url
         :rtype: str
         """
-        return querystring['url']
+        return querystring["url"]
 
 
 class ToolBarMenu(Menu):
@@ -364,7 +365,7 @@ class ToolBarMenu(Menu):
 
     """
 
-    template_id = 'toolbar-menu'
+    template_id = "toolbar-menu"
 
     def __init__(
         self: "ToolBarMenu",
@@ -376,9 +377,8 @@ class ToolBarMenu(Menu):
         see :class:`.Menu`
         """
         super().__init__(label, **kwargs)
-        self.context = 'menu:toolbar:' + ':'.join(
-            f'{key}:{value}'
-            for key, value in self.querystring.items()
+        self.context = "menu:toolbar:" + ":".join(
+            f"{key}:{value}" for key, value in self.querystring.items()
         )
 
 
@@ -395,7 +395,7 @@ class ToolBarDropDownMenu(ChildrenMenu, ToolBarMenu):
 
     """
 
-    template_id = 'toolbar-dropdown-menu'
+    template_id = "toolbar-dropdown-menu"
 
     def __init__(
         self: "ToolBarDropDownMenu",
@@ -407,25 +407,25 @@ class ToolBarDropDownMenu(ChildrenMenu, ToolBarMenu):
 
         Inherits of ToolbarMenu and ChildrenMenu
         """
-        kwargs.setdefault('visible_callback', None)
-        ToolBarMenu.__init__(self, label, type='dropdown', **kwargs)
+        kwargs.setdefault("visible_callback", None)
+        ToolBarMenu.__init__(self, label, type="dropdown", **kwargs)
         ChildrenMenu.__init__(self, children)
         for child in children:
             if isinstance(child, ToolBarDropDownMenu):
-                raise MenuError('ToolBarDropDownMenu menu can not be cascaded')
+                raise MenuError("ToolBarDropDownMenu menu can not be cascaded")
 
 
 class ToolBarDividerMenu(ToolBarMenu):
     """Simple Divider."""
 
-    template_id: str = 'toolbar-divider-menu'
+    template_id: str = "toolbar-divider-menu"
 
     def __init__(
         self: "ToolBarDividerMenu",
         visible_callback: Callable = menu_for_authenticated_user,
     ) -> None:
         """Separate two menu in DropDown menu."""
-        self.context = ''
+        self.context = ""
         self.visible_callback = visible_callback
 
     def render(
@@ -455,7 +455,7 @@ class ToolBarUrlMenu(UrlMenu, ToolBarMenu):
             menu.render(myferet, session)
     """
 
-    template_id = 'toolbar-url-menu'
+    template_id = "toolbar-url-menu"
 
     def __init__(
         self: "ToolBarUrlMenu",
@@ -491,7 +491,7 @@ class ToolBarButtonMenu(Menu):
 
     """
 
-    template_id = 'toolbar-button-menu'
+    template_id = "toolbar-button-menu"
 
     def __init__(
         self: "ToolBarButtonMenu",
@@ -508,9 +508,8 @@ class ToolBarButtonMenu(Menu):
         """
         super().__init__(label, **kwargs)
         self.css_class = css_class
-        self.context = 'menu:toolbar:button:' + ':'.join(
-            f'{key}:{value}'
-            for key, value in self.querystring.items()
+        self.context = "menu:toolbar:button:" + ":".join(
+            f"{key}:{value}" for key, value in self.querystring.items()
         )
 
     def render(
@@ -527,15 +526,17 @@ class ToolBarButtonMenu(Menu):
         :return: The html
         :rtype: str
         """
-        return Markup(feretui.render_template(
-            session,
-            self.template_id,
-            label=self.get_label(feretui, session),
-            description=self.get_description(feretui, session),
-            icon=self.icon,
-            url=self.get_url(feretui, self.querystring),
-            css_class=self.css_class,
-        ))
+        return Markup(
+            feretui.render_template(
+                session,
+                self.template_id,
+                label=self.get_label(feretui, session),
+                description=self.get_description(feretui, session),
+                icon=self.icon,
+                url=self.get_url(feretui, self.querystring),
+                css_class=self.css_class,
+            )
+        )
 
 
 class ToolBarButtonsMenu(ChildrenMenu, ToolBarButtonMenu):
@@ -551,7 +552,7 @@ class ToolBarButtonsMenu(ChildrenMenu, ToolBarButtonMenu):
 
     """
 
-    template_id = 'toolbar-buttons-menu'
+    template_id = "toolbar-buttons-menu"
 
     def __init__(
         self: "ToolBarButtonsMenu",
@@ -565,13 +566,13 @@ class ToolBarButtonsMenu(ChildrenMenu, ToolBarButtonMenu):
         ToolBarButtonMenu.__init__(
             self,
             None,
-            type='buttons',
+            type="buttons",
             visible_callback=visible_callback,
         )
         ChildrenMenu.__init__(self, children)
         for child in children:
             if isinstance(child, ChildrenMenu):
-                raise MenuError('ToolBarButtonsMenu menu can not be cascaded')
+                raise MenuError("ToolBarButtonsMenu menu can not be cascaded")
 
 
 class ToolBarButtonUrlMenu(UrlMenu, ToolBarButtonMenu):
@@ -585,7 +586,7 @@ class ToolBarButtonUrlMenu(UrlMenu, ToolBarButtonMenu):
 
     """
 
-    template_id = 'toolbar-button-url-menu'
+    template_id = "toolbar-button-url-menu"
 
     def __init__(
         self: "ToolBarButtonUrlMenu",
@@ -623,7 +624,7 @@ class AsideMenu(Menu):
 
     """
 
-    template_id = 'aside-menu'
+    template_id = "aside-menu"
 
     def __init__(
         self: "AsideMenu",
@@ -635,11 +636,10 @@ class AsideMenu(Menu):
         see :class:`.Menu`
         """
         super().__init__(label, **kwargs)
-        self.context = 'menu:aside:' + ':'.join(
-            f'{key}:{value}'
-            for key, value in self.querystring.items()
+        self.context = "menu:aside:" + ":".join(
+            f"{key}:{value}" for key, value in self.querystring.items()
         )
-        self.aside = ''
+        self.aside = ""
 
     def get_href(
         self: "AsideMenu",
@@ -656,7 +656,7 @@ class AsideMenu(Menu):
         :rtype: str
         """
         querystring = querystring.copy()
-        querystring['in-aside'] = [self.aside]
+        querystring["in-aside"] = [self.aside]
         return super().get_href(feretui, querystring)
 
     def get_url(
@@ -674,7 +674,7 @@ class AsideMenu(Menu):
         :rtype: str
         """
         querystring = querystring.copy()
-        querystring['in-aside'] = [self.aside]
+        querystring["in-aside"] = [self.aside]
         return super().get_url(feretui, querystring)
 
 
@@ -691,7 +691,7 @@ class AsideHeaderMenu(ChildrenMenu, AsideMenu):
 
     """
 
-    template_id = 'aside-header-menu'
+    template_id = "aside-header-menu"
 
     def __init__(
         self: "AsideHeaderMenu",
@@ -703,8 +703,8 @@ class AsideHeaderMenu(ChildrenMenu, AsideMenu):
 
         Inherits of ToolbarMenu and ChildrenMenu
         """
-        kwargs.setdefault('visible_callback', None)
-        AsideMenu.__init__(self, label, type='header', **kwargs)
+        kwargs.setdefault("visible_callback", None)
+        AsideMenu.__init__(self, label, type="header", **kwargs)
         ChildrenMenu.__init__(self, children)
 
 
@@ -718,7 +718,7 @@ class AsideUrlMenu(UrlMenu, AsideMenu):
             menu.render(myferet, session)
     """
 
-    template_id = 'aside-url-menu'
+    template_id = "aside-url-menu"
 
     def __init__(
         self: "AsideUrlMenu",
@@ -741,3 +741,39 @@ class AsideUrlMenu(UrlMenu, AsideMenu):
         :type description: str
         """
         super().__init__(label, url=url, **kw)
+
+
+class SitemapMenu:
+    def __init__(self, feretui, menu) -> None:
+        self.menu = menu
+        self.children = [
+            SitemapMenu(feretui, child)
+            for child in getattr(menu, "children", [])
+        ]
+        aside = menu.querystring.get("aside")
+        if aside:
+            self.children.extend(
+                [
+                    SitemapMenu(feretui, child)
+                    for child in feretui.get_aside_menus(aside)
+                ]
+            )
+
+    def is_visible(self, session):
+        return self.menu.is_visible(session)
+
+    def render(self, feretui, session):
+        key = "sitemap-header-menu" if len(self.children) else "sitemap-menu"
+        menu = self.menu
+        return Markup(
+            feretui.render_template(
+                session,
+                key,
+                label=menu.get_label(feretui, session),
+                description=menu.get_description(feretui, session),
+                icon=menu.icon,
+                href=menu.get_href(feretui, menu.querystring),
+                url=menu.get_url(feretui, menu.querystring),
+                children=self.children,
+            )
+        )

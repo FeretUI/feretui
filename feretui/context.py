@@ -10,6 +10,7 @@
 defined the contextvar used by FeretUI client
 
 """
+
 from contextlib import contextmanager
 from contextvars import ContextVar
 from typing import TYPE_CHECKING
@@ -18,8 +19,8 @@ if TYPE_CHECKING:
     from feretui.feretui import FeretUI
     from feretui.request import Request
 
-cvar_feretui: ContextVar["FeretUI"] = ContextVar('feretui')
-cvar_request: ContextVar["Request"] = ContextVar('request')
+cvar_feretui: ContextVar["FeretUI"] = ContextVar("feretui")
+cvar_request: ContextVar["Request"] = ContextVar("request")
 
 
 @contextmanager
@@ -42,10 +43,10 @@ class ContextProperties:
 
     def __getattr__(self: "ContextProperties", attribute: str) -> None:
         """Getter."""
-        if attribute == 'feretui':
+        if attribute == "feretui":
             return cvar_feretui.get()
 
-        if attribute == 'request':
+        if attribute == "request":
             return cvar_request.get()
 
         return super().__getattr__(attribute)  # pragma: no cover

@@ -9,6 +9,7 @@
 
 The main class to create a resource.
 """
+
 import inspect
 from collections.abc import Callable
 from copy import deepcopy
@@ -40,10 +41,11 @@ class Resource:
 
     code: str = None
     label: str = None
-    menu: Menu = ToolBarMenu('', page="resource")
+    menu: Menu = ToolBarMenu("", page="resource")
     menu_visibility: Callable = staticmethod(menu_for_authenticated_user)
     page_visibility: Callable = staticmethod(
-        page_for_authenticated_user_or_goto(login))
+        page_for_authenticated_user_or_goto(login)
+    )
     action_security: Callable = staticmethod(action_for_authenticated_user)
     default_view: str = None
 
@@ -56,7 +58,7 @@ class Resource:
 
     def __str__(self: "Resource") -> str:
         """Return the resource as a string."""
-        return f'<{self.__class__.__name__} code={self.code}>'
+        return f"<{self.__class__.__name__} code={self.code}>"
 
     def export_catalog(
         self: "Resource",
@@ -70,7 +72,7 @@ class Resource:
         :param po: The catalog instance
         :type po: PoFile_
         """
-        po.append(translation.define(f'{self.context}:label', self.label))
+        po.append(translation.define(f"{self.context}:label", self.label))
         for view in self.views.values():
             view.export_catalog(translation, po)
 
@@ -78,10 +80,10 @@ class Resource:
     def build(cls: "Resource") -> None:
         """Build the additional part of the resource."""
         if not cls.code:
-            raise ResourceError('No code defined')
+            raise ResourceError("No code defined")
 
         if not cls.label:
-            raise ResourceError('No label defined')
+            raise ResourceError("No label defined")
 
         cls.menu = deepcopy(cls.menu)
 
@@ -91,13 +93,12 @@ class Resource:
         if cls.menu_visibility:
             cls.menu.visible_callback = cls.menu_visibility
 
-        cls.menu.querystring['resource'] = cls.code
-        cls.context = f'resource:{cls.code}'
+        cls.menu.querystring["resource"] = cls.code
+        cls.context = f"resource:{cls.code}"
         resource = cls()
         for attr in dir(cls):
-            if (
-                attr.startswith('MetaView')
-                and inspect.isclass(getattr(cls, attr))
+            if attr.startswith("MetaView") and inspect.isclass(
+                getattr(cls, attr)
             ):
                 view = resource.build_view(attr)
                 if view:
@@ -145,7 +146,9 @@ class Resource:
         :rtype: str.
         """
         return feretui.translation.get(
-            session.lang, f'{self.context}:label', self.label,
+            session.lang,
+            f"{self.context}:label",
+            self.label,
         )
 
     def render(
@@ -165,7 +168,7 @@ class Resource:
         :return: The html page in
         :rtype: str.
         """
-        viewcode = options.setdefault('view', self.default_view)
+        viewcode = options.setdefault("view", self.default_view)
         if isinstance(viewcode, list):
             viewcode = viewcode[0]
 
@@ -180,7 +183,7 @@ class Resource:
 
         return feretui.render_template(
             session,
-            'feretui-page-resource',
+            "feretui-page-resource",
             view=Markup(func(feretui, session, options)),
             code=self.code,
         )
@@ -201,31 +204,30 @@ class Resource:
         """
         qs = request.get_query_string_from_current_url()
         options = (
-            request.query
-            if request.method == Request.GET
-            else request.params
+            request.query if request.method == Request.GET else request.params
         )
-        viewcode = qs.get('view')
+        viewcode = qs.get("view")
         if isinstance(viewcode, list):
             viewcode = viewcode[0]
 
         if not viewcode:
-            raise ResourceError('No view defined in the query string')
+            raise ResourceError("No view defined in the query string")
 
         view = self.views.get(viewcode)
         if not view:
-            raise ResourceError(f'No view {viewcode} defined in {self}')
+            raise ResourceError(f"No view {viewcode} defined in {self}")
 
-        action = options.get('action')
+        action = options.get("action")
         if isinstance(action, list):
             action = action[0]
 
         if not action:
-            raise ResourceError('No action defined in the query string')
+            raise ResourceError("No action defined in the query string")
 
         if not hasattr(view, action):
             raise ResourceError(
-                f'{self.code} - {viewcode} has no method {action}')
+                f"{self.code} - {viewcode} has no method {action}"
+            )
 
         func = getattr(view, action)
         if self.action_security:

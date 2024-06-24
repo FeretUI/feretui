@@ -34,6 +34,7 @@ Example with bottle::
         res = myferet.do_action(frequest, action)
         ...
 """
+
 import urllib
 from typing import Any
 
@@ -121,18 +122,19 @@ class Request:
             self.query = urllib.parse.parse_qs(querystring)
 
         if form and not isinstance(form, MultiDict):
-            raise RequestFormError('The form must be a MultiDict')
+            raise RequestFormError("The form must be a MultiDict")
 
         if session is None:
-            raise RequestNoSessionError('the session is required')
+            raise RequestNoSessionError("the session is required")
 
         if not isinstance(session, Session):
             raise RequestWrongSessionError(
-                'the session must be an instance of FeretUI Session')
+                "the session must be an instance of FeretUI Session"
+            )
 
     def get_url_from_dict(
         self: "Request",
-        base_url: str = '/',
+        base_url: str = "/",
         querystring: dict[str, Any] = None,
     ) -> str:
         """Return an url.
@@ -149,7 +151,7 @@ class Request:
         if not querystring:
             return base_url
 
-        return f'{base_url}?{urllib.parse.urlencode(querystring, doseq=True)}'
+        return f"{base_url}?{urllib.parse.urlencode(querystring, doseq=True)}"
 
     def get_query_string_from_current_url(
         self: "Request",
@@ -159,7 +161,7 @@ class Request:
         :return: The converted querystring.
         :rtype: dict[str, list[str]]
         """
-        url = self.headers['Hx-Current-Url']
+        url = self.headers["Hx-Current-Url"]
         url = urllib.parse.urlparse(url)
         return urllib.parse.parse_qs(url.query)
 
@@ -169,6 +171,6 @@ class Request:
         :return: The converted querystring.
         :rtype: dict[str, list[str]]
         """
-        url = self.headers['Hx-Current-Url']
+        url = self.headers["Hx-Current-Url"]
         url = urllib.parse.urlparse(url)
         return url.path

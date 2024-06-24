@@ -23,6 +23,7 @@ The availlable pages are:
 * :func:`.page_404`.
 * :func:`.page_forbidden`.
 * :func:`.homepage`.
+* :func:`.sitepage`.
 * :func:`.static_page`.
 * :func:`.aside_menu`.
 * :func:`.login`.
@@ -34,6 +35,7 @@ To protect them in function of the user see:
 * :func: `feretui.helper.page_for_authenticated_user_or_goto`
 * :func: `feretui.helper.page_for_unauthenticated_user_or_goto`
 """
+
 from collections.abc import Callable
 from typing import TYPE_CHECKING
 
@@ -61,11 +63,11 @@ def page_404(feretui: "FeretUI", session: Session, options: dict) -> str:
     :return: The html page
     :rtype: str
     """
-    page = options.get('resource', options.get('page', ''))
+    page = options.get("resource", options.get("page", ""))
     if isinstance(page, list):
         page = page[0]
 
-    return feretui.render_template(session, 'feretui-page-404', page=page)
+    return feretui.render_template(session, "feretui-page-404", page=page)
 
 
 def page_forbidden(
@@ -86,12 +88,11 @@ def page_forbidden(
     :return: The html page
     :rtype: str
     """
-    page = options.get('resource', options.get('page', ''))
+    page = options.get("resource", options.get("page", ""))
     if isinstance(page, list):
         page = page[0]
 
-    return feretui.render_template(
-        session, 'feretui-page-forbidden', page=page)
+    return feretui.render_template(session, "feretui-page-forbidden", page=page)
 
 
 def homepage(
@@ -110,7 +111,31 @@ def homepage(
     :return: The html page in
     :rtype: str
     """
-    return feretui.render_template(session, 'feretui-page-homepage')
+    return feretui.render_template(session, "feretui-page-homepage")
+
+
+def sitemap(
+    feretui: "FeretUI",
+    session: Session,
+    options: dict,  # noqa: ARG001
+) -> str:
+    """Return the sitemap.
+
+    :param feretui: The feretui client
+    :type feretui: :class:`feretui.feretui.FeretUI`
+    :param session: The Session
+    :type session: :class:`feretui.session.Session`
+    :param options: The options come from the body or the query string
+    :type options: dict
+    :return: The html page in
+    :rtype: str
+    """
+    menus = feretui.get_site_map_menus()
+    return feretui.render_template(
+        session,
+        "feretui-page-sitemap",
+        menus=menus,
+    )
 
 
 def static_page(template_id: str) -> Callable:
@@ -122,6 +147,7 @@ def static_page(template_id: str) -> Callable:
     :rtype: Callable
     :exception: :class:`feretui.exceptions.PageError`
     """
+
     def _static_page(
         feretui: "FeretUI",
         session: Session,
@@ -152,21 +178,21 @@ def aside_menu(
     :rtype: str
     :exception: :class:`feretui.exceptions.PageError`
     """
-    if 'aside' not in options:
-        raise PageError('The aside parameter is required in the querystring')
+    if "aside" not in options:
+        raise PageError("The aside parameter is required in the querystring")
 
-    menus = feretui.get_aside_menus(options['aside'][0])
-    page = options.get('aside_page', ['homepage'])[0]
+    menus = feretui.get_aside_menus(options["aside"][0])
+    page = options.get("aside_page", ["homepage"])[0]
 
     return feretui.render_template(
         session,
-        'feretui-page-aside',
+        "feretui-page-aside",
         menus=menus,
         page=Markup(feretui.get_page(page)(feretui, session, options)),
     )
 
 
-@page_for_unauthenticated_user_or_goto('forbidden')
+@page_for_unauthenticated_user_or_goto("forbidden")
 def login(feretui: "FeretUI", session: Session, options: dict) -> str:
     """Return the login form page.
 
@@ -182,17 +208,17 @@ def login(feretui: "FeretUI", session: Session, options: dict) -> str:
     :return: The html page in
     :rtype: str
     """
-    form = options.get('form', session.LoginForm())
-    error = options.get('error')
+    form = options.get("form", session.LoginForm())
+    error = options.get("error")
     return feretui.render_template(
         session,
-        'feretui-page-login',
+        "feretui-page-login",
         form=form,
         error=error,
     )
 
 
-@page_for_unauthenticated_user_or_goto('forbidden')
+@page_for_unauthenticated_user_or_goto("forbidden")
 def signup(feretui: "FeretUI", session: Session, options: dict) -> str:
     """Return the signup form page.
 
@@ -208,11 +234,11 @@ def signup(feretui: "FeretUI", session: Session, options: dict) -> str:
     :return: The html page in
     :rtype: str
     """
-    form = options.get('form', session.SignUpForm())
-    error = options.get('error')
+    form = options.get("form", session.SignUpForm())
+    error = options.get("error")
     return feretui.render_template(
         session,
-        'feretui-page-signup',
+        "feretui-page-signup",
         form=form,
         error=error,
     )
@@ -231,12 +257,12 @@ def resource_page(feretui: "FeretUI", session: Session, options: dict) -> str:
     :rtype: str
     :exception: :class:`feretui.exceptions.PageError`
     """
-    code = options.get('resource')
+    code = options.get("resource")
     if isinstance(code, list):
         code = code[0]
 
     if not code:
-        raise PageError('No resource in the query string')
+        raise PageError("No resource in the query string")
 
     resource = feretui.get_resource(code)
     return resource.render(feretui, session, options)

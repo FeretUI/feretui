@@ -11,6 +11,7 @@
 * :class:`.MultiView`
 * :class:`.TemplateMixinForView`
 """
+
 from typing import TYPE_CHECKING
 
 from lxml.etree import Element, SubElement, tostring
@@ -51,7 +52,7 @@ class LabelMixinForView:
         """
         super().export_catalog(translation, po)
         if self.label:
-            po.append(translation.define(f'{self.context}:label', self.label))
+            po.append(translation.define(f"{self.context}:label", self.label))
 
     def get_label(
         self: "LabelMixinForView",
@@ -70,7 +71,9 @@ class LabelMixinForView:
             return super().get_label(feretui, session)
 
         return feretui.translation.get(
-            session.lang, f'{self.context}:label', self.label,
+            session.lang,
+            f"{self.context}:label",
+            self.label,
         )
 
 
@@ -90,9 +93,9 @@ class ActionsMixinForView:
         """ActionsMixinForView constructor."""
         super().__init__(*args, **kwargs)
         for actionset in self.actions:
-            actionset.context = f'{self.context}:actionset'
+            actionset.context = f"{self.context}:actionset"
             for action in actionset.actions:
-                action.context = f'{self.context}:action:{action.method}'
+                action.context = f"{self.context}:action:{action.method}"
 
     def export_catalog(
         self: "ActionsMixinForView",
@@ -173,7 +176,7 @@ class ActionsMixinForView:
         :rtype: :class:`feretui.response.Response`
         :exception: ViewActionError
         """
-        method = request.params.get('method')
+        method = request.params.get("method")
         if isinstance(method, list):
             method = method[0]
 
@@ -191,7 +194,7 @@ class ActionsMixinForView:
 
         if not is_declared:
             raise ViewActionError(
-                f'The method {method} is not declared in the {self}',
+                f"The method {method} is not declared in the {self}",
             )
 
         func = getattr(self.resource, method)
@@ -218,28 +221,28 @@ class MultiView(ActionsMixinForView):
     def __init__(self: "MultiView", *args: tuple, **kwargs: dict) -> None:
         """MultiView constructor."""
         super().__init__(*args, **kwargs)
-        if not hasattr(self, 'limit'):
+        if not hasattr(self, "limit"):
             raise ViewError("The view has not a 'limit : int' class attribute")
 
-        if not hasattr(self, 'do_click_on_entry_redirect_to'):
+        if not hasattr(self, "do_click_on_entry_redirect_to"):
             raise ViewError(
                 "The view has not a 'do_click_on_entry_redirect_to : str' "
                 "class attribute",
             )
 
-        if not hasattr(self, 'create_button_redirect_to'):
+        if not hasattr(self, "create_button_redirect_to"):
             raise ViewError(
                 "The view has not a 'create_button_redirect_to : str' "
                 "class attribute",
             )
 
-        if not hasattr(self, 'delete_button_redirect_to'):
+        if not hasattr(self, "delete_button_redirect_to"):
             raise ViewError(
                 "The view has not a 'delete_button_redirect_to : str' "
                 "class attribute",
             )
 
-        if not hasattr(self.resource, 'filtered_reads'):
+        if not hasattr(self.resource, "filtered_reads"):
             raise ViewError(
                 "The resource has not a 'filtered_reads' method\n"
                 "def filtered_reads(self, form_cls, filters, offset, limit):\n"
@@ -266,9 +269,9 @@ class MultiView(ActionsMixinForView):
     def get_filter_cls(self: "MultiView") -> FeretUIForm:
         """Return the Filter Form for the view."""
         return type(
-            f'Filter_{self.resource.code}_{self.code}',
+            f"Filter_{self.resource.code}_{self.code}",
             (self.Filter, self.form_cls),
-            {'view': self},
+            {"view": self},
         )
 
     # ---------- Render -------------------
@@ -293,24 +296,28 @@ class MultiView(ActionsMixinForView):
         res = []
         if self.create_button_redirect_to:
             res.append(
-                Markup(feretui.render_template(
-                    session,
-                    'view-goto-create-button',
-                    url=self.get_transition_url(
-                        feretui,
-                        options,
-                        view=self.create_button_redirect_to,
-                    ),
-                )),
+                Markup(
+                    feretui.render_template(
+                        session,
+                        "view-goto-create-button",
+                        url=self.get_transition_url(
+                            feretui,
+                            options,
+                            view=self.create_button_redirect_to,
+                        ),
+                    )
+                ),
             )
         if self.delete_button_redirect_to:
             res.append(
-                Markup(feretui.render_template(
-                    session,
-                    'view-goto-selected-delete-button',
-                    rcode=self.resource.code,
-                    vcode=self.code,
-                )),
+                Markup(
+                    feretui.render_template(
+                        session,
+                        "view-goto-selected-delete-button",
+                        rcode=self.resource.code,
+                        vcode=self.code,
+                    )
+                ),
             )
 
         return res
@@ -333,12 +340,14 @@ class MultiView(ActionsMixinForView):
         :rtype: list[str]
         """
         res = [
-            Markup(feretui.render_template(
-                session,
-                'view-filter',
-                form=self.filter_cls(),
-                hx_post=f'{feretui.base_url}/action/resource?action=filters',
-            )),
+            Markup(
+                feretui.render_template(
+                    session,
+                    "view-filter",
+                    form=self.filter_cls(),
+                    hx_post=f"{feretui.base_url}/action/resource?action=filters",
+                )
+            ),
         ]
         res.extend(super().get_actions(feretui, session, options))
         return res
@@ -363,12 +372,9 @@ class MultiView(ActionsMixinForView):
         filters = [
             (key[7:-1], values)
             for key, values in options.items()
-            if (
-                key.startswith('filter[')
-                and key[-1] == ']'
-            )
+            if (key.startswith("filter[") and key[-1] == "]")
         ]
-        offset = options.get('offset', 0)
+        offset = options.get("offset", 0)
         if isinstance(offset, list):
             offset = offset[0]
 
@@ -379,7 +385,7 @@ class MultiView(ActionsMixinForView):
             offset,
             self.limit,
         )
-        paginations = range(0, dataset['total'], self.limit)
+        paginations = range(0, dataset["total"], self.limit)
 
         open_view_url = (
             self.get_transition_url(
@@ -387,7 +393,8 @@ class MultiView(ActionsMixinForView):
                 options,
                 pk=None,
                 view=self.do_click_on_entry_redirect_to,
-            ) if self.do_click_on_entry_redirect_to
+            )
+            if self.do_click_on_entry_redirect_to
             else None
         )
         return {
@@ -428,11 +435,11 @@ class MultiView(ActionsMixinForView):
         """
         newqs = request.get_query_string_from_current_url().copy()
         base_url = request.get_base_url_from_current_url()
-        newqs['offset'] = request.query['offset']
+        newqs["offset"] = request.query["offset"]
         return Response(
             self.render(feretui, request.session, newqs),
             headers={
-                'HX-Push-Url': request.get_url_from_dict(base_url, newqs),
+                "HX-Push-Url": request.get_url_from_dict(base_url, newqs),
             },
         )
 
@@ -457,13 +464,13 @@ class MultiView(ActionsMixinForView):
         :rtype: :class:`feretui.response.Response`
         """
         qs = request.get_query_string_from_current_url()
-        qs['offset'] = 0
+        qs["offset"] = 0
 
         for param, values in request.params.items():
-            if param == 'action':
+            if param == "action":
                 continue
 
-            existing = qs.setdefault(f'filter[{param}]', [])
+            existing = qs.setdefault(f"filter[{param}]", [])
             if request.method == Request.POST:
                 for value in values:
                     if value not in existing:
@@ -474,14 +481,14 @@ class MultiView(ActionsMixinForView):
                         existing.remove(value)
 
                 if not existing:
-                    del qs[f'filter[{param}]']
+                    del qs[f"filter[{param}]"]
 
         base_url = request.get_base_url_from_current_url()
         url = request.get_url_from_dict(base_url=base_url, querystring=qs)
         return Response(
             self.render(feretui, request.session, qs),
             headers={
-                'HX-Push-Url': url,
+                "HX-Push-Url": url,
             },
         )
 
@@ -503,16 +510,18 @@ class MultiView(ActionsMixinForView):
         view_kwargs = self.get_call_kwargs(request)
         newqs = request.get_query_string_from_current_url().copy()
         base_url = request.get_base_url_from_current_url()
-        newqs.update({
-            'view': self.delete_button_redirect_to,
-            'pk': view_kwargs['pks'],
-        })
+        newqs.update(
+            {
+                "view": self.delete_button_redirect_to,
+                "pk": view_kwargs["pks"],
+            }
+        )
         return Response(
-            self.resource.views[
-                self.delete_button_redirect_to
-            ].render(feretui, request.session, newqs),
+            self.resource.views[self.delete_button_redirect_to].render(
+                feretui, request.session, newqs
+            ),
             headers={
-                'HX-Push-Url': request.get_url_from_dict(base_url, newqs),
+                "HX-Push-Url": request.get_url_from_dict(base_url, newqs),
             },
         )
 
@@ -520,11 +529,11 @@ class MultiView(ActionsMixinForView):
 class TemplateMixinForView:
     """TemplateMixinForView class."""
 
-    header_template_id: str = 'view-buttons-header'
+    header_template_id: str = "view-buttons-header"
     header_template: str = None
-    body_template_id: str = 'view-readwrite-form'
+    body_template_id: str = "view-readwrite-form"
     body_template: str = None
-    footer_template_id: str = 'view-buttons-header'
+    footer_template_id: str = "view-buttons-header"
     footer_template: str = None
 
     # ----- translation ------
@@ -541,13 +550,15 @@ class TemplateMixinForView:
         :type po: PoFile_
         """
         super().export_catalog(translation, po)
-        template_id = f'resource-{self.resource.code}-view-{self.code}'
+        template_id = f"resource-{self.resource.code}-view-{self.code}"
         tmpls = Template(Translation(translation.feretui))
-        tmpls.load_template_from_str(self.get_compiled_template(
-            translation.feretui,
-            Session(),
-            template_id,
-        ))
+        tmpls.load_template_from_str(
+            self.get_compiled_template(
+                translation.feretui,
+                Session(),
+                template_id,
+            )
+        )
         tmpls.export_catalog(po)
 
     # ----- templating ------
@@ -605,7 +616,7 @@ class TemplateMixinForView:
         :param parent: The parent node
         :type parent: HtmlElement_
         """
-        return SubElement(parent, 'form')
+        return SubElement(parent, "form")
 
     def set_body_template(
         self: "TemplateMixinForView",
@@ -680,11 +691,11 @@ class TemplateMixinForView:
         :param template_id: The id of the template
         :type template_id: str
         """
-        template = Element('template')
-        template.set('id', template_id)
-        div = SubElement(template, 'div')
-        div.set('id', template_id)
-        div.set('class', 'container is-fluid content')
+        template = Element("template")
+        template.set("id", template_id)
+        div = SubElement(template, "div")
+        div.set("id", template_id)
+        div.set("class", "container is-fluid content")
         form = self.set_form_template(feretui, session, div)
         self.set_header_template(feretui, session, form)
         self.set_body_template(feretui, session, form)
@@ -710,12 +721,14 @@ class TemplateMixinForView:
         :rtype: dict.
         """
         return {
-            'resource': self.resource,
-            'header_buttons': self.get_header_buttons(
-                feretui, session, options,
+            "resource": self.resource,
+            "header_buttons": self.get_header_buttons(
+                feretui,
+                session,
+                options,
             ),
-            'rcode': self.resource.code,
-            'vcode': self.code,
+            "rcode": self.resource.code,
+            "vcode": self.code,
         }
 
     def get_header_buttons(
@@ -754,7 +767,7 @@ class TemplateMixinForView:
         :return: The html page in
         :rtype: str.
         """
-        template_id = f'resource-{self.resource.code}-view-{self.code}'
+        template_id = f"resource-{self.resource.code}-view-{self.code}"
         if not feretui.template.has_template(template_id):
             feretui.template.load_template_from_str(
                 self.get_compiled_template(feretui, session, template_id),

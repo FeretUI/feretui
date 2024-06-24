@@ -22,6 +22,7 @@ The List resource represent data under html table.
         class MetaViewCreate:
             pass
 """
+
 from typing import TYPE_CHECKING
 
 from lxml.etree import Element
@@ -53,7 +54,7 @@ class DefaultViewCreate:
 class CreateView(TemplateMixinForView, LabelMixinForView, View):
     """Create view."""
 
-    code: str = 'create'
+    code: str = "create"
 
     def set_form_template(
         self: "CreateView",
@@ -72,8 +73,8 @@ class CreateView(TemplateMixinForView, LabelMixinForView, View):
         """
         form = super().set_form_template(feretui, session, parent)
         form.set(
-            'hx-post',
-            f'{feretui.base_url}/action/resource?action=save',
+            "hx-post",
+            f"{feretui.base_url}/action/resource?action=save",
         )
         return form
 
@@ -95,16 +96,22 @@ class CreateView(TemplateMixinForView, LabelMixinForView, View):
         :rtype: list[Markup]
         """
         res = super().get_header_buttons(feretui, session, options)
-        res.extend([
-            Markup(feretui.render_template(
-                session,
-                'view-do-save-button',
-            )),
-            Markup(feretui.render_template(
-                session,
-                'view-goto-cancel-button',
-            )),
-        ])
+        res.extend(
+            [
+                Markup(
+                    feretui.render_template(
+                        session,
+                        "view-do-save-button",
+                    )
+                ),
+                Markup(
+                    feretui.render_template(
+                        session,
+                        "view-goto-cancel-button",
+                    )
+                ),
+            ]
+        )
         return res
 
     def render_kwargs(
@@ -125,11 +132,13 @@ class CreateView(TemplateMixinForView, LabelMixinForView, View):
         :rtype: dict.
         """
         res = super().render_kwargs(feretui, session, options)
-        res.update({
-            'label': self.get_label(feretui, session),
-            'form': options.get('form', self.form_cls()),
-            'error': options.get('error'),
-        })
+        res.update(
+            {
+                "label": self.get_label(feretui, session),
+                "form": options.get("form", self.form_cls()),
+                "error": options.get("error"),
+            }
+        )
         return res
 
     @view_action_validator(methods=[Request.POST])
@@ -154,10 +163,12 @@ class CreateView(TemplateMixinForView, LabelMixinForView, View):
                 pk = self.resource.create(form)
                 if self.after_create_redirect_to:
                     base_url = request.get_base_url_from_current_url()
-                    options.update({
-                        'view': self.after_create_redirect_to,
-                        'pk': pk,
-                    })
+                    options.update(
+                        {
+                            "view": self.after_create_redirect_to,
+                            "pk": pk,
+                        }
+                    )
                     url = request.get_url_from_dict(
                         base_url=base_url,
                         querystring=options,
@@ -167,13 +178,13 @@ class CreateView(TemplateMixinForView, LabelMixinForView, View):
                             self.after_create_redirect_to
                         ].render(feretui, request.session, options),
                         headers={
-                            'HX-Push-Url': url,
+                            "HX-Push-Url": url,
                         },
                     )
             except Exception as e:
-                options['error'] = str(e)
+                options["error"] = str(e)
 
-        options['form'] = form
+        options["form"] = form
         return Response(self.render(feretui, request.session, options))
 
 
@@ -193,11 +204,11 @@ class CResource:
         :return: An instance of the view
         :rtype: :class:`feretui.resources.view.View`
         """
-        if view_cls_name.startswith('MetaViewCreate'):
+        if view_cls_name.startswith("MetaViewCreate"):
             meta_view_cls = self.get_meta_view_class(view_cls_name)
             meta_view_cls.append(CreateView)
             view_cls = type(
-                'CreateView',
+                "CreateView",
                 tuple(meta_view_cls),
                 {},
             )

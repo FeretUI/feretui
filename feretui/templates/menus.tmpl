@@ -80,43 +80,74 @@
     </a>
   </template>
   <template id="aside-menu">
-    <a 
-      class="menu-label"
-      href="{{ href }}"
-      hx-get="{{ url }}"
-      hx-target="#feretui-aside-body"
-      hx-swap="innerHTML"
-      aria-description="{{ description }}"
-    >
-      <include template="feretui-icon" />
-      <span>{{ label }}</span>
-      <include template="feretui-description" />
-    </a>
+    <li>
+      <a 
+        href="{{ href }}"
+        hx-get="{{ url }}"
+        hx-target="#feretui-aside-body"
+        hx-swap="innerHTML"
+        aria-description="{{ description }}"
+      >
+        <include template="feretui-icon" />
+        <span>{{ label }}</span>
+        <include template="feretui-description" />
+      </a>
+    </li>
   </template>
   <template id="aside-header-menu">
-    <div aria-label="{{ label }}" aria-description="{{ description }}">
-      <p class="menu-label">
+    <li aria-label="{{ label }}" aria-description="{{ description }}">
+      <a>
         <include template="feretui-icon" />
         <span><strong>{{ label }}</strong></span>
         <include template="feretui-description" />
-      </p>
+      </a>
       <ul>
         {% for child in children %}
           {% if child.is_visible(session) %}
-            <li>{{ child.render(feretui, session) }}</li>
+            {{ child.render(feretui, session) }}
           {% endif %}
         {% endfor %}
       </ul>
-    </div>
+    </li>
   </template>
   <template id="aside-url-menu">
-    <a 
-      class="menu-label"
-      href="{{ url }}"
-    >
-      <include template="feretui-icon" />
-      <span>{{ label }}</span>
-      <include template="feretui-description" />
-    </a>
+    <li>
+      <a href="{{ url }}">
+        <include template="feretui-icon" />
+        <span>{{ label }}</span>
+        <include template="feretui-description" />
+      </a>
+    </li>
+  </template>
+  <template id="sitemap-header-menu">
+    <li aria-label="{{ label }}" aria-description="{{ description }}">
+      <a>
+        <include template="feretui-icon" />
+        <span><strong>{{ label }}</strong></span>
+        <include template="feretui-description" />
+      </a>
+      <ul class="menu-list">
+        {% for child in children %}
+          {% if child.is_visible(session) %}
+            {{ child.render(feretui, session) }}
+          {% endif %}
+        {% endfor %}
+      </ul>
+    </li>
+  </template>
+  <template id="sitemap-menu">
+    <li>
+      <a 
+        href="{{ href }}"
+        hx-get="{{ url }}"
+        hx-target="#body"
+        hx-swap="innerHTML"
+        aria-description="{{ description }}"
+      >
+        <include template="feretui-icon" />
+        <span>{{ label }}</span>
+        <include template="feretui-description" />
+      </a>
+    </li>
   </template>
 </templates>
