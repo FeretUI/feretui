@@ -9,6 +9,7 @@
 
 The main class to construct a view
 """
+
 import urllib
 from collections.abc import Callable
 from functools import wraps
@@ -89,10 +90,10 @@ class ViewForm:
     @classmethod
     def get_context(cls: "ViewForm") -> str:
         """Return the context for the translation."""
-        if hasattr(cls, 'view'):
-            return f'{cls.view.context}:form:{cls.__name__}'
+        if hasattr(cls, "view"):
+            return f"{cls.view.context}:form:{cls.__name__}"
 
-        return ''
+        return ""
 
 
 class View:
@@ -110,7 +111,7 @@ class View:
         :type resource: :class:`feretui.resources.resource.Resource`
         """
         self.resource = resource
-        self.context = resource.context + f':view:{self.code}'
+        self.context = resource.context + f":view:{self.code}"
         self.form_cls = self.get_form_cls()
 
     def get_label(
@@ -179,7 +180,7 @@ class View:
         :rtype: str.
         """
         options = options.copy()
-        options['action'] = 'goto'
+        options["action"] = "goto"
         for key, value in kwargs.items():
             if value is None:
                 options.pop(key, None)
@@ -189,8 +190,8 @@ class View:
                 options[key] = [value]
 
         return (
-            f'{ feretui.base_url }/action/resource?'
-            f'{urllib.parse.urlencode(options, doseq=True)}'
+            f"{ feretui.base_url }/action/resource?"
+            f"{urllib.parse.urlencode(options, doseq=True)}"
         )
 
     @view_action_validator(methods=[Request.GET, Request.POST])
@@ -205,8 +206,8 @@ class View:
         :rtype: :class:`feretui.response.Response`
         """
         options = request.query.copy()
-        options.pop('action', None)
-        view = options.get('view')
+        options.pop("action", None)
+        view = options.get("view")
         if isinstance(view, list):
             view = view[0]
 
@@ -225,18 +226,18 @@ class View:
         return Response(
             body,
             headers={
-                'HX-Push-Url': url,
+                "HX-Push-Url": url,
             },
         )
 
     def get_form_cls(self: "View") -> FeretUIForm:
         """Return the Form for the view."""
         res = type(
-            f'Form_{self.resource.code}_{self.code}',
+            f"Form_{self.resource.code}_{self.code}",
             (self.Form, self.resource.Form, ViewForm, FeretUIForm),
-            {'view': self},
+            {"view": self},
         )
-        if not hasattr(res, 'pk'):
-            raise ViewFormError(f'The form {res} has no pk')
+        if not hasattr(res, "pk"):
+            raise ViewFormError(f"The form {res} has no pk")
 
         return res

@@ -16,6 +16,7 @@ The availlable actions are:
 * :func:`.login_signup`.
 * :func:`.logout`.
 """
+
 from typing import TYPE_CHECKING
 
 from feretui.exceptions import ActionError, ResourceError
@@ -53,25 +54,27 @@ def goto(
     :rtype: :class:`feretui.response.Response`
     """
     options = request.query.copy()
-    if 'page' not in options:
-        raise ActionError('page in the query string is missing')
+    if "page" not in options:
+        raise ActionError("page in the query string is missing")
 
-    page = options['page'][0]
+    page = options["page"][0]
     # WARN: options can be modified by the page
     body = feretui.get_page(page)(feretui, request.session, options)
     base_url = request.get_base_url_from_current_url()
-    if options.get('in-aside'):
-        options.update({
-            'in-aside': [],
-            'page': ['aside-menu'],
-            'aside': options['in-aside'],
-            'aside_page': [page],
-        })
+    if options.get("in-aside"):
+        options.update(
+            {
+                "in-aside": [],
+                "page": ["aside-menu"],
+                "aside": options["in-aside"],
+                "aside_page": [page],
+            },
+        )
     url = request.get_url_from_dict(base_url=base_url, querystring=options)
     return Response(
         body,
         headers={
-            'HX-Push-Url': url,
+            "HX-Push-Url": url,
         },
     )
 
@@ -98,25 +101,27 @@ def login_password(
         try:
             request.session.login(form)
         except Exception as e:
-            return Response(login(
-                feretui,
-                request.session,
-                {'form': form, 'error': str(e)},
-            ))
+            return Response(
+                login(
+                    feretui,
+                    request.session,
+                    {"form": form, "error": str(e)},
+                ),
+            )
         qs = request.get_query_string_from_current_url()
-        if qs.get('page') == ['login']:
+        if qs.get("page") == ["login"]:
             base_url = request.get_base_url_from_current_url()
             headers = {
-                'HX-Redirect': f'{base_url}?page=homepage',
+                "HX-Redirect": f"{base_url}?page=homepage",
             }
         else:
             headers = {
-                'HX-Refresh': 'true',
+                "HX-Refresh": "true",
             }
 
-        return Response('', headers=headers)
+        return Response("", headers=headers)
 
-    return Response(login(feretui, request.session, {'form': form}))
+    return Response(login(feretui, request.session, {"form": form}))
 
 
 @action_validator(methods=[Request.POST])
@@ -141,26 +146,28 @@ def login_signup(
         try:
             redirect = request.session.signup(form)
         except Exception as e:
-            return Response(signup(
-                feretui,
-                request.session,
-                {'form': form, 'error': str(e)},
-            ))
+            return Response(
+                signup(
+                    feretui,
+                    request.session,
+                    {"form": form, "error": str(e)},
+                ),
+            )
         if redirect:
             qs = request.get_query_string_from_current_url()
-            if qs.get('page') == ['signup']:
+            if qs.get("page") == ["signup"]:
                 base_url = request.get_base_url_from_current_url()
                 headers = {
-                    'HX-Redirect': f'{base_url}?page=homepage',
+                    "HX-Redirect": f"{base_url}?page=homepage",
                 }
             else:
                 headers = {
-                    'HX-Refresh': 'true',
+                    "HX-Refresh": "true",
                 }
 
-            return Response('', headers=headers)
+            return Response("", headers=headers)
 
-    return Response(signup(feretui, request.session, {'form': form}))
+    return Response(signup(feretui, request.session, {"form": form}))
 
 
 @action_validator(methods=[Request.POST])
@@ -183,7 +190,7 @@ def logout(
     request.session.logout()
     base_url = request.get_base_url_from_current_url()
     url = request.get_url_from_dict(base_url=base_url, querystring={})
-    return Response('', headers={'HX-Redirect': url})
+    return Response("", headers={"HX-Redirect": url})
 
 
 @action_validator()
@@ -203,9 +210,9 @@ def resource(
     :rtype: :class:`feretui.response.Response`
     """
     qs = request.get_query_string_from_current_url()
-    code = qs.get('resource', [None])[0]
+    code = qs.get("resource", [None])[0]
     if not code:
-        raise ResourceError('No resource in the query string')
+        raise ResourceError("No resource in the query string")
 
     resource = feretui.get_resource(code)
     return resource.router(feretui, request)

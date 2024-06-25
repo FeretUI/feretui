@@ -247,6 +247,7 @@ all the translation messages in pot file.
 .. _Htmx: https://htmx.org
 .. _MultiDict: https://pypi.org/project/multidict/
 """
+
 from feretui.feretui import FeretUI  # noqa : F401
 from feretui.form import FeretUIForm, Password  # noqa : F401
 from feretui.helper import (  # noqa : F401

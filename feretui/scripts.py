@@ -11,6 +11,7 @@ Console scripts for FeretUI
 
 * :func:`export_catalog` : Export a catalog template for a specific addons
 """
+
 import sys
 from argparse import ArgumentParser
 from importlib.metadata import version
@@ -37,16 +38,20 @@ def export_catalog() -> None:
         prog="Feretui.export_catalog",
         description="Export the catalog template on format POT",
     )
-    parser.add_argument('output', help="The output file")
+    parser.add_argument("output", help="The output file")
     parser.add_argument(
-        '--client', default='feretui.feretui:FeretUI', type=client_path,
+        "--client",
+        default="feretui.feretui:FeretUI",
+        type=client_path,
         help=(
             "Select a class or an instance of your client. "
             "By default it is the main class of FeretUI"
-        ))
-    parser.add_argument('--version', help="The version of the catalog.")
+        ),
+    )
+    parser.add_argument("--version", help="The version of the catalog.")
     parser.add_argument(
-        '--addons', default="feretui", help="The addons to export")
+        "--addons", default="feretui", help="The addons to export",
+    )
 
     args = parser.parse_args(sys.argv[1:])
     version_ = args.version

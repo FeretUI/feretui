@@ -1,6 +1,6 @@
 <templates>
   <template id="feretui-input-label">
-    <label for="{{ label.field_id }}" class="label">
+    <label for="{{ label.field_id }}" class="label" aria-description="{{ description }}">
       {{ label.text }}
       {% if required %}
       <span class="content is-small">
@@ -20,7 +20,7 @@
     </p>
   </template>
   <template id="feretui-input-field">
-    <div class="field">
+    <div class="field" aria-description="{{ description }}">
       {% if label %}
       <include template="feretui-input-label"/>
       {% endif %}
@@ -35,7 +35,7 @@
   <template id="feretui-bool-field">
     <div class="field">
       {% if label %}
-      <label for="{{ label.field_id }}" class="checkbox">
+      <label for="{{ label.field_id }}" class="checkbox" aria-description="{{ description }}">
         {{ widget }}
         {{ label.text }}
         <include template="feretui-description" />

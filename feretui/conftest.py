@@ -32,7 +32,7 @@ def session() -> Session:
 @pytest.fixture(scope="function")
 def authenticated_session() -> Session:
     """Return a session."""
-    return Session(user='test')
+    return Session(user="test")
 
 
 @pytest.fixture(scope="function")

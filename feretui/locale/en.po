@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: 0.0.1\n"
-"POT-Creation-Date: 2024-04-15T13:55:51.124307\n"
+"POT-Creation-Date: 2024-06-25T09:21:00.490710\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -301,12 +301,28 @@ msgctxt "form:feretui.form:FeretUIForm"
 msgid "without spaces"
 msgstr ""
 
+msgctxt "template:feretui-client-header:nav:aria-label"
+msgid "main navigation"
+msgstr ""
+
 msgctxt "template:feretui-client-header:a:data-tooltip"
 msgid "Go to the homepage"
 msgstr ""
 
 msgctxt "template:feretui-client-header"
+msgid "Go to the homepage"
+msgstr ""
+
+msgctxt "template:feretui-client-header:a:aria-label"
+msgid "menu"
+msgstr ""
+
+msgctxt "template:feretui-client-header"
 msgid "Log out"
+msgstr ""
+
+msgctxt "template:feretui-client-footer"
+msgid "Sitemap"
 msgstr ""
 
 msgctxt "template:feretui-client-footer"
@@ -347,6 +363,30 @@ msgstr ""
 
 msgctxt "template:feretui-page-homepage"
 msgid "Small and modular web client to administrate your service"
+msgstr ""
+
+msgctxt "template:feretui-page-sitemap"
+msgid "Sitemap"
+msgstr ""
+
+msgctxt "template:feretui-page-sitemap"
+msgid "Main"
+msgstr ""
+
+msgctxt "template:feretui-page-sitemap"
+msgid "Homepage"
+msgstr ""
+
+msgctxt "template:feretui-page-sitemap"
+msgid "Authentications"
+msgstr ""
+
+msgctxt "template:feretui-page-sitemap"
+msgid "User"
+msgstr ""
+
+msgctxt "template:feretui-page-sitemap"
+msgid "Log out"
 msgstr ""
 
 msgctxt "template:feretui-page-login"
@@ -411,6 +451,18 @@ msgstr ""
 
 msgctxt "template:view-goto-edit-cancel-button"
 msgid "Cancel"
+msgstr ""
+
+msgctxt "template:view-pagination"
+msgid "Selected"
+msgstr ""
+
+msgctxt "template:view-pagination"
+msgid "Previous"
+msgstr ""
+
+msgctxt "template:view-pagination"
+msgid "Next"
 msgstr ""
 
 msgctxt "template:view-filter"

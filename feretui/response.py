@@ -56,7 +56,7 @@ class Response:
 
     def __init__(
         self: "Response",
-        body: str | None = '',
+        body: str | None = "",
         status_code: int = 200,
         headers: dict[str, str] = None,
     ) -> "Response":

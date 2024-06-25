@@ -23,6 +23,7 @@ The List resource represent data under html table.
         class MetaViewList:
             pass
 """
+
 from typing import TYPE_CHECKING
 
 from markupsafe import Markup
@@ -49,13 +50,13 @@ def span_widget(field: Field) -> Markup:
     :rtype: Markup_
     """
     data = field.data
-    if hasattr(field, 'choices'):
+    if hasattr(field, "choices"):
         for choice in field.choices:
             if choice[0] == data:
                 data = choice[1]
                 break
 
-    return Markup(f'<span>{ data }</span>')
+    return Markup(f"<span>{ data }</span>")
 
 
 class DefaultViewList:
@@ -71,7 +72,7 @@ class DefaultViewList:
 class ListView(MultiView, LabelMixinForView, View):
     """List view."""
 
-    code: str = 'list'
+    code: str = "list"
     WIDGETS: dict[str, Field] = {}
 
     def widget(self: "ListView", field: Field, **kwargs: dict) -> Markup:
@@ -81,9 +82,9 @@ class ListView(MultiView, LabelMixinForView, View):
     def get_call_kwargs(self: "ListView", request: Request) -> dict:
         """Return the kwargs of the call method."""
         res = super().get_call_kwargs(request)
-        key = f'selected-rows-resource-{self.resource.code}-view-{self.code}'
+        key = f"selected-rows-resource-{self.resource.code}-view-{self.code}"
         if key in request.params:
-            res['pks'] = request.params[key]
+            res["pks"] = request.params[key]
 
         return res
 
@@ -106,7 +107,7 @@ class ListView(MultiView, LabelMixinForView, View):
         """
         return feretui.render_template(
             session,
-            'feretui-resource-list',
+            "feretui-resource-list",
             widget=self.widget,
             **self.render_kwargs(feretui, session, options),
         )
@@ -115,7 +116,7 @@ class ListView(MultiView, LabelMixinForView, View):
 class LResource:
     """LResource class."""
 
-    default_view: str = 'list'
+    default_view: str = "list"
 
     MetaViewList = DefaultViewList
 
@@ -130,11 +131,11 @@ class LResource:
         :return: An instance of the view
         :rtype: :class:`feretui.resources.view.View`
         """
-        if view_cls_name.startswith('MetaViewList'):
+        if view_cls_name.startswith("MetaViewList"):
             meta_view_cls = self.get_meta_view_class(view_cls_name)
             meta_view_cls.append(ListView)
             view_cls = type(
-                'ListView',
+                "ListView",
                 tuple(meta_view_cls),
                 {},
             )

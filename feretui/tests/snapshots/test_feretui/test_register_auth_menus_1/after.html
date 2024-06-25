@@ -30,8 +30,11 @@
   <header class="is-hidden-print">
    <nav aria-label="main navigation" class="navbar is-fixed-top" role="navigation">
     <div class="navbar-brand">
-     <a class="navbar-item has-tooltip-right has-tooltip-arrow" data-tooltip="Go to the homepage" hx-get="/feretui/action/goto?page=homepage" hx-swap="innerHTML" hx-target="#body">
-      <img alt="FeretUI" src="/feretui/static/logo.png">
+     <a class="navbar-item has-tooltip-right has-tooltip-arrow" data-tooltip="Go to the homepage" href="?page=homepage" hx-get="/feretui/action/goto?page=homepage" hx-swap="innerHTML" hx-target="#body">
+      <img alt src="/feretui/static/logo.png">
+      <span class="is-sr-only">
+       Go to the homepage
+      </span>
      </a>
      <a _="on click toggle .is-active on me then toggle .is-active on #feretui-app-header-burger" aria-expanded="false" aria-label="menu" class="navbar-burger" data-target="feretui-app-header-burger" id="feretui-app-header-burger-button" role="button">
       <span aria-hidden="true">
@@ -54,14 +57,14 @@
  <div class="buttons">
   
           
-            <a class="button None" hx-get="/feretui/action/goto?page=test" hx-swap="innerHTML" hx-target="#body">
- <span>
+            <a aria-description="" class="button None" href="" hx-get="/feretui/action/goto?page=test" hx-swap="innerHTML" hx-target="#body">
+ <span aria-hidden="true">
   
  </span>
  <strong>
   Test
  </strong>
- <span>
+ <span aria-hidden="true">
   
  </span>
 </a>
@@ -84,7 +87,7 @@
   </h1>
   <div class="container">
    <figure class="image 1by1">
-    <img src="/feretui/static/logo.png">
+    <img alt src="/feretui/static/logo.png">
    </figure>
   </div>
   <p>
@@ -97,13 +100,32 @@
    </div>
   </main>
   <footer class="is-hidden-print">
-   <div class="content has-text-centered">
-    <p>
-     <strong>
-      FeretUI
-     </strong>
-     by Js Suzanne.
-    </p>
+   <div class="container">
+    <div class="columns is-desktop">
+     <div class="column is-2-desktop">
+      <p>
+       <a class="navbar-item" href="?page=sitemap" hx-get="/feretui/action/goto?page=sitemap" hx-swap="innerHTML" hx-target="#body">
+        <span class="ml-0 mr-0 icon">
+         <i class="fa-solid fa-sitemap">
+         </i>
+        </span>
+        <strong>
+         Sitemap
+        </strong>
+       </a>
+      </p>
+     </div>
+     <div class="column content has-text-centered">
+      <p>
+       <strong>
+        FeretUI
+       </strong>
+       by Js Suzanne.
+      </p>
+     </div>
+     <div class="column is-2-desktop">
+     </div>
+    </div>
    </div>
   </footer>
   
