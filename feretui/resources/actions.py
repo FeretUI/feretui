@@ -10,6 +10,7 @@
 Declare the actions.
 
 """
+
 import urllib
 from collections.abc import Callable
 from typing import TYPE_CHECKING
@@ -37,7 +38,7 @@ class ActionI18nMixin(ContextProperties):
         """
         return self.feretui.translation.get(
             self.request.session.lang,
-            f'{self.context}:label',
+            f"{self.context}:label",
             self.label,
         )
 
@@ -49,7 +50,7 @@ class ActionI18nMixin(ContextProperties):
         """
         return self.feretui.translation.get(
             self.request.session.lang,
-            f'{self.context}:description',
+            f"{self.context}:description",
             self.description,
         )
 
@@ -65,10 +66,13 @@ class ActionI18nMixin(ContextProperties):
         :param po: The catalog instance
         :type po: PoFile_
         """
-        po.append(translation.define(f'{self.context}:label', self.label))
+        po.append(translation.define(f"{self.context}:label", self.label))
         if self.description:
-            po.append(translation.define(
-                f'{self.context}:description', self.description))
+            po.append(
+                translation.define(
+                    f"{self.context}:description", self.description,
+                ),
+            )
 
 
 class Action(ActionI18nMixin):
@@ -77,7 +81,7 @@ class Action(ActionI18nMixin):
     Define an action in actionset in the view meta.
     """
 
-    template_id: str = 'feretui-page-resource-action'
+    template_id: str = "feretui-page-resource-action"
 
     def __init__(
         self: "Action",
@@ -126,8 +130,8 @@ class Action(ActionI18nMixin):
         :rtype: Markup
         """
         return (
-            f'{feretui.base_url}/action/resource?'
-            f'action=call&method={self.method}'
+            f"{feretui.base_url}/action/resource?"
+            f"action=call&method={self.method}"
         )
 
     def render(
@@ -149,16 +153,18 @@ class Action(ActionI18nMixin):
         :return: The html
         :rtype: Markup
         """
-        return Markup(feretui.render_template(
-            session,
-            self.template_id,
-            url=self.get_url(feretui, session, options),
-            label=self.get_label(),
-            description=self.get_description(),
-            icon=self.icon,
-            rcode=resource_code,
-            vcode=view_code,
-        ))
+        return Markup(
+            feretui.render_template(
+                session,
+                self.template_id,
+                url=self.get_url(feretui, session, options),
+                label=self.get_label(),
+                description=self.get_description(),
+                icon=self.icon,
+                rcode=resource_code,
+                vcode=view_code,
+            ),
+        )
 
     def is_visible(
         self: "Action",
@@ -228,13 +234,15 @@ class GotoViewAction(Action):
         :rtype: Markup
         """
         options = options.copy()
-        options.update({
-            'action': 'goto',
-            'view': self.method,
-        })
+        options.update(
+            {
+                "action": "goto",
+                "view": self.method,
+            },
+        )
         return (
-            f'{feretui.base_url}/action/resource?'
-            f'{urllib.parse.urlencode(options, doseq=True)}'
+            f"{feretui.base_url}/action/resource?"
+            f"{urllib.parse.urlencode(options, doseq=True)}"
         )
 
 
@@ -244,7 +252,7 @@ class SelectedRowsAction(Action):
     This action is not disabled when an entry is selected.
     """
 
-    template_id: str = 'feretui-page-resource-action-for-selected-rows'
+    template_id: str = "feretui-page-resource-action-for-selected-rows"
 
 
 class Actionset(ActionI18nMixin):
@@ -318,23 +326,25 @@ class Actionset(ActionI18nMixin):
         :return: The html
         :rtype: Markup
         """
-        return Markup(feretui.render_template(
-            session,
-            'feretui-page-resource-action-set',
-            label=self.get_label(),
-            actions=[
-                action.render(
-                    feretui,
-                    session,
-                    options,
-                    resource_code,
-                    view_code,
-                )
-                for action in self.actions
-                if action.is_visible(session)
-            ],
-            description=self.description,
-        ))
+        return Markup(
+            feretui.render_template(
+                session,
+                "feretui-page-resource-action-set",
+                label=self.get_label(),
+                actions=[
+                    action.render(
+                        feretui,
+                        session,
+                        options,
+                        resource_code,
+                        view_code,
+                    )
+                    for action in self.actions
+                    if action.is_visible(session)
+                ],
+                description=self.description,
+            ),
+        )
 
     def is_visible(
         self: "Actionset",
@@ -346,7 +356,4 @@ class Actionset(ActionI18nMixin):
         :type session: :class:`feretui.session.Session`
         :rtype: bool
         """
-        return all(
-            action.is_visible(session)
-            for action in self.actions
-        )
+        return all(action.is_visible(session) for action in self.actions)

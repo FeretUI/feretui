@@ -139,7 +139,6 @@
           {% if paginations[0] == offset %}
           <button class="button pagination-previous" disabled>
             <i class="fa-solid fa-chevron-left"></i>
-            <span class="is-sr-only">Previous</span>
           </button>
           {% endif %}
           {% if paginations[0] != offset %}
@@ -154,7 +153,6 @@
           {% if paginations[-1] == offset %}
           <button class="button pagination-next" disabled>
             <i class="fa-solid fa-chevron-right"></i>
-            <span class="is-sr-only">Next</span>
           </button>
           {% endif %}
           {% if paginations[-1] != offset %}

@@ -34,6 +34,60 @@
       </div>
     </div>
   </template>
+  <template id="feretui-page-sitemap">
+    <div class="container">
+      <div class="content">
+        <h1 class="has-text-centered">Sitemap</h1>
+      </div>
+      <aside class="menu">
+        <p class="menu-label">Main</p>
+        <ul class="menu-list">
+          <li>
+            <a 
+              href="?page=homepage"
+              hx-get="{{ feretui.base_url }}/action/goto?page=homepage"
+              hx-target="#feretui-body"
+              hx-swap="innerHTML"
+            >
+              Homepage
+            </a>
+          </li>
+          {% for menu in menus['toolbar'] %}
+            {% if menu.is_visible(session) %}
+              {{ menu.render(feretui, session) }}
+            {% endif %}
+          {% endfor %}
+        </ul>
+        {% if not session.user %}
+          <p class="menu-label">Authentications</p>
+          <ul class="menu-list">
+            {% for menu in menus['auth'] %}
+              {% if menu.is_visible(session) %}
+                {{ menu.render(feretui, session) }}
+              {% endif %}
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="menu-label">User</p>
+          <ul class="menu-list">
+            {% for menu in menus['user'] %}
+              {% if menu.is_visible(session) %}
+                {{ menu.render(feretui, session) }}
+              {% endif %}
+            {% endfor %}
+            <li>
+              <a
+                href="/feretui/action/logout"
+                hx-post="/feretui/action/logout"
+              >
+                Log out
+              </a>
+            </li>
+          </ul>
+        {% endif %}
+      </aside>
+    </div>
+  </template>
   <template id="feretui-page-aside">
     <div class="columns is-desktop">
       <div class="column is-narrow footer pt-5 pb-5 is-hidden-print">
@@ -41,9 +95,7 @@
           <ul class="menu-list">
           {% for menu in menus %}
             {% if menu.is_visible(session) %}
-              <li>
-                {{ menu.render(feretui, session) }}
-              </li>
+              {{ menu.render(feretui, session) }}
             {% endif %}
           {% endfor %}
           </ul>

@@ -22,6 +22,7 @@ The List resource represent data under html table.
         class MetaViewRead:
             pass
 """
+
 from typing import TYPE_CHECKING
 
 from lxml.etree import Element, SubElement
@@ -58,7 +59,7 @@ class DefaultViewRead:
 class ReadView(ActionsMixinForView, TemplateMixinForView, View):
     """Read view."""
 
-    code: str = 'read'
+    code: str = "read"
 
     def set_body_template(
         self: "ReadView",
@@ -75,14 +76,14 @@ class ReadView(ActionsMixinForView, TemplateMixinForView, View):
         :param parent: The parent node
         :type parent: HtmlElement_
         """
-        root = SubElement(form, 'div')
-        root.set('class', 'columns is-desktop')
-        div = SubElement(root, 'div')
-        div.set('class', 'column')
+        root = SubElement(form, "div")
+        root.set("class", "columns is-desktop")
+        div = SubElement(root, "div")
+        div.set("class", "column")
         super().set_body_template(feretui, session, div)
         if len(self.actions):
-            div = SubElement(root, 'div')
-            div.set('class', 'column is-narrow-desktop is-hidden-print')
+            div = SubElement(root, "div")
+            div.set("class", "column is-narrow-desktop is-hidden-print")
             div.text = """
                 {% for action in actions %}
                 {{ action }}
@@ -107,17 +108,19 @@ class ReadView(ActionsMixinForView, TemplateMixinForView, View):
         :rtype: dict.
         """
         res = super().render_kwargs(feretui, session, options)
-        pk = options.get('pk')
+        pk = options.get("pk")
         if isinstance(pk, list):
             pk = pk[0]
 
         # if not pk:
         #     raise ViewError()
 
-        res.update({
-            'actions': self.get_actions(feretui, session, options),
-            'form': self.resource.read(self.form_cls, pk),
-        })
+        res.update(
+            {
+                "actions": self.get_actions(feretui, session, options),
+                "form": self.resource.read(self.form_cls, pk),
+            },
+        )
         return res
 
     def get_header_buttons(
@@ -140,53 +143,61 @@ class ReadView(ActionsMixinForView, TemplateMixinForView, View):
         res = super().get_header_buttons(feretui, session, options)
         if self.create_button_redirect_to:
             res.append(
-                Markup(feretui.render_template(
-                    session,
-                    'view-goto-create-button',
-                    url=self.get_transition_url(
-                        feretui,
-                        options,
-                        pk=None,
-                        view=self.create_button_redirect_to,
+                Markup(
+                    feretui.render_template(
+                        session,
+                        "view-goto-create-button",
+                        url=self.get_transition_url(
+                            feretui,
+                            options,
+                            pk=None,
+                            view=self.create_button_redirect_to,
+                        ),
                     ),
-                )),
+                ),
             )
         if self.edit_button_redirect_to:
             res.append(
-                Markup(feretui.render_template(
-                    session,
-                    'view-goto-edit-button',
-                    url=self.get_transition_url(
-                        feretui,
-                        options,
-                        view=self.edit_button_redirect_to,
+                Markup(
+                    feretui.render_template(
+                        session,
+                        "view-goto-edit-button",
+                        url=self.get_transition_url(
+                            feretui,
+                            options,
+                            view=self.edit_button_redirect_to,
+                        ),
                     ),
-                )),
+                ),
             )
         if self.delete_button_redirect_to:
             res.append(
-                Markup(feretui.render_template(
-                    session,
-                    'view-goto-delete-button',
-                    url=self.get_transition_url(
-                        feretui,
-                        options,
-                        view=self.delete_button_redirect_to,
+                Markup(
+                    feretui.render_template(
+                        session,
+                        "view-goto-delete-button",
+                        url=self.get_transition_url(
+                            feretui,
+                            options,
+                            view=self.delete_button_redirect_to,
+                        ),
                     ),
-                )),
+                ),
             )
         if self.return_button_redirect_to:
             res.append(
-                Markup(feretui.render_template(
-                    session,
-                    'view-goto-return-button',
-                    url=self.get_transition_url(
-                        feretui,
-                        options,
-                        pk=None,
-                        view=self.return_button_redirect_to,
+                Markup(
+                    feretui.render_template(
+                        session,
+                        "view-goto-return-button",
+                        url=self.get_transition_url(
+                            feretui,
+                            options,
+                            pk=None,
+                            view=self.return_button_redirect_to,
+                        ),
                     ),
-                )),
+                ),
             )
 
         return res
@@ -195,11 +206,11 @@ class ReadView(ActionsMixinForView, TemplateMixinForView, View):
         """Return the kwargs of the call method."""
         res = super().get_call_kwargs(request)
         qs = request.get_query_string_from_current_url()
-        pks = qs.get('pk')
+        pks = qs.get("pk")
         if not pks:
-            raise ViewActionError('No primary key in the query string')
+            raise ViewActionError("No primary key in the query string")
 
-        res['pks'] = pks
+        res["pks"] = pks
         return res
 
 
@@ -219,11 +230,11 @@ class RResource:
         :return: An instance of the view
         :rtype: :class:`feretui.resources.view.View`
         """
-        if view_cls_name.startswith('MetaViewRead'):
+        if view_cls_name.startswith("MetaViewRead"):
             meta_view_cls = self.get_meta_view_class(view_cls_name)
             meta_view_cls.append(ReadView)
             view_cls = type(
-                'ReadView',
+                "ReadView",
                 tuple(meta_view_cls),
                 {},
             )

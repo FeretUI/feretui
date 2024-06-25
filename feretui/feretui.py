@@ -40,6 +40,7 @@ The static files, themes and templates can be added:
 
   the method call is :func:`.import_feretui_addons`.
 """
+
 from collections.abc import Callable, Iterable
 from importlib.metadata import entry_points
 from logging import getLogger
@@ -61,6 +62,7 @@ from feretui.helper import menu_for_unauthenticated_user
 from feretui.menus import (
     AsideMenu,
     ChildrenMenu,
+    SitemapMenu,
     ToolBarButtonMenu,
     ToolBarButtonsMenu,
     ToolBarDividerMenu,
@@ -74,6 +76,7 @@ from feretui.pages import (
     page_forbidden,
     resource_page,
     signup,
+    sitemap,
     static_page,
 )
 from feretui.request import Request
@@ -120,73 +123,99 @@ def import_feretui_addons(feretui: "FeretUI") -> None:
 
     # ---- JS ----
     feretui.register_js(
-        'htmx.js',
-        Path(feretui_path, 'static', 'htmx.1.9.10.js'),
+        "htmx.js",
+        Path(feretui_path, "static", "htmx.1.9.10.js"),
     )
     feretui.register_js(
-        'hyperscript.js',
-        Path(feretui_path, 'static', 'hyperscript.0.9.12.js'),
+        "hyperscript.js",
+        Path(feretui_path, "static", "hyperscript.0.9.12.js"),
     )
 
     # ---- CSS ----
     feretui.register_css(
-        'bulma.css',
-        Path(feretui_path, 'static', 'bulma.0.9.4.css'),
+        "bulma.css",
+        Path(feretui_path, "static", "bulma.0.9.4.css"),
     )
     feretui.register_css(
-        'bulma-tooltip.css',
-        Path(feretui_path, 'static', 'bulma-tooltip.1.2.0.min.css'),
+        "bulma-tooltip.css",
+        Path(feretui_path, "static", "bulma-tooltip.1.2.0.min.css"),
     )
     feretui.register_css(
-        'fontawesome/css/all.css',
+        "fontawesome/css/all.css",
         Path(
             feretui_path,
-            'static',
-            'fontawesome-free-6.5.1-web',
-            'css',
-            'all.min.css',
+            "static",
+            "fontawesome-free-6.5.1-web",
+            "css",
+            "all.min.css",
         ),
         compress=False,
     )
     feretui.register_css(
-        'bulma-print.css',
-        Path(feretui_path, 'static', 'bulma-print.1.0.1.css'),
+        "bulma-print.css",
+        Path(feretui_path, "static", "bulma-print.1.0.1.css"),
     )
 
     # ---- Font ----
     for font in (
-        'fa-brands-400.ttf', 'fa-brands-400.woff2', 'fa-regular-400.ttf',
-        'fa-regular-400.woff2', 'fa-solid-900.ttf', 'fa-solid-900.woff2',
-        'fa-v4compatibility.ttf', 'fa-v4compatibility.woff2',
+        "fa-brands-400.ttf",
+        "fa-brands-400.woff2",
+        "fa-regular-400.ttf",
+        "fa-regular-400.woff2",
+        "fa-solid-900.ttf",
+        "fa-solid-900.woff2",
+        "fa-v4compatibility.ttf",
+        "fa-v4compatibility.woff2",
     ):
         feretui.register_font(
-            f'fontawesome/webfonts/{font}',
+            f"fontawesome/webfonts/{font}",
             Path(
                 feretui_path,
-                'static',
-                'fontawesome-free-6.5.1-web',
-                'webfonts',
+                "static",
+                "fontawesome-free-6.5.1-web",
+                "webfonts",
                 font,
             ),
         )
 
     # ---- Images ----
     feretui.register_image(
-        'logo.png',
-        Path(feretui_path, 'static', 'logo.png'),
+        "logo.png",
+        Path(feretui_path, "static", "logo.png"),
     )
 
     # ---- Themes ----
     for theme in (
-        'cerulean', 'cyborg', 'default', 'journal', 'lumen', 'materia',
-        'nuclear', 'sandstone', 'slate', 'spacelab', 'united', 'cosmo',
-        'darkly', 'flatly', 'litera', 'lux', 'minty', 'pulse',
-        'simplex', 'solar', 'superhero', 'yeti',
+        "cerulean",
+        "cyborg",
+        "default",
+        "journal",
+        "lumen",
+        "materia",
+        "nuclear",
+        "sandstone",
+        "slate",
+        "spacelab",
+        "united",
+        "cosmo",
+        "darkly",
+        "flatly",
+        "litera",
+        "lux",
+        "minty",
+        "pulse",
+        "simplex",
+        "solar",
+        "superhero",
+        "yeti",
     ):
         feretui.register_theme(
             theme,
             Path(
-                feretui_path, 'static', 'themes', f'{theme}.min.css',
+                feretui_path,
+                "static",
+                "themes",
+                f"{theme}.min.css",
             ),
         )
 
@@ -292,39 +321,39 @@ class FeretUI:
             return self.statics.get(path, path)
 
         self.jinja_env.compressor_source_dirs = compressor_source_dirs
-        self.jinja_env.compressor_output_dir = f'static/dist/{ base_url }'
-        self.jinja_env.compressor_static_prefix = f'{ base_url }/static'
+        self.jinja_env.compressor_output_dir = f"static/dist/{ base_url }"
+        self.jinja_env.compressor_static_prefix = f"{ base_url }/static"
 
         # List the template to use to generate the UI
         feretui_path = Path(__file__).parent
         self.template = Template(self.translation)
         self.register_template_file(
-            Path(feretui_path, 'templates', 'feretui.tmpl'),
-            addons='feretui',
+            Path(feretui_path, "templates", "feretui.tmpl"),
+            addons="feretui",
         )
         self.register_template_file(
-            Path(feretui_path, 'templates', 'pages.tmpl'),
-            addons='feretui',
+            Path(feretui_path, "templates", "pages.tmpl"),
+            addons="feretui",
         )
         self.register_template_file(
-            Path(feretui_path, 'templates', 'menus.tmpl'),
-            addons='feretui',
+            Path(feretui_path, "templates", "menus.tmpl"),
+            addons="feretui",
         )
         self.register_template_file(
-            Path(feretui_path, 'templates', 'form.tmpl'),
-            addons='feretui',
+            Path(feretui_path, "templates", "form.tmpl"),
+            addons="feretui",
         )
         self.register_template_file(
-            Path(feretui_path, 'resources', 'templates', 'resource.tmpl'),
-            addons='feretui',
+            Path(feretui_path, "resources", "templates", "resource.tmpl"),
+            addons="feretui",
         )
         self.register_template_file(
-            Path(feretui_path, 'resources', 'templates', 'action.tmpl'),
-            addons='feretui',
+            Path(feretui_path, "resources", "templates", "action.tmpl"),
+            addons="feretui",
         )
         self.register_template_file(
-            Path(feretui_path, 'resources', 'templates', 'common.tmpl'),
-            addons='feretui',
+            Path(feretui_path, "resources", "templates", "common.tmpl"),
+            addons="feretui",
         )
 
         # Static behaviours
@@ -337,22 +366,24 @@ class FeretUI:
 
         # Menus
         self.menus: dict[str, list[ToolBarMenu]] = {
-            'left': [],
-            'right': [],
-            'user': [],
+            "left": [],
+            "right": [],
+            "user": [],
         }
         self.asides: dict[str, list[AsideMenu]] = {}
         self.auth: dict = {
-            'menus': None,
-            'addons': None,
+            "menus": None,
+            "addons": None,
         }
-        self.register_auth_menus([
-            ToolBarButtonMenu(
-                'Log In',
-                page='login',
-                visible_callback=menu_for_unauthenticated_user,
-            ),
-        ])
+        self.register_auth_menus(
+            [
+                ToolBarButtonMenu(
+                    "Log In",
+                    page="login",
+                    visible_callback=menu_for_unauthenticated_user,
+                ),
+            ],
+        )
 
         # Actions
         self.actions: dict[str, Callable[[FeretUI, Request], Response]] = {}
@@ -363,16 +394,18 @@ class FeretUI:
         self.register_action(resource)
 
         # Pages
-        self.pages: dict[str, Callable[
-            [FeretUI, Session, dict], Response],
+        self.pages: dict[
+            str,
+            Callable[[FeretUI, Session, dict], Response],
         ] = {}
-        self.register_page(name='404')(page_404)
-        self.register_page(name='forbidden')(page_forbidden)
+        self.register_page(name="404")(page_404)
+        self.register_page(name="forbidden")(page_forbidden)
         self.register_page()(homepage)
-        self.register_page('aside-menu')(aside_menu)
+        self.register_page()(sitemap)
+        self.register_page("aside-menu")(aside_menu)
         self.register_page()(login)
         self.register_page()(signup)
-        self.register_page(name='resource')(resource_page)
+        self.register_page(name="resource")(resource_page)
 
         self.register_addons_from_entrypoint()
 
@@ -392,7 +425,7 @@ class FeretUI:
 
         Here the method call is :func:`.import_feretui_addons`.
         """
-        for i in entry_points(group='feretui.addons'):
+        for i in entry_points(group="feretui.addons"):
             logger.debug("Load the static from entrypoint: %s", i.name)
             i.load()(self)
 
@@ -407,20 +440,24 @@ class FeretUI:
         # First put the instance of feretui and the request in
         # the local thread to keep the information
         with set_context(self, request):
-            page = request.query.get('page', ['homepage'])[0]
+            page = request.query.get("page", ["homepage"])[0]
             template = self.render_template(
                 request.session,
-                'feretui-client',
-                page=Markup(self.get_page(page)(
-                    self, request.session, request.query,
-                )),
+                "feretui-client",
+                page=Markup(
+                    self.get_page(page)(
+                        self,
+                        request.session,
+                        request.query,
+                    ),
+                ),
             )
             # lxml remove the tags html, head and body. So in template
             # they are named feretui-html, feretui-head, feretui-body
-            template = template.replace('feretui-html', 'html')
-            template = template.replace('feretui-head', 'head')
-            template = template.replace('feretui-body', 'body')
-            return Response(f'<!DOCTYPE html5>\n{template}')
+            template = template.replace("feretui-html", "html")
+            template = template.replace("feretui-head", "head")
+            template = template.replace("feretui-body", "body")
+            return Response(f"<!DOCTYPE html5>\n{template}")
 
     # ---------- statics  ----------
     def register_js(self: "FeretUI", name: str, filepath: str) -> None:
@@ -432,9 +469,9 @@ class FeretUI:
         :type filepath: str
         """
         if name in self.statics:
-            logger.warning('The js script %s is overwriting', name)
+            logger.warning("The js script %s is overwriting", name)
         else:
-            logger.debug('Add the js script %s', name)
+            logger.debug("Add the js script %s", name)
             self.js_import.append(name)
 
         self.statics[name] = filepath
@@ -455,10 +492,10 @@ class FeretUI:
         :type compress: bool
         """
         if name in self.statics:
-            logger.warning('The stylesheet %s is overwriting', name)
+            logger.warning("The stylesheet %s is overwriting", name)
         else:
             url = f"{self.base_url}/static/{name}"
-            logger.debug('Add the stylesheet %s', url)
+            logger.debug("Add the stylesheet %s", url)
             if compress:
                 self.css_import.append((compress, name))
             else:
@@ -475,10 +512,10 @@ class FeretUI:
         :type filepath: str
         """
         if name in self.statics:
-            logger.warning('The image %s is overwriting', name)
+            logger.warning("The image %s is overwriting", name)
         else:
             url = f"{self.base_url}/static/{name}"
-            logger.debug('Add the image %s', url)
+            logger.debug("Add the image %s", url)
             self.images[name] = url
 
         self.statics[name] = filepath
@@ -492,9 +529,9 @@ class FeretUI:
         :type filepath: str
         """
         if name in self.statics:
-            logger.warning('The theme %s is overwriting', name)
+            logger.warning("The theme %s is overwriting", name)
         else:
-            logger.debug('Add the available theme %s', name)
+            logger.debug("Add the available theme %s", name)
             self.themes[name] = name
 
         self.statics[name] = filepath
@@ -508,10 +545,10 @@ class FeretUI:
         :type filepath: str
         """
         if name in self.statics:
-            logger.warning('The font %s is overwriting', name)
+            logger.warning("The font %s is overwriting", name)
         else:
             url = f"{self.base_url}/static/{name}"
-            logger.debug('Add the available font %s', url)
+            logger.debug("Add the available font %s", url)
             self.fonts[name] = url
 
         self.statics[name] = filepath
@@ -526,7 +563,7 @@ class FeretUI:
         :return: the url to import stylesheep
         :rtype: str
         """
-        return self.themes.get(session.theme, self.themes['default'])
+        return self.themes.get(session.theme, self.themes["default"])
 
     def get_image_url(self: "FeretUI", name: str) -> str:
         """Get the url for a picture.
@@ -546,7 +583,7 @@ class FeretUI:
         :return: The filesystem path
         :rtype: str
         """
-        path = Path(f'./static/dist/{self.base_url}/{filename}')
+        path = Path(f"./static/dist/{self.base_url}/{filename}")
         if path.exists():
             return path  # pragma: no cover
 
@@ -679,7 +716,7 @@ class FeretUI:
                 :class:`feretui.response.Response`]
         """
         if function.__name__ in self.actions:
-            logger.info('Overload action %r', function.__name__)
+            logger.info("Overload action %r", function.__name__)
 
         self.actions[function.__name__] = function
         return function
@@ -809,7 +846,7 @@ class FeretUI:
             name = default_name if default_name else func.__name__
 
             if name in self.pages:
-                logger.info('Overload page %r', name)
+                logger.info("Overload page %r", name)
 
             self.pages[name] = func
             return func
@@ -889,7 +926,7 @@ class FeretUI:
             str]
         """
         if pagename not in self.pages:
-            return self.get_page('404')
+            return self.get_page("404")
 
         return self.pages[pagename]
 
@@ -938,7 +975,7 @@ class FeretUI:
         :type addons: str
         :exception: :class:`feretui.exceptions.MenuError`
         """
-        self._register_toolbar_menus('left', menus, addons=addons)
+        self._register_toolbar_menus("left", menus, addons=addons)
 
     def register_toolbar_right_menus(
         self: "FeretUI",
@@ -959,7 +996,7 @@ class FeretUI:
         :type addons: str
         :exception: :class:`feretui.exceptions.MenuError`
         """
-        self._register_toolbar_menus('right', menus, addons=addons)
+        self._register_toolbar_menus("right", menus, addons=addons)
 
     def register_aside_menus(
         self: "FeretUI",
@@ -1028,8 +1065,8 @@ class FeretUI:
                 raise MenuError(f"{menu} is not a toolbar button menu")
 
         self.auth = {
-            'menus': ToolBarButtonsMenu(menus),
-            'addons': addons,
+            "menus": ToolBarButtonsMenu(menus),
+            "addons": addons,
         }
 
     def register_user_menus(
@@ -1051,7 +1088,7 @@ class FeretUI:
         :type addons: str
         :exception: :class:`feretui.exceptions.MenuError`
         """
-        self._register_toolbar_menus('user', menus, addons=addons)
+        self._register_toolbar_menus("user", menus, addons=addons)
 
     def get_aside_menus(self: "FeretUI", code: str) -> list[AsideMenu]:
         """Return the aside menus link with the code.
@@ -1062,6 +1099,27 @@ class FeretUI:
         :rtype: list[:class:`feretui.menus.AsideMenu`
         """
         return self.asides.setdefault(code, [])
+
+    def get_site_map_menus(self: "FeretUI") -> None:
+        """Return the sitemap menus.
+
+        :return: The menus to render
+        :rtype: :class:`feretui.menus.SitemapMenu`
+        """
+        return {
+            "toolbar": [
+                SitemapMenu(self, menu)
+                for menu in (
+                    self.menus.get("left", []) + self.menus.get("right", [])
+                )
+            ],
+            "auth": [
+                SitemapMenu(self, menu) for menu in self.auth["menus"].children
+            ],
+            "user": [
+                SitemapMenu(self, menu) for menu in self.menus.get("user", [])
+            ],
+        }
 
     # ---------- Resource  ----------
     def register_resource(
@@ -1082,9 +1140,10 @@ class FeretUI:
         :param addons: The addons where the message come from
         :type addons: str
         """
+
         def wrap_class(cls: Resource) -> Resource:
             if cls.code in self.resources:
-                logger.info('Overload resource %s[%s]', (cls.code, cls.label))
+                logger.info("Overload resource %s[%s]", (cls.code, cls.label))
 
             resource = cls.build()
             self.resources[cls.code] = resource
@@ -1124,6 +1183,7 @@ class FeretUI:
         :param addons: The addons where the message come from
         :type addons: str
         """
+
         def _register_form(form: FeretUIForm) -> FeretUIForm:
             self.translation.add_translated_form(
                 TranslatedForm(form, addons=addons),
@@ -1153,10 +1213,10 @@ class FeretUI:
         :param addons: The addons where the message come from
         :type addons: str
         """
-        if self.auth['menus']:
-            for menu in (self.auth['menus'].children or []):
+        if self.auth["menus"]:
+            for menu in self.auth["menus"].children or []:
                 self.translation.add_translated_menu(
-                    TranslatedMenu(menu, addons=self.auth['addons']),
+                    TranslatedMenu(menu, addons=self.auth["addons"]),
                 )
         self.translation.export_catalog(output_path, version, addons=addons)
 
@@ -1182,5 +1242,5 @@ class FeretUI:
         :param lang: Language code
         :type lang: str
         """
-        catalog_path = Path(__file__).parent / 'locale' / f'{lang}.po'
+        catalog_path = Path(__file__).parent / "locale" / f"{lang}.po"
         self.load_catalog(catalog_path, lang)

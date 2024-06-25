@@ -118,6 +118,7 @@ For the xpath the expression attribute use
     must be parsed. So the jinja command must not break the parser.
 
 """
+
 import re
 from ast import literal_eval
 from collections.abc import Callable
@@ -155,7 +156,8 @@ def decode_html(html_string: str) -> str:
     if not converted.unicode_markup:
         raise UnicodeDecodeError(  # pragma: no cover
             "Failed to detect encoding, tried [%s]",
-            ', '.join(converted.tried_encodings))
+            ", ".join(converted.tried_encodings),
+        )
 
     return converted.unicode_markup
 
@@ -181,7 +183,7 @@ def _minify_text_and_tail(el: etree.Element) -> None:
     :param el: The node to minimify.
     :type el: etree.Element
     """
-    for name in ('text', 'tail'):
+    for name in ("text", "tail"):
         text = getattr(el, name)
         if text is None:
             continue
@@ -204,7 +206,7 @@ def get_translated_message(text: str | None) -> str | None:
     if not text:
         return text
 
-    text = text.replace('\n', '').replace('\n', '').strip()
+    text = text.replace("\n", "").replace("\n", "").strip()
     for regex in JINJA_REGEXES:
         if re.findall(regex, text):
             return None
@@ -297,7 +299,7 @@ class Template:
     def get_template(
         self: "Template",
         name: str,
-        lang: str = 'en',
+        lang: str = "en",
         tostring: bool = True,
         encoding: str = "unicode",
     ) -> html.HtmlElement | str:
@@ -336,7 +338,8 @@ class Template:
             tmpl_str = self.tostring(tmpl, encoding)
             compiled_str_lang = self.compiled_str.setdefault(lang, {})
             compiled_str_lang_encoding = compiled_str_lang.setdefault(
-                encoding, {})
+                encoding, {},
+            )
             compiled_str_lang_encoding[name] = tmpl_str
             return tmpl_str
 
@@ -390,20 +393,22 @@ class Template:
             # to save the operator in get_template
             element = html.fromstring(decode_html(el))
         except Exception:  # pragma: no cover
-            logger.error('error durring load of %r', openedfile)
+            logger.error("error durring load of %r", openedfile)
             raise
 
-        if element.tag.lower() == 'template':
+        if element.tag.lower() == "template":
             self.load_template(
-                element, ignore_missing_extend=ignore_missing_extend)
-        elif element.tag.lower() == 'templates':
+                element, ignore_missing_extend=ignore_missing_extend,
+            )
+        elif element.tag.lower() == "templates":
             for _element in element.getchildren():
                 if _element.tag in (etree.Comment, html.HtmlComment):
                     continue
 
-                if _element.tag.lower() == 'template':
+                if _element.tag.lower() == "template":
                     self.load_template(
-                        _element, ignore_missing_extend=ignore_missing_extend)
+                        _element, ignore_missing_extend=ignore_missing_extend,
+                    )
                 else:
                     raise TemplateError(
                         f"Only 'template' can be loaded not {_element.tag} "
@@ -430,25 +435,25 @@ class Template:
         :type ignore_missing_extend: bool
         :exception: :class:`feretui.exceptions.TemplateError`
         """
-        name = element.attrib.get('id')
-        extend = element.attrib.pop('extend', None)
-        rewrite = bool(literal_eval(element.attrib.get('rewrite', "False")))
+        name = element.attrib.get("id")
+        extend = element.attrib.pop("extend", None)
+        rewrite = bool(literal_eval(element.attrib.get("rewrite", "False")))
 
         if name:
             if self.known.get(name) and not rewrite:
                 raise TemplateError(f"Alredy existing template {name}")
 
             self.known[name] = {
-                'tmpl': [],
+                "tmpl": [],
             }
 
         if extend:
             if name:
-                self.known[name]['extend'] = extend
+                self.known[name]["extend"] = extend
             else:
                 if extend not in self.known:
                     if ignore_missing_extend:
-                        self.known[extend] = {'tmpl': []}
+                        self.known[extend] = {"tmpl": []}
                     else:
                         raise TemplateError(
                             "Extend an unexisting template "
@@ -463,11 +468,11 @@ class Template:
                 f"{html.tostring(element)}",
             )
 
-        els = [element] + element.findall('.//*')
+        els = [element] + element.findall(".//*")
         for el in els:
             _minify_text_and_tail(el)
 
-        self.known[name]['tmpl'].append(element)
+        self.known[name]["tmpl"].append(element)
 
     def load_template_from_str(self: "Template", template: str) -> None:
         """Load a template from string.
@@ -500,12 +505,12 @@ class Template:
         """
         return [
             XPathDescription(
-                expression=el.attrib.get('expression', '/'),
-                mult=bool(literal_eval(el.attrib.get('mult', 'False'))),
-                action=el.attrib.get('action', 'insert'),
+                expression=el.attrib.get("expression", "/"),
+                mult=bool(literal_eval(el.attrib.get("mult", "False"))),
+                action=el.attrib.get("action", "insert"),
                 elements=el.getchildren(),
             )
-            for el in element.findall('xpath')
+            for el in element.findall("xpath")
         ]
 
     def xpath(
@@ -600,7 +605,7 @@ class Template:
         :type elements: list[HtmlElement_]
         """
         els = self.xpath(lang, name, expression, mult)
-        parent_els = self.xpath(lang, name, expression + '/..', mult)
+        parent_els = self.xpath(lang, name, expression + "/..", mult)
         for parent in parent_els:
             for i, cel in enumerate(parent.getchildren()):
                 if cel in els:
@@ -637,7 +642,7 @@ class Template:
         :type elements: list[HtmlElement_]
         """
         els = self.xpath(lang, name, expression, mult)
-        parent_els = self.xpath(lang, name, expression + '/..', mult)
+        parent_els = self.xpath(lang, name, expression + "/..", mult)
         for parent in parent_els:
             for i, cel in enumerate(parent.getchildren()):
                 if cel in els:
@@ -702,7 +707,7 @@ class Template:
         :type elements: list[HtmlElement_]
         """
         els = self.xpath(lang, name, expression, mult)
-        parent_els = self.xpath(lang, name, expression + '/..', mult)
+        parent_els = self.xpath(lang, name, expression + "/..", mult)
         for parent in parent_els:
             for i, cel in enumerate(parent.getchildren()):
                 if cel in els:
@@ -759,9 +764,10 @@ class Template:
         """
         res = []
         for el in elements:
-            if el.tag != 'attribute':
+            if el.tag != "attribute":
                 raise TemplateError(
-                    f"get {el.tag!r} node, waiting 'attribute' node")
+                    f"get {el.tag!r} node, waiting 'attribute' node",
+                )
 
             res.append(dict(el.items()))
 
@@ -769,7 +775,8 @@ class Template:
 
     def get_elements(
         self: "Template",
-        lang: str, name: str,
+        lang: str,
+        name: str,
     ) -> list[html.HtmlElement]:
         """Return the store templates for one id, and apply *include* on them.
 
@@ -780,11 +787,12 @@ class Template:
         :return: The list of the templates
         :rtype: list[HtmlElement_]
         """
-        elements = [deepcopy(x) for x in self.known[name]['tmpl']]
+        elements = [deepcopy(x) for x in self.known[name]["tmpl"]]
         for el in elements:
-            for el_include in el.findall('.//include'):
+            for el_include in el.findall(".//include"):
                 tmpl = self.compile_template(
-                    lang, el_include.attrib['template'])
+                    lang, el_include.attrib["template"],
+                )
                 for index, child in enumerate(tmpl.getchildren()):
                     el_include.insert(index, deepcopy(child))
 
@@ -812,20 +820,19 @@ class Template:
         expression = description.expression
         mult = description.mult
         els = description.elements
-        if action == 'insertInside':
+        if action == "insertInside":
             self.xpath_insert_inside(lang, name, expression, mult, els)
-        elif action == 'insertBefore':
+        elif action == "insertBefore":
             self.xpath_insert_before(lang, name, expression, mult, els)
-        elif action == 'insertAfter':
+        elif action == "insertAfter":
             self.xpath_insert_after(lang, name, expression, mult, els)
-        elif action == 'replace':
+        elif action == "replace":
             self.xpath_replace(lang, name, expression, mult, els)
-        elif action == 'remove':
+        elif action == "remove":
             self.xpath_remove(lang, name, expression, mult)
-        elif action == 'attributes':
+        elif action == "attributes":
             for attributes in self.get_xpath_attributes(els):
-                self.xpath_attributes(
-                    lang, name, expression, mult, attributes)
+                self.xpath_attributes(lang, name, expression, mult, attributes)
         else:
             raise TemplateError(f"Unknown action {action!r}")
 
@@ -852,12 +859,12 @@ class Template:
         if name in self.compiled[lang]:
             return self.compiled[lang][name]
 
-        extend = self.known[name].get('extend')
+        extend = self.known[name].get("extend")
         elements = self.get_elements(lang, name)
 
         if extend:
             tmpl = deepcopy(self.compile_template(lang, extend))
-            tmpl.set('id', name)
+            tmpl.set("id", name)
         else:
             tmpl = elements[0]
             elements = elements[1:]
@@ -868,7 +875,7 @@ class Template:
             for val in self.get_xpath(el):
                 self.apply_xpath(val, lang, name)
 
-        def callback(text: str, suffix: str = '') -> str:
+        def callback(text: str, suffix: str = "") -> str:
             return self.get_translation(lang, name, text, suffix)
 
         self.compile_template_i18n(self.compiled[lang][name], callback)
@@ -883,10 +890,10 @@ class Template:
         """
 
         def callback(name: str) -> Callable:
-            def _callback(text: str, suffix: str = '') -> None:
-                context = f'template:{name}'
+            def _callback(text: str, suffix: str = "") -> None:
+                context = f"template:{name}"
                 if suffix:
-                    context += ':' + suffix
+                    context += ":" + suffix
 
                 entry = self.translation.define(context, text)
                 po.append(entry)
@@ -894,7 +901,7 @@ class Template:
             return _callback
 
         for name in self.known:
-            for tmpl in self.known[name]['tmpl']:
+            for tmpl in self.known[name]["tmpl"]:
                 self.compile_template_i18n(tmpl, callback(name))
 
     def compile_template_i18n(
@@ -918,17 +925,20 @@ class Template:
         if tail:
             tmpl.tail = action_callback(tail)
 
-        for key in (set(tmpl.attrib.keys()).intersection({
-            "label",
-            "hx-confirm",
-            "data-tooltip",
-            "aria-label",
-            "aria-description",
-        })):
+        for key in set(tmpl.attrib.keys()).intersection(
+            {
+                "label",
+                "hx-confirm",
+                "data-tooltip",
+                "aria-label",
+                "aria-description",
+            },
+        ):
             val = get_translated_message(tmpl.attrib[key])
             if val:
                 tmpl.attrib[key] = action_callback(
-                    val, suffix=f'{tmpl.tag}:{key}')
+                    val, suffix=f"{tmpl.tag}:{key}",
+                )
 
         for child in tmpl.getchildren():
             self.compile_template_i18n(child, action_callback)
@@ -953,13 +963,13 @@ class Template:
         :return: The translated message
         :rtype: str
         """
-        context = f'template:{name}'
+        context = f"template:{name}"
         if suffix:
-            context += ':' + suffix
+            context += ":" + suffix
 
         return self.translation.get(lang, context, text)
 
-    def compile(self: "Template", lang: str = 'en') -> None:
+    def compile(self: "Template", lang: str = "en") -> None:
         """Compile all the templates for a specific lang.
 
         :param lang: [en], The langage use for the include.

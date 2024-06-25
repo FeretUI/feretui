@@ -17,8 +17,10 @@ from feretui.pages import (
     page_forbidden,
     resource_page,
     signup,
+    sitemap,
     static_page,
 )
+from feretui.menus import AsideMenu, ToolBarMenu
 from feretui.resources.resource import Resource
 
 
@@ -39,6 +41,40 @@ class TestPage:
     def test_homepage(self, snapshot, feretui, session) -> None:
         snapshot.assert_match(
             homepage(feretui, session, {}),
+            'snapshot.html',
+        )
+
+    def test_sitemap_1(self, snapshot, feretui, session) -> None:
+        feretui.register_aside_menus(
+            'my-aside',
+            [AsideMenu('Test', page='test')])
+        feretui.register_toolbar_left_menus([
+            ToolBarMenu(
+                'Test',
+                page='aside-menu',
+                aside='my-aside',
+                aside_page='test'
+            )
+        ])
+        snapshot.assert_match(
+            sitemap(feretui, session, {}),
+            'snapshot.html',
+        )
+
+    def test_sitemap_2(self, snapshot, feretui, authenticated_session) -> None:
+        feretui.register_aside_menus(
+            'my-aside',
+            [AsideMenu('Test', page='test')])
+        feretui.register_toolbar_left_menus([
+            ToolBarMenu(
+                'Test',
+                page='aside-menu',
+                aside='my-aside',
+                aside_page='test'
+            )
+        ])
+        snapshot.assert_match(
+            sitemap(feretui, authenticated_session, {}),
             'snapshot.html',
         )
 
