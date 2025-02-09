@@ -17,6 +17,7 @@ The session can be overwritting by the developper::
 
     session = Session()
 """
+
 from wtforms import PasswordField, RadioField, StringField
 from wtforms.validators import EqualTo, InputRequired
 
@@ -35,13 +36,13 @@ class SignUpForm(FeretUIForm):
 
     login = StringField(validators=[InputRequired()])
     lang = RadioField(
-        label='Language',
-        choices=[('en', 'English')],
+        label="Language",
+        choices=[("en", "English")],
         validators=[InputRequired()],
     )
     password = PasswordField(validators=[Password()])
     password_confirm = PasswordField(
-        validators=[InputRequired(), EqualTo('password')],
+        validators=[InputRequired(), EqualTo("password")],
     )
 
 
@@ -77,8 +78,8 @@ class Session:
     def __init__(
         self: "Session",
         user: str = None,
-        lang: str = 'en',
-        theme: str = 'default',
+        lang: str = "en",
+        theme: str = "default",
         **kwargs: dict,
     ) -> "Session":
         """FeretUI session."""
@@ -90,7 +91,7 @@ class Session:
     def to_dict(self: "Session") -> dict:
         """Return the value of the session as a dict."""
         dict_ = self.__dict__.copy()
-        dict_.pop('kwargs')
+        dict_.pop("kwargs")
         return dict_
 
     def login(

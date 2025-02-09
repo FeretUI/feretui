@@ -3,14 +3,14 @@
     <div id="resource-{{ rcode }}-view-{{ vcode }}" class="container is-fluid">
       <form>
         <include template="view-multi-header" />
-        <div class="columns">
+        <div class="columns is-desktop">
           <div class="column">
             <include template="view-pagination" />
             <div class="table-container">
               <table class="table is-fullwidth is-striped">
                 <thead>
                   <tr>
-                    <th class="is-narrow">
+                    <th class="is-narrow" id="checkbox-all-resource-{{ rcode }}-view-{{ vcode }}">
                       <input
                         type="checkbox"
                         name="selected-table-resource-{{ rcode }}-view-{{ vcode }}"
@@ -37,7 +37,7 @@
                     hx-trigger="dblclick"
                     hx-get="{{ open_view_url }}&pk={{ row.pk.data }}"
                   >
-                    <td>
+                    <th id="{{ row.pk.data }}">
                       <input 
                         type="checkbox" 
                         name="selected-rows-resource-{{ rcode }}-view-{{ vcode }}" 
@@ -58,9 +58,9 @@
                           end
                         "
                       />
-                    </td>
+                    </th>
                     {% for field in form %}
-                    <td>
+                    <td headers="{{ field.name }} {{ row.pk.data }}">
                       {{ widget(row[field.name]) }}
                     </td>
                     {% endfor %}
@@ -69,7 +69,7 @@
                 </tbody>
                 <tfoot>
                   <tr>
-                    <th class="is-narrow">
+                    <th class="is-narrow" id="checkbox-all-resource-{{ rcode }}-view-{{ vcode }}">
                       <input
                         type="checkbox"
                         name="selected-table-resource-{{ rcode }}-view-{{ vcode }}"

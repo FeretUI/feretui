@@ -22,6 +22,7 @@ The List resource represent data under html table.
         class MetaViewCreate:
             pass
 """
+
 from typing import TYPE_CHECKING
 
 from lxml.etree import Element
@@ -53,7 +54,7 @@ class DefaultViewUpdate:
 class EditView(TemplateMixinForView, View):
     """Create view."""
 
-    code: str = 'edit'
+    code: str = "edit"
 
     def set_form_template(
         self: "EditView",
@@ -72,8 +73,8 @@ class EditView(TemplateMixinForView, View):
         """
         form = super().set_form_template(feretui, session, parent)
         form.set(
-            'hx-post',
-            f'{feretui.base_url}/action/resource?action=save',
+            "hx-post",
+            f"{feretui.base_url}/action/resource?action=save",
         )
         return form
 
@@ -95,26 +96,30 @@ class EditView(TemplateMixinForView, View):
         :rtype: list[Markup]
         """
         options = options.copy()
-        options.pop('error', None)
-        options.pop('form', None)
+        options.pop("error", None)
+        options.pop("form", None)
         res = super().get_header_buttons(feretui, session, options)
         res.append(
-            Markup(feretui.render_template(
-                session,
-                'view-do-save-button',
-            )),
+            Markup(
+                feretui.render_template(
+                    session,
+                    "view-do-save-button",
+                ),
+            ),
         )
         if self.cancel_button_redirect_to:
             res.append(
-                Markup(feretui.render_template(
-                    session,
-                    'view-goto-edit-cancel-button',
-                    url=self.get_transition_url(
-                        feretui,
-                        options,
-                        view=self.cancel_button_redirect_to,
+                Markup(
+                    feretui.render_template(
+                        session,
+                        "view-goto-edit-cancel-button",
+                        url=self.get_transition_url(
+                            feretui,
+                            options,
+                            view=self.cancel_button_redirect_to,
+                        ),
                     ),
-                )),
+                ),
             )
         return res
 
@@ -136,14 +141,18 @@ class EditView(TemplateMixinForView, View):
         :rtype: dict.
         """
         res = super().render_kwargs(feretui, session, options)
-        pk = options.get('pk')
+        pk = options.get("pk")
         if isinstance(pk, list):
             pk = pk[0]
 
-        res.update({
-            'form': options.pop('form', self.resource.read(self.form_cls, pk)),
-            'error': options.get('error'),
-        })
+        res.update(
+            {
+                "form": options.pop(
+                    "form", self.resource.read(self.form_cls, pk),
+                ),
+                "error": options.get("error"),
+            },
+        )
         return res
 
     @view_action_validator(methods=[Request.POST])
@@ -162,7 +171,7 @@ class EditView(TemplateMixinForView, View):
         :rtype: :class:`feretui.response.Response`
         """
         options = request.get_query_string_from_current_url().copy()
-        pk = options.get('pk')
+        pk = options.get("pk")
         if isinstance(pk, list):
             pk = pk[0]
 
@@ -176,10 +185,12 @@ class EditView(TemplateMixinForView, View):
                 self.resource.update([form])
                 if self.after_update_redirect_to:
                     base_url = request.get_base_url_from_current_url()
-                    options.update({
-                        'view': self.after_update_redirect_to,
-                        'pk': pk,
-                    })
+                    options.update(
+                        {
+                            "view": self.after_update_redirect_to,
+                            "pk": pk,
+                        },
+                    )
                     url = request.get_url_from_dict(
                         base_url=base_url,
                         querystring=options,
@@ -189,13 +200,13 @@ class EditView(TemplateMixinForView, View):
                             self.after_update_redirect_to
                         ].render(feretui, request.session, options),
                         headers={
-                            'HX-Push-Url': url,
+                            "HX-Push-Url": url,
                         },
                     )
             except Exception as e:
-                options['error'] = str(e)
+                options["error"] = str(e)
 
-        options['form'] = form
+        options["form"] = form
         return Response(self.render(feretui, request.session, options))
 
 
@@ -215,11 +226,11 @@ class UResource:
         :return: An instance of the view
         :rtype: :class:`feretui.resources.view.View`
         """
-        if view_cls_name.startswith('MetaViewUpdate'):
+        if view_cls_name.startswith("MetaViewUpdate"):
             meta_view_cls = self.get_meta_view_class(view_cls_name)
             meta_view_cls.append(EditView)
             view_cls = type(
-                'EditView',
+                "EditView",
                 tuple(meta_view_cls),
                 {},
             )

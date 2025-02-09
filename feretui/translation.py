@@ -30,6 +30,7 @@ The Translation class have two methods to manipulate the catalogs:
 
 .. _POEntry: https://polib.readthedocs.io/en/latest/api.html#the-poentry-class
 """
+
 from datetime import datetime
 from logging import getLogger
 from pathlib import Path
@@ -77,7 +78,7 @@ class TranslatedTemplate:
 
     def __init__(
         self: "TranslatedTemplate",
-        addons: str = 'feretui',
+        addons: str = "feretui",
     ) -> "TranslatedTemplate":
         """TranslatedMessage class."""
         self.addons: str = addons
@@ -136,7 +137,7 @@ class TranslatedFileTemplate(TranslatedTemplate):
     def __init__(
         self: "TranslatedFileTemplate",
         template_path: str,
-        addons: str = 'feretui',
+        addons: str = "feretui",
     ) -> "TranslatedFileTemplate":
         """TranslatedFileTemplate class."""
         super().__init__(addons=addons)
@@ -190,7 +191,7 @@ class TranslatedStringTemplate(TranslatedTemplate):
     def __init__(
         self: "TranslatedStringTemplate",
         template: str,
-        addons: str = 'feretui',
+        addons: str = "feretui",
     ) -> "TranslatedStringTemplate":
         """TranslatedStringTemplate class."""
         super().__init__(addons=addons)
@@ -238,7 +239,7 @@ class TranslatedMenu:
     def __init__(
         self: "TranslatedMenu",
         menu: Menu,
-        addons: str = 'feretui',
+        addons: str = "feretui",
     ) -> "TranslatedMenu":
         """TranslatedMenu class."""
         if not isinstance(menu, Menu):
@@ -249,7 +250,7 @@ class TranslatedMenu:
 
     def __str__(self: "TranslatedMenu") -> str:
         """Return the instance as a string."""
-        return f'<TranslatedMenu {self.menu} addons={self.addons}>'
+        return f"<TranslatedMenu {self.menu} addons={self.addons}>"
 
     def export_catalog(
         self: "TranslatedMenu",
@@ -263,11 +264,15 @@ class TranslatedMenu:
         :param po: The catalog instance
         :type po: PoFile_
         """
-        po.append(translation.define(
-            f'{self.menu.context}:label', self.menu.label))
+        po.append(
+            translation.define(f"{self.menu.context}:label", self.menu.label),
+        )
         if self.menu.description:
-            po.append(translation.define(
-                f'{self.menu.context}:description', self.menu.description))
+            po.append(
+                translation.define(
+                    f"{self.menu.context}:description", self.menu.description,
+                ),
+            )
 
 
 class TranslatedForm:
@@ -301,19 +306,18 @@ class TranslatedForm:
     def __init__(
         self: "TranslatedForm",
         form: FeretUIForm,
-        addons: str = 'feretui',
+        addons: str = "feretui",
     ) -> None:
         """TranslatedForm class."""
         if not issubclass(form, FeretUIForm):
-            raise TranslationFormError(
-                f"{form} must be a sub class of FeretUI")
+            raise TranslationFormError(f"{form} must be a sub class of FeretUI")
 
         self.form: FeretUIForm = form
         self.addons: str = addons
 
     def __str__(self: "TranslatedForm") -> str:
         """Return the instance as a string."""
-        return f'<TranslatedForm {self.form} addons={self.addons}>'
+        return f"<TranslatedForm {self.form} addons={self.addons}>"
 
     def export_catalog(
         self: "TranslatedForm",
@@ -362,19 +366,20 @@ class TranslatedResource:
     def __init__(
         self: "TranslatedResource",
         resource: Resource,
-        addons: str = 'feretui',
+        addons: str = "feretui",
     ) -> None:
         """TranslatedForm class."""
         if not isinstance(resource, Resource):
             raise TranslationResourceError(
-                f"{resource} must be an instance of Resource")
+                f"{resource} must be an instance of Resource",
+            )
 
         self.resource: Resource = resource
         self.addons: str = addons
 
     def __str__(self: "TranslatedResource") -> str:
         """Return the instance as a string."""
-        return f'<TranslatedResource {self.resource} addons={self.addons}>'
+        return f"<TranslatedResource {self.resource} addons={self.addons}>"
 
     def export_catalog(
         self: "TranslatedResource",
@@ -430,9 +435,9 @@ class Translation:
         :type poentry: POEntry_
         """
         self.langs.add(lang)
-        self.translations[
-            (lang, poentry.msgctxt, poentry.msgid)
-        ] = poentry.msgstr if poentry.msgstr else poentry.msgid
+        self.translations[(lang, poentry.msgctxt, poentry.msgid)] = (
+            poentry.msgstr if poentry.msgstr else poentry.msgid
+        )
 
     def get(
         self: "Translation",
@@ -470,11 +475,11 @@ class Translation:
         :return: The poentry
         :rtype: POEntry_
         """
-        logger.debug('msgctxt : %r, msgid: %r', context, message)
+        logger.debug("msgctxt : %r, msgid: %r", context, message)
         return POEntry(
             msgctxt=context,
             msgid=message,
-            msgstr='',
+            msgstr="",
         )
 
     def add_translated_template(
@@ -487,7 +492,7 @@ class Translation:
         :type template: :class:`TranslatedTemplate`
         """
         self.templates.append(template)
-        logger.debug('Translation : Added new template : %s', template)
+        logger.debug("Translation : Added new template : %s", template)
 
     def add_translated_menu(
         self: "Translation",
@@ -499,7 +504,7 @@ class Translation:
         :type menu: :class:`TranslatedMenu`
         """
         self.menus.append(menu)
-        logger.debug('Translation : Added new menu : %s', menu)
+        logger.debug("Translation : Added new menu : %s", menu)
 
     def add_translated_form(
         self: "Translation",
@@ -511,7 +516,7 @@ class Translation:
         :type form: :class:`.TranslatedForm`
         """
         self.forms.append(form)
-        logger.debug('Translation : Added new form : %s', form)
+        logger.debug("Translation : Added new form : %s", form)
 
     def add_translated_resource(
         self: "Translation",
@@ -523,7 +528,7 @@ class Translation:
         :type resource: :class:`.TranslatedResource`
         """
         self.resources.append(resource)
-        logger.debug('Translation : Added new resource : %s', resource)
+        logger.debug("Translation : Added new resource : %s", resource)
 
     def export_catalog(
         self: "Translation",
@@ -544,11 +549,11 @@ class Translation:
 
         po = POFile()
         po.metadata = {
-            'Project-Id-Version': version,
-            'POT-Creation-Date': datetime.now().isoformat(),
-            'MIME-Version': '1.0',
-            'Content-Type': 'text/plain; charset=utf-8',
-            'Content-Transfer-Encoding': '8bit',
+            "Project-Id-Version": version,
+            "POT-Creation-Date": datetime.now().isoformat(),
+            "MIME-Version": "1.0",
+            "Content-Type": "text/plain; charset=utf-8",
+            "Content-Transfer-Encoding": "8bit",
         }
         templates = self.templates
         menus = self.menus
@@ -556,9 +561,11 @@ class Translation:
         resources = self.resources
 
         self.add_translated_form(
-            TranslatedForm(Session.LoginForm, addons='feretui'))
+            TranslatedForm(Session.LoginForm, addons="feretui"),
+        )
         self.add_translated_form(
-            TranslatedForm(Session.SignUpForm, addons='feretui'))
+            TranslatedForm(Session.SignUpForm, addons="feretui"),
+        )
 
         if addons is not None:
             templates = filter(lambda x: x.addons == addons, templates)
@@ -567,10 +574,12 @@ class Translation:
             resources = filter(lambda x: x.addons == addons, resources)
 
         for form_translated_message in FeretUIForm.TRANSLATED_MESSAGES:
-            po.append(self.define(
-                FeretUIForm.get_context(),
-                form_translated_message,
-            ))
+            po.append(
+                self.define(
+                    FeretUIForm.get_context(),
+                    form_translated_message,
+                ),
+            )
 
         tmpls = Template(Translation(self.feretui))
         for template in templates:

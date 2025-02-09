@@ -28,6 +28,7 @@ project.
 * :func:`.menu_for_all_users`: No restriction
   if the user is authenticated.
 """
+
 from collections.abc import Callable
 from functools import wraps
 from typing import TYPE_CHECKING
@@ -113,6 +114,7 @@ def action_for_authenticated_user(func: Callable) -> Callable:
     :rtype: Callable
     :exception: ActionUserIsNotAuthenticatedError
     """
+
     @wraps(func)
     def wrapper_call(
         feret: "FeretUI",
@@ -144,6 +146,7 @@ def action_for_unauthenticated_user(func: Callable) -> Callable:
     :rtype: Callable
     :exception: ActionUserIsAuthenticatedError
     """
+
     @wraps(func)
     def wrapper_call(
         feret: "FeretUI",
@@ -180,7 +183,6 @@ def page_for_authenticated_user_or_goto(
     """
 
     def wrap_func(func: Callable) -> Callable:
-
         @wraps(func)
         def wrap_call(
             feretui: "FeretUI",
@@ -222,7 +224,6 @@ def page_for_unauthenticated_user_or_goto(
     """
 
     def wrap_func(func: Callable) -> Callable:
-
         @wraps(func)
         def wrap_call(
             feretui: "FeretUI",

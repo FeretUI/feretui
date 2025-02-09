@@ -30,7 +30,7 @@
     </div>
    </div>
   </div>
-  <div class="columns">
+  <div class="columns is-desktop">
    <div class="column">
     <div class="columns is-vcentered is-hidden-print">
      <div class="column is-narrow">
@@ -40,33 +40,36 @@
      </div>
      <div class="column">
       
-      <nav arial-label="pagination" class="pagination" role="pagination">
-       
-       <a class="pagination-previous" disabled="disabled">
-        <i class="fa-solid fa-chevron-left">
-        </i>
-       </a>
-       
-          
-          
-       <a class="pagination-next" disabled="disabled">
-        <i class="fa-solid fa-chevron-right">
-        </i>
-       </a>
-       
-          
+      <nav arial-label="pagination" class="pagination" role="navigation">
        <ul class="pagination-list">
         
         <li>
          
-         <a class="pagination-link is-current">
+         <button class="button pagination-link is-current">
           1-10
-         </a>
+          <span class="is-sr-only">
+           Selected
+          </span>
+         </button>
          
               
         </li>
         
        </ul>
+       
+       <button class="button pagination-previous" disabled="disabled">
+        <i class="fa-solid fa-chevron-left">
+        </i>
+       </button>
+       
+          
+          
+       <button class="button pagination-next" disabled="disabled">
+        <i class="fa-solid fa-chevron-right">
+        </i>
+       </button>
+       
+          
       </nav>
       
      </div>
@@ -75,7 +78,7 @@
      <table class="table is-fullwidth is-striped">
       <thead>
        <tr>
-        <th class="is-narrow">
+        <th class="is-narrow" id="checkbox-all-resource-foo-view-list">
          <input _="
                           on click 
                           set &lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked to my.checked 
@@ -105,7 +108,7 @@
       <tbody>
        
        <tr hx-get="None&amp;pk=0" hx-trigger="dblclick">
-        <td>
+        <th id="0">
          <input _="
                           on click 
                           if me.checked
@@ -120,24 +123,24 @@
                             end
                           end
                         " class="selected-rows-resource-foo-view-list" name="selected-rows-resource-foo-view-list" type="checkbox" value="0">
-        </td>
+        </th>
         
-        <td>
+        <td headers="pk 0">
          <span>0</span>
         </td>
         
-        <td>
+        <td headers="foo 0">
          <span>Foo</span>
         </td>
         
-        <td>
+        <td headers="test 0">
          <span>Test 1</span>
         </td>
         
        </tr>
        
        <tr hx-get="None&amp;pk=1" hx-trigger="dblclick">
-        <td>
+        <th id="1">
          <input _="
                           on click 
                           if me.checked
@@ -152,24 +155,24 @@
                             end
                           end
                         " class="selected-rows-resource-foo-view-list" name="selected-rows-resource-foo-view-list" type="checkbox" value="1">
-        </td>
+        </th>
         
-        <td>
+        <td headers="pk 1">
          <span>1</span>
         </td>
         
-        <td>
+        <td headers="foo 1">
          <span>Foo</span>
         </td>
         
-        <td>
+        <td headers="test 1">
          <span>Test 1</span>
         </td>
         
        </tr>
        
        <tr hx-get="None&amp;pk=2" hx-trigger="dblclick">
-        <td>
+        <th id="2">
          <input _="
                           on click 
                           if me.checked
@@ -184,24 +187,24 @@
                             end
                           end
                         " class="selected-rows-resource-foo-view-list" name="selected-rows-resource-foo-view-list" type="checkbox" value="2">
-        </td>
+        </th>
         
-        <td>
+        <td headers="pk 2">
          <span>2</span>
         </td>
         
-        <td>
+        <td headers="foo 2">
          <span>Foo</span>
         </td>
         
-        <td>
+        <td headers="test 2">
          <span>Test 1</span>
         </td>
         
        </tr>
        
        <tr hx-get="None&amp;pk=3" hx-trigger="dblclick">
-        <td>
+        <th id="3">
          <input _="
                           on click 
                           if me.checked
@@ -216,24 +219,24 @@
                             end
                           end
                         " class="selected-rows-resource-foo-view-list" name="selected-rows-resource-foo-view-list" type="checkbox" value="3">
-        </td>
+        </th>
         
-        <td>
+        <td headers="pk 3">
          <span>3</span>
         </td>
         
-        <td>
+        <td headers="foo 3">
          <span>Foo</span>
         </td>
         
-        <td>
+        <td headers="test 3">
          <span>Test 1</span>
         </td>
         
        </tr>
        
        <tr hx-get="None&amp;pk=4" hx-trigger="dblclick">
-        <td>
+        <th id="4">
          <input _="
                           on click 
                           if me.checked
@@ -248,24 +251,24 @@
                             end
                           end
                         " class="selected-rows-resource-foo-view-list" name="selected-rows-resource-foo-view-list" type="checkbox" value="4">
-        </td>
+        </th>
         
-        <td>
+        <td headers="pk 4">
          <span>4</span>
         </td>
         
-        <td>
+        <td headers="foo 4">
          <span>Foo</span>
         </td>
         
-        <td>
+        <td headers="test 4">
          <span>Test 1</span>
         </td>
         
        </tr>
        
        <tr hx-get="None&amp;pk=5" hx-trigger="dblclick">
-        <td>
+        <th id="5">
          <input _="
                           on click 
                           if me.checked
@@ -280,24 +283,24 @@
                             end
                           end
                         " class="selected-rows-resource-foo-view-list" name="selected-rows-resource-foo-view-list" type="checkbox" value="5">
-        </td>
+        </th>
         
-        <td>
+        <td headers="pk 5">
          <span>5</span>
         </td>
         
-        <td>
+        <td headers="foo 5">
          <span>Foo</span>
         </td>
         
-        <td>
+        <td headers="test 5">
          <span>Test 1</span>
         </td>
         
        </tr>
        
        <tr hx-get="None&amp;pk=6" hx-trigger="dblclick">
-        <td>
+        <th id="6">
          <input _="
                           on click 
                           if me.checked
@@ -312,24 +315,24 @@
                             end
                           end
                         " class="selected-rows-resource-foo-view-list" name="selected-rows-resource-foo-view-list" type="checkbox" value="6">
-        </td>
+        </th>
         
-        <td>
+        <td headers="pk 6">
          <span>6</span>
         </td>
         
-        <td>
+        <td headers="foo 6">
          <span>Foo</span>
         </td>
         
-        <td>
+        <td headers="test 6">
          <span>Test 1</span>
         </td>
         
        </tr>
        
        <tr hx-get="None&amp;pk=7" hx-trigger="dblclick">
-        <td>
+        <th id="7">
          <input _="
                           on click 
                           if me.checked
@@ -344,24 +347,24 @@
                             end
                           end
                         " class="selected-rows-resource-foo-view-list" name="selected-rows-resource-foo-view-list" type="checkbox" value="7">
-        </td>
+        </th>
         
-        <td>
+        <td headers="pk 7">
          <span>7</span>
         </td>
         
-        <td>
+        <td headers="foo 7">
          <span>Foo</span>
         </td>
         
-        <td>
+        <td headers="test 7">
          <span>Test 1</span>
         </td>
         
        </tr>
        
        <tr hx-get="None&amp;pk=8" hx-trigger="dblclick">
-        <td>
+        <th id="8">
          <input _="
                           on click 
                           if me.checked
@@ -376,24 +379,24 @@
                             end
                           end
                         " class="selected-rows-resource-foo-view-list" name="selected-rows-resource-foo-view-list" type="checkbox" value="8">
-        </td>
+        </th>
         
-        <td>
+        <td headers="pk 8">
          <span>8</span>
         </td>
         
-        <td>
+        <td headers="foo 8">
          <span>Foo</span>
         </td>
         
-        <td>
+        <td headers="test 8">
          <span>Test 1</span>
         </td>
         
        </tr>
        
        <tr hx-get="None&amp;pk=9" hx-trigger="dblclick">
-        <td>
+        <th id="9">
          <input _="
                           on click 
                           if me.checked
@@ -408,17 +411,17 @@
                             end
                           end
                         " class="selected-rows-resource-foo-view-list" name="selected-rows-resource-foo-view-list" type="checkbox" value="9">
-        </td>
+        </th>
         
-        <td>
+        <td headers="pk 9">
          <span>9</span>
         </td>
         
-        <td>
+        <td headers="foo 9">
          <span>Foo</span>
         </td>
         
-        <td>
+        <td headers="test 9">
          <span>Test 1</span>
         </td>
         
@@ -427,7 +430,7 @@
       </tbody>
       <tfoot>
        <tr>
-        <th class="is-narrow">
+        <th class="is-narrow" id="checkbox-all-resource-foo-view-list">
          <input _="
                           on click 
                           set &lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked to my.checked 
@@ -464,33 +467,36 @@
      </div>
      <div class="column">
       
-      <nav arial-label="pagination" class="pagination" role="pagination">
-       
-       <a class="pagination-previous" disabled="disabled">
-        <i class="fa-solid fa-chevron-left">
-        </i>
-       </a>
-       
-          
-          
-       <a class="pagination-next" disabled="disabled">
-        <i class="fa-solid fa-chevron-right">
-        </i>
-       </a>
-       
-          
+      <nav arial-label="pagination" class="pagination" role="navigation">
        <ul class="pagination-list">
         
         <li>
          
-         <a class="pagination-link is-current">
+         <button class="button pagination-link is-current">
           1-10
-         </a>
+          <span class="is-sr-only">
+           Selected
+          </span>
+         </button>
          
               
         </li>
         
        </ul>
+       
+       <button class="button pagination-previous" disabled="disabled">
+        <i class="fa-solid fa-chevron-left">
+        </i>
+       </button>
+       
+          
+          
+       <button class="button pagination-next" disabled="disabled">
+        <i class="fa-solid fa-chevron-right">
+        </i>
+       </button>
+       
+          
       </nav>
       
      </div>
@@ -508,12 +514,12 @@
  
  <div class="panel-block">
   <div class="container">
-   <div class="field">
+   <div aria-description="" class="field">
  
- <label class="label" for="pk">
+ <label aria-description="" class="label" for="pk">
   Pk
       
-  <span>
+  <span aria-hidden="true">
    
   </span>
  </label>
@@ -528,12 +534,12 @@
  
  <div class="panel-block">
   <div class="container">
-   <div class="field">
+   <div aria-description="" class="field">
  
- <label class="label" for="foo">
+ <label aria-description="" class="label" for="foo">
   Foo
       
-  <span>
+  <span aria-hidden="true">
    
   </span>
  </label>
@@ -548,12 +554,12 @@
  
  <div class="panel-block">
   <div class="container">
-   <div class="field">
+   <div aria-description="" class="field">
  
- <label class="label" for="test">
+ <label aria-description="" class="label" for="test">
   Test
       
-  <span>
+  <span aria-hidden="true">
    
   </span>
  </label>
@@ -568,12 +574,12 @@
  
  <div class="panel-block">
   <div class="container">
-   <div class="field">
+   <div aria-description="" class="field">
  
- <label class="label" for="bar">
+ <label aria-description="" class="label" for="bar">
   Bar
       
-  <span>
+  <span aria-hidden="true">
    
   </span>
  </label>
@@ -590,40 +596,40 @@
               
               <div class="panel mb-4">
  <div class="panel-heading">
-  <span>
+  <span aria-hidden="true">
    
   </span>
   <span>
    Print
   </span>
-  <span>
+  <span aria-hidden="true">
    
   </span>
  </div>
  
-      <a class="button panel-block" hx-post="/feretui/action/resource?action=call&amp;method=print_1">
- <span>
+      <button class="button panel-block is-fullwidth" hx-post="/feretui/action/resource?action=call&amp;method=print_1">
+ <span aria-hidden="true">
   
  </span>
  <span>
   Print 1
  </span>
- <span>
+ <span aria-hidden="true">
   
  </span>
-</a>
+</button>
       
-      <a class="button panel-block selected-buttons-resource-foo-view-list" disabled="disabled" hx-post="/feretui/action/resource?action=call&amp;method=print_10">
- <span>
+      <button class="button panel-block selected-buttons-resource-foo-view-list is-fullwidth" disabled="disabled" hx-post="/feretui/action/resource?action=call&amp;method=print_10">
+ <span aria-hidden="true">
   
  </span>
  <span>
   Print 10
  </span>
- <span>
+ <span aria-hidden="true">
   
  </span>
-</a>
+</button>
       
 </div>
               

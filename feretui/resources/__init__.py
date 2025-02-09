@@ -40,6 +40,7 @@ class (only if build).
         MyResource.menu,
     ])
 """
+
 from feretui.resources.actions import (  # noqa: F401
     Action,
     Actionset,
@@ -67,35 +68,35 @@ class LCRUDResource(LResource, CResource, RResource, UResource, DResource):
 
     """
 
-    default_view = 'list'
+    default_view = "list"
 
     class MetaViewList:
         """Meta view class for list."""
 
-        create_button_redirect_to: str = 'create'
-        delete_button_redirect_to: str = 'delete'
-        do_click_on_entry_redirect_to: str = 'read'
+        create_button_redirect_to: str = "create"
+        delete_button_redirect_to: str = "delete"
+        do_click_on_entry_redirect_to: str = "read"
 
     class MetaViewCreate:
         """Meta view class for create."""
 
-        after_create_redirect_to: str = 'read'
+        after_create_redirect_to: str = "read"
 
     class MetaViewRead:
         """Meta view class for read."""
 
-        create_button_redirect_to: str = 'create'
-        delete_button_redirect_to: str = 'delete'
-        edit_button_redirect_to: str = 'edit'
-        return_button_redirect_to: str = 'list'
+        create_button_redirect_to: str = "create"
+        delete_button_redirect_to: str = "delete"
+        edit_button_redirect_to: str = "edit"
+        return_button_redirect_to: str = "list"
 
     class MetaViewUpdate:
         """Meta view class for update."""
 
-        after_update_redirect_to: str = 'read'
-        cancel_button_redirect_to: str = 'read'
+        after_update_redirect_to: str = "read"
+        cancel_button_redirect_to: str = "read"
 
     class MetaViewDelete:
         """Meta view class for delete."""
 
-        after_delete_redirect_to: str = 'list'
+        after_delete_redirect_to: str = "list"

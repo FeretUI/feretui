@@ -22,6 +22,7 @@ The List resource represent data under html table.
         class MetaViewDelete:
             pass
 """
+
 from typing import TYPE_CHECKING
 
 from lxml.etree import Element
@@ -52,7 +53,7 @@ class DefaultViewDelete:
 class DeleteView(TemplateMixinForView, LabelMixinForView, View):
     """Delete view."""
 
-    code: str = 'delete'
+    code: str = "delete"
 
     def set_form_template(
         self: "DeleteView",
@@ -71,8 +72,8 @@ class DeleteView(TemplateMixinForView, LabelMixinForView, View):
         """
         form = super().set_form_template(feretui, session, parent)
         form.set(
-            'hx-delete',
-            f'{feretui.base_url}/action/resource?action=delete',
+            "hx-delete",
+            f"{feretui.base_url}/action/resource?action=delete",
         )
         return form
 
@@ -94,16 +95,22 @@ class DeleteView(TemplateMixinForView, LabelMixinForView, View):
         :rtype: list[Markup]
         """
         res = super().get_header_buttons(feretui, session, options)
-        res.extend([
-            Markup(feretui.render_template(
-                session,
-                'view-do-delete-button',
-            )),
-            Markup(feretui.render_template(
-                session,
-                'view-goto-cancel-button',
-            )),
-        ])
+        res.extend(
+            [
+                Markup(
+                    feretui.render_template(
+                        session,
+                        "view-do-delete-button",
+                    ),
+                ),
+                Markup(
+                    feretui.render_template(
+                        session,
+                        "view-goto-cancel-button",
+                    ),
+                ),
+            ],
+        )
         return res
 
     def get_label_from_pks(self: "DeleteView", pks: list[str]) -> list[str]:
@@ -129,15 +136,17 @@ class DeleteView(TemplateMixinForView, LabelMixinForView, View):
         """
         res = super().render_kwargs(feretui, session, options)
 
-        pks = options.get('pk')
+        pks = options.get("pk")
         if pks and not isinstance(pks, list):
             pks = [pks]
 
-        res.update({
-            'label': self.get_label(feretui, session),
-            'entries': self.get_label_from_pks(pks),
-            'error': options.get('error'),
-        })
+        res.update(
+            {
+                "label": self.get_label(feretui, session),
+                "entries": self.get_label_from_pks(pks),
+                "error": options.get("error"),
+            },
+        )
         return res
 
     @view_action_validator(methods=[Request.DELETE])
@@ -156,16 +165,18 @@ class DeleteView(TemplateMixinForView, LabelMixinForView, View):
         :rtype: :class:`feretui.response.Response`
         """
         options = request.get_query_string_from_current_url().copy()
-        pks = options.get('pk')
+        pks = options.get("pk")
         if pks:
             try:
                 self.resource.delete(pks)
                 if self.after_delete_redirect_to:
                     base_url = request.get_base_url_from_current_url()
-                    options.update({
-                        'view': self.after_delete_redirect_to,
-                    })
-                    del options['pk']
+                    options.update(
+                        {
+                            "view": self.after_delete_redirect_to,
+                        },
+                    )
+                    del options["pk"]
                     url = request.get_url_from_dict(
                         base_url=base_url,
                         querystring=options,
@@ -175,11 +186,11 @@ class DeleteView(TemplateMixinForView, LabelMixinForView, View):
                             self.after_delete_redirect_to
                         ].render(feretui, request.session, options),
                         headers={
-                            'HX-Push-Url': url,
+                            "HX-Push-Url": url,
                         },
                     )
             except Exception as e:
-                options['error'] = str(e)
+                options["error"] = str(e)
 
         return Response(self.render(feretui, request.session, options))
 
@@ -200,11 +211,11 @@ class DResource:
         :return: An instance of the view
         :rtype: :class:`feretui.resources.view.View`
         """
-        if view_cls_name.startswith('MetaViewDelete'):
+        if view_cls_name.startswith("MetaViewDelete"):
             meta_view_cls = self.get_meta_view_class(view_cls_name)
             meta_view_cls.append(DeleteView)
             view_cls = type(
-                'DeleteView',
+                "DeleteView",
                 tuple(meta_view_cls),
                 {},
             )

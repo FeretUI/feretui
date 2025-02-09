@@ -15,7 +15,7 @@
     </div>
    </div>
   </div>
-  <div class="columns">
+  <div class="columns is-desktop">
    <div class="column">
     <div class="columns is-vcentered is-hidden-print">
      <div class="column is-narrow">
@@ -31,7 +31,7 @@
      <table class="table is-fullwidth is-striped">
       <thead>
        <tr>
-        <th class="is-narrow">
+        <th class="is-narrow" id="checkbox-all-resource-foo-view-list">
          <input _="
                           on click 
                           set &lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked to my.checked 
@@ -55,7 +55,7 @@
       </tbody>
       <tfoot>
        <tr>
-        <th class="is-narrow">
+        <th class="is-narrow" id="checkbox-all-resource-foo-view-list">
          <input _="
                           on click 
                           set &lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked to my.checked 
@@ -99,12 +99,12 @@
  
  <div class="panel-block">
   <div class="container">
-   <div class="field">
+   <div aria-description="" class="field">
  
- <label class="label" for="pk">
+ <label aria-description="" class="label" for="pk">
   Pk
       
-  <span>
+  <span aria-hidden="true">
    
   </span>
  </label>
