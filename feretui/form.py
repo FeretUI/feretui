@@ -42,6 +42,7 @@ from wtforms.fields import (
     BooleanField,
     Field,
     FormField,
+    HiddenField,
     RadioField,
     SelectFieldBase,
 )
@@ -49,7 +50,7 @@ from wtforms.fields.core import UnboundField
 from wtforms.form import Form
 from wtforms.validators import InputRequired, ValidationError
 from wtforms.widgets.core import clean_key
-from wtforms_components import read_only
+from wtforms_components import read_only, PassiveHiddenField
 
 from feretui.context import ContextProperties, cvar_feretui, cvar_request
 
@@ -349,6 +350,8 @@ class FeretUIForm(Form):
         FormField: no_wrap,
         RadioField: wrap_radio,
         SelectFieldBase._Option: no_wrap,
+        HiddenField: no_wrap,
+        PassiveHiddenField: no_wrap,
     }
     DEFAULT_WRAPPER = wrap_input
     TRANSLATED_MESSAGES = [
