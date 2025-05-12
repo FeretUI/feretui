@@ -157,3 +157,15 @@ feretui.exceptions module
 
 .. automodule:: feretui.exceptions
    :members:
+
+feretui.ext module
+------------------
+
+.. automodule:: feretui.ext
+   :members:
+
+feretui.ext.bottle module
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: feretui.ext.bottle
+   :members:
