@@ -99,7 +99,7 @@ def wrap_input(
     c = kwargs.pop("class", "") or kwargs.pop("class_", "")
     kwargs["class"] = "{} {}".format(" ".join(input_class), c)
 
-    return Markup(
+    return Markup.unescape(
         feretui.render_template(
             session,
             "feretui-input-field",
@@ -136,7 +136,7 @@ def wrap_bool(
         read_only(field)
         readonly = True
 
-    return Markup(
+    return Markup.unescape(
         feretui.render_template(
             session,
             "feretui-bool-field",
@@ -183,7 +183,7 @@ def wrap_radio(
         kwargs["disabled"] = True
         readonly = True
 
-    return Markup(
+    return Markup.unescape(
         feretui.render_template(
             session,
             template_id,

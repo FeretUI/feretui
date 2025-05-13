@@ -100,7 +100,7 @@ class EditView(TemplateMixinForView, View):
         options.pop("form", None)
         res = super().get_header_buttons(feretui, session, options)
         res.append(
-            Markup(
+            Markup.unescape(
                 feretui.render_template(
                     session,
                     "view-do-save-button",
@@ -109,7 +109,7 @@ class EditView(TemplateMixinForView, View):
         )
         if self.cancel_button_redirect_to:
             res.append(
-                Markup(
+                Markup.unescape(
                     feretui.render_template(
                         session,
                         "view-goto-edit-cancel-button",

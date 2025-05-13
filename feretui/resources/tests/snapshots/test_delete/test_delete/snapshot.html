@@ -34,8 +34,8 @@
         <th class="is-narrow" id="checkbox-all-resource-foo-view-list">
          <input _="
                           on click 
-                          set &lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked to my.checked 
-                          set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to my.checked 
+                          set <input[name='selected-rows-resource-foo-view-list']/>'s checked to my.checked 
+                          set <input[name='selected-table-resource-foo-view-list']/>'s checked to my.checked 
                           if me.checked
                             set .selected-buttons-resource-foo-view-list @disabled to undefined
                           else
@@ -58,8 +58,8 @@
         <th class="is-narrow" id="checkbox-all-resource-foo-view-list">
          <input _="
                           on click 
-                          set &lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked to my.checked 
-                          set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to my.checked 
+                          set <input[name='selected-rows-resource-foo-view-list']/>'s checked to my.checked 
+                          set <input[name='selected-table-resource-foo-view-list']/>'s checked to my.checked 
                           if me.checked
                             set .selected-buttons-resource-foo-view-list @disabled to undefined
                           else
@@ -110,7 +110,7 @@
  </label>
  
  <div class="control">
-  <input class="input " hx-params="pk" hx-post="/feretui/action/resource?action=filters" hx-trigger="keyup[key==&#39;Enter&#39;],blur" id="pk" name="pk" type="text" value="">
+  <input class="input " hx-params="pk" hx-post="/feretui/action/resource?action=filters" hx-trigger="keyup[key=='Enter'],blur" id="pk" name="pk" type="text" value="">
  </div>
  
 </div>
