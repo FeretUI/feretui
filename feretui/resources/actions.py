@@ -126,8 +126,8 @@ class Action(ActionI18nMixin):
         :type session: :class:`feretui.session.Session`
         :param options: The querystring
         :type options: dict
-        :return: The html
-        :rtype: Markup
+        :return: The url
+        :rtype: str
         """
         return (
             f"{feretui.base_url}/action/resource?"
@@ -153,7 +153,7 @@ class Action(ActionI18nMixin):
         :return: The html
         :rtype: Markup
         """
-        return Markup(
+        return Markup.unescape(
             feretui.render_template(
                 session,
                 self.template_id,
@@ -230,8 +230,8 @@ class GotoViewAction(Action):
         :type session: :class:`feretui.session.Session`
         :param options: The querystring
         :type options: dict
-        :return: The html
-        :rtype: Markup
+        :return: The url
+        :rtype: str
         """
         options = options.copy()
         options.update(
@@ -326,7 +326,7 @@ class Actionset(ActionI18nMixin):
         :return: The html
         :rtype: Markup
         """
-        return Markup(
+        return Markup.unescape(
             feretui.render_template(
                 session,
                 "feretui-page-resource-action-set",

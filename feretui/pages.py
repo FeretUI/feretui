@@ -67,7 +67,8 @@ def page_404(feretui: "FeretUI", session: Session, options: dict) -> str:
     if isinstance(page, list):
         page = page[0]
 
-    return feretui.render_template(session, "feretui-page-404", page=page)
+    return Markup.unescape(
+        feretui.render_template(session, "feretui-page-404", page=page))
 
 
 def page_forbidden(
@@ -92,7 +93,8 @@ def page_forbidden(
     if isinstance(page, list):
         page = page[0]
 
-    return feretui.render_template(session, "feretui-page-forbidden", page=page)
+    return Markup.unescape(
+        feretui.render_template(session, "feretui-page-forbidden", page=page))
 
 
 def homepage(
@@ -111,7 +113,8 @@ def homepage(
     :return: The html page in
     :rtype: str
     """
-    return feretui.render_template(session, "feretui-page-homepage")
+    return Markup.unescape(
+        feretui.render_template(session, "feretui-page-homepage"))
 
 
 def sitemap(
@@ -131,11 +134,11 @@ def sitemap(
     :rtype: str
     """
     menus = feretui.get_site_map_menus()
-    return feretui.render_template(
+    return Markup.unescape(feretui.render_template(
         session,
         "feretui-page-sitemap",
         menus=menus,
-    )
+    ))
 
 
 def static_page(template_id: str) -> Callable:
@@ -156,7 +159,7 @@ def static_page(template_id: str) -> Callable:
         if template_id not in feretui.template.known:
             raise PageError(template_id)
 
-        return feretui.render_template(session, template_id)
+        return Markup.unescape(feretui.render_template(session, template_id))
 
     return _static_page
 
@@ -184,12 +187,12 @@ def aside_menu(
     menus = feretui.get_aside_menus(options["aside"][0])
     page = options.get("aside_page", ["homepage"])[0]
 
-    return feretui.render_template(
+    return Markup.unescape(feretui.render_template(
         session,
         "feretui-page-aside",
         menus=menus,
-        page=Markup(feretui.get_page(page)(feretui, session, options)),
-    )
+        page=Markup.unescape(feretui.get_page(page)(feretui, session, options)),
+    ))
 
 
 @page_for_unauthenticated_user_or_goto("forbidden")
@@ -210,12 +213,12 @@ def login(feretui: "FeretUI", session: Session, options: dict) -> str:
     """
     form = options.get("form", session.LoginForm())
     error = options.get("error")
-    return feretui.render_template(
+    return Markup.unescape(feretui.render_template(
         session,
         "feretui-page-login",
         form=form,
         error=error,
-    )
+    ))
 
 
 @page_for_unauthenticated_user_or_goto("forbidden")
@@ -236,12 +239,12 @@ def signup(feretui: "FeretUI", session: Session, options: dict) -> str:
     """
     form = options.get("form", session.SignUpForm())
     error = options.get("error")
-    return feretui.render_template(
+    return Markup.unescape(feretui.render_template(
         session,
         "feretui-page-signup",
         form=form,
         error=error,
-    )
+    ))
 
 
 def resource_page(feretui: "FeretUI", session: Session, options: dict) -> str:
@@ -265,4 +268,4 @@ def resource_page(feretui: "FeretUI", session: Session, options: dict) -> str:
         raise PageError("No resource in the query string")
 
     resource = feretui.get_resource(code)
-    return resource.render(feretui, session, options)
+    return Markup.unescape(resource.render(feretui, session, options))

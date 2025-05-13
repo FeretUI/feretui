@@ -97,13 +97,13 @@ class DeleteView(TemplateMixinForView, LabelMixinForView, View):
         res = super().get_header_buttons(feretui, session, options)
         res.extend(
             [
-                Markup(
+                Markup.unescape(
                     feretui.render_template(
                         session,
                         "view-do-delete-button",
                     ),
                 ),
-                Markup(
+                Markup.unescape(
                     feretui.render_template(
                         session,
                         "view-goto-cancel-button",

@@ -143,7 +143,7 @@ class ReadView(ActionsMixinForView, TemplateMixinForView, View):
         res = super().get_header_buttons(feretui, session, options)
         if self.create_button_redirect_to:
             res.append(
-                Markup(
+                Markup.unescape(
                     feretui.render_template(
                         session,
                         "view-goto-create-button",
@@ -158,7 +158,7 @@ class ReadView(ActionsMixinForView, TemplateMixinForView, View):
             )
         if self.edit_button_redirect_to:
             res.append(
-                Markup(
+                Markup.unescape(
                     feretui.render_template(
                         session,
                         "view-goto-edit-button",
@@ -172,7 +172,7 @@ class ReadView(ActionsMixinForView, TemplateMixinForView, View):
             )
         if self.delete_button_redirect_to:
             res.append(
-                Markup(
+                Markup.unescape(
                     feretui.render_template(
                         session,
                         "view-goto-delete-button",
@@ -186,7 +186,7 @@ class ReadView(ActionsMixinForView, TemplateMixinForView, View):
             )
         if self.return_button_redirect_to:
             res.append(
-                Markup(
+                Markup.unescape(
                     feretui.render_template(
                         session,
                         "view-goto-return-button",

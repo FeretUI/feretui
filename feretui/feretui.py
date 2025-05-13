@@ -444,7 +444,7 @@ class FeretUI:
             template = self.render_template(
                 request.session,
                 "feretui-client",
-                page=Markup(
+                page=Markup.unescape(
                     self.get_page(page)(
                         self,
                         request.session,
@@ -457,7 +457,7 @@ class FeretUI:
             template = template.replace("feretui-html", "html")
             template = template.replace("feretui-head", "head")
             template = template.replace("feretui-body", "body")
-            return Response(f"<!DOCTYPE html5>\n{template}")
+            return Response(f"<!DOCTYPE html5>\n{Markup.unescape(template)}")
 
     # ---------- statics  ----------
     def register_js(self: "FeretUI", name: str, filepath: str) -> None:

@@ -181,12 +181,12 @@ class Resource:
         if self.page_visibility:
             func = self.page_visibility(func)
 
-        return feretui.render_template(
+        return Markup.unescape(feretui.render_template(
             session,
             "feretui-page-resource",
-            view=Markup(func(feretui, session, options)),
+            view=Markup.unescape(func(feretui, session, options)),
             code=self.code,
-        )
+        ))
 
     def router(
         self: "Resource",

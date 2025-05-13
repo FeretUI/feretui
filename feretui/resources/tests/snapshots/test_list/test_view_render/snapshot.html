@@ -20,7 +20,7 @@
        
        <span class="tag is-info">
         Foo
-        <button class="delete" hx-delete="/feretui/action/resource?action=filters&amp;foo=Foo">
+        <button class="delete" hx-delete="/feretui/action/resource?action=filters&foo=Foo">
         </button>
        </span>
        
@@ -81,8 +81,8 @@
         <th class="is-narrow" id="checkbox-all-resource-foo-view-list">
          <input _="
                           on click 
-                          set &lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked to my.checked 
-                          set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to my.checked 
+                          set <input[name='selected-rows-resource-foo-view-list']/>'s checked to my.checked 
+                          set <input[name='selected-table-resource-foo-view-list']/>'s checked to my.checked 
                           if me.checked
                             set .selected-buttons-resource-foo-view-list @disabled to undefined
                           else
@@ -107,18 +107,18 @@
       </thead>
       <tbody>
        
-       <tr hx-get="None&amp;pk=0" hx-trigger="dblclick">
+       <tr hx-get="None&pk=0" hx-trigger="dblclick">
         <th id="0">
          <input _="
                           on click 
                           if me.checked
-                            if (&lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked) do not contains false
-                              set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to me.checked
+                            if (<input[name='selected-rows-resource-foo-view-list']/>'s checked) do not contains false
+                              set <input[name='selected-table-resource-foo-view-list']/>'s checked to me.checked
                             end
                             set .selected-buttons-resource-foo-view-list @disabled to undefined
                           else
-                            set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to me.checked
-                            if (&lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked) do not contains true
+                            set <input[name='selected-table-resource-foo-view-list']/>'s checked to me.checked
+                            if (<input[name='selected-rows-resource-foo-view-list']/>'s checked) do not contains true
                               set .selected-buttons-resource-foo-view-list @disabled to 'disabled'
                             end
                           end
@@ -139,18 +139,18 @@
         
        </tr>
        
-       <tr hx-get="None&amp;pk=1" hx-trigger="dblclick">
+       <tr hx-get="None&pk=1" hx-trigger="dblclick">
         <th id="1">
          <input _="
                           on click 
                           if me.checked
-                            if (&lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked) do not contains false
-                              set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to me.checked
+                            if (<input[name='selected-rows-resource-foo-view-list']/>'s checked) do not contains false
+                              set <input[name='selected-table-resource-foo-view-list']/>'s checked to me.checked
                             end
                             set .selected-buttons-resource-foo-view-list @disabled to undefined
                           else
-                            set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to me.checked
-                            if (&lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked) do not contains true
+                            set <input[name='selected-table-resource-foo-view-list']/>'s checked to me.checked
+                            if (<input[name='selected-rows-resource-foo-view-list']/>'s checked) do not contains true
                               set .selected-buttons-resource-foo-view-list @disabled to 'disabled'
                             end
                           end
@@ -171,18 +171,18 @@
         
        </tr>
        
-       <tr hx-get="None&amp;pk=2" hx-trigger="dblclick">
+       <tr hx-get="None&pk=2" hx-trigger="dblclick">
         <th id="2">
          <input _="
                           on click 
                           if me.checked
-                            if (&lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked) do not contains false
-                              set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to me.checked
+                            if (<input[name='selected-rows-resource-foo-view-list']/>'s checked) do not contains false
+                              set <input[name='selected-table-resource-foo-view-list']/>'s checked to me.checked
                             end
                             set .selected-buttons-resource-foo-view-list @disabled to undefined
                           else
-                            set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to me.checked
-                            if (&lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked) do not contains true
+                            set <input[name='selected-table-resource-foo-view-list']/>'s checked to me.checked
+                            if (<input[name='selected-rows-resource-foo-view-list']/>'s checked) do not contains true
                               set .selected-buttons-resource-foo-view-list @disabled to 'disabled'
                             end
                           end
@@ -203,18 +203,18 @@
         
        </tr>
        
-       <tr hx-get="None&amp;pk=3" hx-trigger="dblclick">
+       <tr hx-get="None&pk=3" hx-trigger="dblclick">
         <th id="3">
          <input _="
                           on click 
                           if me.checked
-                            if (&lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked) do not contains false
-                              set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to me.checked
+                            if (<input[name='selected-rows-resource-foo-view-list']/>'s checked) do not contains false
+                              set <input[name='selected-table-resource-foo-view-list']/>'s checked to me.checked
                             end
                             set .selected-buttons-resource-foo-view-list @disabled to undefined
                           else
-                            set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to me.checked
-                            if (&lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked) do not contains true
+                            set <input[name='selected-table-resource-foo-view-list']/>'s checked to me.checked
+                            if (<input[name='selected-rows-resource-foo-view-list']/>'s checked) do not contains true
                               set .selected-buttons-resource-foo-view-list @disabled to 'disabled'
                             end
                           end
@@ -235,18 +235,18 @@
         
        </tr>
        
-       <tr hx-get="None&amp;pk=4" hx-trigger="dblclick">
+       <tr hx-get="None&pk=4" hx-trigger="dblclick">
         <th id="4">
          <input _="
                           on click 
                           if me.checked
-                            if (&lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked) do not contains false
-                              set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to me.checked
+                            if (<input[name='selected-rows-resource-foo-view-list']/>'s checked) do not contains false
+                              set <input[name='selected-table-resource-foo-view-list']/>'s checked to me.checked
                             end
                             set .selected-buttons-resource-foo-view-list @disabled to undefined
                           else
-                            set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to me.checked
-                            if (&lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked) do not contains true
+                            set <input[name='selected-table-resource-foo-view-list']/>'s checked to me.checked
+                            if (<input[name='selected-rows-resource-foo-view-list']/>'s checked) do not contains true
                               set .selected-buttons-resource-foo-view-list @disabled to 'disabled'
                             end
                           end
@@ -267,18 +267,18 @@
         
        </tr>
        
-       <tr hx-get="None&amp;pk=5" hx-trigger="dblclick">
+       <tr hx-get="None&pk=5" hx-trigger="dblclick">
         <th id="5">
          <input _="
                           on click 
                           if me.checked
-                            if (&lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked) do not contains false
-                              set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to me.checked
+                            if (<input[name='selected-rows-resource-foo-view-list']/>'s checked) do not contains false
+                              set <input[name='selected-table-resource-foo-view-list']/>'s checked to me.checked
                             end
                             set .selected-buttons-resource-foo-view-list @disabled to undefined
                           else
-                            set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to me.checked
-                            if (&lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked) do not contains true
+                            set <input[name='selected-table-resource-foo-view-list']/>'s checked to me.checked
+                            if (<input[name='selected-rows-resource-foo-view-list']/>'s checked) do not contains true
                               set .selected-buttons-resource-foo-view-list @disabled to 'disabled'
                             end
                           end
@@ -299,18 +299,18 @@
         
        </tr>
        
-       <tr hx-get="None&amp;pk=6" hx-trigger="dblclick">
+       <tr hx-get="None&pk=6" hx-trigger="dblclick">
         <th id="6">
          <input _="
                           on click 
                           if me.checked
-                            if (&lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked) do not contains false
-                              set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to me.checked
+                            if (<input[name='selected-rows-resource-foo-view-list']/>'s checked) do not contains false
+                              set <input[name='selected-table-resource-foo-view-list']/>'s checked to me.checked
                             end
                             set .selected-buttons-resource-foo-view-list @disabled to undefined
                           else
-                            set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to me.checked
-                            if (&lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked) do not contains true
+                            set <input[name='selected-table-resource-foo-view-list']/>'s checked to me.checked
+                            if (<input[name='selected-rows-resource-foo-view-list']/>'s checked) do not contains true
                               set .selected-buttons-resource-foo-view-list @disabled to 'disabled'
                             end
                           end
@@ -331,18 +331,18 @@
         
        </tr>
        
-       <tr hx-get="None&amp;pk=7" hx-trigger="dblclick">
+       <tr hx-get="None&pk=7" hx-trigger="dblclick">
         <th id="7">
          <input _="
                           on click 
                           if me.checked
-                            if (&lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked) do not contains false
-                              set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to me.checked
+                            if (<input[name='selected-rows-resource-foo-view-list']/>'s checked) do not contains false
+                              set <input[name='selected-table-resource-foo-view-list']/>'s checked to me.checked
                             end
                             set .selected-buttons-resource-foo-view-list @disabled to undefined
                           else
-                            set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to me.checked
-                            if (&lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked) do not contains true
+                            set <input[name='selected-table-resource-foo-view-list']/>'s checked to me.checked
+                            if (<input[name='selected-rows-resource-foo-view-list']/>'s checked) do not contains true
                               set .selected-buttons-resource-foo-view-list @disabled to 'disabled'
                             end
                           end
@@ -363,18 +363,18 @@
         
        </tr>
        
-       <tr hx-get="None&amp;pk=8" hx-trigger="dblclick">
+       <tr hx-get="None&pk=8" hx-trigger="dblclick">
         <th id="8">
          <input _="
                           on click 
                           if me.checked
-                            if (&lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked) do not contains false
-                              set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to me.checked
+                            if (<input[name='selected-rows-resource-foo-view-list']/>'s checked) do not contains false
+                              set <input[name='selected-table-resource-foo-view-list']/>'s checked to me.checked
                             end
                             set .selected-buttons-resource-foo-view-list @disabled to undefined
                           else
-                            set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to me.checked
-                            if (&lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked) do not contains true
+                            set <input[name='selected-table-resource-foo-view-list']/>'s checked to me.checked
+                            if (<input[name='selected-rows-resource-foo-view-list']/>'s checked) do not contains true
                               set .selected-buttons-resource-foo-view-list @disabled to 'disabled'
                             end
                           end
@@ -395,18 +395,18 @@
         
        </tr>
        
-       <tr hx-get="None&amp;pk=9" hx-trigger="dblclick">
+       <tr hx-get="None&pk=9" hx-trigger="dblclick">
         <th id="9">
          <input _="
                           on click 
                           if me.checked
-                            if (&lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked) do not contains false
-                              set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to me.checked
+                            if (<input[name='selected-rows-resource-foo-view-list']/>'s checked) do not contains false
+                              set <input[name='selected-table-resource-foo-view-list']/>'s checked to me.checked
                             end
                             set .selected-buttons-resource-foo-view-list @disabled to undefined
                           else
-                            set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to me.checked
-                            if (&lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked) do not contains true
+                            set <input[name='selected-table-resource-foo-view-list']/>'s checked to me.checked
+                            if (<input[name='selected-rows-resource-foo-view-list']/>'s checked) do not contains true
                               set .selected-buttons-resource-foo-view-list @disabled to 'disabled'
                             end
                           end
@@ -433,8 +433,8 @@
         <th class="is-narrow" id="checkbox-all-resource-foo-view-list">
          <input _="
                           on click 
-                          set &lt;input[name='selected-rows-resource-foo-view-list']/&gt;'s checked to my.checked 
-                          set &lt;input[name='selected-table-resource-foo-view-list']/&gt;'s checked to my.checked 
+                          set <input[name='selected-rows-resource-foo-view-list']/>'s checked to my.checked 
+                          set <input[name='selected-table-resource-foo-view-list']/>'s checked to my.checked 
                           if me.checked
                             set .selected-buttons-resource-foo-view-list @disabled to undefined
                           else
@@ -525,7 +525,7 @@
  </label>
  
  <div class="control">
-  <input class="input " hx-params="pk" hx-post="/feretui/action/resource?action=filters" hx-trigger="keyup[key==&#39;Enter&#39;],blur" id="pk" name="pk" type="text" value="">
+  <input class="input " hx-params="pk" hx-post="/feretui/action/resource?action=filters" hx-trigger="keyup[key=='Enter'],blur" id="pk" name="pk" type="text" value="">
  </div>
  
 </div>
@@ -545,7 +545,7 @@
  </label>
  
  <div class="control">
-  <input class="input " hx-params="foo" hx-post="/feretui/action/resource?action=filters" hx-trigger="keyup[key==&#39;Enter&#39;],blur" id="foo" name="foo" type="text" value="">
+  <input class="input " hx-params="foo" hx-post="/feretui/action/resource?action=filters" hx-trigger="keyup[key=='Enter'],blur" id="foo" name="foo" type="text" value="">
  </div>
  
 </div>
@@ -565,7 +565,7 @@
  </label>
  
  <div class="control">
-  <select class="input " hx-params="test" hx-post="/feretui/action/resource?action=filters" hx-trigger="keyup[key==&#39;Enter&#39;],blur" id="test" name="test"><option value="test1">Test 1</option></select>
+  <select class="input " hx-params="test" hx-post="/feretui/action/resource?action=filters" hx-trigger="keyup[key=='Enter'],blur" id="test" name="test"><option value="test1">Test 1</option></select>
  </div>
  
 </div>
@@ -585,7 +585,7 @@
  </label>
  
  <div class="control">
-  <input class="input " hx-params="bar" hx-post="/feretui/action/resource?action=filters" hx-trigger="keyup[key==&#39;Enter&#39;],blur" id="bar" name="bar" type="text" value="">
+  <input class="input " hx-params="bar" hx-post="/feretui/action/resource?action=filters" hx-trigger="keyup[key=='Enter'],blur" id="bar" name="bar" type="text" value="">
  </div>
  
 </div>
@@ -607,7 +607,7 @@
   </span>
  </div>
  
-      <button class="button panel-block is-fullwidth" hx-post="/feretui/action/resource?action=call&amp;method=print_1">
+      <button class="button panel-block is-fullwidth" hx-post="/feretui/action/resource?action=call&method=print_1">
  <span aria-hidden="true">
   
  </span>
@@ -619,7 +619,7 @@
  </span>
 </button>
       
-      <button class="button panel-block selected-buttons-resource-foo-view-list is-fullwidth" disabled="disabled" hx-post="/feretui/action/resource?action=call&amp;method=print_10">
+      <button class="button panel-block selected-buttons-resource-foo-view-list is-fullwidth" disabled="disabled" hx-post="/feretui/action/resource?action=call&method=print_10">
  <span aria-hidden="true">
   
  </span>
