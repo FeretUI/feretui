@@ -25,7 +25,7 @@ be depending only on the user-interface. It is possible to define an interface
 based on more than one Model, or with another constraints.
 
 To isolate it about the web-server projects, This project add objects to do
-absctract with web server:
+abstract with web server:
 
 * :class:`feretui.request.Request` : It is the class object used by FeretUI
   to represent web-server request.

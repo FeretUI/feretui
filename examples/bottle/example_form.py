@@ -1,10 +1,7 @@
 import logging
-from contextlib import contextmanager
-from os import path
 
-from bottle import abort, app, request, response, route, run, static_file
+from bottle import app, run
 from BottleSessions import BottleSessions
-from multidict import MultiDict
 from wtforms import fields
 from wtforms_components import ColorField
 
@@ -13,32 +10,14 @@ from feretui import (
     FeretUIForm,
     Request,
     Response,
-    Session,
     ToolBarMenu,
     action_for_unauthenticated_user,
     action_validator,
     menu_for_unauthenticated_user,
 )
+from feretui.ext.bottle import declare_routes_for_feretui_client
 
 logging.basicConfig(level=logging.DEBUG)
-
-# -- for bottle --
-
-
-@contextmanager
-def feretui_session(cls):
-    session = None
-    try:
-        session = cls(**request.session)
-        yield session
-    finally:
-        if session:
-            request.session.update(session.to_dict())
-
-
-def add_response_headers(headers) -> None:
-    for k, v in headers.items():
-        response.set_header(k, v)
 
 # -- for feretui --
 
@@ -123,45 +102,7 @@ myferet.register_toolbar_left_menus([
 # -- app --
 
 
-@route('/')
-def index():
-    with feretui_session(Session) as session:
-        frequest = Request(
-            method=Request.GET,
-            querystring=request.query_string,
-            headers=dict(request.headers),
-            session=session,
-        )
-        res = myferet.render(frequest)
-        add_response_headers(res.headers)
-        return res.body
-
-
-@route('/feretui/static/<filepath:path>')
-def feretui_static_file(filepath):
-    filepath = myferet.get_static_file_path(filepath)
-    if filepath:
-        root, name = path.split(filepath)
-        return static_file(name, root)
-
-    abort(404)
-    return None
-
-
-@route('/feretui/action/<action>', method=['GET', 'POST'])
-def call_action(action):
-    with feretui_session(Session) as session:
-        frequest = Request(
-            method=getattr(Request, request.method),
-            querystring=request.query_string,
-            form=MultiDict(request.forms),
-            params=MultiDict(request.params),
-            headers=dict(request.headers),
-            session=session,
-        )
-        res = myferet.execute_action(frequest, action)
-        add_response_headers(res.headers)
-        return res.body
+declare_routes_for_feretui_client(myferet)
 
 
 if __name__ == "__main__":

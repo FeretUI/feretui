@@ -21,6 +21,44 @@ For this example you need  to install some additional package
 
     pip install bottle BottleSessions
 
+
+With feretui helper
+
+::
+
+    import logging
+
+    from bottle import app, run
+    from BottleSessions import BottleSessions
+
+    from feretui import FeretUI, Request
+    from feretui.ext.bottle import declare_routes_for_feretui_client
+
+    logging.basicConfig(level=logging.DEBUG)
+
+
+    myferet = FeretUI()
+
+    # Here define your feretui stuff.
+
+
+    declare_routes_for_feretui_client(myferet)
+
+
+    if __name__ == "__main__":
+        app = app()
+        cache_config = {
+            'cache_type': 'FileSystem',
+            'cache_dir': './sess_dir',
+            'threshold': 2000,
+        }
+        BottleSessions(
+            app, session_backing=cache_config, session_cookie='appcookie')
+        run(host="localhost", port=8080, debug=True, reloader=1)
+
+
+Without feretui helper
+
 ::
 
     import logging

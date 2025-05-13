@@ -60,7 +60,9 @@ test = [
     'flake8-logging',
     'flake8-bandit',
     'pytest-snapshot',
+    'webtest',
 ]
+bottle = ['bottle', 'BottleSessions']
 
 [project.scripts]
 export-feretui-catalog = "feretui:scripts.export_catalog"
