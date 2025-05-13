@@ -114,8 +114,7 @@ def declare_routes_for_feretui_client(
             root, name = path.split(filepath)
             return static_file(name, root)
 
-        abort(404)
-        return None
+        return abort(404)
 
     @route(
         f'{feretui.base_url}/action/<action>',

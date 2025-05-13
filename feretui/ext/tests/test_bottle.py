@@ -6,10 +6,14 @@
 # v. 2.0. If a copy of the MPL was not distributed with this file,You can
 # obtain one at http://mozilla.org/MPL/2.0/.
 import pytest
-import bottle
-from BottleSessions import BottleSessions
+try:
+    import bottle
+    from BottleSessions import BottleSessions
+    from feretui.ext.bottle import declare_routes_for_feretui_client
+except ImportError:
+    bottle = None
+
 from webtest import TestApp
-from feretui.ext.bottle import declare_routes_for_feretui_client
 from feretui.feretui import FeretUI
 
 
@@ -26,16 +30,20 @@ def bottle_server():
 
 class TestBottle:
 
+    @pytest.mark.skipif(bottle is None, reason="No bottle found")
     def test_index(self, snapshot, bottle_server) -> None:
         snapshot.assert_match(bottle_server.get('/').body, 'index.html')
 
+    @pytest.mark.skipif(bottle is None, reason="No bottle found")
     def test_static(self, snapshot, bottle_server) -> None:
         snapshot.assert_match(
             bottle_server.get('/feretui/static/logo.png').body, 'logo.png')
 
+    @pytest.mark.skipif(bottle is None, reason="No bottle found")
     def test_static_2(self, snapshot, bottle_server) -> None:
         bottle_server.get('/feretui/static/wrong.png', status=404)
 
+    @pytest.mark.skipif(bottle is None, reason="No bottle found")
     def test_action(self, snapshot, bottle_server) -> None:
         snapshot.assert_match(
             bottle_server.get(
