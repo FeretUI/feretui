@@ -56,7 +56,7 @@ def span_widget(field: Field) -> Markup:
                 data = choice[1]
                 break
 
-    return Markup(f"<span>{ data }</span>")
+    return Markup("<span>{}</span>").format(data)
 
 
 class DefaultViewList:
@@ -105,12 +105,12 @@ class ListView(MultiView, LabelMixinForView, View):
         :return: The html page in
         :rtype: str.
         """
-        return feretui.render_template(
+        return Markup.unescape(feretui.render_template(
             session,
             "feretui-resource-list",
             widget=self.widget,
             **self.render_kwargs(feretui, session, options),
-        )
+        ))
 
 
 class LResource:

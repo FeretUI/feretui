@@ -201,7 +201,8 @@ class ActionsMixinForView:
         res = func(feretui, request, **view_kwargs)
         if not res:
             qs = request.get_query_string_from_current_url()
-            res = Response(Markup(self.render(feretui, request.session, qs)))
+            res = Response(Markup.unescape(
+                self.render(feretui, request.session, qs)))
 
         if not isinstance(res, Response):
             res = Response(res)
@@ -296,7 +297,7 @@ class MultiView(ActionsMixinForView):
         res = []
         if self.create_button_redirect_to:
             res.append(
-                Markup(
+                Markup.unescape(
                     feretui.render_template(
                         session,
                         "view-goto-create-button",
@@ -310,7 +311,7 @@ class MultiView(ActionsMixinForView):
             )
         if self.delete_button_redirect_to:
             res.append(
-                Markup(
+                Markup.unescape(
                     feretui.render_template(
                         session,
                         "view-goto-selected-delete-button",
@@ -340,14 +341,12 @@ class MultiView(ActionsMixinForView):
         :rtype: list[str]
         """
         res = [
-            Markup(
-                feretui.render_template(
-                    session,
-                    "view-filter",
-                    form=self.filter_cls(),
-                    hx_post=f"{feretui.base_url}/action/resource?action=filters",
-                ),
-            ),
+            Markup.unescape(feretui.render_template(
+                session,
+                "view-filter",
+                form=self.filter_cls(),
+                hx_post=f"{feretui.base_url}/action/resource?action=filters",
+            )),
         ]
         res.extend(super().get_actions(feretui, session, options))
         return res
@@ -773,8 +772,8 @@ class TemplateMixinForView:
                 self.get_compiled_template(feretui, session, template_id),
             )
 
-        return feretui.render_template(
+        return Markup.unescape(feretui.render_template(
             session,
             template_id,
             **self.render_kwargs(feretui, session, options),
-        )
+        ))

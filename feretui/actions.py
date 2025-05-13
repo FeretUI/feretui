@@ -19,6 +19,8 @@ The availlable actions are:
 
 from typing import TYPE_CHECKING
 
+from markupsafe import Markup
+
 from feretui.exceptions import ActionError, ResourceError
 from feretui.helper import (
     action_for_authenticated_user,
@@ -72,7 +74,7 @@ def goto(
         )
     url = request.get_url_from_dict(base_url=base_url, querystring=options)
     return Response(
-        body,
+        Markup.unescape(body),
         headers={
             "HX-Push-Url": url,
         },

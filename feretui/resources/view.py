@@ -15,6 +15,7 @@ from collections.abc import Callable
 from functools import wraps
 from typing import TYPE_CHECKING
 
+from markupsafe import Markup
 from polib import POFile
 
 from feretui.exceptions import ViewActionError, ViewFormError
@@ -224,7 +225,7 @@ class View:
             )
 
         return Response(
-            body,
+            Markup.unescape(body),
             headers={
                 "HX-Push-Url": url,
             },
