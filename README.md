@@ -43,6 +43,19 @@ Installation via source distribution via the `pyproject.toml` script:
 pip install .
 ```
 
+### Running tests
+
+If you want to run the tests, 
+first install the test dependencies:
+```commandline
+pip install '.[test,bottle]'
+```
+
+Then simply run:
+```commandline
+pytest
+```
+
 ## web server
 
 You can use your favorite web server.
