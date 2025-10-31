@@ -8,7 +8,7 @@ description = "Small web client to build an admin interface or a little backoffi
 authors = [
     { name = "Jean-Sébastien Suzanne", email = "js.suzanne@gmail.fr" },
 ]
-version = "0.0.1"
+version = "0.1.0"
 license = { text = "MPL2" }
 requires-python = ">=3.10"
 dependencies = [

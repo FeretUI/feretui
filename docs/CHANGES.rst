@@ -9,7 +9,7 @@
 CHANGELOG
 =========
 
-0.1.0 (unreleased)
+0.1.0 (31-10-2025)
 ------------------
 
 Main version of FeretUI, based on the POC

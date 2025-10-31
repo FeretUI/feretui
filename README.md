@@ -36,7 +36,7 @@ Install released versions of FeretUI from the Python package index with
 [pip](http://pypi.python.org/pypi/pip) or a similar tool:
 
 ```
-pip install feretui (Not ready yet)
+pip install feretui
 ```
 
 Installation via source distribution is via the ``pyproject.toml`` script:
