@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "anyblok_feretui"
+description = "FeretUI for Anyblok"
+authors = [
+    { name = "Jean-Sébastien Suzanne", email = "js.suzanne@gmail.com" },
+]
+version = "1.0.0"
+license = { text = "MPL2" }
+requires-python = ">=3.7"
+dependencies = [
+    'anyblok==1.4.0',
+    'feretui',
+    'anyblok_pyramid',
+    'anyblok-pyramid-beaker'
+]
+dynamic = ["readme"]
+keywords = [
+]
+classifiers = [
+    'Intended Audience :: Developers',
+    'Programming Language :: Python :: 3.13',
+    "Topic :: Database",
+    'Topic :: Software Development',
+    'Topic :: Software Development :: Libraries :: Python Modules',
+    'License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)',
+]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.dynamic]
+readme = { file = ["README.rst"] }
+
+[tool.setuptools.packages.find]
+include = [
+    "anyblok_feretui*",
+]
+[project.urls]
+Homepage = "https://doc.anyblok.org/en/1.4.0/"
+
+[project.entry-points."bloks"]
+feretui-base = "anyblok_feretui.bloks.feretui:FeretUI"
+feretui-min = "anyblok_feretui.bloks.min:FeretUIMin"
+feretui-resource = "anyblok_feretui.bloks.resource:FeretUIResource"
