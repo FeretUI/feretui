@@ -75,6 +75,7 @@ class User(Base):
 
 engine = create_engine("sqlite:///resource.db")
 DBSession = scoped_session(sessionmaker(bind=engine))
+register(DBSession)
 mysession = DBSession()
 Base.metadata.create_all(engine)
 # -- for feretui --
@@ -371,7 +372,6 @@ if __name__ == "__main__":
             ])
             session.commit()
 
-    register(DBSession)
     session_factory = session_factory_from_settings({})
     with Configurator() as config:
         config.include('pyramid_beaker')

@@ -6,27 +6,25 @@
 
 small web client to build an admin interface or a little backoffice
 
-
-The goal of this project is to give at the developper the possibility to
+The goal of this project is to give developers the possibility to
 create an admin interface for any project.
 
-In the web we often need to create an user interface to the configuration or the 
-administration of the project. It is not the core of the project but we don't 
-want to add this part in the main user interface.
+On the web, we often need to create an user interface for the configuration or the 
+administration of a project. It's not the core of the project but we don't 
+want to add this part to the main user interface.
 
-**django_admin** is a solution for the django developper, but not for the other one.
-
+**django_admin** is a solution for django developer, but not for the others.
 
 I don't want to link this project with a framework. I really want to create an admin
-backoffice availlable for any framework.
+backoffice available for any framework.
 
 ## Installation
 
 ### Installation of the dependencies
 
-* lessc is a tools need for the minification of the static
+* `lessc` is a tools need for the minification of the static
 
-```
+```commandline
 sudo npm install -g less
 ```
 
@@ -35,14 +33,27 @@ sudo npm install -g less
 Install released versions of FeretUI from the Python package index with
 [pip](http://pypi.python.org/pypi/pip) or a similar tool:
 
-```
+```commandline
 pip install feretui
 ```
 
-Installation via source distribution is via the ``pyproject.toml`` script:
+Installation via source distribution via the `pyproject.toml` script:
 
-```
+```commandline
 pip install .
+```
+
+### Running tests
+
+If you want to run the tests, 
+first install the test dependencies:
+```commandline
+pip install '.[test,bottle]'
+```
+
+Then simply run:
+```commandline
+pytest
 ```
 
 ## web server
