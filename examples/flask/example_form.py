@@ -1,10 +1,7 @@
 import logging
-import urllib
-from contextlib import contextmanager
 from wsgiref.simple_server import make_server
 
-from flask import Flask, abort, make_response, request, send_file
-from multidict import MultiDict
+from flask import Flask
 from wtforms import fields
 from wtforms_components import ColorField
 
@@ -13,12 +10,12 @@ from feretui import (
     FeretUIForm,
     Request,
     Response,
-    Session,
     ToolBarMenu,
     action_for_unauthenticated_user,
     action_validator,
     menu_for_unauthenticated_user,
 )
+from feretui.ext.flask import declare_routes_for_feretui_client
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -27,23 +24,6 @@ logging.basicConfig(level=logging.DEBUG)
 app = Flask(__name__)
 app.secret_key = b'secret'
 
-
-@contextmanager
-def feretui_session(cls):
-    from flask import session
-    fsession = None
-    try:
-        fsession = cls(**session)
-        yield fsession
-    finally:
-        if fsession:
-            session.update(fsession.to_dict())
-
-
-def response(fresponse):
-    resp = make_response(fresponse.body)
-    resp.headers.update(fresponse.headers)
-    return resp
 
 # -- for feretui --
 
@@ -128,50 +108,7 @@ myferet.register_toolbar_left_menus([
 # -- app --
 
 
-@app.route('/')
-def index():
-    with feretui_session(Session) as session:
-        frequest = Request(
-            method=Request.GET,
-            querystring=request.query_string.decode('utf-8'),
-            headers=dict(request.headers),
-            session=session,
-        )
-        return response(myferet.render(frequest))
-
-
-@app.route('/feretui/static/<path:filepath>')
-def feretui_static_file(filepath):
-    filepath = myferet.get_static_file_path(filepath)
-    if filepath:
-        return send_file(filepath.resolve())
-
-    abort(404)
-    return None
-
-
-@app.route('/feretui/action/<action>', methods=['DELETE', 'GET', 'POST'])
-def call_action(action):
-    params = {}
-    if request.method in ['DELETE', 'POST']:
-        params = {
-            x: request.form.getlist(x)
-            for x in request.form
-        }
-        params.update(urllib.parse.parse_qs(
-            request.query_string.decode('utf-8'),
-        ))
-
-    with feretui_session(Session) as session:
-        frequest = Request(
-            method=getattr(Request, request.method),
-            querystring=request.query_string.decode('utf-8'),
-            form=MultiDict(request.form),
-            params=params,
-            headers=dict(request.headers),
-            session=session,
-        )
-        return response(myferet.execute_action(frequest, action))
+declare_routes_for_feretui_client(app, myferet)
 
 
 if __name__ == "__main__":
