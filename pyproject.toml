@@ -63,6 +63,7 @@ test = [
     'webtest',
 ]
 bottle = ['bottle', 'BottleSessions']
+flask = ['flask']
 
 [project.scripts]
 export-feretui-catalog = "feretui:scripts.export_catalog"
