@@ -8,7 +8,6 @@ from feretui import (
     menu_for_unauthenticated_user,
 )
 
-
 myferet.register_auth_menus([
     ToolBarButtonMenu(
         'Sign Up',

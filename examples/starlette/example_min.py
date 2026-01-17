@@ -1,14 +1,13 @@
 import logging
 from contextlib import contextmanager
 
+import uvicorn
+from multidict import MultiDict
 from starlette.applications import Starlette
-from starlette.responses import HTMLResponse, FileResponse, Response
-from starlette.routing import Route
 from starlette.middleware import Middleware
 from starlette.middleware.sessions import SessionMiddleware
-
-from multidict import MultiDict
-import uvicorn
+from starlette.responses import FileResponse, HTMLResponse, Response
+from starlette.routing import Route
 
 from feretui import (
     AsideHeaderMenu,

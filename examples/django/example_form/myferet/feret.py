@@ -12,7 +12,6 @@ from feretui import (
     menu_for_unauthenticated_user,
 )
 
-
 myferet = FeretUI()
 
 

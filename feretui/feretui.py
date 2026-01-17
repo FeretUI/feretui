@@ -51,6 +51,7 @@ from jinja2 import Environment, PackageLoader, select_autoescape
 from markupsafe import Markup
 
 from feretui.actions import goto, login_password, login_signup, logout, resource
+from feretui.assets import AssetManager
 from feretui.context import set_context
 from feretui.exceptions import (
     MenuError,
@@ -316,9 +317,11 @@ class FeretUI:
             extensions=[CompressorExtension],
         )
 
+        self.asset_manager = AssetManager(base_url)
+
         def compressor_source_dirs(path: str) -> str:
             """Return the filepath."""
-            return self.statics.get(path, path)
+            return self.asset_manager.get_static_file_path(path) or path
 
         self.jinja_env.compressor_source_dirs = compressor_source_dirs
         self.jinja_env.compressor_output_dir = f"static/dist/{ base_url }"
@@ -357,12 +360,8 @@ class FeretUI:
         )
 
         # Static behaviours
-        self.statics: dict[str, str] = {}
-        self.css_import: list[str] = []
-        self.js_import: list[str] = []
-        self.images: dict[str, str] = {}
-        self.themes: dict[str, str] = {}
-        self.fonts: dict[str, str] = {}
+        # Delegates to asset_manager
+
 
         # Menus
         self.menus: dict[str, list[ToolBarMenu]] = {
@@ -460,6 +459,60 @@ class FeretUI:
             return Response(f"<!DOCTYPE html5>\n{Markup.unescape(template)}")
 
     # ---------- statics  ----------
+    @property
+    def statics(self: "FeretUI") -> dict[str, str | Path]:
+        """Return the statics registry.
+
+        :return: The dictionary of static files
+        :rtype: dict[str, str | Path]
+        """
+        return self.asset_manager.statics
+
+    @property
+    def css_import(self: "FeretUI") -> list[tuple[bool, str]]:
+        """Return the css imports.
+
+        :return: The list of css files to import
+        :rtype: list[tuple[bool, str]]
+        """
+        return self.asset_manager.css_import
+
+    @property
+    def js_import(self: "FeretUI") -> list[str]:
+        """Return the js imports.
+
+        :return: The list of js files to import
+        :rtype: list[str]
+        """
+        return self.asset_manager.js_import
+
+    @property
+    def images(self: "FeretUI") -> dict[str, str]:
+        """Return the images registry.
+
+        :return: The dictionary of registered images
+        :rtype: dict[str, str]
+        """
+        return self.asset_manager.images
+
+    @property
+    def themes(self: "FeretUI") -> dict[str, str]:
+        """Return the themes registry.
+
+        :return: The dictionary of registered themes
+        :rtype: dict[str, str]
+        """
+        return self.asset_manager.themes
+
+    @property
+    def fonts(self: "FeretUI") -> dict[str, str]:
+        """Return the fonts registry.
+
+        :return: The dictionary of registered fonts
+        :rtype: dict[str, str]
+        """
+        return self.asset_manager.fonts
+
     def register_js(self: "FeretUI", name: str, filepath: str) -> None:
         """Register a javascript file to import in the client.
 
@@ -468,13 +521,7 @@ class FeretUI:
         :param filepath: Path in server file system
         :type filepath: str
         """
-        if name in self.statics:
-            logger.warning("The js script %s is overwriting", name)
-        else:
-            logger.debug("Add the js script %s", name)
-            self.js_import.append(name)
-
-        self.statics[name] = filepath
+        self.asset_manager.register_js(name, filepath)
 
     def register_css(
         self: "FeretUI",
@@ -491,17 +538,7 @@ class FeretUI:
         :param compress: if True compress the csv
         :type compress: bool
         """
-        if name in self.statics:
-            logger.warning("The stylesheet %s is overwriting", name)
-        else:
-            url = f"{self.base_url}/static/{name}"
-            logger.debug("Add the stylesheet %s", url)
-            if compress:
-                self.css_import.append((compress, name))
-            else:
-                self.css_import.append((compress, url))
-
-        self.statics[name] = filepath
+        self.asset_manager.register_css(name, filepath, compress=compress)
 
     def register_image(self: "FeretUI", name: str, filepath: str) -> None:
         """Register an image file to use it in the client.
@@ -511,14 +548,7 @@ class FeretUI:
         :param filepath: Path in server file system
         :type filepath: str
         """
-        if name in self.statics:
-            logger.warning("The image %s is overwriting", name)
-        else:
-            url = f"{self.base_url}/static/{name}"
-            logger.debug("Add the image %s", url)
-            self.images[name] = url
-
-        self.statics[name] = filepath
+        self.asset_manager.register_image(name, filepath)
 
     def register_theme(self: "FeretUI", name: str, filepath: str) -> None:
         """Register a theme file to use it in the client.
@@ -528,13 +558,7 @@ class FeretUI:
         :param filepath: Path in server file system
         :type filepath: str
         """
-        if name in self.statics:
-            logger.warning("The theme %s is overwriting", name)
-        else:
-            logger.debug("Add the available theme %s", name)
-            self.themes[name] = name
-
-        self.statics[name] = filepath
+        self.asset_manager.register_theme(name, filepath)
 
     def register_font(self: "FeretUI", name: str, filepath: str) -> None:
         """Register a theme file to use it in the client.
@@ -544,14 +568,7 @@ class FeretUI:
         :param filepath: Path in server file system
         :type filepath: str
         """
-        if name in self.statics:
-            logger.warning("The font %s is overwriting", name)
-        else:
-            url = f"{self.base_url}/static/{name}"
-            logger.debug("Add the available font %s", url)
-            self.fonts[name] = url
-
-        self.statics[name] = filepath
+        self.asset_manager.register_font(name, filepath)
 
     def get_theme_url(self: "FeretUI", session: Session) -> str:
         """Return the theme url in function of the session.
@@ -563,7 +580,7 @@ class FeretUI:
         :return: the url to import stylesheep
         :rtype: str
         """
-        return self.themes.get(session.theme, self.themes["default"])
+        return self.asset_manager.get_theme_url(session.theme)
 
     def get_image_url(self: "FeretUI", name: str) -> str:
         """Get the url for a picture.
@@ -573,7 +590,7 @@ class FeretUI:
         :return: The url to get it
         :rtype: str
         """
-        return self.images[name]
+        return self.asset_manager.get_image_url(name)
 
     def get_static_file_path(self: "FeretUI", filename: str) -> str:
         """Get the path in the filesystem for static file name.
@@ -587,7 +604,7 @@ class FeretUI:
         if path.exists():
             return path  # pragma: no cover
 
-        return self.statics.get(filename)
+        return self.asset_manager.get_static_file_path(filename)
 
     # ---------- Templating  ----------
     def register_template_file(

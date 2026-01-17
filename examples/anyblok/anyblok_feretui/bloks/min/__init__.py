@@ -14,5 +14,5 @@ class FeretUIMin(Blok):
     def load(self):
         import_module(
             '.myferet',
-            'anyblok_feretui.bloks.min'
+            'anyblok_feretui.bloks.min',
         )

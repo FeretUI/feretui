@@ -1,5 +1,4 @@
-"""
-WSGI config for example_min project.
+"""WSGI config for example_min project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 

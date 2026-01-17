@@ -1,8 +1,8 @@
 from multidict import MultiDict
-from anyblok_feretui.bloks.feretui.myferet import myferet, MySession
 from wtforms import PasswordField, RadioField, SelectField, StringField
 from wtforms.validators import EqualTo, InputRequired
 
+from anyblok_feretui.bloks.feretui.myferet import MySession, myferet
 from feretui import (
     Action,
     Actionset,
@@ -17,8 +17,8 @@ from feretui import (
     ToolBarMenu,
     menu_for_authenticated_user,
 )
-from feretui.resources.update import DefaultViewUpdate
 from feretui.context import ContextProperties
+from feretui.resources.update import DefaultViewUpdate
 
 
 class MySession(MySession):
@@ -29,7 +29,7 @@ class MySession(MySession):
     def login(self, form) -> bool:
         User = self.anyblok.Pyramid.User
         CredentialStore = self.anyblok.Pyramid.CredentialStore
-        user = User.query().filter(User.login == form.login.data,).one_or_none()
+        user = User.query().filter(User.login == form.login.data).one_or_none()
         credential = CredentialStore.query().filter(
             CredentialStore.login == form.login.data,
         ).one_or_none()

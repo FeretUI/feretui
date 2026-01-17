@@ -29,6 +29,7 @@ from feretui import (
     ToolBarMenu,
     menu_for_authenticated_user,
 )
+from feretui.ext.flask import declare_routes_for_feretui_client
 from feretui.resources.update import DefaultViewUpdate
 from feretui.ext.flask import declare_routes_for_feretui_client
 

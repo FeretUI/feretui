@@ -1,10 +1,10 @@
+import operator
+from functools import reduce
+
+from django.db.models import Q
+from multidict import MultiDict
 from wtforms import PasswordField, RadioField, SelectField, StringField
 from wtforms.validators import EqualTo, InputRequired
-from .models import User
-from multidict import MultiDict
-import operator
-from django.db.models import Q
-from functools import reduce
 
 from feretui import (
     Action,
@@ -24,6 +24,8 @@ from feretui import (
 )
 from feretui.resources.update import DefaultViewUpdate
 
+from .models import User
+
 
 class MySession(Session):
     def __init__(self, user_id=None, **kwargs) -> None:
@@ -33,7 +35,7 @@ class MySession(Session):
     def login(self, form) -> bool:
         user = User.objects.filter(
             login=form.login.data,
-            password=form.password.data
+            password=form.password.data,
         )
         if user.exists():
             user = user.first()
@@ -198,8 +200,8 @@ class RUser(LCRUDResource, Resource):
             users = users.filter(
                 reduce(
                     operator.or_,
-                    (Q(**{f'{key}__contains': x}) for x in values)
-                )
+                    (Q(**{f'{key}__contains': x}) for x in values),
+                ),
             )
 
         total = users.count()

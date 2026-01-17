@@ -1,5 +1,5 @@
+from anyblok.column import Selection, String
 from anyblok.declarations import Declarations
-from anyblok.column import String, Selection
 
 
 @Declarations.register(Declarations.Model.Pyramid)

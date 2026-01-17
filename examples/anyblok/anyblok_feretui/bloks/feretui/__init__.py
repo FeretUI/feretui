@@ -1,11 +1,12 @@
+from contextlib import contextmanager
 from importlib import import_module
 from logging import getLogger
-from contextlib import contextmanager
-from multidict import MultiDict
-from pyramid.response import FileResponse, Response
-from pyramid.httpexceptions import exception_response
 
 from anyblok.blok import Blok
+from multidict import MultiDict
+from pyramid.httpexceptions import exception_response
+from pyramid.response import FileResponse, Response
+
 from feretui import FeretUI, Request
 
 logger = getLogger(__name__)
@@ -83,11 +84,11 @@ class FeretUI(Blok):
     def load(self):
         myferet = import_module(
             '.myferet',
-            'anyblok_feretui.bloks.feretui'
+            'anyblok_feretui.bloks.feretui',
         )
         self.anyblok.Pyramid.myferet = myferet.myferet
         self.anyblok.Pyramid.MySession = myferet.MySession
-    
+
     @classmethod
     def pyramid_load_config(cls, config):
         config.add_view(

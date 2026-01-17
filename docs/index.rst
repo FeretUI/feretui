@@ -24,6 +24,7 @@ Welcome to FeretUI's documentation!
    tutorials.rst
    api.rst
    contributing.rst
+   troubleshooting.rst
    CHANGES.rst
 
 
