@@ -15,7 +15,12 @@ logger = getLogger(__name__)
 class AssetManager:
     """Manage static assets (JS, CSS, Images, Themes, Fonts)."""
 
-    def __init__(self, base_url: str):
+    def __init__(self, base_url: str) -> None:
+        """Initialize the manager.
+
+        :param base_url: The prefix of the url for all internal api
+        :type base_url: str
+        """
         self.base_url = base_url
         self.statics: dict[str, str | Path] = {}
         self.js_import: list[str] = []

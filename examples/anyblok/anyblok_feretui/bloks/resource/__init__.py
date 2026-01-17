@@ -14,7 +14,7 @@ class FeretUIResource(Blok):
     def load(self):
         myferet = import_module(
             '.myferet',
-            'anyblok_feretui.bloks.resource'
+            'anyblok_feretui.bloks.resource',
         )
         self.anyblok.Pyramid.MySession = myferet.MySession
 

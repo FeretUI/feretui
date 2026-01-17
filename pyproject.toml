@@ -89,6 +89,8 @@ exclude = [
     "buck-out",
     "build",
     "dist",
+    "docs",
+    "examples",
     "venv",
     "*/tests/*"
 ]

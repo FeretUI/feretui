@@ -1,14 +1,8 @@
 import logging
 from contextlib import contextmanager
 
-from starlette.applications import Starlette
-from starlette.responses import HTMLResponse, FileResponse, Response
-from starlette.routing import Route
-from starlette.middleware import Middleware
-from starlette.middleware.sessions import SessionMiddleware
-
-from multidict import MultiDict
 import uvicorn
+from multidict import MultiDict
 from sqlalchemy import String, create_engine, func, select
 from sqlalchemy.orm import (
     DeclarativeBase,
@@ -18,6 +12,11 @@ from sqlalchemy.orm import (
 from sqlalchemy.orm import (
     Session as SQLASession,
 )
+from starlette.applications import Starlette
+from starlette.middleware import Middleware
+from starlette.middleware.sessions import SessionMiddleware
+from starlette.responses import FileResponse, HTMLResponse, Response
+from starlette.routing import Route
 from wtforms import PasswordField, RadioField, SelectField, StringField
 from wtforms.validators import EqualTo, InputRequired
 
@@ -39,7 +38,6 @@ from feretui import (
     menu_for_authenticated_user,
 )
 from feretui.resources.update import DefaultViewUpdate
-
 
 logging.basicConfig(level=logging.DEBUG)
 

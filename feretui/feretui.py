@@ -461,26 +461,56 @@ class FeretUI:
     # ---------- statics  ----------
     @property
     def statics(self: "FeretUI") -> dict[str, str | Path]:
+        """Return the statics registry.
+
+        :return: The dictionary of static files
+        :rtype: dict[str, str | Path]
+        """
         return self.asset_manager.statics
 
     @property
     def css_import(self: "FeretUI") -> list[tuple[bool, str]]:
+        """Return the css imports.
+
+        :return: The list of css files to import
+        :rtype: list[tuple[bool, str]]
+        """
         return self.asset_manager.css_import
 
     @property
     def js_import(self: "FeretUI") -> list[str]:
+        """Return the js imports.
+
+        :return: The list of js files to import
+        :rtype: list[str]
+        """
         return self.asset_manager.js_import
 
     @property
     def images(self: "FeretUI") -> dict[str, str]:
+        """Return the images registry.
+
+        :return: The dictionary of registered images
+        :rtype: dict[str, str]
+        """
         return self.asset_manager.images
 
     @property
     def themes(self: "FeretUI") -> dict[str, str]:
+        """Return the themes registry.
+
+        :return: The dictionary of registered themes
+        :rtype: dict[str, str]
+        """
         return self.asset_manager.themes
 
     @property
     def fonts(self: "FeretUI") -> dict[str, str]:
+        """Return the fonts registry.
+
+        :return: The dictionary of registered fonts
+        :rtype: dict[str, str]
+        """
         return self.asset_manager.fonts
 
     def register_js(self: "FeretUI", name: str, filepath: str) -> None:

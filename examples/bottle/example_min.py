@@ -1,4 +1,5 @@
 import logging
+
 from bottle import app, run
 from BottleSessions import BottleSessions
 
@@ -12,7 +13,6 @@ from feretui import (
     ToolBarMenu,
     menu_for_unauthenticated_user,
 )
-
 from feretui.ext.bottle import declare_routes_for_feretui_client
 
 logging.basicConfig(level=logging.DEBUG)

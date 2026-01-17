@@ -1,4 +1,5 @@
 import logging
+
 from bottle import app, run
 from BottleSessions import BottleSessions
 from multidict import MultiDict
@@ -33,9 +34,8 @@ from feretui import (
     ToolBarMenu,
     menu_for_authenticated_user,
 )
-from feretui.resources.update import DefaultViewUpdate
-
 from feretui.ext.bottle import declare_routes_for_feretui_client
+from feretui.resources.update import DefaultViewUpdate
 
 logging.basicConfig(level=logging.DEBUG)
 

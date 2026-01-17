@@ -1,7 +1,10 @@
 from contextlib import contextmanager
+
 from django.http import FileResponse, HttpResponse, HttpResponseNotFound
-from feretui import Request
 from multidict import MultiDict
+
+from feretui import Request
+
 from .feret import MySession, myferet
 from .models import User
 
