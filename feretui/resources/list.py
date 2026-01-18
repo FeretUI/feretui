@@ -105,12 +105,14 @@ class ListView(MultiView, LabelMixinForView, View):
         :return: The html page in
         :rtype: str.
         """
-        return Markup.unescape(feretui.render_template(
-            session,
-            "feretui-resource-list",
-            widget=self.widget,
-            **self.render_kwargs(feretui, session, options),
-        ))
+        return Markup.unescape(
+            feretui.render_template(
+                session,
+                "feretui-resource-list",
+                widget=self.widget,
+                **self.render_kwargs(feretui, session, options),
+            ),
+        )
 
 
 class LResource:

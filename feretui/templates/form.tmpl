@@ -49,8 +49,20 @@
     </div>
   </template>
   <template id="feretui-radio-field-vertical">
-    <div class="field">
-      <include template="feretui-input-label"/>
+    <fieldset class="field">
+      <legend class="label" aria-description="{{ description }}">
+      {{ label.text }}
+      {% if required %}
+      <span class="content is-small">
+      (
+        <span class="has-text-link">
+          required
+        </span>
+      )
+      </span>
+      {% endif %}
+      <include template="feretui-description" />
+      </legend>
       <div class="control">
         <ul>
           {% for subfield in field %}
@@ -68,11 +80,23 @@
       {% if not readonly and errors %}
       <include template="feretui-input-error"/>
       {% endif %}
-    </div>
+    </fieldset>
   </template>
   <template id="feretui-radio-field-horizontal">
-    <div class="field">
-      <include template="feretui-input-label"/>
+    <fieldset class="field">
+      <legend class="label" aria-description="{{ description }}">
+      {{ label.text }}
+      {% if required %}
+      <span class="content is-small">
+      (
+        <span class="has-text-link">
+          required
+        </span>
+      )
+      </span>
+      {% endif %}
+      <include template="feretui-description" />
+      </legend>
       <div class="control">
         {% for subfield in field %}
           <label class="radio" for="{{ subfield.id }}" >
@@ -86,6 +110,6 @@
       {% if not readonly and errors %}
       <include template="feretui-input-error"/>
       {% endif %}
-    </div>
+    </fieldset>
   </template>
 </templates>

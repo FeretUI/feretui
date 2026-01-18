@@ -6,6 +6,7 @@
 # v. 2.0. If a copy of the MPL was not distributed with this file,You can
 # obtain one at http://mozilla.org/MPL/2.0/.
 """Helper for flask web server."""
+
 import urllib
 from contextlib import contextmanager
 from importlib import import_module
@@ -39,7 +40,7 @@ def feretui_session(session_cls: type[Session]) -> Session:
     :return: the session instance
     :rtype: :class:`session_cls`
     """
-    session = import_module('flask').session
+    session = import_module("flask").session
     fsession = None
     try:
         fsession = session_cls(**session)
@@ -68,7 +69,7 @@ def make_flask_response(fresponse: Response) -> FlaskResponse:
 def declare_routes_for_feretui_client(
     app: Flask,
     feretui: "FeretUI",
-    index_path: str = '/',
+    index_path: str = "/",
     session_cls: type[Session] = Session,
 ) -> None:
     """Declare a bottle route for a feretui client.
@@ -95,18 +96,19 @@ def declare_routes_for_feretui_client(
     :param session_cls: Feretui Session class
     :type session_cls: type[:class:`feretui.session.Session`]
     """
+
     @app.route(index_path)
     def index() -> str:
         with feretui_session(session_cls) as session:
             frequest = Request(
                 method=Request.GET,
-                querystring=request.query_string.decode('utf-8'),
+                querystring=request.query_string.decode("utf-8"),
                 headers=dict(request.headers),
                 session=session,
             )
             return make_flask_response(feretui.render(frequest))
 
-    @app.route(f'{feretui.base_url}/static/<path:filepath>')
+    @app.route(f"{feretui.base_url}/static/<path:filepath>")
     def feretui_static_file(filepath: str) -> str:
         filepath = feretui.get_static_file_path(filepath)
         if filepath:
@@ -116,24 +118,23 @@ def declare_routes_for_feretui_client(
         return None  # pragma: no cover
 
     @app.route(
-        f'{feretui.base_url}/action/<action>',
-        methods=['DELETE', 'GET', 'POST'],
+        f"{feretui.base_url}/action/<action>",
+        methods=["DELETE", "GET", "POST"],
     )
     def call_action(action: str) -> str:
         params = {}
-        if request.method in ['DELETE', 'POST']:
-            params = {
-                x: request.form.getlist(x)
-                for x in request.form
-            }
-            params.update(urllib.parse.parse_qs(
-                request.query_string.decode('utf-8'),
-            ))
+        if request.method in ["DELETE", "POST"]:
+            params = {x: request.form.getlist(x) for x in request.form}
+            params.update(
+                urllib.parse.parse_qs(
+                    request.query_string.decode("utf-8"),
+                ),
+            )
 
         with feretui_session(session_cls) as session:
             frequest = Request(
                 method=getattr(Request, request.method),
-                querystring=request.query_string.decode('utf-8'),
+                querystring=request.query_string.decode("utf-8"),
                 form=MultiDict(request.form),
                 params=params,
                 headers=dict(request.headers),

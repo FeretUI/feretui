@@ -447,7 +447,8 @@ class ToolBarDividerMenu(ToolBarMenu):
         :rtype: str
         """
         return Markup.unescape(
-            feretui.render_template(session, self.template_id))
+            feretui.render_template(session, self.template_id),
+        )
 
 
 class ToolBarUrlMenu(UrlMenu, ToolBarMenu):

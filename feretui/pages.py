@@ -68,7 +68,8 @@ def page_404(feretui: "FeretUI", session: Session, options: dict) -> str:
         page = page[0]
 
     return Markup.unescape(
-        feretui.render_template(session, "feretui-page-404", page=page))
+        feretui.render_template(session, "feretui-page-404", page=page),
+    )
 
 
 def page_forbidden(
@@ -94,7 +95,8 @@ def page_forbidden(
         page = page[0]
 
     return Markup.unescape(
-        feretui.render_template(session, "feretui-page-forbidden", page=page))
+        feretui.render_template(session, "feretui-page-forbidden", page=page),
+    )
 
 
 def homepage(
@@ -114,7 +116,8 @@ def homepage(
     :rtype: str
     """
     return Markup.unescape(
-        feretui.render_template(session, "feretui-page-homepage"))
+        feretui.render_template(session, "feretui-page-homepage"),
+    )
 
 
 def sitemap(
@@ -134,11 +137,13 @@ def sitemap(
     :rtype: str
     """
     menus = feretui.get_site_map_menus()
-    return Markup.unescape(feretui.render_template(
-        session,
-        "feretui-page-sitemap",
-        menus=menus,
-    ))
+    return Markup.unescape(
+        feretui.render_template(
+            session,
+            "feretui-page-sitemap",
+            menus=menus,
+        ),
+    )
 
 
 def static_page(template_id: str) -> Callable:
@@ -187,12 +192,16 @@ def aside_menu(
     menus = feretui.get_aside_menus(options["aside"][0])
     page = options.get("aside_page", ["homepage"])[0]
 
-    return Markup.unescape(feretui.render_template(
-        session,
-        "feretui-page-aside",
-        menus=menus,
-        page=Markup.unescape(feretui.get_page(page)(feretui, session, options)),
-    ))
+    return Markup.unescape(
+        feretui.render_template(
+            session,
+            "feretui-page-aside",
+            menus=menus,
+            page=Markup.unescape(
+                feretui.get_page(page)(feretui, session, options),
+            ),
+        ),
+    )
 
 
 @page_for_unauthenticated_user_or_goto("forbidden")
@@ -213,12 +222,14 @@ def login(feretui: "FeretUI", session: Session, options: dict) -> str:
     """
     form = options.get("form", session.LoginForm())
     error = options.get("error")
-    return Markup.unescape(feretui.render_template(
-        session,
-        "feretui-page-login",
-        form=form,
-        error=error,
-    ))
+    return Markup.unescape(
+        feretui.render_template(
+            session,
+            "feretui-page-login",
+            form=form,
+            error=error,
+        ),
+    )
 
 
 @page_for_unauthenticated_user_or_goto("forbidden")
@@ -239,12 +250,14 @@ def signup(feretui: "FeretUI", session: Session, options: dict) -> str:
     """
     form = options.get("form", session.SignUpForm())
     error = options.get("error")
-    return Markup.unescape(feretui.render_template(
-        session,
-        "feretui-page-signup",
-        form=form,
-        error=error,
-    ))
+    return Markup.unescape(
+        feretui.render_template(
+            session,
+            "feretui-page-signup",
+            form=form,
+            error=error,
+        ),
+    )
 
 
 def resource_page(feretui: "FeretUI", session: Session, options: dict) -> str:

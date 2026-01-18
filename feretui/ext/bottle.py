@@ -6,6 +6,7 @@
 # v. 2.0. If a copy of the MPL was not distributed with this file,You can
 # obtain one at http://mozilla.org/MPL/2.0/.
 """Helper for bottle web server."""
+
 from contextlib import contextmanager
 from os import path
 from typing import TYPE_CHECKING
@@ -68,7 +69,7 @@ def add_response_headers(headers: dict) -> None:
 
 def declare_routes_for_feretui_client(
     feretui: "FeretUI",
-    index_path: str = '/',
+    index_path: str = "/",
     session_cls: type[Session] = Session,
 ) -> None:
     """Declare a bottle route for a feretui client.
@@ -107,7 +108,7 @@ def declare_routes_for_feretui_client(
             add_response_headers(res.headers)
             return res.body
 
-    @route(f'{feretui.base_url}/static/<filepath:path>')
+    @route(f"{feretui.base_url}/static/<filepath:path>")
     def feretui_static_file(filepath: str) -> str:
         filepath = feretui.get_static_file_path(filepath)
         if filepath:
@@ -117,8 +118,8 @@ def declare_routes_for_feretui_client(
         return abort(404)
 
     @route(
-        f'{feretui.base_url}/action/<action>',
-        method=['DELETE', 'GET', 'POST'],
+        f"{feretui.base_url}/action/<action>",
+        method=["DELETE", "GET", "POST"],
     )
     def call_action(action: str) -> str:
         with feretui_session(session_cls) as session:

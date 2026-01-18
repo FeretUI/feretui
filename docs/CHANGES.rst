@@ -9,6 +9,15 @@
 CHANGELOG
 =========
 
+0.1.1 (unreleased)
+------------------
+
+* Refactor: Extracted asset management into `AssetManager` class.
+* Accessibility: Updated `RadioField` templates to use `<fieldset>` and `<legend>` (Issue #92).
+* Documentation: Added Troubleshooting guide.
+* Dev: Added pre-commit configuration.
+* Dev: Added GitHub Issue templates.
+
 0.1.0 (31-10-2025)
 ------------------
 
