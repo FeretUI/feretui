@@ -231,7 +231,7 @@ class RUser(LCRUDResource, Resource):
         print(10, a, kw)
 
     def create(self, form):
-        user = db.get(User, form.login.data)
+        user = db.session.get(User, form.login.data)
         if user:
             raise Exception('User already exist')
 
@@ -243,7 +243,7 @@ class RUser(LCRUDResource, Resource):
         return user.login
 
     def read(self, form_cls, pk):
-        user = db.get(User, pk)
+        user = db.session.get(User, pk)
         if user:
             return form_cls(MultiDict(user.__dict__))
         return None
