@@ -112,4 +112,27 @@
       {% endif %}
     </fieldset>
   </template>
+  <template id="feretui-fieldset">
+    <fieldset class="field">
+      <legend class="label" aria-description="{{ description }}">
+      {{ label.text }}
+      {% if required %}
+      <span class="content is-small">
+      (
+        <span class="has-text-link">
+          required
+        </span>
+      )
+      </span>
+      {% endif %}
+      <include template="feretui-description" />
+      </legend>
+      <div class="control">
+        {{ widget }}
+      </div>
+      {% if not readonly and errors %}
+      <include template="feretui-input-error"/>
+      {% endif %}
+    </fieldset>
+  </template>
 </templates>

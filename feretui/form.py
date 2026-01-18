@@ -18,6 +18,8 @@ The class :class:`.FeretUIForm` are behaviour like:
   * :func:`.wrap_input`
   * :func:`.wrap_bool`
   * :func:`.wrap_radio`
+  * :func:`.wrap_fieldset`
+  * :func:`.wrap_select_multiple`
   * :func:`.no_wrap`
 
 The wrappers, excepted :func:`._no wrap`, added behaviours in kwargs of
@@ -44,10 +46,12 @@ from wtforms.fields import (
     FormField,
     RadioField,
     SelectFieldBase,
+    SelectMultipleField,
 )
 from wtforms.fields.core import UnboundField
 from wtforms.form import Form
 from wtforms.validators import InputRequired, ValidationError
+from wtforms.widgets import ListWidget
 from wtforms.widgets.core import clean_key
 from wtforms_components import read_only
 
@@ -196,6 +200,77 @@ def wrap_radio(
             errors=field.errors,
         ),
     )
+
+
+def wrap_fieldset(
+    feretui: "FeretUI",
+    session: "Session",
+    field: "Field",
+    **kwargs: dict,
+) -> Markup:
+    """Render fieldset.
+
+    It is used to group fields with a `fieldset` tag. It is required for
+    accessibility (RGAA 11.5).
+
+    :param feretui: The feretui client
+    :type feretui: :class:`feretui.feretui.FeretUI`
+    :param session: The Session
+    :type session: :class:`feretui.session.Session`
+    :param field: The field to validate
+    :type field: Field_
+    :return: The renderer of the widget as html.
+    :rtype: Markup_
+    """
+    required = False
+    readonly = False
+    for validator in field.validators:
+        if isinstance(validator, InputRequired):
+            required = True
+
+    if kwargs.get("readonly"):
+        read_only(field)
+        kwargs["disabled"] = True
+        readonly = True
+
+    return Markup.unescape(
+        feretui.render_template(
+            session,
+            "feretui-fieldset",
+            label=None if kwargs.pop("nolabel", False) else field.label,
+            widget=field.widget(field, **kwargs),
+            required=required,
+            readonly=readonly,
+            description=field.description,
+            errors=field.errors,
+        ),
+    )
+
+
+def wrap_select_multiple(
+    feretui: "FeretUI",
+    session: "Session",
+    field: "Field",
+    **kwargs: dict,
+) -> Markup:
+    """Render select multiple field.
+
+    If the select multiple field uses a `ListWidget`, it is rendered as a
+    fieldset (RGAA 11.5). Otherwise, it is rendered as a standard input.
+
+    :param feretui: The feretui client
+    :type feretui: :class:`feretui.feretui.FeretUI`
+    :param session: The Session
+    :type session: :class:`feretui.session.Session`
+    :param field: The field to validate
+    :type field: Field_
+    :return: The renderer of the widget as html.
+    :rtype: Markup_
+    """
+    if isinstance(field.widget, ListWidget):
+        return wrap_fieldset(feretui, session, field, **kwargs)
+
+    return wrap_input(feretui, session, field, **kwargs)
 
 
 def no_wrap(
@@ -348,9 +423,10 @@ class FeretUIForm(Form):
 
     WRAPPERS = {
         BooleanField: wrap_bool,
-        FormField: no_wrap,
+        FormField: wrap_fieldset,
         RadioField: wrap_radio,
         SelectFieldBase._Option: no_wrap,
+        SelectMultipleField: wrap_select_multiple,
     }
     DEFAULT_WRAPPER = wrap_input
     TRANSLATED_MESSAGES = [

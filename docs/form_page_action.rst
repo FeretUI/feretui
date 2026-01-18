@@ -420,6 +420,7 @@ The base class:
 
 * overwrite gettext and ngettext for the translation
 * overwrite the render of the field to add bulma class on the input
+* automatically group related fields (like ``FormField`` or ``SelectMultipleField`` with checkbox list) in a ``<fieldset>`` to comply with RGAA 11.5.
 
 You use it directly in the page or the action.
 

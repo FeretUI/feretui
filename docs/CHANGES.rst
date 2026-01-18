@@ -15,6 +15,7 @@ CHANGELOG
 * Refactor: Extracted asset management into `AssetManager` class.
 * Accessibility: Updated `RadioField` templates to use `<fieldset>` and `<legend>` (Issue #92).
 * Accessibility: Implemented keyboard accessibility for tooltips (RGAA 12.11) (Issue #107).
+* Accessibility: Implemented grouping for FormField and SelectMultipleField (RGAA 11.5) (Issue #123).
 * Documentation: Added Troubleshooting guide.
 * Dev: Added pre-commit configuration.
 * Dev: Added GitHub Issue templates.
