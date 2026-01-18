@@ -945,6 +945,19 @@ class Template:
                     suffix=f"{tmpl.tag}:{key}",
                 )
 
+            if key == "data-tooltip":
+                is_interactive = tmpl.tag in {
+                    "button",
+                    "input",
+                    "select",
+                    "textarea",
+                    "details",
+                    "summary",
+                } or (tmpl.tag == "a" and "href" in tmpl.attrib)
+
+                if "tabindex" not in tmpl.attrib and not is_interactive:
+                    tmpl.attrib["tabindex"] = "0"
+
         for child in tmpl.getchildren():
             self.compile_template_i18n(child, action_callback)
 
