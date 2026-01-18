@@ -270,7 +270,8 @@ class TranslatedMenu:
         if self.menu.description:
             po.append(
                 translation.define(
-                    f"{self.menu.context}:description", self.menu.description,
+                    f"{self.menu.context}:description",
+                    self.menu.description,
                 ),
             )
 

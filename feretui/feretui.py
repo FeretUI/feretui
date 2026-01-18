@@ -362,7 +362,6 @@ class FeretUI:
         # Static behaviours
         # Delegates to asset_manager
 
-
         # Menus
         self.menus: dict[str, list[ToolBarMenu]] = {
             "left": [],

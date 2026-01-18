@@ -259,7 +259,9 @@ def get_field_translations(
         args = tuple(args)
     elif unbound_field.kwargs.get("label"):
         kwargs["label"] = callback(
-            form_cls, kwargs["label"], context_suffix + "label",
+            form_cls,
+            kwargs["label"],
+            context_suffix + "label",
         )
     else:
         label = options["name"].replace("_", " ").title()
@@ -503,7 +505,8 @@ class FeretUIForm(Form):
                 render_kw = dict(other_kw, **render_kw)
 
             wrapper = FeretUIForm.WRAPPERS.get(
-                field.__class__, FeretUIForm.DEFAULT_WRAPPER,
+                field.__class__,
+                FeretUIForm.DEFAULT_WRAPPER,
             )
             return wrapper(
                 self.feretui,

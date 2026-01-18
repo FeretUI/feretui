@@ -70,7 +70,8 @@ class ActionI18nMixin(ContextProperties):
         if self.description:
             po.append(
                 translation.define(
-                    f"{self.context}:description", self.description,
+                    f"{self.context}:description",
+                    self.description,
                 ),
             )
 

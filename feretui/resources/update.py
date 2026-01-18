@@ -148,7 +148,8 @@ class EditView(TemplateMixinForView, View):
         res.update(
             {
                 "form": options.pop(
-                    "form", self.resource.read(self.form_cls, pk),
+                    "form",
+                    self.resource.read(self.form_cls, pk),
                 ),
                 "error": options.get("error"),
             },

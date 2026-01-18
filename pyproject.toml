@@ -61,6 +61,7 @@ test = [
     'flake8-bandit',
     'pytest-snapshot',
     'webtest',
+    'pre-commit',
 ]
 bottle = ['bottle', 'BottleSessions']
 flask = ['flask']
@@ -100,6 +101,7 @@ exclude = [
 # overlap with the use of a formatter, like Black, but we can override this behavior by
 # explicitly adding the rule.
 select = ["ANN", "ARG", "B", "C4", "C90", "COM", "D", "E", "F", "FIX", "G", "I", "LOG", "N", "PERF", "PTH", "RET", "RSE", "S", "SIM", "TID", "TCH", "UP", "W", "YTT"]
+ignore = ["ANN101", "COM812"]
 
 [tool.ruff.format]
 # Prefer single quotes over double quotes.
