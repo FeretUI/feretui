@@ -55,7 +55,6 @@ from feretui.assets import AssetManager
 from feretui.context import set_context
 from feretui.exceptions import (
     MenuError,
-    UnexistingActionError,
     UnexistingResourceError,
 )
 from feretui.form import FeretUIForm
@@ -78,11 +77,11 @@ from feretui.pages import (
     resource_page,
     signup,
     sitemap,
-    static_page,
 )
 from feretui.request import Request
 from feretui.resources.resource import Resource
 from feretui.response import Response
+from feretui.routing import RouteRegistry
 from feretui.session import Session
 from feretui.template import Template
 from feretui.translation import (
@@ -383,8 +382,10 @@ class FeretUI:
             ],
         )
 
+        self.resources: dict[str, Resource] = {}
+        self.route_registry = RouteRegistry(self)
+
         # Actions
-        self.actions: dict[str, Callable[[FeretUI, Request], Response]] = {}
         self.register_action(goto)
         self.register_action(login_password)
         self.register_action(login_signup)
@@ -392,10 +393,6 @@ class FeretUI:
         self.register_action(resource)
 
         # Pages
-        self.pages: dict[
-            str,
-            Callable[[FeretUI, Session, dict], Response],
-        ] = {}
         self.register_page(name="404")(page_404)
         self.register_page(name="forbidden")(page_forbidden)
         self.register_page()(homepage)
@@ -456,6 +453,16 @@ class FeretUI:
             template = template.replace("feretui-head", "head")
             template = template.replace("feretui-body", "body")
             return Response(f"<!DOCTYPE html5>\n{Markup.unescape(template)}")
+
+    @property
+    def pages(self: "FeretUI") -> dict[str, Callable]:
+        """Return the pages registry."""
+        return self.route_registry.pages
+
+    @property
+    def actions(self: "FeretUI") -> dict[str, Callable]:
+        """Return the actions registry."""
+        return self.route_registry.actions
 
     # ---------- statics  ----------
     @property
@@ -731,11 +738,7 @@ class FeretUI:
                 :class:`feretui.request.Request`],
                 :class:`feretui.response.Response`]
         """
-        if function.__name__ in self.actions:
-            logger.info("Overload action %r", function.__name__)
-
-        self.actions[function.__name__] = function
-        return function
+        return self.route_registry.register_action(function)
 
     def execute_action(
         self: "FeretUI",
@@ -761,14 +764,7 @@ class FeretUI:
         :return: The result of the action
         :rtype: :class:`feretui.response.Response`
         """
-        if action_name not in self.actions:
-            raise UnexistingActionError(action_name)
-
-        # First put the instance of feretui, the request and
-        # the lang in the local thread to keep the information
-        with set_context(self, request):
-            function = self.actions[action_name]
-            return function(self, request)
+        return self.route_registry.execute_action(request, action_name)
 
     # ---------- Page  ----------
     def register_page(
@@ -797,6 +793,7 @@ class FeretUI:
             @myferet.register_page()
             def my_page(feretui, session, options):
                 return ...
+
 
         By default the name is the name of the decorated callable.
         but this nae can be overritting
@@ -845,29 +842,12 @@ class FeretUI:
         :return: Return a decorator
         :rtype: Callable
         """
-        if isinstance(templates, Iterable):
-            for template in templates:
-                self.register_template_from_str(template, addons=addons)
-
-        if isinstance(forms, Iterable):
-            register = self.register_form(addons=addons)
-            for form in forms:
-                register(form)
-
-        default_name = name
-
-        def register_page_callback(
-            func: Callable[["FeretUI", Session, dict], str],
-        ) -> Callable[["FeretUI", Session, dict], str]:
-            name = default_name if default_name else func.__name__
-
-            if name in self.pages:
-                logger.info("Overload page %r", name)
-
-            self.pages[name] = func
-            return func
-
-        return register_page_callback
+        return self.route_registry.register_page(
+            name=name,
+            templates=templates,
+            forms=forms,
+            addons=addons,
+        )
 
     def register_static_page(
         self: "FeretUI",
@@ -910,18 +890,11 @@ class FeretUI:
         :param addons: The addons where the message come from
         :type addons: str
         """
-        if templates is None:
-            templates = []
-        if not isinstance(templates, list) and isinstance(templates, Iterable):
-            templates = list(templates)
-
-        templates.append(f'<template id="{name}">{template}</template>')
-        self.register_page(
+        self.route_registry.register_static_page(
             name=name,
+            template=template,
             templates=templates,
             addons=addons,
-        )(
-            static_page(name),
         )
 
     def get_page(
@@ -941,10 +914,7 @@ class FeretUI:
             [:class:`.FeretUI`, :class:`feretui.session.Session`, dict],
             str]
         """
-        if pagename not in self.pages:
-            return self.get_page("404")
-
-        return self.pages[pagename]
+        return self.route_registry.get_page(pagename)
 
     # ---------- Menus ----------
     def _register_toolbar_menus(

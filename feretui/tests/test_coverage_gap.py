@@ -79,3 +79,10 @@ class TestCoverageGap:
         # The internal logic adds to po.
         # We assume it runs without error and covers the lines.
         assert True
+
+    def test_feretui_properties_coverage(self, snapshot, feretui, frequest) -> None:
+        """Cover properties exposing internal registries."""
+        # actions property
+        assert feretui.actions == feretui.route_registry.actions
+        # pages property
+        assert feretui.pages == feretui.route_registry.pages
