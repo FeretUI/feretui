@@ -1,0 +1,50 @@
+/* FeretUI Theme: Darkly (Deep Midnight & Teal Cyan) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root,
+[data-theme="light"],
+[data-theme="dark"] {
+  --pico-font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  --pico-border-radius: 0.375rem;
+
+  --pico-primary: #00bc8c;
+  --pico-primary-background: #00bc8c;
+  --pico-primary-hover: #009f76;
+  --pico-primary-hover-background: #008764;
+  --pico-primary-focus: rgba(0, 188, 140, 0.35);
+  --pico-primary-inverse: #ffffff;
+
+  --pico-secondary: #444444;
+  --pico-secondary-background: #444444;
+  --pico-secondary-hover: #333333;
+  --pico-secondary-inverse: #ffffff;
+
+  --pico-background-color: #181b20;
+  --pico-color: #ffffff;
+  --pico-muted-color: #888888;
+  --pico-muted-border-color: #282c34;
+
+  --pico-card-background-color: #22252a;
+  --pico-card-border-color: #2e333d;
+  --pico-card-box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+
+  --pico-form-element-background-color: #22252a;
+  --pico-form-element-border-color: #3b4250;
+  --pico-form-element-focus-color: #00bc8c;
+}
+
+header.is-hidden-print {
+  background-color: #111317 !important;
+  border-bottom: 2px solid #00bc8c !important;
+}
+
+header.is-hidden-print nav a,
+header.is-hidden-print nav details.dropdown > summary {
+  color: #ffffff !important;
+  font-weight: 500;
+}
+
+header.is-hidden-print nav a:hover,
+header.is-hidden-print nav details.dropdown > summary:hover {
+  color: #00bc8c !important;
+}

@@ -1,0 +1,696 @@
+/* FeretUI Stylesheet - Modern ERP UX with Pico CSS */
+
+:root {
+  --feretui-danger-bg: #e53935;
+  --feretui-danger-color: #ffffff;
+  --feretui-success-bg: #2e7d32;
+  --feretui-success-color: #ffffff;
+  --feretui-info-bg: #0288d1;
+  --feretui-info-color: #ffffff;
+}
+
+/* ==========================================================================
+   Header Navbar Integration (Faithful to classic clean backoffice UX)
+   ========================================================================== */
+
+header.is-hidden-print {
+  background-color: var(--pico-card-background-color, #1e293b);
+  border-bottom: 1px solid var(--pico-muted-border-color, rgba(125, 125, 125, 0.2));
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  margin-bottom: 2rem;
+}
+
+header.is-hidden-print nav {
+  min-height: 3.5rem;
+  margin-bottom: 0;
+  padding: 0 var(--pico-spacing, 1.25rem);
+}
+
+header.is-hidden-print nav ul {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  gap: 0.25rem;
+}
+
+header.is-hidden-print nav ul li {
+  display: inline-flex;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Nav links and dropdown summaries blend seamlessly into the header */
+header.is-hidden-print nav a,
+header.is-hidden-print nav details.dropdown,
+header.is-hidden-print nav details.dropdown > summary,
+header.is-hidden-print nav details.dropdown > summary:not([role]) {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  color: var(--pico-color) !important;
+  font-weight: 500;
+  padding: 0.5rem 0.85rem !important;
+  height: auto !important;
+  line-height: var(--pico-line-height, 1.5) !important;
+  border-radius: var(--pico-border-radius, 0.25rem) !important;
+  cursor: pointer;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.35rem;
+  margin: 0 !important;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+header.is-hidden-print nav a:hover,
+header.is-hidden-print nav details.dropdown > summary:hover,
+header.is-hidden-print nav details.dropdown[open] > summary {
+  background-color: var(--pico-dropdown-hover-background-color, rgba(125, 125, 125, 0.15)) !important;
+  color: var(--pico-color) !important;
+}
+
+/* Dropdown list popup */
+header.is-hidden-print details.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+header.is-hidden-print details.dropdown > summary + ul,
+header.is-hidden-print details.dropdown > ul {
+  position: absolute !important;
+  top: calc(100% + 4px) !important;
+  left: 0;
+  right: auto;
+  background-color: var(--pico-dropdown-background-color, var(--pico-card-background-color, #ffffff)) !important;
+  border: 1px solid var(--pico-muted-border-color, rgba(125, 125, 125, 0.25)) !important;
+  border-radius: var(--pico-border-radius, 0.35rem) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35) !important;
+  padding: 0.4rem 0 !important;
+  margin: 0 !important;
+  min-width: 12rem !important;
+  width: max-content !important;
+  max-width: calc(100vw - 2rem) !important;
+  white-space: nowrap !important;
+  z-index: 1001 !important;
+  list-style: none !important;
+}
+
+/* Right-aligned dropdown for user menu in top-right */
+header.is-hidden-print nav > ul:last-child details.dropdown > summary + ul,
+header.is-hidden-print nav > ul:last-child details.dropdown > ul,
+header.is-hidden-print details.dropdown.is-right > summary + ul,
+header.is-hidden-print details.dropdown.is-right > ul {
+  left: auto !important;
+  right: 0 !important;
+}
+
+header.is-hidden-print details.dropdown ul li {
+  padding: 0 !important;
+  margin: 0 !important;
+  list-style: none !important;
+  width: 100% !important;
+}
+
+header.is-hidden-print details.dropdown ul li a {
+  display: flex !important;
+  align-items: center !important;
+  width: 100% !important;
+  padding: 0.55rem 1.25rem !important;
+  color: var(--pico-dropdown-color, var(--pico-color)) !important;
+  text-decoration: none !important;
+  font-weight: normal !important;
+  white-space: nowrap !important;
+  border-radius: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+
+header.is-hidden-print details.dropdown ul li a:hover {
+  background-color: var(--pico-dropdown-hover-background-color, rgba(125, 125, 125, 0.15)) !important;
+  color: var(--pico-color) !important;
+}
+
+header.is-hidden-print details.dropdown ul hr,
+header.is-hidden-print details.dropdown ul hr.navbar-divider {
+  margin: 0.35rem 0 !important;
+  border: 0 !important;
+  border-top: 1px solid var(--pico-muted-border-color, rgba(125, 125, 125, 0.2)) !important;
+}
+
+/* ==========================================================================
+   Accessibility & Print
+   ========================================================================== */
+
+.is-sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+@media print {
+  .is-hidden-print {
+    display: none !important;
+  }
+}
+
+/* ==========================================================================
+   Notifications / Alerts
+   ========================================================================== */
+
+.notification {
+  padding: 0.85rem 1.25rem;
+  border-radius: var(--pico-border-radius, 0.25rem);
+  margin-bottom: 1.25rem;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.notification.is-danger {
+  background-color: var(--pico-del-color, var(--feretui-danger-bg));
+  color: var(--feretui-danger-color);
+}
+
+.notification.is-success {
+  background-color: var(--pico-ins-color, var(--feretui-success-bg));
+  color: var(--feretui-success-color);
+}
+
+.notification.is-info {
+  background-color: var(--pico-primary-background, var(--feretui-info-bg));
+  color: var(--pico-primary-inverse, var(--feretui-info-color));
+}
+
+/* ==========================================================================
+   Buttons
+   ========================================================================== */
+
+.button.is-danger,
+button.is-danger {
+  background-color: var(--pico-del-color, #c62828);
+  border-color: var(--pico-del-color, #c62828);
+  color: #ffffff;
+}
+
+.button.is-danger:hover,
+button.is-danger:hover {
+  background-color: #b71c1c;
+  border-color: #b71c1c;
+}
+
+.button.is-ghost,
+button.is-ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--pico-color);
+}
+
+.button.is-ghost:hover,
+button.is-ghost:hover {
+  background: var(--pico-secondary-hover-background, rgba(0, 0, 0, 0.05));
+  border-color: transparent;
+}
+
+.is-fullwidth {
+  width: 100% !important;
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.buttons:not(:last-child) {
+  margin-bottom: 1rem;
+}
+
+.buttons.is-centered,
+#buttons .buttons {
+  justify-content: center;
+  flex-wrap: nowrap;
+}
+
+#buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 0;
+}
+
+.grid:has(> #buttons) {
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .grid:has(> #buttons) {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  #buttons .buttons,
+  .buttons.is-centered {
+    flex-wrap: wrap;
+  }
+}
+
+.buttons .button,
+.buttons button,
+.buttons a[role="button"],
+.buttons [type="button"],
+.buttons [type="submit"],
+.buttons [type="reset"] {
+  width: auto !important;
+  margin: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.4rem;
+  white-space: nowrap;
+}
+
+/* ==========================================================================
+   Form Labels & Required Indicator
+   ========================================================================== */
+
+label small[aria-hidden="true"],
+legend small[aria-hidden="true"],
+.is-required {
+  color: var(--pico-primary) !important;
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   Utilities & Layout
+   ========================================================================== */
+
+.has-text-centered {
+  text-align: center;
+}
+
+.has-text-right {
+  text-align: right;
+}
+
+.table-container,
+.overflow-auto {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 1.5rem;
+}
+
+/* Full-width container in views (ERP style) */
+.container.is-fluid,
+#feretui-body .container,
+#feretui-aside-body .container,
+[id^="resource-"].container,
+[id^="resource-"] .container {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+/* Bulma-compatible columns flex support */
+.columns.is-desktop {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.columns.is-desktop > .column {
+  flex: 1 1 0%;
+  min-width: 0;
+}
+
+.columns.is-desktop > .column.is-narrow,
+.columns.is-desktop > .column.is-narrow-desktop {
+  flex: 0 0 240px;
+  max-width: 240px;
+}
+
+/* ==========================================================================
+   Filter Tags / Badges (Bulma-style tags)
+   ========================================================================== */
+
+.tags {
+  align-items: center;
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 0.25rem;
+}
+
+.tags .tag {
+  margin-bottom: 0.25rem;
+}
+
+.tags.has-addons {
+  display: inline-flex;
+  gap: 0;
+}
+
+.tags.has-addons .tag {
+  margin-right: 0;
+  margin-left: 0;
+}
+
+.tags.has-addons .tag:not(:first-child) {
+  margin-left: 0;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.tags.has-addons .tag:not(:last-child) {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.tag:not(body) {
+  align-items: center;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  color: #4a4a4a;
+  display: inline-flex;
+  font-size: 0.75rem;
+  height: 2em;
+  justify-content: center;
+  line-height: 1.5;
+  padding-left: 0.75em;
+  padding-right: 0.75em;
+  white-space: nowrap;
+  vertical-align: middle;
+  box-sizing: border-box;
+}
+
+.tag:not(body).is-rounded {
+  border-radius: 9999px;
+}
+
+.tag:not(body).is-dark {
+  background-color: #363636;
+  color: #fff;
+}
+
+.tag:not(body).is-light {
+  background-color: #f5f5f5;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.tag:not(body).is-info {
+  background-color: #3e8ed0;
+  color: #fff;
+}
+
+.tag:not(body).is-success {
+  background-color: #48c78e;
+  color: #fff;
+}
+
+.tag:not(body).is-warning {
+  background-color: #ffe08a;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.tag:not(body).is-danger {
+  background-color: #f14668;
+  color: #fff;
+}
+
+.tag:not(body).is-primary {
+  background-color: #00d1b2;
+  color: #fff;
+}
+
+.tag:not(body).is-link {
+  background-color: #485fc7;
+  color: #fff;
+}
+
+.tag:not(body).is-medium {
+  font-size: 1rem;
+}
+
+.tag:not(body).is-large {
+  font-size: 1.25rem;
+}
+
+/* Bulma-style delete button */
+.delete,
+button.delete,
+.tag button.delete {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  background-color: rgba(10, 10, 10, 0.2) !important;
+  border: none !important;
+  border-radius: 9999px !important;
+  cursor: pointer;
+  pointer-events: auto;
+  display: inline-block;
+  flex-grow: 0;
+  flex-shrink: 0;
+  font-size: 0 !important;
+  height: 16px !important;
+  max-height: 16px !important;
+  min-height: 16px !important;
+  width: 16px !important;
+  max-width: 16px !important;
+  min-width: 16px !important;
+  outline: 0 !important;
+  position: relative;
+  vertical-align: middle;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+  line-height: 1 !important;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.tag .delete,
+.tag button.delete {
+  margin-left: 0.35rem !important;
+  margin-right: -0.35rem !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+.delete::before,
+.delete::after,
+button.delete::before,
+button.delete::after,
+.tag button.delete::before,
+.tag button.delete::after {
+  background-color: #fff;
+  content: "";
+  display: block;
+  left: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translateX(-50%) translateY(-50%) rotate(45deg);
+  transform-origin: center center;
+}
+
+.delete::before,
+button.delete::before,
+.tag button.delete::before {
+  height: 2px;
+  width: 50%;
+}
+
+.delete::after,
+button.delete::after,
+.tag button.delete::after {
+  height: 50%;
+  width: 2px;
+}
+
+.delete:hover,
+.delete:focus,
+button.delete:hover,
+button.delete:focus,
+.tag button.delete:hover,
+.tag button.delete:focus {
+  background-color: rgba(10, 10, 10, 0.35) !important;
+}
+
+.delete:active,
+button.delete:active,
+.tag button.delete:active {
+  background-color: rgba(10, 10, 10, 0.5) !important;
+}
+
+/* ==========================================================================
+   Pagination
+   ========================================================================== */
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.25rem;
+  margin: 0;
+}
+
+.pagination-list {
+  display: inline-flex;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+.pagination-list li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.pagination-link,
+.pagination-previous,
+.pagination-next {
+  width: auto !important;
+  min-width: 2rem !important;
+  padding: 0.25rem 0.55rem !important;
+  font-size: 0.85rem !important;
+  line-height: 1.2 !important;
+  height: auto !important;
+  margin: 0 !important;
+  background-color: transparent !important;
+  border: 1px solid var(--pico-muted-border-color, rgba(125, 125, 125, 0.25)) !important;
+  color: var(--pico-color) !important;
+  border-radius: var(--pico-border-radius, 0.25rem) !important;
+  cursor: pointer;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.pagination-link:hover,
+.pagination-previous:hover:not([disabled]),
+.pagination-next:hover:not([disabled]) {
+  background-color: var(--pico-dropdown-hover-background-color, rgba(125, 125, 125, 0.15)) !important;
+  color: var(--pico-color) !important;
+}
+
+.pagination-link.is-current {
+  background-color: var(--pico-primary-background) !important;
+  border-color: var(--pico-primary-background) !important;
+  color: var(--pico-primary-inverse) !important;
+  font-weight: 600;
+}
+
+.pagination-previous[disabled],
+.pagination-next[disabled] {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   Sidebar & Panels
+   ========================================================================== */
+
+.menu-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.menu-list li {
+  margin-bottom: 0.25rem;
+}
+
+.menu-label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--pico-muted-color);
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.panel {
+  border: 1px solid var(--pico-muted-border-color, #e0e0e0);
+  border-radius: var(--pico-border-radius, 0.25rem);
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.panel-heading {
+  font-weight: bold;
+  padding: 0.75rem 1rem;
+  background-color: var(--pico-card-sectionning-background-color, rgba(0, 0, 0, 0.03));
+  border-bottom: 1px solid var(--pico-muted-border-color, #e0e0e0);
+  margin: 0;
+}
+
+.panel-heading + button,
+.panel-heading + .button {
+  margin-top: 0.5rem;
+}
+
+.panel-block:not(button):not(.button) {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--pico-muted-border-color, #e0e0e0);
+}
+
+.panel-block:not(button):not(.button):last-child {
+  border-bottom: none;
+}
+
+.panel > button,
+.panel > .button,
+button.panel-block,
+.button.panel-block {
+  margin-bottom: 0.5rem !important;
+}
+
+/* ==========================================================================
+   Homepage & Footer
+   ========================================================================== */
+
+.feretui-homepage-logo {
+  display: inline-block;
+  background: #ffffff;
+  padding: 1rem 1.5rem;
+  border-radius: var(--pico-border-radius, 0.5rem);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  margin: 1.5rem auto;
+}
+
+.feretui-homepage-logo img {
+  max-height: 150px;
+  display: block;
+  margin: 0 auto;
+}
+
+footer.is-hidden-print {
+  margin-top: 4rem;
+  padding: 1.5rem var(--pico-spacing, 1.25rem) 2rem;
+  border-top: 1px solid var(--pico-muted-border-color, rgba(125, 125, 125, 0.15));
+}

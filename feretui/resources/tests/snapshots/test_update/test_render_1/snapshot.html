@@ -1,12 +1,12 @@
 <div class="container is-fluid content" id="resource-foo-view-edit">
  <form hx-post="/feretui/action/resource?action=save">
-  <div class="columns">
-   <div class="column is-3" id="label">
+  <div class="grid" style="align-items: center; margin-bottom: 1rem;">
+   <div id="label">
     <h1>
      foo
     </h1>
    </div>
-   <div class="column is-hidden-print" id="buttons">
+   <div class="is-hidden-print" id="buttons">
     <div class="buttons is-centered is-hidden-print">
      
       <button class="button is-primary" type="submit">
@@ -21,19 +21,19 @@
       
     </div>
    </div>
-   <div class="column is-3" is="status">
+   <div is="status">
    </div>
   </div>
   <div class="container mb-4">
    
-   <div class="notification is-danger">
+   <div class="notification is-danger" role="alert">
     With error
    </div>
    
       
-      <div aria-description="" class="field">
+      <div aria-description="">
  
- <label aria-description="" class="label" for="pk">
+ <label aria-description="" for="pk">
   Pk
       
   <span aria-hidden="true">
@@ -41,15 +41,13 @@
   </span>
  </label>
  
- <div class="control">
-  <input class="input " id="pk" name="pk" type="text" value="foo">
- </div>
- 
+      <input class="input " id="pk" name="pk" type="text" value="foo">
+      
 </div>
       
-      <div aria-description="" class="field">
+      <div aria-description="">
  
- <label aria-description="" class="label" for="foo">
+ <label aria-description="" for="foo">
   Foo
       
   <span aria-hidden="true">
@@ -57,15 +55,13 @@
   </span>
  </label>
  
- <div class="control">
-  <input class="input " id="foo" name="foo" type="text" value="">
- </div>
- 
+      <input class="input " id="foo" name="foo" type="text" value="">
+      
 </div>
       
-      <div aria-description="" class="field">
+      <div aria-description="">
  
- <label aria-description="" class="label" for="test">
+ <label aria-description="" for="test">
   Test
       
   <span aria-hidden="true">
@@ -73,10 +69,8 @@
   </span>
  </label>
  
- <div class="control">
-  <select class="input " id="test" name="test"><option value="test1">Test 1</option></select>
- </div>
- 
+      <select class="input " id="test" name="test"><option value="test1">Test 1</option></select>
+      
 </div>
       
   </div>

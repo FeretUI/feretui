@@ -6,9 +6,4 @@ from anyblok.declarations import Declarations
 class User:
     name = String(nullable=False)
     lang = Selection(selections={'fr': 'Français', 'en': 'English'}, default='fr')
-    theme = Selection(
-        selections={
-            'journal': 'Journal',
-            'minthy': 'Minthy',
-            'darkly': 'Darkly',
-        }, default='minthy')
+    theme = String(default='default')

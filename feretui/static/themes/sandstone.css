@@ -1,0 +1,105 @@
+/* FeretUI Theme: Sandstone (Warm Earth & Natural Paper) */
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700&display=swap');
+
+:root,
+[data-theme="light"] {
+  --pico-font-family: 'Nunito Sans', 'Segoe UI', system-ui, sans-serif;
+  --pico-border-radius: 0.375rem;
+
+  --pico-primary: #325d88;
+  --pico-primary-background: #325d88;
+  --pico-primary-hover: #264768;
+  --pico-primary-hover-background: #1b3249;
+  --pico-primary-focus: rgba(50, 93, 136, 0.35);
+  --pico-primary-inverse: #ffffff;
+
+  --pico-secondary: #8e8071;
+  --pico-secondary-background: #8e8071;
+  --pico-secondary-hover: #73675a;
+  --pico-secondary-inverse: #ffffff;
+
+  --pico-background-color: #faf8f5;
+  --pico-color: #3e3f3a;
+  --pico-muted-color: #8e8c84;
+  --pico-muted-border-color: #e7e5e4;
+
+  --pico-card-background-color: #ffffff;
+  --pico-card-border-color: #e7e5e4;
+  --pico-card-box-shadow: 0 1px 3px rgba(100, 80, 60, 0.05);
+
+  --pico-form-element-background-color: #ffffff;
+  --pico-form-element-border-color: #d6d3d1;
+  --pico-form-element-focus-color: #325d88;
+}
+
+@media only screen and (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --pico-font-family: 'Nunito Sans', 'Segoe UI', system-ui, sans-serif;
+    --pico-border-radius: 0.375rem;
+
+    --pico-primary: #f59e0b;
+    --pico-primary-background: #d97706;
+    --pico-primary-hover: #fbbf24;
+    --pico-primary-hover-background: #b45309;
+    --pico-primary-focus: rgba(245, 158, 11, 0.35);
+    --pico-primary-inverse: #1c1917;
+
+    --pico-secondary: #a8a29e;
+    --pico-secondary-background: #44403c;
+    --pico-secondary-hover: #57534e;
+    --pico-secondary-inverse: #ffffff;
+
+    --pico-background-color: #1c1917;
+    --pico-color: #f5f5f4;
+    --pico-muted-color: #a8a29e;
+    --pico-muted-border-color: #292524;
+
+    --pico-card-background-color: #292524;
+    --pico-card-border-color: #44403c;
+    --pico-card-box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+
+    --pico-form-element-background-color: #292524;
+    --pico-form-element-border-color: #44403c;
+    --pico-form-element-focus-color: #f59e0b;
+  }
+}
+
+[data-theme="dark"] {
+  --pico-font-family: 'Nunito Sans', 'Segoe UI', system-ui, sans-serif;
+  --pico-border-radius: 0.375rem;
+
+  --pico-primary: #f59e0b;
+  --pico-primary-background: #d97706;
+  --pico-primary-hover: #fbbf24;
+  --pico-primary-hover-background: #b45309;
+  --pico-primary-focus: rgba(245, 158, 11, 0.35);
+  --pico-primary-inverse: #1c1917;
+
+  --pico-secondary: #a8a29e;
+  --pico-secondary-background: #44403c;
+  --pico-secondary-hover: #57534e;
+  --pico-secondary-inverse: #ffffff;
+
+  --pico-background-color: #1c1917;
+  --pico-color: #f5f5f4;
+  --pico-muted-color: #a8a29e;
+  --pico-muted-border-color: #292524;
+
+  --pico-card-background-color: #292524;
+  --pico-card-border-color: #44403c;
+  --pico-card-box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+
+  --pico-form-element-background-color: #292524;
+  --pico-form-element-border-color: #44403c;
+  --pico-form-element-focus-color: #f59e0b;
+}
+
+header.is-hidden-print {
+  background-color: #3e3f3a !important;
+  border-bottom: 2px solid #325d88 !important;
+}
+
+header.is-hidden-print nav a,
+header.is-hidden-print nav details.dropdown > summary {
+  color: #fdfcfb !important;
+}

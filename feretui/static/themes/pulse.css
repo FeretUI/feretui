@@ -1,0 +1,106 @@
+/* FeretUI Theme: Pulse (Electric Violet Tech Startup) */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap');
+
+:root,
+[data-theme="light"] {
+  --pico-font-family: 'Outfit', 'Inter', system-ui, sans-serif;
+  --pico-border-radius: 0.5rem;
+
+  --pico-primary: #7c3aed;
+  --pico-primary-background: #7c3aed;
+  --pico-primary-hover: #6d28d9;
+  --pico-primary-hover-background: #5b21b6;
+  --pico-primary-focus: rgba(124, 58, 237, 0.35);
+  --pico-primary-inverse: #ffffff;
+
+  --pico-secondary: #475569;
+  --pico-secondary-background: #475569;
+  --pico-secondary-hover: #334155;
+  --pico-secondary-inverse: #ffffff;
+
+  --pico-background-color: #fbfbfe;
+  --pico-color: #1e1b4b;
+  --pico-muted-color: #6b7280;
+  --pico-muted-border-color: #ede9fe;
+
+  --pico-card-background-color: #ffffff;
+  --pico-card-border-color: #ede9fe;
+  --pico-card-box-shadow: 0 4px 12px rgba(124, 58, 237, 0.08);
+
+  --pico-form-element-background-color: #ffffff;
+  --pico-form-element-border-color: #ddd6fe;
+  --pico-form-element-focus-color: #7c3aed;
+}
+
+@media only screen and (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --pico-font-family: 'Outfit', 'Inter', system-ui, sans-serif;
+    --pico-border-radius: 0.5rem;
+
+    --pico-primary: #a78bfa;
+    --pico-primary-background: #7c3aed;
+    --pico-primary-hover: #c4b5fd;
+    --pico-primary-hover-background: #6d28d9;
+    --pico-primary-focus: rgba(167, 139, 250, 0.35);
+    --pico-primary-inverse: #ffffff;
+
+    --pico-secondary: #94a3b8;
+    --pico-secondary-background: #334155;
+    --pico-secondary-hover: #475569;
+    --pico-secondary-inverse: #ffffff;
+
+    --pico-background-color: #0f0e17;
+    --pico-color: #f5f3ff;
+    --pico-muted-color: #a78bfa;
+    --pico-muted-border-color: #2e1065;
+
+    --pico-card-background-color: #18152e;
+    --pico-card-border-color: #2e1065;
+    --pico-card-box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+
+    --pico-form-element-background-color: #18152e;
+    --pico-form-element-border-color: #4c1d95;
+    --pico-form-element-focus-color: #a78bfa;
+  }
+}
+
+[data-theme="dark"] {
+  --pico-font-family: 'Outfit', 'Inter', system-ui, sans-serif;
+  --pico-border-radius: 0.5rem;
+
+  --pico-primary: #a78bfa;
+  --pico-primary-background: #7c3aed;
+  --pico-primary-hover: #c4b5fd;
+  --pico-primary-hover-background: #6d28d9;
+  --pico-primary-focus: rgba(167, 139, 250, 0.35);
+  --pico-primary-inverse: #ffffff;
+
+  --pico-secondary: #94a3b8;
+  --pico-secondary-background: #334155;
+  --pico-secondary-hover: #475569;
+  --pico-secondary-inverse: #ffffff;
+
+  --pico-background-color: #0f0e17;
+  --pico-color: #f5f3ff;
+  --pico-muted-color: #a78bfa;
+  --pico-muted-border-color: #2e1065;
+
+  --pico-card-background-color: #18152e;
+  --pico-card-border-color: #2e1065;
+  --pico-card-box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+
+  --pico-form-element-background-color: #18152e;
+  --pico-form-element-border-color: #4c1d95;
+  --pico-form-element-focus-color: #a78bfa;
+}
+
+header.is-hidden-print {
+  background-color: #1e1b4b !important;
+  border-bottom: 2px solid #7c3aed !important;
+}
+
+header.is-hidden-print nav a,
+header.is-hidden-print nav details.dropdown > summary {
+  color: #ffffff !important;
+  font-weight: 500;
+}

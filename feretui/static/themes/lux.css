@@ -1,0 +1,110 @@
+/* FeretUI Theme: Lux (High-Fashion Monochrome Minimalist) */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+
+:root,
+[data-theme="light"] {
+  --pico-font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+  --pico-border-radius: 0.125rem;
+
+  --pico-primary: #0f172a;
+  --pico-primary-background: #0f172a;
+  --pico-primary-hover: #334155;
+  --pico-primary-hover-background: #1e293b;
+  --pico-primary-focus: rgba(15, 23, 42, 0.35);
+  --pico-primary-inverse: #ffffff;
+
+  --pico-secondary: #64748b;
+  --pico-secondary-background: #64748b;
+  --pico-secondary-hover: #475569;
+  --pico-secondary-inverse: #ffffff;
+
+  --pico-background-color: #ffffff;
+  --pico-color: #0f172a;
+  --pico-muted-color: #64748b;
+  --pico-muted-border-color: #e2e8f0;
+
+  --pico-card-background-color: #ffffff;
+  --pico-card-border-color: #0f172a;
+  --pico-card-box-shadow: none;
+
+  --pico-form-element-background-color: #ffffff;
+  --pico-form-element-border-color: #cbd5e1;
+  --pico-form-element-focus-color: #0f172a;
+}
+
+@media only screen and (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --pico-font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+    --pico-border-radius: 0.125rem;
+
+    --pico-primary: #f8fafc;
+    --pico-primary-background: #f8fafc;
+    --pico-primary-hover: #cbd5e1;
+    --pico-primary-hover-background: #e2e8f0;
+    --pico-primary-focus: rgba(248, 250, 252, 0.35);
+    --pico-primary-inverse: #0f172a;
+
+    --pico-secondary: #64748b;
+    --pico-secondary-background: #334155;
+    --pico-secondary-hover: #475569;
+    --pico-secondary-inverse: #ffffff;
+
+    --pico-background-color: #09090b;
+    --pico-color: #f8fafc;
+    --pico-muted-color: #a1a1aa;
+    --pico-muted-border-color: #27272a;
+
+    --pico-card-background-color: #121214;
+    --pico-card-border-color: #27272a;
+    --pico-card-box-shadow: none;
+
+    --pico-form-element-background-color: #121214;
+    --pico-form-element-border-color: #27272a;
+    --pico-form-element-focus-color: #f8fafc;
+  }
+}
+
+[data-theme="dark"] {
+  --pico-font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+  --pico-border-radius: 0.125rem;
+
+  --pico-primary: #f8fafc;
+  --pico-primary-background: #f8fafc;
+  --pico-primary-hover: #cbd5e1;
+  --pico-primary-hover-background: #e2e8f0;
+  --pico-primary-focus: rgba(248, 250, 252, 0.35);
+  --pico-primary-inverse: #0f172a;
+
+  --pico-secondary: #64748b;
+  --pico-secondary-background: #334155;
+  --pico-secondary-hover: #475569;
+  --pico-secondary-inverse: #ffffff;
+
+  --pico-background-color: #09090b;
+  --pico-color: #f8fafc;
+  --pico-muted-color: #a1a1aa;
+  --pico-muted-border-color: #27272a;
+
+  --pico-card-background-color: #121214;
+  --pico-card-border-color: #27272a;
+  --pico-card-box-shadow: none;
+
+  --pico-form-element-background-color: #121214;
+  --pico-form-element-border-color: #27272a;
+  --pico-form-element-focus-color: #f8fafc;
+}
+
+header.is-hidden-print {
+  border-bottom: 2px solid #0f172a !important;
+}
+
+[data-theme="dark"] header.is-hidden-print {
+  border-bottom: 2px solid #334155 !important;
+}
+
+button, [role="button"] {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.8rem;
+  font-weight: 700;
+}

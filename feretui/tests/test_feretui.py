@@ -71,9 +71,36 @@ class TestFeretUI:
         """Test get_static_file_path."""
         myferet = FeretUI()
         assert (
-            myferet.get_static_file_path('bulma.css')
-            == myferet.statics['bulma.css']
+            myferet.get_static_file_path('pico.css')
+            == myferet.statics['pico.css']
         )
+
+    def test_theme_url_and_static_file_path(self) -> None:
+        """Test theme registration, URL resolution, and static files."""
+        myferet = FeretUI()
+        session_orange = Session(theme='orange')
+        assert myferet.get_theme_url(session_orange) == "/feretui/static/orange.css"
+        assert myferet.get_static_file_path("orange.css") == myferet.statics["orange.css"]
+        assert myferet.get_static_file_path("orange") == myferet.statics["orange"]
+
+        session_unknown = Session(theme='unknown_theme')
+        assert myferet.get_theme_url(session_unknown) == "/feretui/static/default.css"
+
+        # Test overwriting existing theme logs warning
+        myferet.register_theme('orange', myferet.statics['orange'])
+
+    def test_render_with_color_scheme(self) -> None:
+        """Test rendering with explicit color_scheme."""
+        myferet = FeretUI()
+        session_light = Session(color_scheme='light')
+        req_light = Request(session=session_light)
+        res_light = myferet.render(req_light)
+        assert '<html data-theme="light" lang="en">' in res_light.body
+
+        session_dark = Session(color_scheme='dark')
+        req_dark = Request(session=session_dark)
+        res_dark = myferet.render(req_dark)
+        assert '<html data-theme="dark" lang="en">' in res_dark.body
 
     def test_register_and_execute_action(self) -> None:
         """Test get_static_file_path."""
@@ -337,3 +364,19 @@ class TestFeretUI:
         myferet = FeretUI()
         with pytest.raises(UnexistingResourceError):
             myferet.get_resource('test')
+
+    def test_pure_python_css_compressor(self) -> None:
+        from io import StringIO
+        from feretui.feretui import PurePythonCSSCompressor
+
+        css = "/* comment */ body { color: red; margin: 0px ; } "
+        compressed = PurePythonCSSCompressor.compile(css)
+        assert compressed == "body{color:red;margin:0px;}"
+
+        stream = StringIO("/* header */ h1 { font-size: 2rem ; }")
+        compressed_stream = PurePythonCSSCompressor.compile(stream)
+        assert compressed_stream == "h1{font-size:2rem;}"
+
+        debug_css = "/* keep */ a { color: blue; }"
+        assert PurePythonCSSCompressor.compile(debug_css, debug=True) == debug_css
+

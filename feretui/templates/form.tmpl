@@ -1,41 +1,33 @@
 <templates>
   <template id="feretui-input-label">
-    <label for="{{ label.field_id }}" class="label" aria-description="{{ description }}">
+    <label for="{{ label.field_id }}" aria-description="{{ description }}">
       {{ label.text }}
       {% if required %}
-      <span class="content is-small">
-      (
-        <span class="has-text-link">
-          required
-        </span>
-      )
-      </span>
+      <small aria-hidden="true">(required)</small>
       {% endif %}
       <include template="feretui-description" />
     </label>
   </template>
   <template id="feretui-input-error">
-    <p class="help is-danger">
-      {{ errors | join(', ')  }}
-    </p>
+    <small id="invalid-helper">
+      {{ errors | join(', ') }}
+    </small>
   </template>
   <template id="feretui-input-field">
-    <div class="field" aria-description="{{ description }}">
+    <div aria-description="{{ description }}">
       {% if label %}
       <include template="feretui-input-label"/>
       {% endif %}
-      <div class="control">
-        {{ widget }}
-      </div>
+      {{ widget }}
       {% if not readonly and errors %}
       <include template="feretui-input-error"/>
       {% endif %}
     </div>
   </template>
   <template id="feretui-bool-field">
-    <div class="field">
+    <div>
       {% if label %}
-      <label for="{{ label.field_id }}" class="checkbox" aria-description="{{ description }}">
+      <label for="{{ label.field_id }}" aria-description="{{ description }}">
         {{ widget }}
         {{ label.text }}
         <include template="feretui-description" />
@@ -49,87 +41,63 @@
     </div>
   </template>
   <template id="feretui-radio-field-vertical">
-    <fieldset class="field">
-      <legend class="label" aria-description="{{ description }}">
+    <fieldset>
+      <legend aria-description="{{ description }}">
       {{ label.text }}
       {% if required %}
-      <span class="content is-small">
-      (
-        <span class="has-text-link">
-          required
-        </span>
-      )
-      </span>
+      <small aria-hidden="true">(required)</small>
       {% endif %}
       <include template="feretui-description" />
       </legend>
-      <div class="control">
-        <ul>
-          {% for subfield in field %}
-          <li>
-            <label class="radio" for="{{ subfield.id }}" >
-                {{ subfield(**options) }}
-                {{ subfield.label(class_="radio") }}
-                {% set description = subfield.description %}
-                <include template="feretui-description" />
-            </label>
-          </li>
-          {% endfor %}
-        </ul>
-      </div>
+      <ul>
+        {% for subfield in field %}
+        <li>
+          <label for="{{ subfield.id }}">
+              {{ subfield(**options) }}
+              {{ subfield.label }}
+              {% set description = subfield.description %}
+              <include template="feretui-description" />
+          </label>
+        </li>
+        {% endfor %}
+      </ul>
       {% if not readonly and errors %}
       <include template="feretui-input-error"/>
       {% endif %}
     </fieldset>
   </template>
   <template id="feretui-radio-field-horizontal">
-    <fieldset class="field">
-      <legend class="label" aria-description="{{ description }}">
+    <fieldset>
+      <legend aria-description="{{ description }}">
       {{ label.text }}
       {% if required %}
-      <span class="content is-small">
-      (
-        <span class="has-text-link">
-          required
-        </span>
-      )
-      </span>
+      <small aria-hidden="true">(required)</small>
       {% endif %}
       <include template="feretui-description" />
       </legend>
-      <div class="control">
-        {% for subfield in field %}
-          <label class="radio" for="{{ subfield.id }}" >
-            {{ subfield(**options) }}
-            {{ subfield.label(class_="radio") }}
-            {% set description = subfield.description %}
-            <include template="feretui-description" />
-          </label>
-        {% endfor %}
-      </div>
+      {% for subfield in field %}
+        <label for="{{ subfield.id }}">
+          {{ subfield(**options) }}
+          {{ subfield.label }}
+          {% set description = subfield.description %}
+          <include template="feretui-description" />
+        </label>
+      {% endfor %}
       {% if not readonly and errors %}
       <include template="feretui-input-error"/>
       {% endif %}
     </fieldset>
   </template>
   <template id="feretui-fieldset">
-    <fieldset class="field">
-      <legend class="label" aria-description="{{ description }}">
+    <fieldset>
+      <legend aria-description="{{ description }}">
       {{ label.text }}
       {% if required %}
-      <span class="content is-small">
-      (
-        <span class="has-text-link">
-          required
-        </span>
-      )
-      </span>
+      <small aria-hidden="true">(required)</small>
       {% endif %}
       <include template="feretui-description" />
       </legend>
-      <div class="control">
-        {{ widget }}
-      </div>
+      {{ widget }}
       {% if not readonly and errors %}
       <include template="feretui-input-error"/>
       {% endif %}

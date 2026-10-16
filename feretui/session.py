@@ -69,6 +69,7 @@ class Session:
     * [user: str = None] : User name of the session
     * [lang: str = 'en'] : The language use by the user session
     * [theme: str = 'default'] : The ui theme use by the user session
+    * [color_scheme: str = None] : The color scheme ('light' or 'dark')
 
     """
 
@@ -80,12 +81,14 @@ class Session:
         user: str = None,
         lang: str = "en",
         theme: str = "default",
+        color_scheme: str | None = None,
         **kwargs: dict,
     ) -> "Session":
         """FeretUI session."""
         self.user: str = user
         self.lang: str = lang
         self.theme: str = theme
+        self.color_scheme: str | None = color_scheme
         self.kwargs: dict = kwargs
 
     def to_dict(self: "Session") -> dict:

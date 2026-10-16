@@ -419,9 +419,11 @@ DB model::
         password: Mapped[str] = mapped_column(String(30), nullable=False)
         name: Mapped[str] = mapped_column(String(20))
         lang: Mapped[str] = mapped_column(String(2), default="fr")
-        theme: Mapped[str] = mapped_column(String(10), default="minthy")
+        theme: Mapped[str] = mapped_column(String(20), default="default")
 
 Resource::
+
+    theme_choices = [(k, k.capitalize()) for k in myferet.themes.keys()]
 
     @myferet.register_resource()
     class RUser(LCRUDResource, Resource):
@@ -437,13 +439,9 @@ Resource::
                 validators=[InputRequired()],
                 render_kw={"vertical": False},
             )
-            theme = RadioField(
-                choices=[
-                    ('journal', 'Journal'),
-                    ('minthy', 'Minthy'),
-                    ('darkly', 'Darkly'),
-                ],
-                render_kw={"vertical": False},
+            theme = SelectField(
+                label='Theme',
+                choices=theme_choices,
             )
 
             @property
@@ -454,11 +452,7 @@ Resource::
 
             class Form:
                 theme = SelectField(
-                    choices=[
-                        ('journal', 'Journal'),
-                        ('minthy', 'Minthy'),
-                        ('darkly', 'Darkly'),
-                    ],
+                    choices=theme_choices,
                 )
                 lang = None
 
@@ -477,11 +471,7 @@ Resource::
 
             class Form:
                 theme = SelectField(
-                    choices=[
-                        ('journal', 'Journal'),
-                        ('minthy', 'Minthy'),
-                        ('darkly', 'Darkly'),
-                    ],
+                    choices=theme_choices,
                 )
                 lang = SelectField(choices=[('en', 'English'), ('fr', 'Français')])
 

@@ -98,12 +98,15 @@ class AssetManager:
         :param filepath: Path in server file system
         :type filepath: str | Path
         """
-        if name in self.statics:
+        static_name = f"{name}.css" if not name.endswith(".css") else name
+        if static_name in self.statics or name in self.statics:
             logger.warning("The theme %s is overwriting", name)
         else:
+            url = f"{self.base_url}/static/{static_name}"
             logger.debug("Add the available theme %s", name)
-            self.themes[name] = name
+            self.themes[name] = url
 
+        self.statics[static_name] = filepath
         self.statics[name] = filepath
 
     def register_font(self, name: str, filepath: str | Path) -> None:

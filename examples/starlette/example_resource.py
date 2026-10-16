@@ -1,5 +1,5 @@
 import logging
-from contextlib import contextmanager
+from contextlib import asynccontextmanager, contextmanager
 
 import uvicorn
 from multidict import MultiDict
@@ -62,6 +62,8 @@ class Base(DeclarativeBase):
     pass
 
 
+from feretui.context import cvar_request
+
 class User(Base):
     __tablename__ = "user_account"
 
@@ -70,7 +72,7 @@ class User(Base):
     password: Mapped[str] = mapped_column(String(30), nullable=False)
     name: Mapped[str] = mapped_column(String(20))
     lang: Mapped[str] = mapped_column(String(2), default="fr")
-    theme: Mapped[str] = mapped_column(String(10), default="minthy")
+    theme: Mapped[str] = mapped_column(String(20), default="default")
 
 
 engine = create_engine("sqlite:///resource.db")
@@ -79,12 +81,20 @@ Base.metadata.create_all(engine)
 # -- for feretui --
 myferet = FeretUI()
 myferet.load_internal_catalog('fr')
+theme_choices = [(k, k.capitalize()) for k in myferet.themes.keys()]
 
 
 class MySession(Session):
     def __init__(self, user_id=None, **kwargs) -> None:
         super().__init__(**kwargs)
         self.user_id = user_id
+        if self.user_id:
+            with SQLASession(engine) as session:
+                user = session.get(User, self.user_id)
+                if user and user.theme:
+                    self.theme = user.theme
+                if user and user.lang:
+                    self.lang = user.lang
 
     def login(self, form) -> bool:
         with SQLASession(engine) as session:
@@ -97,7 +107,7 @@ class MySession(Session):
                 self.user = user.name or user.login
                 self.user_id = user.login
                 self.lang = user.lang or 'en'
-                self.theme = user.theme or 'journal'
+                self.theme = user.theme or 'default'
                 return True
 
             raise Exception('Login or password invalid')
@@ -117,13 +127,9 @@ class RUser(LCRUDResource, Resource):
             validators=[InputRequired()],
             render_kw={"vertical": False},
         )
-        theme = RadioField(
-            choices=[
-                ('journal', 'Journal'),
-                ('minthy', 'Minthy'),
-                ('darkly', 'Darkly'),
-            ],
-            render_kw={"vertical": False},
+        theme = SelectField(
+            label='Theme',
+            choices=theme_choices,
         )
 
         @property
@@ -134,11 +140,7 @@ class RUser(LCRUDResource, Resource):
 
         class Form:
             theme = SelectField(
-                choices=[
-                    ('journal', 'Journal'),
-                    ('minthy', 'Minthy'),
-                    ('darkly', 'Darkly'),
-                ],
+                choices=theme_choices,
             )
             lang = None
             # print_1 = PostButtonField()
@@ -165,11 +167,7 @@ class RUser(LCRUDResource, Resource):
 
         class Form:
             theme = SelectField(
-                choices=[
-                    ('journal', 'Journal'),
-                    ('minthy', 'Minthy'),
-                    ('darkly', 'Darkly'),
-                ],
+                choices=theme_choices,
             )
             lang = SelectField(choices=[('en', 'English'), ('fr', 'Français')])
 
@@ -279,6 +277,13 @@ class RUser(LCRUDResource, Resource):
                 if user:
                     form.populate_obj(user)
                     session.commit()
+                    try:
+                        req = cvar_request.get()
+                        if req and getattr(req, "session", None):
+                            if req.session.user_id == user.login and user.theme:
+                                req.session.theme = user.theme
+                    except LookupError:
+                        pass
 
     def delete(self, pks) -> None:
         with SQLASession(engine) as session:
@@ -386,20 +391,28 @@ def startup():
             session.commit()
 
 
+@asynccontextmanager
+async def lifespan(app):
+    startup()
+    yield
+
+
+app = Starlette(
+    debug=True,
+    routes=[
+        Route('/', index),
+        Route('/feretui/static/{filepath:path}', feretui_static_file),
+        Route(
+            '/feretui/action/{action:str}',
+            call_action,
+            methods=['GET', 'POST', "DELETE"]),
+    ],
+    middleware=[
+        Middleware(SessionMiddleware, secret_key="secret"),
+    ],
+    lifespan=lifespan,
+)
+
+
 if __name__ == "__main__":
-    app = Starlette(
-        debug=True,
-        routes=[
-            Route('/', index),
-            Route('/feretui/static/{filepath:path}', feretui_static_file),
-            Route(
-                '/feretui/action/{action:str}',
-                call_action,
-                methods=['GET', 'POST', "DELETE"]),
-        ],
-        middleware=[
-            Middleware(SessionMiddleware, secret_key="secret"),
-        ],
-        on_startup=[startup],
-    )
     uvicorn.run(app, port=8080, log_level="info")

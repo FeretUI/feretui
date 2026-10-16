@@ -68,7 +68,7 @@
   </template>
   <template id="view-goto-return-button">
     <button
-      class="button is-ghost"
+      class="button is-ghost secondary outline"
       hx-get="{{ url }}"
     >
       <span class="icon">
@@ -79,7 +79,7 @@
   </template>
   <template id="view-goto-cancel-button">
     <button 
-      class="button is-ghost"
+      class="button is-ghost secondary outline"
       type="reset"
       onclick="window.history.back()"
     >
@@ -91,7 +91,7 @@
   </template>
   <template id="view-goto-edit-cancel-button">
     <button 
-      class="button is-ghost"
+      class="button is-ghost secondary outline"
       type="reset"
       hx-get="{{ url }}"
     >
@@ -109,13 +109,13 @@
     </div>
   </template>
   <template id="view-pagination">
-    <div class="columns is-vcentered is-hidden-print">
-      <div class="column is-narrow">
+    <div class="is-hidden-print" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.75rem;">
+      <div style="flex: 0 0 auto;">
         <include template="view-buttons-header" />
       </div>
-      <div class="column">
+      <div style="margin-left: auto;">
         {% if paginations %}
-        <nav class="pagination" role="navigation" arial-label="pagination">
+        <nav class="pagination" role="navigation" aria-label="pagination">
           <ul class="pagination-list">
             {% for pagination in paginations %}
             <li>
@@ -128,7 +128,7 @@
               {% if pagination != offset %}
               <button
                 class="button pagination-link"
-                hx-get="{{ feretui.base_url}}/action/resource?action=pagination&offset={{ pagination }}"
+                hx-get="{{ feretui.base_url}}/action/resource?action=pagination&amp;offset={{ pagination }}"
               >
                 {{ pagination + 1 }}-{{ [pagination + limit, dataset.total]|min }}
               </button>
@@ -144,7 +144,7 @@
           {% if paginations[0] != offset %}
           <button
             class="button pagination-previous"
-            hx-get="{{ feretui.base_url}}/action/resource?action=pagination&offset={{offset - limit}}"
+            hx-get="{{ feretui.base_url}}/action/resource?action=pagination&amp;offset={{offset - limit}}"
           >
             <i class="fa-solid fa-chevron-left"></i>
             <span class="is-sr-only">Previous</span>
@@ -158,7 +158,7 @@
           {% if paginations[-1] != offset %}
           <button
             class="button pagination-next"
-            hx-get="{{ feretui.base_url}}/action/resource?action=pagination&offset={{offset + limit}}"
+            hx-get="{{ feretui.base_url}}/action/resource?action=pagination&amp;offset={{offset + limit}}"
           >
             <i class="fa-solid fa-chevron-right"></i>
             <span class="is-sr-only">Next</span>
@@ -170,14 +170,14 @@
     </div>
   </template>
   <template id="view-multi-header">
-    <div class="columns is-vcentered is-hidden-print">
-      <div class="column content">
+    <div class="is-hidden-print" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+      <div>
         <h1>{{ label }} <small>({{ dataset.total }})</small></h1>
       </div>
-      <div class="column is-narrow">
+      <div style="text-align: right;">
         <div class="field is-grouped is-grouped-multiline">
         {% for fname, values in filters %}
-          <div class="control">
+          <div class="control" style="display: inline-block; margin: 0.25rem;">
             <div class="tags has-addons">
               <span class="tag is-dark">{{ fname }}</span>
               {% for value in values %}
@@ -185,7 +185,9 @@
                 {{ value }}
                 <button
                   class="delete"
-                  hx-delete="/feretui/action/resource?action=filters&{{ fname }}={{ value }}"
+                  type="button"
+                  hx-delete="{{ feretui.base_url }}/action/resource?action=filters&amp;{{ fname }}={{ value }}"
+                  hx-params="none"
                 >
                 </button>
               </span>
@@ -198,17 +200,17 @@
     </div>
   </template>
   <template id="view-filter">
-    <div class="panel mb-4">
-      <p class="panel-heading">
-        <span>Filter</span>
-      </p>
+    <article class="panel mb-4">
+      <header class="panel-heading">
+        <strong>Filter</strong>
+      </header>
       {% for field in form %}
       <div class="panel-block">
         <div class="container">
         {{ field(**{'hx-post': hx_post, 'hx-params': field.name, 'hx-trigger': "keyup[key=='Enter'],blur"}) }}
-      </div>
+        </div>
       </div>
       {% endfor %}
-    </div>
+    </article>
   </template>
 </templates>

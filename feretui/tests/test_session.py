@@ -22,4 +22,5 @@ def test_session() -> None:
         'user': None,
         'lang': 'en',
         'theme': 'default',
+        'color_scheme': None,
     }

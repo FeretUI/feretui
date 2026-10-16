@@ -11,7 +11,7 @@ from .feret import myferet
 class MySession(Session):
 
     def __init__(self, **options) -> None:
-        options.setdefault('theme', 'minty')
+        options.setdefault('theme', 'default')
         options.setdefault('lang', 'fr')
         super().__init__(**options)
 

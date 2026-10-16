@@ -1,133 +1,109 @@
 <form hx-post="/feretui/action/login_signup" hx-swap="outerHTML" hx-trigger="submit">
- <div class="container">
+ <div class="container" style="max-width: 550px; margin: 2rem auto;">
   
-  <h1 class="title">
+  <h1>
    Register a new user
   </h1>
   <div id="feretui-signup-field-login">
-   <div aria-description="" class="field">
+   <div aria-description="">
  
- <label aria-description="" class="label" for="login">
+ <label aria-description="" for="login">
   Login
       
-  <span class="content is-small">
-   (
-   <span class="has-text-link">
-    required
-   </span>
-   )
-  </span>
+  <small aria-hidden="true">
+   (required)
+  </small>
   
   <span aria-hidden="true">
    
   </span>
  </label>
  
- <div class="control">
-  <input autocomplete="username" class="input is-danger " id="login" name="login" required type="text" value="">
- </div>
- 
- <p class="help is-danger">
+      <input autocomplete="username" class="input is-danger " id="login" name="login" required type="text" value="">
+      
+ <small id="invalid-helper">
   This field is required.
- </p>
+ </small>
  
 </div>
   </div>
   <div id="feretui-signup-field-lang">
-   <fieldset class="field">
- <legend aria-description="" class="label">
+   <fieldset>
+ <legend aria-description="">
   Language
       
-  <span class="content is-small">
-   (
-   <span class="has-text-link">
-    required
-   </span>
-   )
-  </span>
+  <small aria-hidden="true">
+   (required)
+  </small>
   
   <span aria-hidden="true">
    
   </span>
  </legend>
- <div class="control">
-  <ul>
-   
-   <li>
-    <label class="radio" for="lang-0">
-     <input id="lang-0" name="lang" required type="radio" value="en">
-                <label class="radio" for="lang-0">English</label>
-                
-     <span aria-hidden="true">
-      
-     </span>
-    </label>
-   </li>
-   
-  </ul>
- </div>
+ <ul>
+  
+  <li>
+   <label for="lang-0">
+    <input id="lang-0" name="lang" required type="radio" value="en">
+              <label for="lang-0">English</label>
+              
+    <span aria-hidden="true">
+     
+    </span>
+   </label>
+  </li>
+  
+ </ul>
  
- <p class="help is-danger">
+ <small id="invalid-helper">
   This field is required.
- </p>
+ </small>
  
 </fieldset>
   </div>
   <div id="feretui-signup-field-password">
-   <div aria-description="" class="field">
+   <div aria-description="">
  
- <label aria-description="" class="label" for="password">
+ <label aria-description="" for="password">
   Password
       
-  <span class="content is-small">
-   (
-   <span class="has-text-link">
-    required
-   </span>
-   )
-  </span>
+  <small aria-hidden="true">
+   (required)
+  </small>
   
   <span aria-hidden="true">
    
   </span>
  </label>
  
- <div class="control">
-  <input autocomplete="current-password" class="input is-danger " id="password" name="password" type="password" value="">
- </div>
- 
- <p class="help is-danger">
+      <input autocomplete="current-password" class="input is-danger " id="password" name="password" type="password" value="">
+      
+ <small id="invalid-helper">
   The password should have more than 12 caractere, with lowercase, with uppercase, with letters, with digits, with symbols, without spaces.
- </p>
+ </small>
  
 </div>
   </div>
   <div id="feretui-signup-field-password2">
-   <div aria-description="" class="field">
+   <div aria-description="">
  
- <label aria-description="" class="label" for="password_confirm">
+ <label aria-description="" for="password_confirm">
   Password Confirm
       
-  <span class="content is-small">
-   (
-   <span class="has-text-link">
-    required
-   </span>
-   )
-  </span>
+  <small aria-hidden="true">
+   (required)
+  </small>
   
   <span aria-hidden="true">
    
   </span>
  </label>
  
- <div class="control">
-  <input autocomplete="current-password" class="input is-danger " id="password_confirm" name="password_confirm" required type="password" value="">
- </div>
- 
- <p class="help is-danger">
+      <input autocomplete="current-password" class="input is-danger " id="password_confirm" name="password_confirm" required type="password" value="">
+      
+ <small id="invalid-helper">
   This field is required.
- </p>
+ </small>
  
 </div>
   </div>

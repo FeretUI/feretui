@@ -124,3 +124,14 @@ exclude_lines = [
 
 [tool.pytest.ini_options]
 addopts = "--cov=feretui --cov-report=term-missing --cov-fail-under=100"
+
+[tool.mypy]
+python_version = "3.10"
+ignore_missing_imports = true
+warn_unused_configs = true
+exclude = [
+    ".*/tests/.*",
+    "docs/.*",
+    "examples/.*",
+]
+

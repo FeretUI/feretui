@@ -1,7 +1,7 @@
 <div class="container is-fluid" id="resource-foo-view-list">
  <form>
-  <div class="columns is-vcentered is-hidden-print">
-   <div class="column content">
+  <div class="is-hidden-print" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+   <div>
     <h1>
      Bar
      <small>
@@ -9,10 +9,10 @@
      </small>
     </h1>
    </div>
-   <div class="column is-narrow">
+   <div style="text-align: right;">
     <div class="field is-grouped is-grouped-multiline">
      
-     <div class="control">
+     <div class="control" style="display: inline-block; margin: 0.25rem;">
       <div class="tags has-addons">
        <span class="tag is-dark">
         foo
@@ -20,7 +20,7 @@
        
        <span class="tag is-info">
         Foo
-        <button class="delete" hx-delete="/feretui/action/resource?action=filters&foo=Foo">
+        <button class="delete" hx-delete="/feretui/action/resource?action=filters&foo=Foo" hx-params="none" type="button">
         </button>
        </span>
        
@@ -30,17 +30,17 @@
     </div>
    </div>
   </div>
-  <div class="columns is-desktop">
-   <div class="column">
-    <div class="columns is-vcentered is-hidden-print">
-     <div class="column is-narrow">
+  <div class="grid" style="grid-template-columns: 1fr 240px; align-items: start;">
+   <div>
+    <div class="is-hidden-print" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.75rem;">
+     <div style="flex: 0 0 auto;">
       <div class="buttons is-centered is-hidden-print">
        
       </div>
      </div>
-     <div class="column">
+     <div style="margin-left: auto;">
       
-      <nav arial-label="pagination" class="pagination" role="navigation">
+      <nav aria-label="pagination" class="pagination" role="navigation">
        <ul class="pagination-list">
         
         <li>
@@ -74,8 +74,8 @@
       
      </div>
     </div>
-    <div class="table-container">
-     <table class="table is-fullwidth is-striped">
+    <div class="table-container overflow-auto">
+     <table class="striped is-fullwidth">
       <thead>
        <tr>
         <th class="is-narrow" id="checkbox-all-resource-foo-view-list">
@@ -459,15 +459,15 @@
       </tfoot>
      </table>
     </div>
-    <div class="columns is-vcentered is-hidden-print">
-     <div class="column is-narrow">
+    <div class="is-hidden-print" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.75rem;">
+     <div style="flex: 0 0 auto;">
       <div class="buttons is-centered is-hidden-print">
        
       </div>
      </div>
-     <div class="column">
+     <div style="margin-left: auto;">
       
-      <nav arial-label="pagination" class="pagination" role="navigation">
+      <nav aria-label="pagination" class="pagination" role="navigation">
        <ul class="pagination-list">
         
         <li>
@@ -503,20 +503,20 @@
     </div>
    </div>
    
-   <div class="column is-2 is-hidden-print">
+   <div class="is-hidden-print">
     
-              <div class="panel mb-4">
- <p class="panel-heading">
-  <span>
+              <article class="panel mb-4">
+ <header class="panel-heading">
+  <strong>
    Filter
-  </span>
- </p>
+  </strong>
+ </header>
  
  <div class="panel-block">
   <div class="container">
-   <div aria-description="" class="field">
+   <div aria-description="">
  
- <label aria-description="" class="label" for="pk">
+ <label aria-description="" for="pk">
   Pk
       
   <span aria-hidden="true">
@@ -524,19 +524,17 @@
   </span>
  </label>
  
- <div class="control">
-  <input class="input " hx-params="pk" hx-post="/feretui/action/resource?action=filters" hx-trigger="keyup[key=='Enter'],blur" id="pk" name="pk" type="text" value="">
- </div>
- 
+      <input class="input " hx-params="pk" hx-post="/feretui/action/resource?action=filters" hx-trigger="keyup[key=='Enter'],blur" id="pk" name="pk" type="text" value="">
+      
 </div>
   </div>
  </div>
  
  <div class="panel-block">
   <div class="container">
-   <div aria-description="" class="field">
+   <div aria-description="">
  
- <label aria-description="" class="label" for="foo">
+ <label aria-description="" for="foo">
   Foo
       
   <span aria-hidden="true">
@@ -544,19 +542,17 @@
   </span>
  </label>
  
- <div class="control">
-  <input class="input " hx-params="foo" hx-post="/feretui/action/resource?action=filters" hx-trigger="keyup[key=='Enter'],blur" id="foo" name="foo" type="text" value="">
- </div>
- 
+      <input class="input " hx-params="foo" hx-post="/feretui/action/resource?action=filters" hx-trigger="keyup[key=='Enter'],blur" id="foo" name="foo" type="text" value="">
+      
 </div>
   </div>
  </div>
  
  <div class="panel-block">
   <div class="container">
-   <div aria-description="" class="field">
+   <div aria-description="">
  
- <label aria-description="" class="label" for="test">
+ <label aria-description="" for="test">
   Test
       
   <span aria-hidden="true">
@@ -564,19 +560,17 @@
   </span>
  </label>
  
- <div class="control">
-  <select class="input " hx-params="test" hx-post="/feretui/action/resource?action=filters" hx-trigger="keyup[key=='Enter'],blur" id="test" name="test"><option value="test1">Test 1</option></select>
- </div>
- 
+      <select class="input " hx-params="test" hx-post="/feretui/action/resource?action=filters" hx-trigger="keyup[key=='Enter'],blur" id="test" name="test"><option value="test1">Test 1</option></select>
+      
 </div>
   </div>
  </div>
  
  <div class="panel-block">
   <div class="container">
-   <div aria-description="" class="field">
+   <div aria-description="">
  
- <label aria-description="" class="label" for="bar">
+ <label aria-description="" for="bar">
   Bar
       
   <span aria-hidden="true">
@@ -584,18 +578,16 @@
   </span>
  </label>
  
- <div class="control">
-  <input class="input " hx-params="bar" hx-post="/feretui/action/resource?action=filters" hx-trigger="keyup[key=='Enter'],blur" id="bar" name="bar" type="text" value="">
- </div>
- 
+      <input class="input " hx-params="bar" hx-post="/feretui/action/resource?action=filters" hx-trigger="keyup[key=='Enter'],blur" id="bar" name="bar" type="text" value="">
+      
 </div>
   </div>
  </div>
  
-</div>
+</article>
               
-              <div class="panel mb-4">
- <div class="panel-heading">
+              <article class="panel mb-4">
+ <header class="panel-heading">
   <span aria-hidden="true">
    
   </span>
@@ -605,9 +597,9 @@
   <span aria-hidden="true">
    
   </span>
- </div>
+ </header>
  
-      <button class="button panel-block is-fullwidth" hx-post="/feretui/action/resource?action=call&method=print_1">
+      <button class="button panel-block is-fullwidth outline secondary" hx-post="/feretui/action/resource?action=call&method=print_1">
  <span aria-hidden="true">
   
  </span>
@@ -619,7 +611,7 @@
  </span>
 </button>
       
-      <button class="button panel-block selected-buttons-resource-foo-view-list is-fullwidth" disabled="disabled" hx-post="/feretui/action/resource?action=call&method=print_10">
+      <button class="button panel-block selected-buttons-resource-foo-view-list is-fullwidth outline secondary" disabled="disabled" hx-post="/feretui/action/resource?action=call&method=print_10">
  <span aria-hidden="true">
   
  </span>
@@ -631,7 +623,7 @@
  </span>
 </button>
       
-</div>
+</article>
               
    </div>
    

@@ -35,15 +35,14 @@ To display the page, rendere the feretui client with page attribute un the query
 Javascript / CSS / picture
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-By defaut some lib are loaded and executed in the main page:
+By default some libraries are loaded and executed in the main page:
 
 * `_Htmx <https://htmx.org>`_
 * `hyperscript <https://hyperscript.org/docs/>`_
-* `bulma <https://bulma.io/>`_
-* `bulma-tooltip <https://bulma-tooltip.netlify.app/get-started/>`_
-* `bulma-print <ihttps://github.com/suterma/bulma-print>`_
+* `sortablejs <https://sortablejs.github.io/Sortable/>`_
+* `pico <https://picocss.com/>`_
 * `Fontawesome <https://fontawesome.com/>`_
-* `themes <https://jenil.github.io/bulmaswatch/>`_
+* `themes <https://picocss.com/docs/version-picker>`_
 
 If you need some additionnal javascript, css or picture use the methods:
 

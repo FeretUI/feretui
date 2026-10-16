@@ -211,6 +211,42 @@ class ActionsMixinForView:
         return res
 
 
+def _normalize_filter_params(request: Request) -> dict[str, list[str]]:
+    """Normalize filter parameters from request into a dict of lists."""
+    params: dict[str, list[str]] = {}
+    if hasattr(request.params, "getall"):
+        for k in set(request.params.keys()):
+            params[k] = request.params.getall(k)
+    elif isinstance(request.params, dict):
+        for k, v in request.params.items():
+            params[k] = v if isinstance(v, list | tuple) else [v]
+    elif request.query:
+        params = {k: list(v) for k, v in request.query.items()}
+    return params
+
+
+def _apply_filter_post(existing: list[str], values: list[str]) -> None:
+    """Add new filter values to existing filters."""
+    for value in values:
+        if value not in existing:
+            existing.append(value)
+
+
+def _apply_filter_delete(
+    qs: dict[str, list[str]],
+    param: str,
+    existing: list[str],
+    values: list[str],
+) -> None:
+    """Remove filter values and clean up empty filter keys."""
+    for value in values:
+        if value in existing:
+            existing.remove(value)
+
+    if not existing and f"filter[{param}]" in qs:
+        del qs[f"filter[{param}]"]
+
+
 class MultiView(ActionsMixinForView):
     """MultiView class.
 
@@ -468,22 +504,19 @@ class MultiView(ActionsMixinForView):
         qs = request.get_query_string_from_current_url()
         qs["offset"] = 0
 
-        for param, values in request.params.items():
+        params = _normalize_filter_params(request)
+        for param, values in params.items():
             if param == "action":
                 continue
 
+            if param.startswith("filter[") and param.endswith("]"):
+                param = param[7:-1]
+
             existing = qs.setdefault(f"filter[{param}]", [])
             if request.method == Request.POST:
-                for value in values:
-                    if value not in existing:
-                        existing.append(value)
+                _apply_filter_post(existing, values)
             elif request.method == Request.DELETE:
-                for value in values:
-                    if value in existing:
-                        existing.remove(value)
-
-                if not existing:
-                    del qs[f"filter[{param}]"]
+                _apply_filter_delete(qs, param, existing, values)
 
         base_url = request.get_base_url_from_current_url()
         url = request.get_url_from_dict(base_url=base_url, querystring=qs)

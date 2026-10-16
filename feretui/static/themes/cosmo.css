@@ -1,0 +1,106 @@
+/* FeretUI Theme: Cosmo (Metro Corporate Blue) */
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap');
+
+:root,
+[data-theme="light"] {
+  --pico-font-family: 'Source Sans 3', 'Segoe UI', system-ui, sans-serif;
+  --pico-border-radius: 0.25rem;
+
+  --pico-primary: #2780e3;
+  --pico-primary-background: #2780e3;
+  --pico-primary-hover: #1967be;
+  --pico-primary-hover-background: #14559e;
+  --pico-primary-focus: rgba(39, 128, 227, 0.35);
+  --pico-primary-inverse: #ffffff;
+
+  --pico-secondary: #373a3c;
+  --pico-secondary-background: #373a3c;
+  --pico-secondary-hover: #262829;
+  --pico-secondary-inverse: #ffffff;
+
+  --pico-background-color: #ffffff;
+  --pico-color: #373a3c;
+  --pico-muted-color: #818a91;
+  --pico-muted-border-color: #e5e5e5;
+
+  --pico-card-background-color: #ffffff;
+  --pico-card-border-color: #e5e5e5;
+  --pico-card-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+  --pico-form-element-background-color: #ffffff;
+  --pico-form-element-border-color: #cccccc;
+  --pico-form-element-focus-color: #2780e3;
+}
+
+@media only screen and (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --pico-font-family: 'Source Sans 3', 'Segoe UI', system-ui, sans-serif;
+    --pico-border-radius: 0.25rem;
+
+    --pico-primary: #38bdf8;
+    --pico-primary-background: #0284c7;
+    --pico-primary-hover: #7dd3fc;
+    --pico-primary-hover-background: #0369a1;
+    --pico-primary-focus: rgba(56, 189, 248, 0.35);
+    --pico-primary-inverse: #ffffff;
+
+    --pico-secondary: #94a3b8;
+    --pico-secondary-background: #334155;
+    --pico-secondary-hover: #475569;
+    --pico-secondary-inverse: #ffffff;
+
+    --pico-background-color: #0f172a;
+    --pico-color: #f8fafc;
+    --pico-muted-color: #94a3b8;
+    --pico-muted-border-color: #1e293b;
+
+    --pico-card-background-color: #1e293b;
+    --pico-card-border-color: #334155;
+    --pico-card-box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+
+    --pico-form-element-background-color: #1e293b;
+    --pico-form-element-border-color: #334155;
+    --pico-form-element-focus-color: #38bdf8;
+  }
+}
+
+[data-theme="dark"] {
+  --pico-font-family: 'Source Sans 3', 'Segoe UI', system-ui, sans-serif;
+  --pico-border-radius: 0.25rem;
+
+  --pico-primary: #38bdf8;
+  --pico-primary-background: #0284c7;
+  --pico-primary-hover: #7dd3fc;
+  --pico-primary-hover-background: #0369a1;
+  --pico-primary-focus: rgba(56, 189, 248, 0.35);
+  --pico-primary-inverse: #ffffff;
+
+  --pico-secondary: #94a3b8;
+  --pico-secondary-background: #334155;
+  --pico-secondary-hover: #475569;
+  --pico-secondary-inverse: #ffffff;
+
+  --pico-background-color: #0f172a;
+  --pico-color: #f8fafc;
+  --pico-muted-color: #94a3b8;
+  --pico-muted-border-color: #1e293b;
+
+  --pico-card-background-color: #1e293b;
+  --pico-card-border-color: #334155;
+  --pico-card-box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+
+  --pico-form-element-background-color: #1e293b;
+  --pico-form-element-border-color: #334155;
+  --pico-form-element-focus-color: #38bdf8;
+}
+
+header.is-hidden-print {
+  background-color: #1e293b !important;
+  border-bottom: 2px solid #2780e3 !important;
+}
+
+header.is-hidden-print nav a,
+header.is-hidden-print nav details.dropdown > summary {
+  color: #ffffff !important;
+  font-weight: 600;
+}

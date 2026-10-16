@@ -1,0 +1,111 @@
+/* FeretUI Theme: United (Ubuntu Warm Orange & Aubergine) */
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,400;0,500;0,700;1,400&display=swap');
+
+:root,
+[data-theme="light"] {
+  --pico-font-family: 'Ubuntu', system-ui, -apple-system, sans-serif;
+  --pico-border-radius: 0.375rem;
+
+  --pico-primary: #e95420;
+  --pico-primary-background: #e95420;
+  --pico-primary-hover: #d24110;
+  --pico-primary-hover-background: #ba380c;
+  --pico-primary-focus: rgba(233, 84, 32, 0.35);
+  --pico-primary-inverse: #ffffff;
+
+  --pico-secondary: #772953;
+  --pico-secondary-background: #772953;
+  --pico-secondary-hover: #5e1f41;
+  --pico-secondary-inverse: #ffffff;
+
+  --pico-background-color: #fafafa;
+  --pico-color: #333333;
+  --pico-muted-color: #777777;
+  --pico-muted-border-color: #fed7aa;
+
+  --pico-card-background-color: #ffffff;
+  --pico-card-border-color: #f1f1f1;
+  --pico-card-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+
+  --pico-form-element-background-color: #ffffff;
+  --pico-form-element-border-color: #fdba74;
+  --pico-form-element-focus-color: #e95420;
+}
+
+@media only screen and (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --pico-font-family: 'Ubuntu', system-ui, -apple-system, sans-serif;
+    --pico-border-radius: 0.375rem;
+
+    --pico-primary: #f97316;
+    --pico-primary-background: #ea580c;
+    --pico-primary-hover: #fb923c;
+    --pico-primary-hover-background: #c2410c;
+    --pico-primary-focus: rgba(249, 115, 22, 0.35);
+    --pico-primary-inverse: #ffffff;
+
+    --pico-secondary: #9d3b71;
+    --pico-secondary-background: #5e1f41;
+    --pico-secondary-hover: #772953;
+    --pico-secondary-inverse: #ffffff;
+
+    --pico-background-color: #181214;
+    --pico-color: #fef08a;
+    --pico-muted-color: #fed7aa;
+    --pico-muted-border-color: #431407;
+
+    --pico-card-background-color: #271a1f;
+    --pico-card-border-color: #431407;
+    --pico-card-box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+
+    --pico-form-element-background-color: #271a1f;
+    --pico-form-element-border-color: #7c2d12;
+    --pico-form-element-focus-color: #f97316;
+  }
+}
+
+[data-theme="dark"] {
+  --pico-font-family: 'Ubuntu', system-ui, -apple-system, sans-serif;
+  --pico-border-radius: 0.375rem;
+
+  --pico-primary: #f97316;
+  --pico-primary-background: #ea580c;
+  --pico-primary-hover: #fb923c;
+  --pico-primary-hover-background: #c2410c;
+  --pico-primary-focus: rgba(249, 115, 22, 0.35);
+  --pico-primary-inverse: #ffffff;
+
+  --pico-secondary: #9d3b71;
+  --pico-secondary-background: #5e1f41;
+  --pico-secondary-hover: #772953;
+  --pico-secondary-inverse: #ffffff;
+
+  --pico-background-color: #181214;
+  --pico-color: #ffedd5;
+  --pico-muted-color: #fed7aa;
+  --pico-muted-border-color: #431407;
+
+  --pico-card-background-color: #271a1f;
+  --pico-card-border-color: #431407;
+  --pico-card-box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+
+  --pico-form-element-background-color: #271a1f;
+  --pico-form-element-border-color: #7c2d12;
+  --pico-form-element-focus-color: #f97316;
+}
+
+header.is-hidden-print {
+  background-color: #772953 !important;
+  border-bottom: 2px solid #e95420 !important;
+}
+
+header.is-hidden-print nav a,
+header.is-hidden-print nav details.dropdown > summary {
+  color: #ffffff !important;
+  font-weight: 500;
+}
+
+header.is-hidden-print nav a:hover,
+header.is-hidden-print nav details.dropdown > summary:hover {
+  color: #fb923c !important;
+}

@@ -1,7 +1,7 @@
 <templates>
   <template id="feretui-page-404">
     <div class="container">
-      <div class="content">
+      <div>
         <h1>Page not found</h1>
         <p>
           The page "<strong>{{ page }}</strong>" is not a declared page
@@ -11,7 +11,7 @@
   </template>
   <template id="feretui-page-forbidden">
     <div class="container">
-      <div class="content">
+      <div>
         <h1>This page is forbidden</h1>
         <p>
           The page "<strong>{{ page }}</strong>" is forbidden.
@@ -21,10 +21,10 @@
   </template>
   <template id="feretui-page-homepage">
     <div class="container has-text-centered">
-      <div class="content">
+      <div>
         <h1>Welcome to the FeretUI's client</h1>
         <div class="container">
-          <figure class="image 1by1">
+          <figure class="feretui-homepage-logo">
             <img src="/feretui/static/logo.png" alt="">
           </figure>
         </div>
@@ -36,7 +36,7 @@
   </template>
   <template id="feretui-page-sitemap">
     <div class="container">
-      <div class="content">
+      <div>
         <h1 class="has-text-centered">Sitemap</h1>
       </div>
       <aside class="menu">
@@ -89,8 +89,8 @@
     </div>
   </template>
   <template id="feretui-page-aside">
-    <div class="columns is-desktop">
-      <div class="column is-narrow footer pt-5 pb-5 is-hidden-print">
+    <div class="grid" style="grid-template-columns: minmax(180px, 240px) 1fr; gap: 2rem; align-items: start;">
+      <div class="is-hidden-print">
         <aside class="menu">
           <ul class="menu-list">
           {% for menu in menus %}
@@ -101,7 +101,7 @@
           </ul>
         </aside>
       </div>
-      <div class="column">
+      <div>
         <div id="feretui-aside-body">
           {{ page }}
         </div>
@@ -114,13 +114,13 @@
       hx-swap="outerHTML"
       hx-trigger="submit"
     >
-      <div class="container">
+      <div class="container" style="max-width: 500px; margin: 2rem auto;">
         {% if error %}
-        <div class="notification is-danger">
+        <div class="notification is-danger" role="alert">
           {{ error }}
         </div>
         {% endif %}
-        <div class="has-text-centered">
+        <div>
           {{ form.login(autocomplete="username") }}
           {{ form.password(autocomplete="current-password") }}
           <div class="buttons">
@@ -141,13 +141,13 @@
       hx-swap="outerHTML"
       hx-trigger="submit"
     >
-      <div class="container">
+      <div class="container" style="max-width: 550px; margin: 2rem auto;">
         {% if error %}
-        <div class="notification is-danger">
+        <div class="notification is-danger" role="alert">
           {{ error }}
         </div>
         {% endif %}
-        <h1 class="title">Register a new user</h1>
+        <h1>Register a new user</h1>
         <div id="feretui-signup-field-login">
           {{ form.login(autocomplete='username') }}
         </div>

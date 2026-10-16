@@ -20,16 +20,6 @@ backoffice available for any framework.
 
 ## Installation
 
-### Installation of the dependencies
-
-* `lessc` is a tools need for the minification of the static
-
-```commandline
-sudo npm install -g less
-```
-
-### Installation of the project
-
 Install released versions of FeretUI from the Python package index with
 [pip](http://pypi.python.org/pypi/pip) or a similar tool:
 

@@ -6,4 +6,5 @@ class User(models.Model):
     password = models.CharField(max_length=30)
     name = models.CharField(null=True, blank=True, max_length=20)
     lang = models.CharField(null=True, blank=True, max_length=2)
-    theme = models.CharField(null=True, blank=True, max_length=10)
+    theme = models.CharField(
+        null=True, blank=True, max_length=20, default='default')

@@ -1,12 +1,12 @@
 <div class="container is-fluid content" id="resource-foo-view-read">
  <form>
-  <div class="columns">
-   <div class="column is-3" id="label">
+  <div class="grid" style="align-items: center; margin-bottom: 1rem;">
+   <div id="label">
     <h1>
      foo
     </h1>
    </div>
-   <div class="column is-hidden-print" id="buttons">
+   <div class="is-hidden-print" id="buttons">
     <div class="buttons is-centered is-hidden-print">
      
       <button class="button is-primary" hx-get="/feretui/action/resource?action=goto&view=other">
@@ -39,7 +39,7 @@
  </span>
 </button>
       
-      <button class="button is-ghost" hx-get="/feretui/action/resource?action=goto&view=other">
+      <button class="button is-ghost secondary outline" hx-get="/feretui/action/resource?action=goto&view=other">
  <span class="icon">
   <i class="fa-solid fa-arrow-left">
   </i>
@@ -51,16 +51,16 @@
       
     </div>
    </div>
-   <div class="column is-3" is="status">
+   <div is="status">
    </div>
   </div>
   <div class="columns is-desktop">
    <div class="column">
     <div class="container">
      
-      <div aria-description="" class="field">
+      <div aria-description="">
  
- <label aria-description="" class="label" for="pk">
+ <label aria-description="" for="pk">
   Pk
       
   <span aria-hidden="true">
@@ -68,15 +68,13 @@
   </span>
  </label>
  
- <div class="control">
-  <input class="input is-static " disabled id="pk" name="pk" readonly type="text" value="foo">
- </div>
- 
+      <input class="input is-static " disabled id="pk" name="pk" readonly type="text" value="foo">
+      
 </div>
       
-      <div aria-description="" class="field">
+      <div aria-description="">
  
- <label aria-description="" class="label" for="foo">
+ <label aria-description="" for="foo">
   Foo
       
   <span aria-hidden="true">
@@ -84,15 +82,13 @@
   </span>
  </label>
  
- <div class="control">
-  <input class="input is-static " disabled id="foo" name="foo" readonly type="text" value="">
- </div>
- 
+      <input class="input is-static " disabled id="foo" name="foo" readonly type="text" value="">
+      
 </div>
       
-      <div aria-description="" class="field">
+      <div aria-description="">
  
- <label aria-description="" class="label" for="test">
+ <label aria-description="" for="test">
   Test
       
   <span aria-hidden="true">
@@ -100,18 +96,16 @@
   </span>
  </label>
  
- <div class="control">
-  <select class="input is-static " disabled id="test" name="test" readonly><option value="test1">Test 1</option></select>
- </div>
- 
+      <select class="input is-static " disabled id="test" name="test" readonly><option value="test1">Test 1</option></select>
+      
 </div>
       
     </div>
    </div>
    <div class="column is-narrow-desktop is-hidden-print">
     
-                <div class="panel mb-4">
- <div class="panel-heading">
+                <article class="panel mb-4">
+ <header class="panel-heading">
   <span aria-hidden="true">
    
   </span>
@@ -121,9 +115,9 @@
   <span aria-hidden="true">
    
   </span>
- </div>
+ </header>
  
-      <button class="button panel-block is-fullwidth" hx-post="/feretui/action/resource?action=call&method=print_1">
+      <button class="button panel-block is-fullwidth outline secondary" hx-post="/feretui/action/resource?action=call&method=print_1">
  <span aria-hidden="true">
   
  </span>
@@ -135,7 +129,7 @@
  </span>
 </button>
       
-</div>
+</article>
                 
    </div>
   </div>
@@ -171,7 +165,7 @@
  </span>
 </button>
       
-      <button class="button is-ghost" hx-get="/feretui/action/resource?action=goto&view=other">
+      <button class="button is-ghost secondary outline" hx-get="/feretui/action/resource?action=goto&view=other">
  <span class="icon">
   <i class="fa-solid fa-arrow-left">
   </i>

@@ -1,7 +1,7 @@
 <templates>
-   <template id="feretui-page-resource-action">
+  <template id="feretui-page-resource-action">
     <button
-      class="button panel-block is-fullwidth"
+      class="button panel-block is-fullwidth outline secondary"
       hx-post="{{ url }}"
     >
       <include template="feretui-icon" />
@@ -11,7 +11,7 @@
   </template>
   <template id="feretui-page-resource-action-for-selected-rows">
     <button
-      class="button panel-block selected-buttons-resource-{{ rcode }}-view-{{ vcode }} is-fullwidth"
+      class="button panel-block selected-buttons-resource-{{ rcode }}-view-{{ vcode }} is-fullwidth outline secondary"
       hx-post="{{ url }}"
       disabled
     >
@@ -21,15 +21,15 @@
     </button>
   </template>
   <template id="feretui-page-resource-action-set">
-    <div class="panel mb-4">
-      <div class="panel-heading">
+    <article class="panel mb-4">
+      <header class="panel-heading">
         <include template="feretui-icon" />
         <span>{{ label }}</span>
         <include template="feretui-description"/>
-      </div>
+      </header>
       {% for action in actions %}
       {{ action }}
       {% endfor %}
-    </div>
+    </article>
   </template>
 </templates>

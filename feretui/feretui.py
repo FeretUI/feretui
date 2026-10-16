@@ -41,12 +41,15 @@ The static files, themes and templates can be added:
   the method call is :func:`.import_feretui_addons`.
 """
 
+import re
 from collections.abc import Callable, Iterable
 from importlib.metadata import entry_points
+from io import IOBase
 from logging import getLogger
 from pathlib import Path
 
 from jac import CompressorExtension
+from jac.config import Config
 from jinja2 import Environment, PackageLoader, select_autoescape
 from markupsafe import Markup
 
@@ -97,17 +100,42 @@ from feretui.translation import (
 logger = getLogger(__name__)
 
 
+class PurePythonCSSCompressor:
+    """Pure Python CSS minifier for JAC to eliminate lessc dependency."""
+
+    @classmethod
+    def compile(
+        cls: type["PurePythonCSSCompressor"],
+        what: str | IOBase,
+        mimetype: str = "text/css",  # noqa: ARG003
+        cwd: str | None = None,  # noqa: ARG003
+        uri_cwd: str | None = None,  # noqa: ARG003
+        debug: bool | None = None,
+    ) -> str:
+        """Minify CSS text."""
+        content = what.read() if isinstance(what, IOBase) else str(what)
+
+        if debug:
+            return content
+
+        # Remove comments
+        res = re.sub(r"/\*[\s\S]*?\*/", "", content)
+        # Remove whitespace around delimiters
+        res = re.sub(r"\s*([{};:,>+~])\s*", r"\1", res)
+        # Collapse multiple whitespace
+        return re.sub(r"\s+", " ", res).strip()
+
+
 def import_feretui_addons(feretui: "FeretUI") -> None:
     """Import the main static used by FeretUI client.
 
     * javascript:
         * Htmx_
         * `hyperscript <https://hyperscript.org/docs/>`_
+        * `sortablejs <https://sortablejs.github.io/Sortable/>`_
 
     * css:
-        * `bulma <https://bulma.io/>`_
-        * `bulma-tooltip <https://bulma-tooltip.netlify.app/get-started/>`_
-        * `bulma-print <ihttps://github.com/suterma/bulma-print>`_
+        * `pico <https://picocss.com/>`_
 
     * font
         * `Fontawesome <https://fontawesome.com/>`_
@@ -115,7 +143,7 @@ def import_feretui_addons(feretui: "FeretUI") -> None:
     * image:
         * FeretUI logo.
 
-    * `themes <https://jenil.github.io/bulmaswatch/>`_
+    * `themes <https://picocss.com/docs/version-picker>`_
 
     :param feretui: Instance of the client.
     :type feretui: :class:`.FeretUI`
@@ -131,15 +159,21 @@ def import_feretui_addons(feretui: "FeretUI") -> None:
         "hyperscript.js",
         Path(feretui_path, "static", "hyperscript.0.9.12.js"),
     )
+    feretui.register_js(
+        "sortable.js",
+        Path(feretui_path, "static", "sortable.1.15.2.min.js"),
+    )
 
     # ---- CSS ----
     feretui.register_css(
-        "bulma.css",
-        Path(feretui_path, "static", "bulma.0.9.4.css"),
+        "pico.css",
+        Path(feretui_path, "static", "pico.min.css"),
+        compress=True,
     )
     feretui.register_css(
-        "bulma-tooltip.css",
-        Path(feretui_path, "static", "bulma-tooltip.1.2.0.min.css"),
+        "feretui.css",
+        Path(feretui_path, "static", "feretui.css"),
+        compress=True,
     )
     feretui.register_css(
         "fontawesome/css/all.css",
@@ -151,10 +185,6 @@ def import_feretui_addons(feretui: "FeretUI") -> None:
             "all.min.css",
         ),
         compress=False,
-    )
-    feretui.register_css(
-        "bulma-print.css",
-        Path(feretui_path, "static", "bulma-print.1.0.1.css"),
     )
 
     # ---- Font ----
@@ -186,37 +216,27 @@ def import_feretui_addons(feretui: "FeretUI") -> None:
     )
 
     # ---- Themes ----
-    for theme in (
-        "cerulean",
-        "cyborg",
+    modern_themes = (
         "default",
-        "journal",
-        "lumen",
-        "materia",
-        "nuclear",
-        "sandstone",
-        "slate",
-        "spacelab",
-        "united",
-        "cosmo",
-        "darkly",
         "flatly",
-        "litera",
+        "materia",
         "lux",
         "minty",
         "pulse",
-        "simplex",
-        "solar",
-        "superhero",
-        "yeti",
-    ):
+        "united",
+        "cosmo",
+        "sandstone",
+        "darkly",
+        "orange",
+    )
+    for theme in modern_themes:
         feretui.register_theme(
             theme,
             Path(
                 feretui_path,
                 "static",
                 "themes",
-                f"{theme}.min.css",
+                f"{theme}.css",
             ),
         )
 
@@ -326,6 +346,9 @@ class FeretUI:
         self.jinja_env.compressor_source_dirs = compressor_source_dirs
         self.jinja_env.compressor_output_dir = f"static/dist/{base_url}"
         self.jinja_env.compressor_static_prefix = f"{base_url}/static"
+        compressor_classes = dict(Config().compressor_classes)
+        compressor_classes["text/css"] = PurePythonCSSCompressor
+        self.jinja_env.compressor_classes = compressor_classes
 
         # List the template to use to generate the UI
         feretui_path = Path(__file__).parent
@@ -468,7 +491,15 @@ class FeretUI:
             )
             # lxml remove the tags html, head and body. So in template
             # they are named feretui-html, feretui-head, feretui-body
-            template = template.replace("feretui-html", "html")
+            color_scheme = getattr(request.session, "color_scheme", None)
+            if color_scheme:
+                template = template.replace(
+                    "<feretui-html",
+                    f'<html data-theme="{color_scheme}"',
+                )
+                template = template.replace("</feretui-html>", "</html>")
+            else:
+                template = template.replace("feretui-html", "html")
             template = template.replace("feretui-head", "head")
             template = template.replace("feretui-body", "body")
             return Response(f"<!DOCTYPE html5>\n{Markup.unescape(template)}")

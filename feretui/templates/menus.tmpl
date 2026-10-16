@@ -1,68 +1,68 @@
 <templates>
   <template id="toolbar-menu">
-    <a 
-      class="navbar-item"
-      href="{{ href }}"
-      hx-get="{{ url }}"
-      hx-target="#feretui-body"
-      hx-swap="innerHTML"
-      aria-description="{{ description }}"
-    >
-      <include template="feretui-icon" />
-      <strong>{{ label }}</strong>
-      <include template="feretui-description" />
-    </a>
-  </template>
-  <template id="toolbar-dropdown-menu">
-    <div 
-      class="navbar-item has-dropdown is-boxed"
-      aria-expanded="false"
-      aria-label="{{ label }}"
-      aria-description="{{ description }}"
-      tabindex="0"
-      role="navigation"
-      _="on click or keyup[key=='Enter'] toggle .is-active on me"
-    >
-      <a class="navbar-link">
+    <li>
+      <a 
+        href="{{ href }}"
+        hx-get="{{ url }}"
+        hx-target="#feretui-body"
+        hx-swap="innerHTML"
+        aria-description="{{ description }}"
+      >
         <include template="feretui-icon" />
         <strong>{{ label }}</strong>
         <include template="feretui-description" />
       </a>
-      <div class="navbar-dropdown">
-        {% for child in children %}
-          {% if child.is_visible(session) %}
-            {{ child.render(feretui, session) }}
-          {% endif %}
-        {% endfor %}
-      </div>
-    </div>
+    </li>
+  </template>
+  <template id="toolbar-dropdown-menu">
+    <li>
+      <details class="dropdown">
+        <summary aria-label="{{ label }}" aria-description="{{ description }}">
+          <include template="feretui-icon" />
+          <strong>{{ label }}</strong>
+          <include template="feretui-description" />
+        </summary>
+        <ul>
+          {% for child in children %}
+            {% if child.is_visible(session) %}
+              {{ child.render(feretui, session) }}
+            {% endif %}
+          {% endfor %}
+        </ul>
+      </details>
+    </li>
   </template>
   <template id="toolbar-divider-menu">
     <hr class="navbar-divider">
   </template>
   <template id="toolbar-url-menu">
-    <a class="navbar-item" href="{{ url }}" aria-description="{{ description }}">
-      <include template="feretui-icon" />
-      <strong>{{ label }}</strong>
-      <include template="feretui-description" />
-    </a>
+    <li>
+      <a href="{{ url }}" aria-description="{{ description }}">
+        <include template="feretui-icon" />
+        <strong>{{ label }}</strong>
+        <include template="feretui-description" />
+      </a>
+    </li>
   </template>
   <template id="toolbar-button-menu">
-    <a 
-      class="button {{ css_class }}"
-      href="{{ href }}"
-      hx-get="{{ url }}"
-      hx-target="#feretui-body"
-      hx-swap="innerHTML"
-      aria-description="{{ description }}"
-    >
-      <include template="feretui-icon" />
-      <strong>{{ label }}</strong>
-      <include template="feretui-description" />
-    </a>
+    <li>
+      <a 
+        role="button"
+        class="{{ css_class }}"
+        href="{{ href }}"
+        hx-get="{{ url }}"
+        hx-target="#feretui-body"
+        hx-swap="innerHTML"
+        aria-description="{{ description }}"
+      >
+        <include template="feretui-icon" />
+        <strong>{{ label }}</strong>
+        <include template="feretui-description" />
+      </a>
+    </li>
   </template>
   <template id="toolbar-buttons-menu">
-    <div class="navbar-item">
+    <li>
       <div class="buttons">
         {% for child in children %}
           {% if child.is_visible(session) %}
@@ -70,14 +70,16 @@
           {% endif %}
         {% endfor %}
       </div>
-    </div>
+    </li>
   </template>
   <template id="toolbar-button-url-menu">
-    <a class="button {{ css_class }}" href="{{ url }}" aria-description="{{ description }}">
-      <include template="feretui-icon" />
-      <strong>{{ label }}</strong>
-      <include template="feretui-description" />
-    </a>
+    <li>
+      <a role="button" class="{{ css_class }}" href="{{ url }}" aria-description="{{ description }}">
+        <include template="feretui-icon" />
+        <strong>{{ label }}</strong>
+        <include template="feretui-description" />
+      </a>
+    </li>
   </template>
   <template id="aside-menu">
     <li>

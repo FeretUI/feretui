@@ -1,56 +1,44 @@
 <form hx-post="/feretui/action/login_password" hx-swap="outerHTML" hx-trigger="submit">
- <div class="container">
+ <div class="container" style="max-width: 500px; margin: 2rem auto;">
   
-  <div class="notification is-danger">
+  <div class="notification is-danger" role="alert">
    Test
   </div>
   
-  <div class="has-text-centered">
-   <div aria-description="" class="field">
+  <div>
+   <div aria-description="">
  
- <label aria-description="" class="label" for="login">
+ <label aria-description="" for="login">
   Login
       
-  <span class="content is-small">
-   (
-   <span class="has-text-link">
-    required
-   </span>
-   )
-  </span>
+  <small aria-hidden="true">
+   (required)
+  </small>
   
   <span aria-hidden="true">
    
   </span>
  </label>
  
- <div class="control">
-  <input autocomplete="username" class="input is-link " id="login" name="login" required type="text" value="test">
- </div>
- 
+      <input autocomplete="username" class="input is-link " id="login" name="login" required type="text" value="test">
+      
 </div>
-          <div aria-description="" class="field">
+          <div aria-description="">
  
- <label aria-description="" class="label" for="password">
+ <label aria-description="" for="password">
   Password
       
-  <span class="content is-small">
-   (
-   <span class="has-text-link">
-    required
-   </span>
-   )
-  </span>
+  <small aria-hidden="true">
+   (required)
+  </small>
   
   <span aria-hidden="true">
    
   </span>
  </label>
  
- <div class="control">
-  <input autocomplete="current-password" class="input is-link " id="password" name="password" required type="password" value="">
- </div>
- 
+      <input autocomplete="current-password" class="input is-link " id="password" name="password" required type="password" value="">
+      
 </div>
    <div class="buttons">
     <button class="button is-primary is-fullwidth" type="submit">

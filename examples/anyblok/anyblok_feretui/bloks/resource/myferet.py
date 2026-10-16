@@ -17,14 +17,22 @@ from feretui import (
     ToolBarMenu,
     menu_for_authenticated_user,
 )
-from feretui.context import ContextProperties
+from feretui.context import ContextProperties, cvar_request
 from feretui.resources.update import DefaultViewUpdate
+
+theme_choices = [(k, k.capitalize()) for k in myferet.themes.keys()]
 
 
 class MySession(MySession):
     def __init__(self, user_id=None, **kwargs) -> None:
         super().__init__(**kwargs)
         self.user_id = user_id
+        if self.user_id:
+            user = self.anyblok.Pyramid.User.query().get(self.user_id)
+            if user and user.theme:
+                self.theme = str(user.theme)
+            if user and user.lang:
+                self.lang = str(user.lang)
 
     def login(self, form) -> bool:
         User = self.anyblok.Pyramid.User
@@ -37,7 +45,7 @@ class MySession(MySession):
             self.user = user.name
             self.user_id = user.login
             self.lang = str(user.lang) if user.lang else 'en'
-            self.theme = str(user.theme) if user.theme else 'journal'
+            self.theme = str(user.theme) if user.theme else 'default'
             return True
 
         raise Exception('Login or password invalid')
@@ -57,13 +65,9 @@ class RUser(LCRUDResource, Resource, ContextProperties):
             validators=[InputRequired()],
             render_kw={"vertical": False},
         )
-        theme = RadioField(
-            choices=[
-                ('journal', 'Journal'),
-                ('minthy', 'Minthy'),
-                ('darkly', 'Darkly'),
-            ],
-            render_kw={"vertical": False},
+        theme = SelectField(
+            label='Theme',
+            choices=theme_choices,
         )
 
         @property
@@ -74,11 +78,7 @@ class RUser(LCRUDResource, Resource, ContextProperties):
 
         class Form:
             theme = SelectField(
-                choices=[
-                    ('journal', 'Journal'),
-                    ('minthy', 'Minthy'),
-                    ('darkly', 'Darkly'),
-                ],
+                choices=theme_choices,
             )
             lang = None
             # print_1 = PostButtonField()
@@ -105,11 +105,7 @@ class RUser(LCRUDResource, Resource, ContextProperties):
 
         class Form:
             theme = SelectField(
-                choices=[
-                    ('journal', 'Journal'),
-                    ('minthy', 'Minthy'),
-                    ('darkly', 'Darkly'),
-                ],
+                choices=theme_choices,
             )
             lang = SelectField(choices=[('en', 'English'), ('fr', 'Français')])
 
@@ -217,6 +213,13 @@ class RUser(LCRUDResource, Resource, ContextProperties):
             user = self.anyblok.Pyramid.User.query().get(form.pk.data)
             if user:
                 form.populate_obj(user)
+                try:
+                    req = cvar_request.get()
+                    if req and getattr(req, "session", None):
+                        if req.session.user_id == user.login and user.theme:
+                            req.session.theme = str(user.theme)
+                except LookupError:
+                    pass
 
     def delete(self, pks) -> None:
         for pk in pks:

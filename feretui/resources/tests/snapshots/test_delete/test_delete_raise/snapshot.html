@@ -1,12 +1,12 @@
 <div class="container is-fluid content" id="resource-foo-view-delete">
  <form hx-delete="/feretui/action/resource?action=delete">
-  <div class="columns">
-   <div class="column is-3" id="label">
+  <div class="grid" style="align-items: center; margin-bottom: 1rem;">
+   <div id="label">
     <h1>
      Delete
     </h1>
    </div>
-   <div class="column is-hidden-print" id="buttons">
+   <div class="is-hidden-print" id="buttons">
     <div class="buttons is-centered is-hidden-print">
      
       <button class="button is-danger" type="submit">
@@ -19,7 +19,7 @@
  </span>
 </button>
       
-      <button class="button is-ghost" onclick="window.history.back()" type="reset">
+      <button class="button is-ghost secondary outline" onclick="window.history.back()" type="reset">
  <span class="icon">
   <i class="fa-solid fa-xmark">
   </i>
@@ -31,7 +31,7 @@
       
     </div>
    </div>
-   <div class="column is-3" is="status">
+   <div is="status">
    </div>
   </div>
   <div class="container">
@@ -68,7 +68,7 @@
  </span>
 </button>
       
-      <button class="button is-ghost" onclick="window.history.back()" type="reset">
+      <button class="button is-ghost secondary outline" onclick="window.history.back()" type="reset">
  <span class="icon">
   <i class="fa-solid fa-xmark">
   </i>

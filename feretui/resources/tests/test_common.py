@@ -10,6 +10,7 @@
 with pytest.
 """
 import pytest  # noqa: F401
+from multidict import MultiDict
 from polib import POFile
 from wtforms import StringField
 
@@ -240,6 +241,92 @@ class TestMultiView:
         res = view.filters(feretui, request)
         assert res.body is not None
         assert res.headers['HX-Push-Url'] == '/test?resource=test&offset=0'
+
+    def test_call_filters_multidict_and_brackets(
+        self, feretui, session,
+    ) -> None:
+        md = MultiDict([
+            ('action', 'filters'),
+            ('filter[theme]', 'minthy'),
+            ('lang', 'fr'),
+        ])
+        request = Request(
+            method=Request.POST,
+            params=md,
+            session=session,
+            headers={'Hx-Current-Url': '/test?resource=test'},
+        )
+
+        class MyView(MultiView, View):
+            limit = 15
+            create_button_redirect_to = 'other'
+            delete_button_redirect_to = 'other'
+            do_click_on_entry_redirect_to = 'other'
+
+            class Form:
+                pk = StringField()
+
+        resource = MultiResource()
+        resource.context = 'test'
+        view = MyView(resource)
+        res = view.filters(feretui, request)
+        assert res.body is not None
+        assert 'filter%5Btheme%5D=minthy' in res.headers['HX-Push-Url']
+        assert 'filter%5Blang%5D=fr' in res.headers['HX-Push-Url']
+
+        # Now delete using MultiDict
+        del_md = MultiDict([
+            ('filter[theme]', 'minthy'),
+        ])
+        del_request = Request(
+            method=Request.DELETE,
+            params=del_md,
+            session=session,
+            headers={'Hx-Current-Url': res.headers['HX-Push-Url']},
+        )
+        del_res = view.filters(feretui, del_request)
+        assert 'filter%5Btheme%5D' not in del_res.headers['HX-Push-Url']
+        assert 'filter%5Blang%5D=fr' in del_res.headers['HX-Push-Url']
+
+    def test_call_filters_query_fallback_and_scalar(
+        self, feretui, session,
+    ) -> None:
+        request = Request(
+            method=Request.DELETE,
+            params={'theme': 'minthy'},
+            querystring='action=filters&theme=minthy',
+            session=session,
+            headers={
+                'Hx-Current-Url': '/test?resource=test&filter%5Btheme%5D=minthy',
+            },
+        )
+
+        class MyView(MultiView, View):
+            limit = 15
+            create_button_redirect_to = 'other'
+            delete_button_redirect_to = 'other'
+            do_click_on_entry_redirect_to = 'other'
+
+            class Form:
+                pk = StringField()
+
+        resource = MultiResource()
+        resource.context = 'test'
+        view = MyView(resource)
+        res = view.filters(feretui, request)
+        assert res.headers['HX-Push-Url'] == '/test?resource=test&offset=0'
+
+        # When params is None, fallback to request.query
+        request_query = Request(
+            method=Request.DELETE,
+            querystring='action=filters&theme=minthy',
+            session=session,
+            headers={
+                'Hx-Current-Url': '/test?resource=test&filter%5Btheme%5D=minthy',
+            },
+        )
+        res2 = view.filters(feretui, request_query)
+        assert res2.headers['HX-Push-Url'] == '/test?resource=test&offset=0'
 
     def test_goto_delete(self, feretui, session) -> None:
         request = Request(

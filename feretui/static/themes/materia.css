@@ -1,0 +1,118 @@
+/* FeretUI Theme: Materia (Material Design 3) */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+:root,
+[data-theme="light"] {
+  --pico-font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --pico-border-radius: 0.5rem;
+
+  --pico-primary: #1976d2;
+  --pico-primary-background: #1976d2;
+  --pico-primary-hover: #1565c0;
+  --pico-primary-hover-background: #0d47a1;
+  --pico-primary-focus: rgba(25, 118, 210, 0.35);
+  --pico-primary-inverse: #ffffff;
+
+  --pico-secondary: #455a64;
+  --pico-secondary-background: #455a64;
+  --pico-secondary-hover: #37474f;
+  --pico-secondary-inverse: #ffffff;
+
+  --pico-background-color: #fafafa;
+  --pico-color: #212121;
+  --pico-muted-color: #757575;
+  --pico-muted-border-color: #e0e0e0;
+
+  --pico-card-background-color: #ffffff;
+  --pico-card-border-color: #e0e0e0;
+  --pico-card-box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1), 0 3px 6px rgba(0, 0, 0, 0.15);
+
+  --pico-form-element-background-color: #ffffff;
+  --pico-form-element-border-color: #bdbdbd;
+  --pico-form-element-focus-color: #1976d2;
+}
+
+@media only screen and (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --pico-font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --pico-border-radius: 0.5rem;
+
+    --pico-primary: #64b5f6;
+    --pico-primary-background: #1976d2;
+    --pico-primary-hover: #90caf9;
+    --pico-primary-hover-background: #1565c0;
+    --pico-primary-focus: rgba(100, 181, 246, 0.35);
+    --pico-primary-inverse: #0d47a1;
+
+    --pico-secondary: #90a4ae;
+    --pico-secondary-background: #37474f;
+    --pico-secondary-hover: #455a64;
+    --pico-secondary-inverse: #ffffff;
+
+    --pico-background-color: #121212;
+    --pico-color: #e0e0e0;
+    --pico-muted-color: #9e9e9e;
+    --pico-muted-border-color: #272727;
+
+    --pico-card-background-color: #1e1e1e;
+    --pico-card-border-color: #2e2e2e;
+    --pico-card-box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+
+    --pico-form-element-background-color: #1e1e1e;
+    --pico-form-element-border-color: #424242;
+    --pico-form-element-focus-color: #64b5f6;
+  }
+}
+
+[data-theme="dark"] {
+  --pico-font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --pico-border-radius: 0.5rem;
+
+  --pico-primary: #64b5f6;
+  --pico-primary-background: #1976d2;
+  --pico-primary-hover: #90caf9;
+  --pico-primary-hover-background: #1565c0;
+  --pico-primary-focus: rgba(100, 181, 246, 0.35);
+  --pico-primary-inverse: #0d47a1;
+
+  --pico-secondary: #90a4ae;
+  --pico-secondary-background: #37474f;
+  --pico-secondary-hover: #455a64;
+  --pico-secondary-inverse: #ffffff;
+
+  --pico-background-color: #121212;
+  --pico-color: #e0e0e0;
+  --pico-muted-color: #9e9e9e;
+  --pico-muted-border-color: #272727;
+
+  --pico-card-background-color: #1e1e1e;
+  --pico-card-border-color: #2e2e2e;
+  --pico-card-box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+
+  --pico-form-element-background-color: #1e1e1e;
+  --pico-form-element-border-color: #424242;
+  --pico-form-element-focus-color: #64b5f6;
+}
+
+/* Material AppBar Header */
+header.is-hidden-print {
+  background-color: #1976d2 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 4px -1px rgba(0,0,0,0.2), 0 4px 5px 0 rgba(0,0,0,0.14) !important;
+  border-bottom: none !important;
+}
+
+header.is-hidden-print nav a,
+header.is-hidden-print nav details.dropdown > summary {
+  color: #ffffff !important;
+  font-weight: 500;
+}
+
+button, [role="button"] {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  transition: box-shadow 0.2s ease, transform 0.1s ease;
+}
+
+button:hover, [role="button"]:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}

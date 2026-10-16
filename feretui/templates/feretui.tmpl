@@ -16,14 +16,12 @@
           <link rel="stylesheet" type="text/css" href="{{ css }}" />
         {% endif %}
         {% endfor %}
-        {% compress 'css' %}
         <link rel="stylesheet" type="text/css" href="{{ feretui.get_theme_url(session) }}" />
-        {% endcompress %}
       </feretui-head>
-      <feretui-body class="has-navbar-fixed-top">
+      <feretui-body>
         <include template="feretui-client-header"/>
-        <main>
-          <div id="feretui-body" class="mt-4 mb-4" hx-boost="true">
+        <main class="container-fluid">
+          <div id="feretui-body" hx-boost="true">
             {{ page }}
           </div>
         </main>
@@ -38,126 +36,97 @@
   </template>
   <template id="feretui-client-header">
     <header class="is-hidden-print">
-      <nav class="navbar is-fixed-top"  role="navigation" aria-label="main navigation">
-        <div class="navbar-brand">
-          <a 
-            class="navbar-item has-tooltip-right has-tooltip-arrow"
-            data-tooltip="Go to the homepage"
-            href="?page=homepage"
-            hx-get="{{ feretui.base_url }}/action/goto?page=homepage"
-            hx-target="#feretui-body"
-            hx-swap="innerHTML"
-          >
-            <img src="{{ feretui.get_image_url('logo.png') }}" alt="">
-            <span class="is-sr-only">Go to the homepage</span>
-          </a>
-          <a
-            id="feretui-app-header-burger-button"
-            role="button"
-            class="navbar-burger"
-            aria-label="menu"
-            aria-expanded="false"
-            data-target="feretui-app-header-burger"
-            _="on click toggle .is-active on me then toggle .is-active on #feretui-app-header-burger"
-          >
-            <span aria-hidden="true"></span>
-            <span aria-hidden="true"></span>
-            <span aria-hidden="true"></span>
-          </a>
-        </div>
-        <div id="feretui-app-header-burger" class="navbar-menu">
-          <div class="navbar-start">
-            {% for menu in feretui.menus.left %}
-              {% if menu.is_visible(session) %}
-                {{ menu.render(feretui, session) }}
-              {% endif %}
-            {% endfor %}
-          </div>
-          <div class="navbar-end">
-            {% for menu in feretui.menus.right %}
-              {% if menu.is_visible(session) %}
-                {{ menu.render(feretui, session) }}
-              {% endif %}
-            {% endfor %}
-            {% if not session.user %}
-             {%if feretui.auth.menus %}
-             {{ feretui.auth.menus.render(feretui, session) | safe }}
-             {% endif %}
-            {% else %}
-            <div 
-              class="navbar-item has-dropdown is-boxed"
-              aria-expanded="false"
-              aria-label="{{ label }}"
-              tabindex="0"
-              role="navigation"
-              _="on click or keyup[key=='Enter'] toggle .is-active on me"
+      <nav class="container-fluid">
+        <ul>
+          <li>
+            <a 
+              data-tooltip="Go to the homepage"
+              data-placement="bottom"
+              href="?page=homepage"
+              hx-get="{{ feretui.base_url }}/action/goto?page=homepage"
+              hx-target="#feretui-body"
+              hx-swap="innerHTML"
             >
-              <a class="navbar-link">
+              <img src="{{ feretui.get_image_url('logo.png') }}" alt="" style="max-height: 2rem;">
+              <span class="is-sr-only">Go to the homepage</span>
+            </a>
+          </li>
+          {% for menu in feretui.menus.left %}
+            {% if menu.is_visible(session) %}
+              {{ menu.render(feretui, session) }}
+            {% endif %}
+          {% endfor %}
+        </ul>
+        <ul>
+          {% for menu in feretui.menus.right %}
+            {% if menu.is_visible(session) %}
+              {{ menu.render(feretui, session) }}
+            {% endif %}
+          {% endfor %}
+          {% if not session.user %}
+           {%if feretui.auth.menus %}
+           {{ feretui.auth.menus.render(feretui, session) | safe }}
+           {% endif %}
+          {% else %}
+          <li>
+            <details class="dropdown is-right">
+              <summary>
                 <strong>{{ session.user }}</strong>
-              </a>
-              <div class="navbar-dropdown is-right">
+              </summary>
+              <ul>
                 {% if feretui.menus.user %}
                   {% for menu in feretui.menus.user %}
                     {% if menu.is_visible(session) %}
                       {{ menu.render(feretui, session) | safe }}
                     {% endif %}
                   {% endfor %}
-                  <hr class="navbar-divider">
+                  <hr>
                 {% endif %}
-                <a
-                  class="navbar-item"
-                  href="/feretui/action/logout"
-                  hx-post="/feretui/action/logout"
-                >
-                  Log out
-                </a>
-              </div>
-            </div>
-            {% endif %}
-          </div>
-        </div>
+                <li>
+                  <a
+                    href="/feretui/action/logout"
+                    hx-post="/feretui/action/logout"
+                  >
+                    Log out
+                  </a>
+                </li>
+              </ul>
+            </details>
+          </li>
+          {% endif %}
+        </ul>
       </nav>
     </header>
   </template>
   <template id="feretui-client-footer">
-    <footer class="is-hidden-print">
-      <div class="container">
-        <div class="columns is-desktop">
-          <div class="column is-2-desktop">
-            <p>
-              <a 
-                class="navbar-item"
-                href="?page=sitemap"
-                hx-get="{{ feretui.base_url }}/action/goto?page=sitemap"
-                hx-target="#feretui-body"
-                hx-swap="innerHTML"
-              >
-                <span class="ml-0 mr-0 icon">
-                  <i class="fa-solid fa-sitemap"></i>
-                </span>
-                <strong>Sitemap</strong>
-              </a>
-            </p>
-          </div>
-          <div class="column content has-text-centered">
-            <p>
-              <strong>FeretUI</strong>by Js Suzanne.
-            </p>
-          </div>
-          <div class="column is-2-desktop">
-          </div>
-        </div>
-      </div>
+    <footer class="container-fluid is-hidden-print">
+      <nav>
+        <ul>
+          <li>
+            <a 
+              href="?page=sitemap"
+              hx-get="{{ feretui.base_url }}/action/goto?page=sitemap"
+              hx-target="#feretui-body"
+              hx-swap="innerHTML"
+            >
+              <i class="fa-solid fa-sitemap"></i>
+              <strong>Sitemap</strong>
+            </a>
+          </li>
+        </ul>
+        <ul>
+          <li>
+            <small><strong>FeretUI</strong> by Js Suzanne.</small>
+          </li>
+        </ul>
+      </nav>
     </footer>
   </template>
   <template id="feretui-description">
     <span aria-hidden="true">
       {% if description %}
-      <span 
-        class="ml-0 icon has-tooltip-bottom has-tooltip-arrow"
-        data-tooltip="{{ description }}"
-      >
-        <i class="fa-solid fa-circle-info is-small"></i>
+      <span data-tooltip="{{ description }}" data-placement="bottom">
+        <i class="fa-solid fa-circle-info"></i>
       </span>
       {% endif %}
     </span>
@@ -165,9 +134,7 @@
   <template id="feretui-icon">
     <span aria-hidden="true">
       {% if icon %}
-      <span 
-        class="ml-0 mr-0 icon"
-      >
+      <span>
         <i class="{{ icon }}"></i>
       </span>
       {% endif %}

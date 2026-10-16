@@ -1,5 +1,5 @@
 import logging
-from contextlib import contextmanager
+from contextlib import asynccontextmanager, contextmanager
 
 import uvicorn
 from multidict import MultiDict
@@ -180,20 +180,28 @@ def startup():
     print('Ready to go')
 
 
+@asynccontextmanager
+async def lifespan(app):
+    startup()
+    yield
+
+
+app = Starlette(
+    debug=True,
+    routes=[
+        Route('/', index),
+        Route('/feretui/static/{filepath:path}', feretui_static_file),
+        Route(
+            '/feretui/action/{action:str}',
+            call_action,
+            methods=['GET', 'POST']),
+    ],
+    middleware=[
+        Middleware(SessionMiddleware, secret_key="secret"),
+    ],
+    lifespan=lifespan,
+)
+
+
 if __name__ == "__main__":
-    app = Starlette(
-        debug=True,
-        routes=[
-            Route('/', index),
-            Route('/feretui/static/{filepath:path}', feretui_static_file),
-            Route(
-                '/feretui/action/{action:str}',
-                call_action,
-                methods=['GET', 'POST']),
-        ],
-        middleware=[
-            Middleware(SessionMiddleware, secret_key="secret"),
-        ],
-        on_startup=[startup],
-    )
     uvicorn.run(app, port=8080, log_level="info")

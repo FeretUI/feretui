@@ -3,11 +3,11 @@
     <div id="resource-{{ rcode }}-view-{{ vcode }}" class="container is-fluid">
       <form>
         <include template="view-multi-header" />
-        <div class="columns is-desktop">
-          <div class="column">
+        <div class="grid" style="grid-template-columns: 1fr {% if actions %}240px{% endif %}; align-items: start;">
+          <div>
             <include template="view-pagination" />
-            <div class="table-container">
-              <table class="table is-fullwidth is-striped">
+            <div class="table-container overflow-auto">
+              <table class="striped is-fullwidth">
                 <thead>
                   <tr>
                     <th class="is-narrow" id="checkbox-all-resource-{{ rcode }}-view-{{ vcode }}">
@@ -35,7 +35,7 @@
                   {% for row in dataset.forms %}
                   <tr
                     hx-trigger="dblclick"
-                    hx-get="{{ open_view_url }}&pk={{ row.pk.data }}"
+                    hx-get="{{ open_view_url }}&amp;pk={{ row.pk.data }}"
                   >
                     <th id="{{ row.pk.data }}">
                       <input 
@@ -93,9 +93,9 @@
               </table>
             </div>
             <include template="view-pagination" />
-        </div>
+          </div>
           {% if actions %}
-            <div class="column is-2 is-hidden-print">
+            <div class="is-hidden-print">
               {% for action in actions %}
               {{ action }}
               {% endfor %}
@@ -115,7 +115,7 @@
   <template id="view-readwrite-form">
     <div class="container mb-4">
       {% if error %}
-      <div class="notification is-danger">
+      <div class="notification is-danger" role="alert">
         {{ error }}
       </div>
       {% endif %}
@@ -125,45 +125,45 @@
     </div>
   </template>
   <template id="feretui-resource-label-header">
-    <div class="columns">
-      <div id="label" class="column is-3">
+    <div class="grid" style="align-items: center; margin-bottom: 1rem;">
+      <div id="label">
         <h1>{{ label }}</h1>
       </div>
-      <div id="buttons" class="column is-hidden-print">
+      <div id="buttons" class="is-hidden-print">
         <include template="view-buttons-header"/>
       </div>
-      <div is="status" class="column is-3">
+      <div is="status">
       </div>
     </div>
   </template>
   <template id="feretui-resource-read-header">
-    <div class="columns">
-      <div id="label" class="column is-3">
+    <div class="grid" style="align-items: center; margin-bottom: 1rem;">
+      <div id="label">
         <h1>{{ form.pk.data }}</h1>
       </div>
-      <div id="buttons" class="column is-hidden-print">
+      <div id="buttons" class="is-hidden-print">
         <include template="view-buttons-header"/>
       </div>
-      <div is="status" class="column is-3">
+      <div is="status">
       </div>
     </div>
   </template>
   <template id="feretui-resource-edit-header">
-    <div class="columns">
-      <div id="label" class="column is-3">
+    <div class="grid" style="align-items: center; margin-bottom: 1rem;">
+      <div id="label">
         <h1>{{ form.pk.data }}</h1>
       </div>
-      <div id="buttons" class="column is-hidden-print">
+      <div id="buttons" class="is-hidden-print">
         <include template="view-buttons-header"/>
       </div>
-      <div is="status" class="column is-3">
+      <div is="status">
       </div>
     </div>
   </template>
   <template id="view-delete-form">
     <div class="container">
       {% if error %}
-      <div class="notification is-danger">
+      <div class="notification is-danger" role="alert">
         {{ error }}
       </div>
       {% endif %}

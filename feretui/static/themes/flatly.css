@@ -1,0 +1,115 @@
+/* FeretUI Theme: Flatly (Modern Flat Emerald & Navy) */
+@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400&display=swap');
+
+:root,
+[data-theme="light"] {
+  --pico-font-family: 'Lato', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --pico-border-radius: 0.375rem;
+
+  --pico-primary: #18bc9c;
+  --pico-primary-background: #18bc9c;
+  --pico-primary-hover: #15a589;
+  --pico-primary-hover-background: #128f76;
+  --pico-primary-focus: rgba(24, 188, 156, 0.35);
+  --pico-primary-inverse: #ffffff;
+  --pico-primary-underline: rgba(24, 188, 156, 0.5);
+
+  --pico-secondary: #2c3e50;
+  --pico-secondary-background: #2c3e50;
+  --pico-secondary-hover: #1a252f;
+  --pico-secondary-inverse: #ffffff;
+
+  --pico-background-color: #f8fafc;
+  --pico-color: #2c3e50;
+  --pico-muted-color: #7b8a8b;
+  --pico-muted-border-color: #ecf0f1;
+
+  --pico-card-background-color: #ffffff;
+  --pico-card-border-color: #e2e8f0;
+  --pico-card-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+  --pico-form-element-background-color: #ffffff;
+  --pico-form-element-border-color: #d1d5db;
+  --pico-form-element-focus-color: #18bc9c;
+}
+
+@media only screen and (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --pico-font-family: 'Lato', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --pico-border-radius: 0.375rem;
+
+    --pico-primary: #18bc9c;
+    --pico-primary-background: #18bc9c;
+    --pico-primary-hover: #20c997;
+    --pico-primary-hover-background: #15a589;
+    --pico-primary-focus: rgba(24, 188, 156, 0.35);
+    --pico-primary-inverse: #ffffff;
+
+    --pico-secondary: #34495e;
+    --pico-secondary-background: #34495e;
+    --pico-secondary-hover: #46637f;
+    --pico-secondary-inverse: #ffffff;
+
+    --pico-background-color: #1a252f;
+    --pico-color: #ecf0f1;
+    --pico-muted-color: #95a5a6;
+    --pico-muted-border-color: #2c3e50;
+
+    --pico-card-background-color: #22313f;
+    --pico-card-border-color: #2c3e50;
+    --pico-card-box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+
+    --pico-form-element-background-color: #22313f;
+    --pico-form-element-border-color: #34495e;
+    --pico-form-element-focus-color: #18bc9c;
+  }
+}
+
+[data-theme="dark"] {
+  --pico-font-family: 'Lato', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --pico-border-radius: 0.375rem;
+
+  --pico-primary: #18bc9c;
+  --pico-primary-background: #18bc9c;
+  --pico-primary-hover: #20c997;
+  --pico-primary-hover-background: #15a589;
+  --pico-primary-focus: rgba(24, 188, 156, 0.35);
+  --pico-primary-inverse: #ffffff;
+
+  --pico-secondary: #34495e;
+  --pico-secondary-background: #34495e;
+  --pico-secondary-hover: #46637f;
+  --pico-secondary-inverse: #ffffff;
+
+  --pico-background-color: #1a252f;
+  --pico-color: #ecf0f1;
+  --pico-muted-color: #95a5a6;
+  --pico-muted-border-color: #2c3e50;
+
+  --pico-card-background-color: #22313f;
+  --pico-card-border-color: #2c3e50;
+  --pico-card-box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+
+  --pico-form-element-background-color: #22313f;
+  --pico-form-element-border-color: #34495e;
+  --pico-form-element-focus-color: #18bc9c;
+}
+
+/* Distinctive Flatly Header: Deep Midnight Navy Navbar */
+header.is-hidden-print {
+  background-color: #2c3e50 !important;
+  border-bottom: 2px solid #1a252f !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15) !important;
+}
+
+header.is-hidden-print nav a,
+header.is-hidden-print nav details.dropdown > summary {
+  color: #ffffff !important;
+  font-weight: 600;
+}
+
+header.is-hidden-print nav a:hover,
+header.is-hidden-print nav details.dropdown > summary:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #18bc9c !important;
+}
