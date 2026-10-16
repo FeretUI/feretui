@@ -47,6 +47,26 @@ class TestFeretUI:
         assert isinstance(response, Response)
         snapshot.assert_match(response.body, 'snapshot.html')
 
+    def test_get_title_static(self) -> None:
+        """Test get_title with static string."""
+        myferet = FeretUI(title="Custom Title")
+        assert myferet.get_title() == "Custom Title"
+
+    def test_get_title_callable(self) -> None:
+        """Test get_title with callable."""
+        def dynamic_title(feret: FeretUI, request: Request | None) -> str:
+            if request and "page" in request.query:
+                return f"{request.query['page'][0]} - My App"
+            return "Default Title"
+
+        myferet = FeretUI(title=dynamic_title)
+        assert myferet.get_title() == "Default Title"
+        session = Session()
+        req = Request(session=session, querystring="page=login")
+        assert myferet.get_title(req) == "login - My App"
+        res = myferet.render(req)
+        assert "login - My App" in res.body
+
     def test_get_static_file_path(self) -> None:
         """Test get_static_file_path."""
         myferet = FeretUI()

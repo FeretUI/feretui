@@ -41,6 +41,7 @@ class TestAction:
         res = goto(feretui, request)
         assert res.body == homepage(feretui, session, {})
         assert res.headers['HX-Push-Url'] == "/?page=homepage"
+        assert res.headers['HX-Title'] == "FeretUI"
 
     def test_goto_without_page(self, feretui, session) -> None:
         request = Request(method=Request.GET, session=session)

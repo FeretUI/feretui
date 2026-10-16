@@ -256,7 +256,7 @@ class Menu(ContextProperties):
         :rtype: str
         """
         return self.request.get_url_from_dict(
-            base_url=f"{ feretui.base_url }/action/goto",
+            base_url=f"{feretui.base_url}/action/goto",
             querystring=querystring,
         )
 

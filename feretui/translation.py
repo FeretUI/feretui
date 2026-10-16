@@ -86,8 +86,8 @@ class TranslatedTemplate:
     def __str__(self: "TranslatedTemplate") -> str:
         """Return the instance as a string."""
         return (
-            f'<{self.__class__.__name__} {getattr(self, "path", "")} '
-            f'addons={self.addons}>'
+            f"<{self.__class__.__name__} {getattr(self, 'path', '')} "
+            f"addons={self.addons}>"
         )
 
     def load(

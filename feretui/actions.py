@@ -73,11 +73,16 @@ def goto(
             },
         )
     url = request.get_url_from_dict(base_url=base_url, querystring=options)
+    headers = {
+        "HX-Push-Url": url,
+    }
+    title = feretui.get_title(request)
+    if title:
+        headers["HX-Title"] = title
+
     return Response(
         Markup.unescape(body),
-        headers={
-            "HX-Push-Url": url,
-        },
+        headers=headers,
     )
 
 

@@ -5,7 +5,7 @@
       <feretui-head>
         <meta charset=utf-8>
         <meta name=viewport content="width=device-width,initial-scale=1">
-        <title>{{ feretui.title }}</title>
+        <title>{{ title or feretui.get_title(request) }}</title>
         <link rel="icon" type="image/png" href="{{ feretui.get_image_url('logo.png') }}">
         {% for compressed, css in feretui.css_import %}
         {% if compressed %}

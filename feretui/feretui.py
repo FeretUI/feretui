@@ -296,17 +296,17 @@ class FeretUI:
     def __init__(
         self: "FeretUI",
         base_url: str = "/feretui",
-        title: str = "FeretUI",
+        title: str | Callable[["FeretUI", Request | None], str] = "FeretUI",
     ) -> "FeretUI":
         """FeretUI class.
 
         :param base_url: The prefix of the url for all internal api
         :type base_url: str
-        :param title: [FeretUI] The title in the html head
-        :type base_url: str
+        :param title: [FeretUI] The title in the html head (str or callable)
+        :type title: str | Callable[["FeretUI", Request | None], str]
         """
         self.base_url: str = base_url
-        self.title: str = title
+        self.title: str | Callable[[FeretUI, Request | None], str] = title
 
         # Translation for this instance
         self.translation = Translation(self)
@@ -324,8 +324,8 @@ class FeretUI:
             return self.asset_manager.get_static_file_path(path) or path
 
         self.jinja_env.compressor_source_dirs = compressor_source_dirs
-        self.jinja_env.compressor_output_dir = f"static/dist/{ base_url }"
-        self.jinja_env.compressor_static_prefix = f"{ base_url }/static"
+        self.jinja_env.compressor_output_dir = f"static/dist/{base_url}"
+        self.jinja_env.compressor_static_prefix = f"{base_url}/static"
 
         # List the template to use to generate the UI
         feretui_path = Path(__file__).parent
@@ -427,6 +427,19 @@ class FeretUI:
             logger.debug("Load the static from entrypoint: %s", i.name)
             i.load()(self)
 
+    def get_title(self: "FeretUI", request: Request | None = None) -> str:
+        """Return the page title.
+
+        :param request: The feretui request, defaults to None
+        :type request: :class:`feretui.request.Request`, optional
+        :return: The page title as a string
+        :rtype: str
+        """
+        if callable(self.title):
+            return str(self.title(self, request))
+
+        return str(self.title)
+
     def render(self: "FeretUI", request: Request) -> Response:
         """Return the render of the main page.
 
@@ -439,9 +452,12 @@ class FeretUI:
         # the local thread to keep the information
         with set_context(self, request):
             page = request.query.get("page", ["homepage"])[0]
+            title = self.get_title(request)
             template = self.render_template(
                 request.session,
                 "feretui-client",
+                title=title,
+                request=request,
                 page=Markup.unescape(
                     self.get_page(page)(
                         self,

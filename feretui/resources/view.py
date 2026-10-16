@@ -191,7 +191,7 @@ class View:
                 options[key] = [value]
 
         return (
-            f"{ feretui.base_url }/action/resource?"
+            f"{feretui.base_url}/action/resource?"
             f"{urllib.parse.urlencode(options, doseq=True)}"
         )
 

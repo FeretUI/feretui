@@ -137,8 +137,8 @@ logger = getLogger(__name__)
 
 
 JINJA_REGEXES = [
-    "\{\{ .* \}\}",  # noqa W605
-    "\{% .* %\}",  # noqa W605
+    r"\{\{ .* \}\}",
+    r"\{% .* %\}",
 ]
 """Regex to indicate if the text is a command jinja"""
 
