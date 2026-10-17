@@ -15,8 +15,6 @@ from sqlalchemy.orm import (
 from starlette.applications import Starlette
 from starlette.middleware import Middleware
 from starlette.middleware.sessions import SessionMiddleware
-from starlette.responses import FileResponse, HTMLResponse, Response
-from starlette.routing import Route
 from wtforms import PasswordField, RadioField, SelectField, StringField
 from wtforms.validators import EqualTo, InputRequired
 
@@ -29,7 +27,6 @@ from feretui import (
     GotoViewAction,
     LCRUDResource,
     Password,
-    Request,
     Resource,
     SelectedRowsAction,
     Session,
@@ -295,7 +292,7 @@ class RUser(LCRUDResource, Resource):
 
 myferet.register_aside_menus('aside1', [
     AsideHeaderMenu('My aside menu', children=[
-        AsideMenu('Home page', page='homepage', icon="fa-solid fa-ghost"),
+        AsideMenu('Home page', page='homepage', icon="ti ti-ghost"),
         AsideMenu('User', page='resource', resource='c1'),
     ]),
 ])
@@ -319,58 +316,7 @@ myferet.register_toolbar_left_menus([
 
 # -- app --
 
-
-async def index(request):
-    with feretui_session(request, MySession) as session:
-        frequest = Request(
-            method=Request.GET,
-            querystring=request.scope['query_string'].decode('utf-8'),
-            headers=request.headers,
-            session=session,
-        )
-        res = myferet.render(frequest)
-        return HTMLResponse(res.body, headers=res.headers)
-
-
-async def feretui_static_file(request):
-    filepath = myferet.get_static_file_path(request.path_params['filepath'])
-    if filepath:
-        return FileResponse(filepath)
-
-    return Response('', status_code=404)
-
-
-async def get_params(request):
-    res = {}
-    res.update({
-        key: request.query_params.getlist(key)
-        for key in request.query_params.keys()
-        if request.query_params.get(key)
-    })
-
-    form = await request.form()
-    res.update({
-        key: form.getlist(key)
-        for key in form.keys()
-        if form.get(key)
-    })
-
-    return res
-
-
-async def call_action(request):
-    with feretui_session(request, MySession) as session:
-        form = await request.form()
-        frequest = Request(
-            method=getattr(Request, request.method),
-            querystring=request.scope['query_string'].decode('utf-8'),
-            form=MultiDict(form),
-            params=await get_params(request),
-            headers=request.headers,
-            session=session,
-        )
-        res = myferet.execute_action(frequest, request.path_params['action'])
-        return HTMLResponse(res.body, headers=res.headers)
+from feretui.ext.starlette import get_routes_for_feretui_client
 
 
 def startup():
@@ -397,16 +343,11 @@ async def lifespan(app):
     yield
 
 
+routes = get_routes_for_feretui_client(myferet, session_cls=MySession)
+
 app = Starlette(
     debug=True,
-    routes=[
-        Route('/', index),
-        Route('/feretui/static/{filepath:path}', feretui_static_file),
-        Route(
-            '/feretui/action/{action:str}',
-            call_action,
-            methods=['GET', 'POST', "DELETE"]),
-    ],
+    routes=routes,
     middleware=[
         Middleware(SessionMiddleware, secret_key="secret"),
     ],

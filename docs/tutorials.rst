@@ -13,23 +13,16 @@ Getting Started
 Installation
 ------------
 
-FeretUI needs some dependencies system::
+FeretUI is **100% pure Python** and requires zero Node.js or npm dependencies.
+Styling is powered by **Pico CSS v2** with a built-in Python CSS compressor and Tabler Icons.
 
-    sudo npm install -g less
-
-
-Install released versions of FeretUI from the Python package index with
-`pip <http://pypi.python.org/pypi/pip>`_ or a similar tool::
-
-    pip install feretui (Not ready yet)
-
-Installation via source distribution is via the ``pyproject.toml`` script::
+Install FeretUI from source or via pip::
 
     pip install .
 
 Installation will add the ``feretui`` commands to the environment.
 
-.. note:: FeretUI use Python version >= 3.10
+.. note:: FeretUI requires Python >= 3.10
 
 
 --------------------------------
@@ -61,6 +54,8 @@ You may defined
 .. include:: menus.rst
 .. include:: form_page_action.rst
 .. include:: resource.rst
+.. include:: kanban.rst
+.. include:: status.rst
 .. include:: translation.rst
 
 
@@ -78,4 +73,22 @@ You can do without directly with SQL or just with full static page.
 Examples
 --------
 
-Some `examples <https://github.com/FeretUI/feretui/tree/main/examples>`_ exist.
+A complete **Mini-ERP** demonstration application is provided in the repository under ``examples/mini_erp/``:
+
+* Shows **SQLAlchemyResource** automated CRUD and filtering.
+* Demonstrates **Kanban view** with drag-and-drop powered by SortableJS.
+* Demonstrates **StatusBarField** workflow pipelines.
+* Demonstrates reactive **@onchange** recalculations with HTMX.
+* Demonstrates **Universal Exports** (CSV and Excel XLSX).
+* Demonstrates **Starlette** ASGI integration.
+
+For a full step-by-step walkthrough and architectural details, see the `Mini-ERP README <https://github.com/FeretUI/feretui/blob/main/examples/mini_erp/README.md>`_ (local file: `examples/mini_erp/README.md <../examples/mini_erp/README.md>`_).
+
+To run the Mini-ERP locally:
+
+.. code-block:: bash
+
+    cd examples/mini_erp
+    python app.py
+
+Then open your browser at ``http://localhost:8000``.

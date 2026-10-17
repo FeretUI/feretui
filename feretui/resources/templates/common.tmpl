@@ -213,4 +213,17 @@
       {% endfor %}
     </article>
   </template>
+  <template id="view-export-button">
+    <a
+      class="button is-secondary is-small outline"
+      role="button"
+      href="{{ url }}"
+      download
+    >
+      <span class="icon">
+        <i class="fa-solid fa-file-export"></i>
+      </span>
+      <span>Export {{ format.upper() }}</span>
+    </a>
+  </template>
 </templates>

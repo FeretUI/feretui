@@ -1,9 +1,6 @@
-from django.urls import path
+from feretui.ext.django import get_urlpatterns_for_feretui_client
 
-from . import views
+from .feret import myferet
+from .views import MySession
 
-urlpatterns = [
-    path("", views.index, name="index"),
-    path("feretui/static/<filepath>", views.feretui_static_file),
-    path("feretui/action/<action>", views.call_action),
-]
+urlpatterns = get_urlpatterns_for_feretui_client(myferet, session_cls=MySession)

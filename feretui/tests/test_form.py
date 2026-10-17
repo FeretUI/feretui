@@ -13,7 +13,7 @@ from wtforms import BooleanField, RadioField, SelectField, StringField
 from wtforms.validators import InputRequired, Length, ValidationError
 
 import feretui as fui
-from feretui.form import FeretUIForm, Password, get_field_translations, no_wrap
+from feretui.form import FeretUIForm, Password, get_field_translations, no_wrap, onchange
 
 
 class TestForm:
@@ -546,3 +546,121 @@ class TestForm:
             (':field:foo:choice:bar:label', 'Bar'),
             (':field:foo:choice:bar:description', 'Description of bar'),
         ]
+
+    def test_onchange_handlers(self) -> None:
+        class CartForm(FeretUIForm):
+            price = StringField()
+            qty = StringField()
+            total = StringField()
+
+            @onchange("price", "qty")
+            def _calc_total(self) -> None:
+                p = int(self.price.data or 0)
+                q = int(self.qty.data or 0)
+                self.total.data = str(p * q)
+
+        assert CartForm.has_onchange() is True
+        handlers = CartForm.get_onchange_handlers()
+        assert "price" in handlers
+        assert "qty" in handlers
+        assert "total" not in handlers
+
+    def test_has_onchange_empty(self) -> None:
+        class SimpleForm(FeretUIForm):
+            name = StringField()
+
+        assert SimpleForm.has_onchange() is False
+        assert SimpleForm.get_onchange_handlers() == {}
+
+    def test_process_onchange(self, feretui, frequest) -> None:
+        class CartForm(FeretUIForm):
+            price = StringField()
+            qty = StringField()
+            total = StringField()
+
+            @onchange("price", "qty")
+            def _calc_total(self) -> None:
+                p = int(self.price.data or 0)
+                q = int(self.qty.data or 0)
+                self.total.data = str(p * q)
+
+        form = CartForm(MultiDict(price="10", qty="3"))
+        modified = form.process_onchange("qty")
+        assert modified == ["total"]
+        assert form.total.data == "30"
+
+        # Field with no handlers returns empty list
+        assert form.process_onchange("unrelated") == []
+
+    def test_onchange_render_attributes(self, feretui, frequest) -> None:
+        class CartForm(FeretUIForm):
+            price = StringField()
+            qty = StringField()
+            total = StringField()
+
+            @onchange("price")
+            def _calc(self) -> None:
+                pass
+
+        form = CartForm()
+        price_html = form.price()
+        assert 'hx-post="/feretui/action/resource?action=onchange&field=price"' in price_html
+        assert 'id="field-price-wrapper"' in price_html
+        assert 'id="field-total-wrapper"' in form.total()
+
+    def test_onchange_wrappers_bool_radio_fieldset(
+        self,
+        feretui,
+        frequest,
+    ) -> None:
+        from wtforms import BooleanField, FormField, RadioField
+
+        from feretui.form import wrap_bool, wrap_fieldset, wrap_radio
+
+        class SubForm(FeretUIForm):
+            item = StringField()
+
+        class ComplexForm(FeretUIForm):
+            agree = BooleanField()
+            choice = RadioField(choices=[("a", "A"), ("b", "B")])
+            sub = FormField(SubForm)
+
+            @onchange("agree")
+            def _change_agree(self) -> None:
+                pass
+
+        form = ComplexForm()
+        # Test wrap_bool with wrapper_id and oob
+        b_html = wrap_bool(
+            feretui,
+            frequest.session,
+            form.agree,
+            wrapper_id="wrap-agree",
+            oob=True,
+        )
+        assert 'id="wrap-agree"' in b_html
+        assert 'hx-swap-oob="true"' in b_html
+
+        # Test wrap_radio with wrapper_id and oob
+        r_html = wrap_radio(
+            feretui,
+            frequest.session,
+            form.choice,
+            wrapper_id="wrap-choice",
+            oob=False,
+        )
+        assert 'id="wrap-choice"' in r_html
+        assert 'hx-swap-oob="true"' not in r_html
+
+        # Test wrap_fieldset with wrapper_id and oob
+        f_html = wrap_fieldset(
+            feretui,
+            frequest.session,
+            form.sub,
+            wrapper_id="wrap-sub",
+            oob=True,
+        )
+        assert 'id="wrap-sub"' in f_html
+        assert 'hx-swap-oob="true"' in f_html
+
+

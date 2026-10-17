@@ -60,11 +60,15 @@ test = [
     'flake8-logging',
     'flake8-bandit',
     'pytest-snapshot',
-    'webtest',
+    'werkzeug',
     'pre-commit',
 ]
 bottle = ['bottle', 'BottleSessions']
 flask = ['flask']
+starlette = ['starlette', 'python-multipart', 'httpx2']
+django = ['django']
+sqla = ['sqlalchemy']
+export = ['openpyxl']
 
 [project.scripts]
 export-feretui-catalog = "feretui:scripts.export_catalog"

@@ -166,4 +166,5 @@ cython_debug/
 sess_dir
 
 resource.db
+*.db
 examples/anyblok/session/

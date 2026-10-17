@@ -380,3 +380,42 @@ class TestFeretUI:
         debug_css = "/* keep */ a { color: blue; }"
         assert PurePythonCSSCompressor.compile(debug_css, debug=True) == debug_css
 
+    def test_register_plugins_from_entrypoint(self, monkeypatch) -> None:
+        """Test plugin auto-discovery via entry points."""
+
+        class MockEntryPoint:
+            def __init__(self, name, target):
+                self.name = name
+                self.target = target
+
+            def load(self):
+                return self.target
+
+        class SetupPlugin:
+            def setup(self, feretui):
+                self.called = True
+
+        def callable_plugin(feretui):
+            return "callable_loaded"
+
+        plain_plugin = "plain_value"
+
+        eps = [
+            MockEntryPoint("setup_plugin", SetupPlugin),
+            MockEntryPoint("callable_plugin", callable_plugin),
+            MockEntryPoint("plain_plugin", plain_plugin),
+        ]
+
+        def fake_entry_points(group=None):
+            if group == "feretui.plugins":
+                return eps
+            return []
+
+        monkeypatch.setattr("feretui.feretui.entry_points", fake_entry_points)
+        feret = FeretUI()
+        assert "setup_plugin" in feret.plugins
+        assert feret.plugins["setup_plugin"].called is True
+        assert feret.plugins["callable_plugin"] == "callable_loaded"
+        assert feret.plugins["plain_plugin"] == "plain_value"
+
+

@@ -49,9 +49,17 @@ from feretui.resources.actions import (  # noqa: F401
 )
 from feretui.resources.create import CResource
 from feretui.resources.delete import DResource
+from feretui.resources.kanban import (  # noqa: F401
+    KanbanView,
+    KResource,
+)
 from feretui.resources.list import LResource
 from feretui.resources.read import RResource
 from feretui.resources.resource import Resource  # noqa: F401
+from feretui.resources.status import (  # noqa: F401
+    StatusBarField,
+    StatusBarWidget,
+)
 from feretui.resources.update import UResource
 
 

@@ -15,6 +15,7 @@ from polib import POFile
 from wtforms import StringField
 
 from feretui.exceptions import ViewActionError, ViewError
+from feretui.form import FeretUIForm, onchange
 from feretui.request import Request
 from feretui.resources.actions import (
     Actionset,
@@ -542,3 +543,102 @@ class TestTemplateMixinForView:
         view = MyView(resource)
         view.export_catalog(feretui.translation, po)
         assert len(po) == 4
+
+    def test_onchange_missing_form_cls_raises(self, feretui, session) -> None:
+        class DummyForm(FeretUIForm):
+            pk = StringField()
+
+        class DummyView(TemplateMixinForView, View):
+            code = "dummy"
+            Form = DummyForm
+
+        class DummyResource(Resource):
+            code = "dummy_res"
+
+        res = DummyResource()
+        res.context = "test"
+        view = DummyView(res)
+        view.form_cls = None
+        request = Request(session=session, method=Request.POST, form=MultiDict())
+        with pytest.raises(ViewActionError, match="has no form_cls"):
+            view.onchange(feretui, request)
+
+    def test_onchange_executes_handlers(self, feretui, session) -> None:
+        class OrderForm(FeretUIForm):
+            pk = StringField()
+            price = StringField()
+            qty = StringField()
+            total = StringField()
+
+            @onchange("qty", "price")
+            def _calc(self) -> None:
+                p = int(self.price.data or 0)
+                q = int(self.qty.data or 0)
+                self.total.data = str(p * q)
+
+        class OrderView(TemplateMixinForView, View):
+            code = "order_view"
+            Form = OrderForm
+
+        class OrderResource(Resource):
+            code = "order"
+
+        res = OrderResource()
+        res.context = "test"
+        view = OrderView(res)
+        request = Request(
+            session=session,
+            method=Request.POST,
+            querystring="field=qty",
+            form=MultiDict([("price", "15"), ("qty", "3"), ("total", "0")]),
+        )
+        response = view.onchange(feretui, request)
+        assert response.status_code == 200
+        assert 'id="field-total-wrapper"' in response.body
+        assert 'hx-swap-oob="true"' in response.body
+        assert 'value="45"' in response.body
+        assert '<div id="feretui-onchange-alert" hx-swap-oob="true"></div>' in response.body
+
+    def test_onchange_with_warning_and_params(self, feretui, session) -> None:
+        class WarningForm(FeretUIForm):
+            pk = StringField()
+            discount = StringField()
+
+            @onchange("discount")
+            def _check_discount(self) -> None:
+                val = int(self.discount.data or 0)
+                if val > 50:
+                    self.onchange_warning = "High discount applied!"
+
+        class WarningView(TemplateMixinForView, View):
+            code = "warn_view"
+            Form = WarningForm
+
+        class WarningResource(Resource):
+            code = "warn_res"
+
+        res = WarningResource()
+        res.context = "test"
+        view = WarningView(res)
+        # Pass field in params as a list
+        request = Request(
+            session=session,
+            method=Request.POST,
+            params={"field": ["discount"]},
+            form=MultiDict([("discount", "70")]),
+        )
+        response = view.onchange(feretui, request)
+        assert response.status_code == 200
+        assert 'id="feretui-onchange-alert"' in response.body
+        assert "High discount applied!" in response.body
+
+        # Pass field in params as single string
+        request2 = Request(
+            session=session,
+            method=Request.POST,
+            params={"field": "discount"},
+            form=MultiDict([("discount", "10")]),
+        )
+        response2 = view.onchange(feretui, request2)
+        assert '<div id="feretui-onchange-alert" hx-swap-oob="true"></div>' in response2.body
+

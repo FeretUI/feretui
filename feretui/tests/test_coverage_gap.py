@@ -1,5 +1,4 @@
 
-import pytest
 from wtforms import BooleanField, RadioField, StringField
 from wtforms.validators import InputRequired
 from feretui.form import FeretUIForm

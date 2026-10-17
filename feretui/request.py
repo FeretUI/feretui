@@ -153,6 +153,20 @@ class Request:
 
         return f"{base_url}?{urllib.parse.urlencode(querystring, doseq=True)}"
 
+    def _get_header(self: "Request", name: str) -> str:
+        """Get header value case-insensitively.
+
+        :param name: Header name
+        :type name: str
+        :return: Header value
+        :rtype: str
+        """
+        for k, v in self.headers.items():
+            if k.lower() == name.lower():
+                return v
+
+        return self.headers[name]
+
     def get_query_string_from_current_url(
         self: "Request",
     ) -> dict[str, list[str]]:
@@ -161,16 +175,24 @@ class Request:
         :return: The converted querystring.
         :rtype: dict[str, list[str]]
         """
-        url = self.headers["Hx-Current-Url"]
-        url = urllib.parse.urlparse(url)
-        return urllib.parse.parse_qs(url.query)
+        try:
+            url = self._get_header("Hx-Current-Url")
+        except KeyError:
+            return self.query.copy()
 
-    def get_base_url_from_current_url(self: "Request") -> dict[str, list[str]]:
-        """Get the querystring from the current client URL.
+        parsed = urllib.parse.urlparse(url)
+        return urllib.parse.parse_qs(parsed.query)
 
-        :return: The converted querystring.
-        :rtype: dict[str, list[str]]
+    def get_base_url_from_current_url(self: "Request") -> str:
+        """Get the base URL from the current client URL.
+
+        :return: The base URL path.
+        :rtype: str
         """
-        url = self.headers["Hx-Current-Url"]
-        url = urllib.parse.urlparse(url)
-        return url.path
+        try:
+            url = self._get_header("Hx-Current-Url")
+        except KeyError:
+            return "/"
+
+        parsed = urllib.parse.urlparse(url)
+        return parsed.path

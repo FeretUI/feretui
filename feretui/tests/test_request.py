@@ -35,6 +35,8 @@ class TestRequest:
         )
         assert request.session is session
         assert request.method is Request.POST
+        assert str(Request.POST) == "POST"
+        assert repr(Request.POST) == "POST"
         assert request.query == {'a': ['b']}
 
     def test_request_wrong_form(self) -> None:
@@ -73,4 +75,25 @@ class TestRequest:
         """Test get_query_string_from_current_url."""
         session = Session()
         request = Request(session, headers={'Hx-Current-Url': '/?a=b'})
-        assert request.get_query_string_from_current_url()
+        assert request.get_query_string_from_current_url() == {'a': ['b']}
+
+    def test_get_base_url_from_current_url(self) -> None:
+        """Test get_base_url_from_current_url."""
+        session = Session()
+        request = Request(session, headers={'hx-current-url': '/admin/dashboard?a=b'})
+        assert request.get_base_url_from_current_url() == '/admin/dashboard'
+
+    def test_get_header_missing(self) -> None:
+        """Test _get_header with missing header raises KeyError."""
+        session = Session()
+        request = Request(session, headers={})
+        with pytest.raises(KeyError):
+            request._get_header("Non-Existent")
+
+    def test_get_query_string_fallback(self) -> None:
+        """Test fallback when Hx-Current-Url is missing."""
+        session = Session()
+        request = Request(session, querystring="x=1&y=2", headers={})
+        assert request.get_query_string_from_current_url() == {'x': ['1'], 'y': ['2']}
+        assert request.get_base_url_from_current_url() == '/'
+

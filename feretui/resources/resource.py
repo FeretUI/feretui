@@ -90,8 +90,7 @@ class Resource:
         if not cls.menu.label:
             cls.menu.label = cls.label
 
-        if cls.menu_visibility:
-            cls.menu.visible_callback = cls.menu_visibility
+        cls.menu.visible_callback = cls.menu_visibility
 
         cls.menu.querystring["resource"] = cls.code
         cls.context = f"resource:{cls.code}"

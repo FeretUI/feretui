@@ -37,7 +37,7 @@ Added the also the validators
 from collections.abc import Callable
 from typing import TYPE_CHECKING, Any
 
-from markupsafe import Markup
+from markupsafe import Markup, escape
 from password_validator import PasswordValidator
 from polib import POFile
 from wtforms.fields import (
@@ -45,6 +45,7 @@ from wtforms.fields import (
     Field,
     FormField,
     RadioField,
+    SelectField,
     SelectFieldBase,
     SelectMultipleField,
 )
@@ -102,8 +103,10 @@ def wrap_input(
 
     c = kwargs.pop("class", "") or kwargs.pop("class_", "")
     kwargs["class"] = "{} {}".format(" ".join(input_class), c)
+    wrapper_id = kwargs.pop("wrapper_id", None)
+    oob = kwargs.pop("oob", False)
 
-    return Markup.unescape(
+    html = Markup.unescape(
         feretui.render_template(
             session,
             "feretui-input-field",
@@ -115,6 +118,11 @@ def wrap_input(
             errors=field.errors,
         ),
     )
+    if wrapper_id:
+        oob_attr = ' hx-swap-oob="true"' if oob else ""
+        return Markup(f'<div id="{wrapper_id}"{oob_attr}>{html}</div>')  # noqa: S704
+
+    return html
 
 
 def wrap_bool(
@@ -140,7 +148,10 @@ def wrap_bool(
         read_only(field)
         readonly = True
 
-    return Markup.unescape(
+    wrapper_id = kwargs.pop("wrapper_id", None)
+    oob = kwargs.pop("oob", False)
+
+    html = Markup.unescape(
         feretui.render_template(
             session,
             "feretui-bool-field",
@@ -151,6 +162,11 @@ def wrap_bool(
             errors=field.errors,
         ),
     )
+    if wrapper_id:
+        oob_attr = ' hx-swap-oob="true"' if oob else ""
+        return Markup(f'<div id="{wrapper_id}"{oob_attr}>{html}</div>')  # noqa: S704
+
+    return html
 
 
 def wrap_radio(
@@ -187,7 +203,10 @@ def wrap_radio(
         kwargs["disabled"] = True
         readonly = True
 
-    return Markup.unescape(
+    wrapper_id = kwargs.pop("wrapper_id", None)
+    oob = kwargs.pop("oob", False)
+
+    html = Markup.unescape(
         feretui.render_template(
             session,
             template_id,
@@ -200,6 +219,11 @@ def wrap_radio(
             errors=field.errors,
         ),
     )
+    if wrapper_id:
+        oob_attr = ' hx-swap-oob="true"' if oob else ""
+        return Markup(f'<div id="{wrapper_id}"{oob_attr}>{html}</div>')  # noqa: S704
+
+    return html
 
 
 def wrap_fieldset(
@@ -233,7 +257,10 @@ def wrap_fieldset(
         kwargs["disabled"] = True
         readonly = True
 
-    return Markup.unescape(
+    wrapper_id = kwargs.pop("wrapper_id", None)
+    oob = kwargs.pop("oob", False)
+
+    html = Markup.unescape(
         feretui.render_template(
             session,
             "feretui-fieldset",
@@ -245,6 +272,11 @@ def wrap_fieldset(
             errors=field.errors,
         ),
     )
+    if wrapper_id:
+        oob_attr = ' hx-swap-oob="true"' if oob else ""
+        return Markup(f'<div id="{wrapper_id}"{oob_attr}>{html}</div>')  # noqa: S704
+
+    return html
 
 
 def wrap_select_multiple(
@@ -291,6 +323,185 @@ def no_wrap(
     :rtype: Markup_
     """
     return field.widget(field, **kwargs)
+
+
+class StatusBarWidget:
+    """Widget for rendering a pipeline/workflow status bar."""
+
+    def __init__(self: "StatusBarWidget", clickable: bool = True) -> None:
+        """Initialize StatusBarWidget.
+
+        :param clickable: Whether stage buttons can be clicked to update state.
+        :type clickable: bool
+        """
+        self.clickable = clickable
+
+    def __call__(
+        self: "StatusBarWidget",
+        field: SelectField,
+        **kwargs: dict,
+    ) -> Markup:
+        """Render the status bar for a WTForms field.
+
+        :param field: The WTForms field.
+        :type field: :class:`wtforms.fields.SelectField`
+        :return: HTML markup.
+        :rtype: :class:`markupsafe.Markup`
+        """
+        choices = getattr(field, "choices", [])
+        current_value = str(field.data) if field.data is not None else ""
+        readonly = kwargs.get("readonly", False) or not self.clickable
+        field_id = kwargs.get("id", field.id)
+        field_name = kwargs.get("name", field.name)
+
+        return self.render(
+            stages=choices,
+            current=current_value,
+            readonly=readonly,
+            field_id=field_id,
+            field_name=field_name,
+        )
+
+    def render(
+        self: "StatusBarWidget",
+        stages: list[tuple[str, str]],
+        current: str | None = None,
+        readonly: bool = False,
+        field_id: str = "status-bar",
+        field_name: str = "status",
+    ) -> Markup:
+        """Render stages into an HTML status bar.
+
+        :param stages: List of (key, label) tuples.
+        :type stages: list[tuple[str, str]]
+        :param current: Active stage key.
+        :type current: str | None
+        :param readonly: Whether clicking is disabled.
+        :type readonly: bool
+        :param field_id: HTML id attribute for hidden input.
+        :type field_id: str
+        :param field_name: HTML name attribute for hidden input.
+        :type field_name: str
+        :return: HTML markup.
+        :rtype: :class:`markupsafe.Markup`
+        """
+        keys = [str(k) for k, _ in stages]
+        current_str = str(current) if current is not None else ""
+        current_idx = keys.index(current_str) if current_str in keys else -1
+
+        items = []
+        for idx, (val, label) in enumerate(stages):
+            val_str = str(val)
+            if idx == current_idx:
+                state_cls = "is-current current"
+                aria = ' aria-current="step"'
+            elif current_idx != -1 and idx < current_idx:
+                state_cls = "is-passed passed"
+                aria = ""
+            else:
+                state_cls = "is-future future"
+                aria = ""
+
+            if readonly or val_str == current_str:
+                btn = (
+                    f'<button type="button" class="status-step {state_cls}"'
+                    f" disabled{aria}>{escape(label)}</button>"
+                )
+            else:
+                onclick = (
+                    f"var el=document.getElementById('{escape(field_id)}');"
+                    f"if(el){{el.value='{escape(val_str)}';"
+                    "el.dispatchEvent(new Event('change',{bubbles:true}));}"
+                )
+                btn = (
+                    f'<button type="button" class="status-step {state_cls}"'
+                    f' onclick="{onclick}"{aria}>{escape(label)}</button>'
+                )
+
+            items.append(f'<li class="{state_cls}">{btn}</li>')
+
+        hidden_input = (
+            f'<input type="hidden" name="{escape(field_name)}"'
+            f' id="{escape(field_id)}" value="{escape(current_str)}">'
+        )
+        steps_html = "".join(items)
+        html = (
+            '<nav class="feretui-status-bar" aria-label="Workflow Status">'
+            f"{hidden_input}"
+            f'<ul class="status-bar-steps">{steps_html}</ul>'
+            "</nav>"
+        )
+        return Markup(html)  # noqa: S704
+
+
+class StatusBarField(SelectField):
+    """Field for workflow status bar pipeline."""
+
+    widget = StatusBarWidget()
+
+    def __init__(
+        self: "StatusBarField",
+        label: str | None = None,
+        validators: list | None = None,
+        choices: list[tuple[str, str]] | None = None,
+        clickable: bool = True,
+        **kwargs: dict,
+    ) -> None:
+        """Initialize StatusBarField.
+
+        :param label: Field label.
+        :type label: str | None
+        :param validators: Field validators.
+        :type validators: list | None
+        :param choices: Stage choices (key, label).
+        :type choices: list[tuple[str, str]] | None
+        :param clickable: Whether user can click to change stages.
+        :type clickable: bool
+        """
+        super().__init__(
+            label=label,
+            validators=validators,
+            choices=choices or [],
+            **kwargs,
+        )
+        self.widget = StatusBarWidget(clickable=clickable)
+
+
+def wrap_status_bar(
+    feretui: "FeretUI",
+    session: "Session",
+    field: StatusBarField,
+    **kwargs: dict,
+) -> Markup:
+    """Render status bar field with optional wrapper and OOB support.
+
+    :param feretui: The feretui client.
+    :type feretui: :class:`feretui.feretui.FeretUI`
+    :param session: The Session.
+    :type session: :class:`feretui.session.Session`
+    :param field: The status bar field.
+    :type field: :class:`StatusBarField`
+    :return: HTML markup.
+    :rtype: :class:`markupsafe.Markup`
+    """
+    wrapper_id = kwargs.pop("wrapper_id", None)
+    oob = kwargs.pop("oob", False)
+    widget_html = field.widget(field, **kwargs)
+    html = Markup.unescape(
+        feretui.render_template(
+            session,
+            "feretui-status-bar-field",
+            label=None if kwargs.pop("nolabel", False) else field.label,
+            widget=widget_html,
+            description=field.description,
+            errors=field.errors,
+        ),
+    )
+    if wrapper_id:
+        oob_attr = ' hx-swap-oob="true"' if oob else ""
+        return Markup(f'<div id="{wrapper_id}"{oob_attr}>{html}</div>')  # noqa: S704
+
+    return html
 
 
 def gettext(
@@ -403,6 +614,35 @@ class FormTranslations:
         return self.gettext(plural)
 
 
+def onchange(*fields: str) -> Callable[[Callable], Callable]:
+    """Register a method of FeretUIForm as an onchange handler for fields.
+
+    ::
+
+        class OrderLineForm(FeretUIForm):
+            price = DecimalField()
+            quantity = IntegerField()
+            subtotal = DecimalField()
+
+            @onchange("price", "quantity")
+            def _calc_subtotal(self) -> None:
+                self.subtotal.data = (
+                    (self.price.data or 0) * (self.quantity.data or 0)
+                )
+
+    :param fields: The field names that trigger this onchange method
+    :type fields: tuple[str, ...]
+    :return: Decorator function
+    :rtype: Callable
+    """
+
+    def decorator(func: Callable) -> Callable:
+        func._onchange_fields = list(fields)
+        return func
+
+    return decorator
+
+
 class FeretUIForm(Form):
     """Form base class.
 
@@ -410,6 +650,7 @@ class FeretUIForm(Form):
 
     * translation
     * bulma renderer
+    * onchange HTMX reactivity
 
     It is not required to used it. If the translation or the renderer is not
     automaticly done by FeretUI.
@@ -421,12 +662,69 @@ class FeretUIForm(Form):
 
     """
 
+    onchange_warning: str | None = None
+
+    @classmethod
+    def get_onchange_handlers(
+        cls: type["FeretUIForm"],
+    ) -> dict[str, list[Callable]]:
+        """Return mapping of triggering field name to list of handler methods.
+
+        :return: Dict mapping field names to list of handler callables
+        :rtype: dict[str, list[Callable]]
+        """
+        handlers: dict[str, list[Callable]] = {}
+        for attr_name in dir(cls):
+            attr = getattr(cls, attr_name, None)
+            if callable(attr) and hasattr(attr, "_onchange_fields"):
+                for field_name in attr._onchange_fields:
+                    handlers.setdefault(field_name, []).append(attr)
+        return handlers
+
+    @classmethod
+    def has_onchange(cls: type["FeretUIForm"]) -> bool:
+        """Return True if form has any onchange handlers.
+
+        :return: True if form has onchange handlers
+        :rtype: bool
+        """
+        for attr_name in dir(cls):
+            attr = getattr(cls, attr_name, None)
+            if callable(attr) and hasattr(attr, "_onchange_fields"):
+                return True
+        return False
+
+    def process_onchange(
+        self: "FeretUIForm",
+        changed_field: str,
+    ) -> list[str]:
+        """Execute onchange handlers for `changed_field`.
+
+        :param changed_field: Name of the field that changed
+        :type changed_field: str
+        :return: List of names of fields that were modified by handlers
+        :rtype: list[str]
+        """
+        handlers = self.get_onchange_handlers().get(changed_field, [])
+        initial_values = {
+            name: getattr(self, name).data for name in self._fields
+        }
+        for handler in handlers:
+            handler(self)
+
+        return [
+            name
+            for name, initial_val in initial_values.items()
+            if getattr(self, name).data != initial_val
+        ]
+
     WRAPPERS = {
         BooleanField: wrap_bool,
         FormField: wrap_fieldset,
         RadioField: wrap_radio,
         SelectFieldBase._Option: no_wrap,
         SelectMultipleField: wrap_select_multiple,
+        StatusBarField: wrap_status_bar,
     }
     DEFAULT_WRAPPER = wrap_input
     TRANSLATED_MESSAGES = [
@@ -551,7 +849,7 @@ class FeretUIForm(Form):
         ) -> Field:
             """Bind the field to the form.
 
-            Added translation for the field
+            Added translation for the field and automatic HTMX onchange hook
             """
             args, kwargs = get_field_translations(
                 form.__class__,
@@ -559,11 +857,31 @@ class FeretUIForm(Form):
                 options,
                 gettext,
             )
-            return UnboundField(
+            field_name = options.get("name")
+            if isinstance(form, FeretUIForm) and form.__class__.has_onchange():
+                handlers = form.__class__.get_onchange_handlers()
+                if field_name in handlers:
+                    render_kw = kwargs.setdefault("render_kw", {})
+                    if (
+                        "hx-post" not in render_kw
+                        and "hx_post" not in render_kw
+                    ):
+                        feret = cvar_feretui.get()
+                        base_url = feret.base_url if feret else "/feretui"
+                        render_kw["hx-post"] = (
+                            f"{base_url}/action/resource"
+                            f"?action=onchange&field={field_name}"
+                        )
+                        render_kw["hx-trigger"] = "change"
+                        render_kw["hx-swap"] = "none"
+
+            bound_field = UnboundField(
                 unbound_field.field_class,
                 *args,
                 **kwargs,
             ).bind(form=form, **options)
+            bound_field._form = form
+            return bound_field
 
         def render_field(self: Any, field: Field, render_kw: dict) -> Markup:
             """Render the field.
@@ -579,6 +897,15 @@ class FeretUIForm(Form):
             if other_kw is not None:
                 other_kw = {clean_key(k): v for k, v in other_kw.items()}
                 render_kw = dict(other_kw, **render_kw)
+
+            form = getattr(field, "_form", None)
+            if (
+                form is not None
+                and hasattr(form.__class__, "has_onchange")
+                and form.__class__.has_onchange()
+                and "wrapper_id" not in render_kw
+            ):
+                render_kw["wrapper_id"] = f"field-{field.name}-wrapper"
 
             wrapper = FeretUIForm.WRAPPERS.get(
                 field.__class__,

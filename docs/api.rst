@@ -127,6 +127,27 @@ feretui.resources modules
    :members:
    :private-members:
 
+.. automodule:: feretui.resources.kanban
+   :members:
+   :private-members:
+
+.. automodule:: feretui.resources.status
+   :members:
+   :private-members:
+
+
+feretui.contrib module
+----------------------
+
+.. automodule:: feretui.contrib
+   :members:
+
+feretui.contrib.sqla module
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: feretui.contrib.sqla
+   :members:
+
 
 feretui.helper module
 ---------------------
@@ -168,4 +189,22 @@ feretui.ext.bottle module
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. automodule:: feretui.ext.bottle
+   :members:
+
+feretui.ext.flask module
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: feretui.ext.flask
+   :members:
+
+feretui.ext.starlette module
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: feretui.ext.starlette
+   :members:
+
+feretui.ext.django module
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: feretui.ext.django
    :members:

@@ -19,6 +19,7 @@ from lxml.html import fromstring
 from markupsafe import Markup
 from polib import POFile
 
+from feretui.context import set_context
 from feretui.exceptions import ViewActionError, ViewError
 from feretui.form import FeretUIForm
 from feretui.request import Request
@@ -817,3 +818,58 @@ class TemplateMixinForView:
                 **self.render_kwargs(feretui, session, options),
             ),
         )
+
+    @view_action_validator(methods=[Request.POST])
+    def onchange(
+        self: "TemplateMixinForView",
+        feretui: "FeretUI",
+        request: Request,
+    ) -> Response:
+        """Handle field onchange action and return out-of-band updates.
+
+        :param feretui: The FeretUI client
+        :type feretui: :class:`feretui.feretui.FeretUI`
+        :param request: The request
+        :type request: :class:`feretui.request.Request`
+        :return: HTMX out-of-band updates
+        :rtype: :class:`feretui.response.Response`
+        """
+        field = request.query.get("field", [None])[0]
+        if not field and request.params:
+            param_field = request.params.get("field", [None])
+            if isinstance(param_field, list):
+                field = param_field[0]
+            else:
+                field = param_field
+
+        form_cls = getattr(self, "form_cls", None)
+        if not form_cls:
+            raise ViewActionError(f"View {self} has no form_cls")
+
+        with set_context(feretui, request):
+            form = form_cls(request.form)
+            modified_fields: list[str] = []
+            if hasattr(form, "process_onchange") and field:
+                modified_fields = form.process_onchange(field)
+
+            parts: list[str] = []
+            for name in modified_fields:
+                if name in form:
+                    rendered = form.Meta().render_field(
+                        form[name],
+                        {"wrapper_id": f"field-{name}-wrapper", "oob": True},
+                    )
+                    parts.append(str(rendered))
+
+            warning = getattr(form, "onchange_warning", None)
+            if warning:
+                parts.append(
+                    f'<div id="feretui-onchange-alert" hx-swap-oob="true" '
+                    f'class="notification is-warning"><p>{warning}</p></div>'
+                )
+            else:
+                parts.append(
+                    '<div id="feretui-onchange-alert" hx-swap-oob="true"></div>'
+                )
+
+        return Response("".join(parts), headers={"Content-Type": "text/html"})

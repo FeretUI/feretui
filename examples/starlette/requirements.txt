@@ -1,5 +1,6 @@
 starlette
 uvicorn
 python-multipart
+httpx2
 itsdangerous
 sqlalchemy

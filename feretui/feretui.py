@@ -47,6 +47,7 @@ from importlib.metadata import entry_points
 from io import IOBase
 from logging import getLogger
 from pathlib import Path
+from typing import Any
 
 from jac import CompressorExtension
 from jac.config import Config
@@ -163,6 +164,10 @@ def import_feretui_addons(feretui: "FeretUI") -> None:
         "sortable.js",
         Path(feretui_path, "static", "sortable.1.15.2.min.js"),
     )
+    feretui.register_js(
+        "feretui.js",
+        Path(feretui_path, "static", "feretui.js"),
+    )
 
     # ---- CSS ----
     feretui.register_css(
@@ -187,7 +192,7 @@ def import_feretui_addons(feretui: "FeretUI") -> None:
         compress=False,
     )
 
-    # ---- Font ----
+    # ---- FontAwesome Fonts ----
     for font in (
         "fa-brands-400.ttf",
         "fa-brands-400.woff2",
@@ -205,6 +210,32 @@ def import_feretui_addons(feretui: "FeretUI") -> None:
                 "static",
                 "fontawesome-free-6.5.1-web",
                 "webfonts",
+                font,
+            ),
+        )
+
+    # ---- Tabler Icons ----
+    feretui.register_css(
+        "tabler-icons/tabler-icons.min.css",
+        Path(
+            feretui_path,
+            "static",
+            "tabler-icons",
+            "tabler-icons.min.css",
+        ),
+        compress=False,
+    )
+    for font in (
+        "tabler-icons.woff2",
+        "tabler-icons.ttf",
+    ):
+        feretui.register_font(
+            f"tabler-icons/fonts/{font}",
+            Path(
+                feretui_path,
+                "static",
+                "tabler-icons",
+                "fonts",
                 font,
             ),
         )
@@ -249,7 +280,7 @@ class FeretUI:
     * base_url[str] : The url for this client
     * title[str] : The title of the html head
     * jinja_env[Environment] : The environnement of jinja
-    * template[:class: `feretui.template.Template`]: Templates load
+    * template[:class:`feretui.template.Template`]: Templates load
     * statics[dict[str, str]]: The static filepath on server stored by name
     * css_import[list[str]] : List of the urls of the css to load
     * js_import[list[str]] : List of the urls of the script javascript to load
@@ -262,50 +293,57 @@ class FeretUI:
       or right the value are instances of the menu.
     * asides[dict[str, :class:`feretui.menus.AsideMenu`]] : The key is the
       code for the aside-menu page, the values are the instance of the menu.
-    * resources[dict[str, :class:`feretui.resource.Resource]] : The key
-      is the code of the resource and value the class.
+    * resources[dict[str, :class:`~feretui.resources.resource.Resource`]] :
+      The key is the code of the resource and value the class.
 
-    The instance provide methodes to use
+    The instance provide methodes to use:
 
     * Templating : Import and get the template, need for display the client.
-        * :meth:`.FeretUI.register_template_file`
-        * :meth:`.FeretUI.render_template`
+
+      * :meth:`.FeretUI.register_template_file`
+      * :meth:`.FeretUI.render_template`
 
     * Static files : Declare static file to import in the client.
-        * :meth:`.FeretUI.register_js`
-        * :meth:`.FeretUI.register_css`
-        * :meth:`.FeretUI.register_font`
-        * :meth:`.FeretUI.register_image`
-        * :meth:`.FeretUI.register_theme`
+
+      * :meth:`.FeretUI.register_js`
+      * :meth:`.FeretUI.register_css`
+      * :meth:`.FeretUI.register_font`
+      * :meth:`.FeretUI.register_image`
+      * :meth:`.FeretUI.register_theme`
 
     * Action : Declare action called by the web server api.
-        * :meth:`.FeretUI.register_action`
-        * :meth:`.FeretUI.execute_action`
+
+      * :meth:`.FeretUI.register_action`
+      * :meth:`.FeretUI.execute_action`
 
     * Page : Declare page called to render inside html body main
-        * :meth:`.FeretUI.register_page`
-        * :meth:`.FeretUI.register_static_page`
-        * :meth:`.FeretUI.get_page`
+
+      * :meth:`.FeretUI.register_page`
+      * :meth:`.FeretUI.register_static_page`
+      * :meth:`.FeretUI.get_page`
 
     * Menu : Declare the menus registered in the feretui instance
-        * :meth:`.FeretUI.register_toolbar_left_menus`
-        * :meth:`.FeretUI.register_toolbar_right_menus`
-        * :meth:`.FeretUI.register_aside_menus`
-        * :meth:`.FeretUI.register_user_menus`
-        * :meth:`.FeretUI.register_auth_menus`
+
+      * :meth:`.FeretUI.register_toolbar_left_menus`
+      * :meth:`.FeretUI.register_toolbar_right_menus`
+      * :meth:`.FeretUI.register_aside_menus`
+      * :meth:`.FeretUI.register_user_menus`
+      * :meth:`.FeretUI.register_auth_menus`
 
     * Form : Declare the WTForm class in the feretui instance, need for the
       translation
-        * :meth:`.FeretUI.register_form`
+
+      * :meth:`.FeretUI.register_form`
 
     * Resource: Declare the resource to CRUD
-        * :meth:`.FeretUI.register_resource`
-        * :meth:`.FeretUI.get_resource`
 
+      * :meth:`.FeretUI.register_resource`
+      * :meth:`.FeretUI.get_resource`
 
     * Translations : Import and export the catalog
-        * :meth:`.FeretUI.export_catalog`
-        * :meth:`.FeretUI.load_catalog`
+
+      * :meth:`.FeretUI.export_catalog`
+      * :meth:`.FeretUI.load_catalog`
 
     """
 
@@ -429,6 +467,8 @@ class FeretUI:
         self.register_page(name="resource")(resource_page)
 
         self.register_addons_from_entrypoint()
+        self.plugins: dict[str, Any] = {}
+        self.register_plugins_from_entrypoint()
 
         # Resources
         self.resources: dict[str, Resource] = {}
@@ -449,6 +489,29 @@ class FeretUI:
         for i in entry_points(group="feretui.addons"):
             logger.debug("Load the static from entrypoint: %s", i.name)
             i.load()(self)
+
+    def register_plugins_from_entrypoint(self: "FeretUI") -> None:
+        """Load external plugins from entry point group 'feretui.plugins'.
+
+        The declaration of entry points is done in *pyproject.toml*:
+
+        ::
+
+            [project.entry-points."feretui.plugins"]
+            kanban = "feretui_kanban:KanbanPlugin"
+        """
+        for ep in entry_points(group="feretui.plugins"):
+            logger.debug("Load plugin from entrypoint: %s", ep.name)
+            plugin_cls = ep.load()
+            if hasattr(plugin_cls, "setup"):
+                plugin_instance = plugin_cls()
+                plugin_instance.setup(self)
+                self.plugins[ep.name] = plugin_instance
+            elif callable(plugin_cls):
+                res = plugin_cls(self)
+                self.plugins[ep.name] = res or plugin_cls
+            else:
+                self.plugins[ep.name] = plugin_cls
 
     def get_title(self: "FeretUI", request: Request | None = None) -> str:
         """Return the page title.

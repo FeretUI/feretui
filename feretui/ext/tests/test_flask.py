@@ -9,19 +9,57 @@ import pytest
 try:
     import flask
     from feretui.ext.flask import declare_routes_for_feretui_client
+    from werkzeug.test import Client
 except ImportError:
     flask = None
 
-from webtest import TestApp
 from feretui.feretui import FeretUI
+
+
+class FlaskTestApp:
+    """WSGI test client wrapper replacing webtest."""
+
+    def __init__(self, app: "flask.Flask") -> None:
+        self.client = Client(app)
+
+    def get(
+        self,
+        path: str,
+        headers: dict | None = None,
+        status: int | None = None,
+    ):
+        res = self.client.get(path, headers=headers)
+        if status is not None and res.status_code != status:
+            raise AssertionError(
+                f"Expected status {status}, got {res.status_code}"
+            )
+        res.body = res.data
+        res.close()
+        return res
+
+    def post(
+        self,
+        path: str,
+        data: dict | None = None,
+        headers: dict | None = None,
+        status: int | None = None,
+    ):
+        res = self.client.post(path, data=data, headers=headers)
+        if status is not None and res.status_code != status:
+            raise AssertionError(
+                f"Expected status {status}, got {res.status_code}"
+            )
+        res.body = res.data
+        res.close()
+        return res
 
 
 @pytest.fixture(scope="class")
 def flask_server():
-    app = flask.Flask('test')
-    app.secret_key = b'secret'
+    app = flask.Flask("test")
+    app.secret_key = b"secret"
     declare_routes_for_feretui_client(app, FeretUI())
-    return TestApp(app)
+    return FlaskTestApp(app)
 
 
 class TestFlask:

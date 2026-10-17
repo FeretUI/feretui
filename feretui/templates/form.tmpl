@@ -103,4 +103,15 @@
       {% endif %}
     </fieldset>
   </template>
+  <template id="feretui-status-bar-field">
+    <div class="feretui-status-bar-wrapper" aria-description="{{ description }}">
+      {% if label %}
+      <div class="status-bar-label"><strong>{{ label.text }}</strong></div>
+      {% endif %}
+      {{ widget }}
+      {% if errors %}
+      <include template="feretui-input-error"/>
+      {% endif %}
+    </div>
+  </template>
 </templates>

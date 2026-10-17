@@ -279,7 +279,7 @@ class RUser(LCRUDResource, Resource):
 
 myferet.register_aside_menus('aside1', [
     AsideHeaderMenu('My aside menu', children=[
-        AsideMenu('Home page', page='homepage', icon="fa-solid fa-ghost"),
+        AsideMenu('Home page', page='homepage', icon="ti ti-ghost"),
         AsideMenu('User', page='resource', resource='c1'),
     ]),
 ])

@@ -694,3 +694,159 @@ footer.is-hidden-print {
   padding: 1.5rem var(--pico-spacing, 1.25rem) 2rem;
   border-top: 1px solid var(--pico-muted-border-color, rgba(125, 125, 125, 0.15));
 }
+
+/* ==========================================================================
+   StatusBar / Workflow Pipeline Widget
+   ========================================================================== */
+
+.feretui-status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+  overflow-x: auto;
+}
+
+.status-bar-steps {
+  display: inline-flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-radius: var(--pico-border-radius, 0.25rem);
+  background-color: var(--pico-card-background-color, rgba(125, 125, 125, 0.08));
+  border: 1px solid var(--pico-muted-border-color, rgba(125, 125, 125, 0.2));
+  overflow: hidden;
+}
+
+.status-bar-steps li {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: inline-flex;
+  position: relative;
+}
+
+.status-bar-steps li button.status-step {
+  margin: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0.4rem 1.1rem !important;
+  font-size: 0.85rem !important;
+  font-weight: 500 !important;
+  height: auto !important;
+  line-height: 1.4 !important;
+  cursor: pointer;
+  background: transparent;
+  color: var(--pico-muted-color, #888);
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.status-bar-steps li.is-current button.status-step {
+  background-color: var(--pico-primary-background, #2563eb) !important;
+  color: var(--pico-primary-inverse, #ffffff) !important;
+  font-weight: 600 !important;
+}
+
+.status-bar-steps li.is-passed button.status-step {
+  color: var(--pico-color, #333);
+  background-color: rgba(125, 125, 125, 0.08);
+}
+
+.status-bar-steps li:not(:last-child) {
+  border-right: 1px solid var(--pico-muted-border-color, rgba(125, 125, 125, 0.2));
+}
+
+.status-bar-steps li:not(.is-current) button.status-step:not([disabled]):hover {
+  background-color: var(--pico-dropdown-hover-background-color, rgba(125, 125, 125, 0.18));
+  color: var(--pico-color);
+}
+
+/* ==========================================================================
+   Kanban Board View
+   ========================================================================== */
+
+.feretui-kanban-board {
+  display: flex;
+  gap: 1.25rem;
+  overflow-x: auto;
+  padding-bottom: 1.5rem;
+  min-height: 450px;
+  align-items: flex-start;
+}
+
+.feretui-kanban-column {
+  flex: 0 0 290px;
+  min-width: 290px;
+  background-color: var(--pico-card-background-color, rgba(125, 125, 125, 0.05));
+  border: 1px solid var(--pico-muted-border-color, rgba(125, 125, 125, 0.15));
+  border-radius: var(--pico-border-radius, 0.375rem);
+  padding: 0.85rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.feretui-kanban-column-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.85rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--pico-muted-border-color, rgba(125, 125, 125, 0.15));
+}
+
+.feretui-kanban-column-header .badge {
+  background-color: rgba(125, 125, 125, 0.15);
+  color: var(--pico-color);
+  font-size: 0.75rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 9999px;
+  font-weight: 600;
+}
+
+.feretui-kanban-cards-container {
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.feretui-kanban-card {
+  margin: 0 !important;
+  padding: 0.85rem !important;
+  background-color: var(--pico-background-color, #ffffff) !important;
+  border: 1px solid var(--pico-muted-border-color, rgba(125, 125, 125, 0.2)) !important;
+  border-radius: var(--pico-border-radius, 0.25rem) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  cursor: grab;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.feretui-kanban-card:hover {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+}
+
+.feretui-kanban-card:active {
+  cursor: grabbing;
+}
+
+.kanban-card-ghost {
+  opacity: 0.35;
+  border: 2px dashed var(--pico-primary-background, #2563eb) !important;
+}
+
+.kanban-card-chosen {
+  transform: rotate(1.5deg);
+}
+
+.feretui-kanban-card .card-header {
+  margin-bottom: 0.35rem;
+  font-size: 0.95rem;
+}
+
+.feretui-kanban-card .card-body {
+  font-size: 0.85rem;
+  color: var(--pico-muted-color);
+}
+
+

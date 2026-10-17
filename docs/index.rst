@@ -22,6 +22,9 @@ Welcome to FeretUI's documentation!
    :caption: Contents:
 
    tutorials.rst
+   views.rst
+   widgets.rst
+   css_classes.rst
    api.rst
    contributing.rst
    troubleshooting.rst

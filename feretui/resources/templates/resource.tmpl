@@ -178,4 +178,51 @@
       <p><strong>Do you wanted delete its ?</strong></p>
     </div>
   </template>
+  <template id="feretui-resource-kanban">
+    <div id="resource-{{ rcode }}-view-{{ vcode }}" class="container is-fluid feretui-kanban-view" data-move-url="{{ move_url }}">
+      <form>
+        <include template="view-multi-header" />
+        <div class="grid" style="grid-template-columns: 1fr {% if actions %}240px{% endif %}; align-items: start;">
+          <div>
+            <div class="is-hidden-print" style="margin-bottom: 1rem;">
+              <include template="view-buttons-header" />
+            </div>
+            <div class="feretui-kanban-board">
+              {% for col in columns %}
+              <div class="feretui-kanban-column" data-stage="{{ col.key }}">
+                <div class="feretui-kanban-column-header">
+                  <span class="column-title"><strong>{{ col.label }}</strong></span>
+                  <span class="badge">{{ col.cards | length }}</span>
+                </div>
+                <div class="feretui-kanban-cards-container" data-stage="{{ col.key }}">
+                  {% for card in col.cards %}
+                  <article class="feretui-kanban-card" data-pk="{{ card.pk }}" hx-trigger="{{ 'dblclick' if open_view_url else '' }}" hx-get="{{ open_view_url }}&amp;pk={{ card.pk }}">
+                    <header class="card-header">
+                      <strong>{{ card.title }}</strong>
+                    </header>
+                    {% if card.body %}
+                    <div class="card-body">
+                      {% for item in card.body %}
+                      <div class="card-field"><small class="text-muted">{{ item.label }}:</small> {{ item.value }}</div>
+                      {% endfor %}
+                    </div>
+                    {% endif %}
+                  </article>
+                  {% endfor %}
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          {% if actions %}
+            <div class="is-hidden-print">
+              {% for action in actions %}
+              {{ action }}
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+      </form>
+    </div>
+  </template>
 </templates>
