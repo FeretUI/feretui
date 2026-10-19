@@ -114,4 +114,99 @@
       {% endif %}
     </div>
   </template>
+  <template id="feretui-many2one-field">
+    <div class="feretui-many2one-wrapper" aria-description="{{ description }}">
+      {% if label %}
+      <include template="feretui-input-label"/>
+      {% endif %}
+      {% if readonly %}
+        {% if link_url %}
+        <div class="feretui-many2one-link-container">
+          <a href="{{ link_url }}" hx-get="{{ link_url }}" hx-push-url="true" class="feretui-many2one-link">
+            <i class="ti ti-arrow-up-right"></i>
+            {{ display_text }}
+          </a>
+        </div>
+        {% else %}
+        <div class="feretui-many2one-empty text-muted">
+          {{ display_text or '-' }}
+        </div>
+        {% endif %}
+      {% else %}
+        <div class="feretui-many2one-edit-container" style="display: flex; gap: 0.5rem; align-items: center;">
+          <div style="flex: 1;">
+            {{ widget }}
+          </div>
+          {% if link_url %}
+          <a href="{{ link_url }}" hx-get="{{ link_url }}" hx-push-url="true" class="button outline secondary is-small" style="padding: 0.35rem 0.65rem;" title="View record">
+            <i class="ti ti-external-link"></i>
+          </a>
+          {% endif %}
+        </div>
+      {% endif %}
+      {% if not readonly and errors %}
+      <include template="feretui-input-error"/>
+      {% endif %}
+    </div>
+  </template>
+  <template id="feretui-one2many-field">
+    <div class="feretui-one2many-wrapper" aria-description="{{ description }}" style="margin-top: 1rem; margin-bottom: 1.5rem;">
+      {% if label %}
+      <div class="feretui-one2many-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; border-bottom: 1px solid var(--pico-muted-border-color); padding-bottom: 0.25rem;">
+        <h4 style="margin-bottom: 0;">{{ label.text }}</h4>
+      </div>
+      {% endif %}
+      <div class="table-container overflow-auto">
+        <table class="striped is-fullwidth feretui-one2many-table" style="margin-bottom: 0.5rem;">
+          <thead>
+            <tr>
+              {% for col_name, col_label in columns %}
+              <th>{{ col_label }}</th>
+              {% endfor %}
+              {% if target_resource %}
+              <th style="width: 60px; text-align: center;"></th>
+              {% endif %}
+            </tr>
+          </thead>
+          <tbody>
+            {% if rows %}
+              {% for row in rows %}
+              <tr>
+                {% for col_name, col_label in columns %}
+                <td>
+                  {% if col_name == first_column and target_resource and row.pk %}
+                    <a href="/?page=resource&resource={{ target_resource }}&view=read&pk={{ row.pk }}" hx-get="/?page=resource&resource={{ target_resource }}&view=read&pk={{ row.pk }}" hx-push-url="true">
+                      {{ row[col_name] }}
+                    </a>
+                  {% else %}
+                    {{ row[col_name] }}
+                  {% endif %}
+                </td>
+                {% endfor %}
+                {% if target_resource %}
+                <td style="text-align: center;">
+                  {% if row.pk %}
+                  <a href="/?page=resource&resource={{ target_resource }}&view=read&pk={{ row.pk }}" hx-get="/?page=resource&resource={{ target_resource }}&view=read&pk={{ row.pk }}" hx-push-url="true" class="button outline secondary is-small" style="padding: 0.15rem 0.4rem; font-size: 0.75rem;" title="View">
+                    <i class="ti ti-eye"></i>
+                  </a>
+                  {% endif %}
+                </td>
+                {% endif %}
+              </tr>
+              {% endfor %}
+            {% else %}
+              <tr>
+                <td colspan="{{ columns | length + (1 if target_resource else 0) }}" style="text-align: center; color: var(--pico-muted-color); padding: 1.5rem;">
+                  <em>No records found</em>
+                </td>
+              </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+      {% if not readonly and errors %}
+      <include template="feretui-input-error"/>
+      {% endif %}
+    </div>
+  </template>
 </templates>

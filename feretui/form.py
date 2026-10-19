@@ -44,6 +44,7 @@ from wtforms.fields import (
     BooleanField,
     Field,
     FormField,
+    HiddenField,
     RadioField,
     SelectField,
     SelectFieldBase,
@@ -504,6 +505,163 @@ def wrap_status_bar(
     return html
 
 
+def wrap_hidden(
+    feretui: "FeretUI",  # noqa: ARG001
+    session: "Session",  # noqa: ARG001
+    field: Field,
+    **kwargs: dict,
+) -> Markup:
+    """Render hidden field without label or surrounding markup."""
+    return Markup(field.widget(field, **kwargs))
+
+
+class Many2OneField(SelectField):
+    """Field representing a Many-to-One relationship to another Resource."""
+
+    def __init__(
+        self: "Many2OneField",
+        label: str | None = None,
+        validators: list | None = None,
+        resource: str | None = None,
+        choices: object | None = None,
+        **kwargs: dict,
+    ) -> None:
+        """Initialize Many2OneField."""
+        super().__init__(label, validators, choices=choices or [], **kwargs)
+        self.target_resource = resource
+
+
+def wrap_many2one(
+    feretui: "FeretUI",
+    session: "Session",
+    field: Many2OneField,
+    **kwargs: dict,
+) -> Markup:
+    """Render many2one field as link or select with navigation button."""
+    readonly = kwargs.pop("readonly", False)
+    target_resource = getattr(field, "target_resource", None)
+    val = str(field.data) if field.data is not None else ""
+
+    display_text = val
+    if hasattr(field, "choices") and field.choices:
+        for c_val, c_label in field.choices:
+            if str(c_val) == val:
+                display_text = str(c_label)
+                break
+
+    link_url = ""
+    if target_resource and val:
+        link_url = (
+            f"/?page=resource&resource={target_resource}&view=read&pk={val}"
+        )
+
+    wrapper_id = kwargs.pop("wrapper_id", None)
+    oob = kwargs.pop("oob", False)
+    widget_html = field.widget(field, **kwargs) if not readonly else ""
+
+    html = Markup.unescape(
+        feretui.render_template(
+            session,
+            "feretui-many2one-field",
+            label=None if kwargs.pop("nolabel", False) else field.label,
+            widget=widget_html,
+            readonly=readonly,
+            display_text=display_text,
+            link_url=link_url,
+            target_resource=target_resource,
+            description=field.description,
+            errors=field.errors,
+        ),
+    )
+    if wrapper_id:
+        oob_attr = ' hx-swap-oob="true"' if oob else ""
+        return Markup(f'<div id="{wrapper_id}"{oob_attr}>{html}</div>')  # noqa: S704
+
+    return html
+
+
+class One2ManyField(Field):
+    """Field representing a One-to-Many / Many-to-Many sub-table in a Form."""
+
+    def __init__(
+        self: "One2ManyField",
+        label: str | None = None,
+        validators: list | None = None,
+        columns: list[tuple[str, str]] | None = None,
+        target_resource: str | None = None,
+        **kwargs: dict,
+    ) -> None:
+        """Initialize One2ManyField."""
+        super().__init__(label, validators, **kwargs)
+        self.columns = columns or []
+        self.target_resource = target_resource
+        self.data: list = []
+
+    def process_data(self: "One2ManyField", value: object) -> None:
+        """Process data for One2ManyField."""
+        if value is None:
+            self.data = []
+        elif isinstance(value, list):
+            self.data = value
+        elif hasattr(value, "__iter__"):
+            self.data = list(value)
+        else:
+            self.data = []
+
+
+def wrap_one2many(
+    feretui: "FeretUI",
+    session: "Session",
+    field: One2ManyField,
+    **kwargs: dict,
+) -> Markup:
+    """Render one2many field as an embedded sub-table."""
+    readonly = kwargs.pop("readonly", False)
+    target_resource = getattr(field, "target_resource", None)
+    columns = getattr(field, "columns", [])
+    first_col = columns[0][0] if columns else ""
+
+    rows: list[dict[str, object]] = []
+    raw_data = getattr(field, "data", []) or []
+    for item in raw_data:
+        row_dict: dict[str, object] = {}
+        pk_val = (
+            getattr(item, "id", getattr(item, "pk", ""))
+            if not isinstance(item, dict)
+            else item.get("id", item.get("pk", ""))
+        )
+        row_dict["pk"] = str(pk_val) if pk_val else ""
+        for col_name, _ in columns:
+            if isinstance(item, dict):
+                row_dict[col_name] = str(item.get(col_name, ""))
+            else:
+                row_dict[col_name] = str(getattr(item, col_name, ""))
+        rows.append(row_dict)
+
+    wrapper_id = kwargs.pop("wrapper_id", None)
+    oob = kwargs.pop("oob", False)
+
+    html = Markup.unescape(
+        feretui.render_template(
+            session,
+            "feretui-one2many-field",
+            label=None if kwargs.pop("nolabel", False) else field.label,
+            columns=columns,
+            first_column=first_col,
+            rows=rows,
+            target_resource=target_resource,
+            readonly=readonly,
+            description=field.description,
+            errors=field.errors,
+        ),
+    )
+    if wrapper_id:
+        oob_attr = ' hx-swap-oob="true"' if oob else ""
+        return Markup(f'<div id="{wrapper_id}"{oob_attr}>{html}</div>')  # noqa: S704
+
+    return html
+
+
 def gettext(
     form: Form,
     string: str,
@@ -725,6 +883,9 @@ class FeretUIForm(Form):
         SelectFieldBase._Option: no_wrap,
         SelectMultipleField: wrap_select_multiple,
         StatusBarField: wrap_status_bar,
+        Many2OneField: wrap_many2one,
+        One2ManyField: wrap_one2many,
+        HiddenField: wrap_hidden,
     }
     DEFAULT_WRAPPER = wrap_input
     TRANSLATED_MESSAGES = [
@@ -907,10 +1068,11 @@ class FeretUIForm(Form):
             ):
                 render_kw["wrapper_id"] = f"field-{field.name}-wrapper"
 
-            wrapper = FeretUIForm.WRAPPERS.get(
-                field.__class__,
-                FeretUIForm.DEFAULT_WRAPPER,
-            )
+            wrapper = FeretUIForm.DEFAULT_WRAPPER
+            for cls in field.__class__.__mro__:
+                if cls in FeretUIForm.WRAPPERS:
+                    wrapper = FeretUIForm.WRAPPERS[cls]
+                    break
             return wrapper(
                 self.feretui,
                 self.request.session,

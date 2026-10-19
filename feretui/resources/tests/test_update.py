@@ -114,3 +114,35 @@ class TestEditView:
             resource.views['edit'].save(feretui, request).body,
             'snapshot.html',
         )
+
+    def test_render_with_record_title(self, feretui, session) -> None:
+        class TitleResource(UResource, Resource):
+            code = "title_res"
+            label = "TitleRes"
+
+            class Form:
+                pk = StringField()
+
+            class MetaViewUpdate:
+                class Form:
+                    name = StringField()
+
+            def read(self, form_cls, pk):
+                return form_cls(MultiDict(pk=pk, name="Sample Record"))
+
+            def update(self, forms):
+                pass
+
+        resource = TitleResource.build()
+        request = Request(
+            session=session,
+            params={"pk": "42"},
+            headers={"Hx-Current-Url": "/?"},
+        )
+        cvar_request.set(request)
+        view = resource.views["edit"]
+        res_kwargs = view.render_kwargs(feretui, session, {"pk": "42"})
+        assert res_kwargs["record_title"] == "Sample Record"
+        html = view.render(feretui, session, {"pk": "42"})
+        assert "Sample Record" in html
+

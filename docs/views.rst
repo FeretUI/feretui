@@ -297,3 +297,48 @@ Entirely custom views can be implemented by subclassing :class:`feretui.resource
           {{ form.password_confirm }}
         </div>
         """
+
+---
+
+10. Modern ERP Sheet Forms & Smart Buttons
+------------------------------------------
+
+FeretUI introduces dedicated ERP sheet templates that present records as cohesive, paper-like cards:
+
+* ``body_template_id = "view-sheet-readonly-form"``: Read-only sheet layout.
+* ``body_template_id = "view-sheet-readwrite-form"``: Editable sheet layout.
+
+Key Features of the Sheet Layout:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+1. **Hides Technical IDs**: Technical primary keys (``pk`` or ``HiddenField``) are hidden from the visual interface (kept in hidden inputs during editing for seamless form submission).
+2. **Human Record Header**: The header displays the record's natural identity (e.g. order reference, title, or customer name) rather than an arbitrary integer ID.
+3. **Smart Stat Buttons**: Resources can define a ``get_smart_buttons()`` method to render clickable badge counters at the top right of the sheet (e.g. linked orders, invoices, or delivery slips).
+4. **Responsive 2-Column Grid**: Standard inputs (strings, numbers, selects, many2one relations) are neatly organized side by side in a responsive 2-column grid (``.feretui-form-grid``).
+5. **Full-Width Relational Sub-Tables**: Notes, textareas, and embedded ``One2ManyField`` sub-tables automatically stretch across the full width below the grid.
+
+Example Configuration::
+
+    @myferet.register_resource()
+    class CustomerResource(SQLAlchemyResource):
+        code = "customers"
+        label = "Customers"
+        model = Customer
+        Form = CustomerForm
+
+        class MetaViewRead:
+            body_template_id = "view-sheet-readonly-form"
+
+        class MetaViewEdit:
+            body_template_id = "view-sheet-readwrite-form"
+
+        def get_smart_buttons(self, form, feretui, session):
+            return [
+                {
+                    "label": "Orders",
+                    "count": len(form.orders.data or []),
+                    "icon": "ti ti-shopping-cart",
+                    "url": "/?page=resource&resource=orders&view=list",
+                },
+            ]
+

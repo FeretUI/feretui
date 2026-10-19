@@ -145,12 +145,20 @@ class EditView(TemplateMixinForView, View):
         if isinstance(pk, list):
             pk = pk[0]
 
+        form = options.pop(
+            "form",
+            self.resource.read(self.form_cls, pk),
+        )
+        record_title = ""
+        for title_attr in ("order_ref", "name", "title", "label", "code"):
+            if hasattr(form, title_attr) and getattr(form, title_attr).data:
+                record_title = str(getattr(form, title_attr).data)
+                break
+
         res.update(
             {
-                "form": options.pop(
-                    "form",
-                    self.resource.read(self.form_cls, pk),
-                ),
+                "form": form,
+                "record_title": record_title,
                 "error": options.get("error"),
             },
         )

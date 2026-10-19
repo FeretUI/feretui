@@ -103,7 +103,47 @@ Read vs Edit Behavior
 
 ---
 
-3. Reactive Calculations with ``@onchange`` & Out-Of-Band Swaps
+3. Relational Fields: ``Many2OneField`` & ``One2ManyField``
+-----------------------------------------------------------
+
+FeretUI provides first-class relational fields designed for business ERP applications:
+
+* :class:`~feretui.form.Many2OneField`: Foreign-key style field pointing to another resource.
+  - **In Read Mode**: Renders a clickable navigation link with an external arrow icon (``<i class="ti ti-arrow-up-right"></i>``) taking the user directly to the target record's read view.
+  - **In Edit Mode**: Renders a dropdown ``<select>`` accompanied by a quick jump button (``↗``) to inspect the selected record.
+* :class:`~feretui.form.One2ManyField`: One-to-Many or Many-to-Many relationship rendered as an embedded interactive sub-table.
+  - Takes a list of column tuples ``[("field_name", "Header Label"), ...]``.
+  - Connects to a ``target_resource`` to provide direct navigation links on each row.
+  - Automatically adapts to both lists of dictionaries and lists of ORM objects.
+* :class:`~feretui.form.HiddenField`: Renders directly as ``<input type="hidden">`` without surrounding labels or wrapper divs, ideal for primary keys (``pk``).
+
+Relational Form Example::
+
+    from feretui.form import FeretUIForm, Many2OneField, One2ManyField, HiddenField
+    from wtforms import StringField
+
+    class SaleOrderForm(FeretUIForm):
+        pk = HiddenField("ID")
+        order_ref = StringField("Order Reference")
+        customer_id = Many2OneField(
+            "Customer",
+            resource="customers",
+            choices=get_customer_choices,
+        )
+        lines = One2ManyField(
+            "Order Lines",
+            columns=[
+                ("product_name", "Product"),
+                ("qty", "Qty"),
+                ("unit_price", "Unit Price (€)"),
+                ("subtotal", "Subtotal (€)"),
+            ],
+            target_resource="products",
+        )
+
+---
+
+4. Reactive Calculations with ``@onchange`` & Out-Of-Band Swaps
 ---------------------------------------------------------------
 
 The :func:`feretui.form.onchange` decorator synchronizes and recalculates form fields on the server whenever an observed field value changes in the browser.
@@ -147,7 +187,7 @@ Complete Recalculation and Warning Example::
 
 ---
 
-4. Field Wrappers & RGAA 11.5 Accessibility
+5. Field Wrappers & RGAA 11.5 Accessibility
 --------------------------------------------
 
 In FeretUI, each WTForms field is rendered through a dedicated wrapper function configured in ``FeretUIForm.WRAPPERS``.
@@ -180,6 +220,15 @@ Wrappers Table
    * - :func:`~feretui.form.wrap_status_bar`
      - :class:`~feretui.form.StatusBarField`
      - Wraps the workflow pipeline with support for Out-Of-Band swaps.
+   * - :func:`~feretui.form.wrap_many2one`
+     - :class:`~feretui.form.Many2OneField`
+     - Clickable link with navigation arrow in read mode; select + jump button in edit mode.
+   * - :func:`~feretui.form.wrap_one2many`
+     - :class:`~feretui.form.One2ManyField`
+     - Embedded sub-table with row navigation.
+   * - :func:`~feretui.form.wrap_hidden`
+     - ``HiddenField``
+     - Invisible input rendered without label or wrapper div.
    * - :func:`~feretui.form.no_wrap`
      - ``SelectFieldBase._Option``
      - Renders raw widget without wrapper div.
@@ -195,7 +244,7 @@ FeretUI enforces this rule automatically:
 
 ---
 
-5. Supported Field Types and Validators
+6. Supported Field Types and Validators
 ---------------------------------------
 
 FeretUI supports all standard WTForms fields as well as custom business fields:
@@ -206,6 +255,7 @@ Text and Secure Inputs
 * ``StringField``: Single-line text input.
 * ``TextAreaField``: Multi-line text input (notes, comments).
 * ``PasswordField``: Obfuscated password input.
+* ``HiddenField``: Hidden technical input (e.g. primary key ``pk``).
 
 Robust Password Validator: :class:`~feretui.form.Password`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -238,10 +288,12 @@ Numeric, Dates, and Choice Fields
 * ``RadioField``: Radio buttons for exclusive selection.
 * ``BooleanField``: Boolean checkbox.
 * ``StatusBarField``: Interactive workflow pipeline.
+* ``Many2OneField``: Foreign key relational field with link navigation.
+* ``One2ManyField``: Embedded sub-table for related records.
 
 ---
 
-6. Business Actions and Action Widgets
+7. Business Actions and Action Widgets
 --------------------------------------
 
 In resource views, actions represent buttons that trigger Python methods or navigation.
@@ -276,7 +328,7 @@ Example Declaration in ``MetaViewRead``::
 
 ---
 
-7. ERP Keyboard Shortcuts
+8. ERP Keyboard Shortcuts
 -------------------------
 
 FeretUI includes global keyboard shortcuts to speed up routine tasks:

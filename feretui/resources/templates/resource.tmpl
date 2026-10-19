@@ -124,6 +124,63 @@
       {% endfor %}
     </div>
   </template>
+  <template id="view-sheet-readonly-form">
+    <div class="container feretui-form-sheet">
+      {% if smart_buttons %}
+      <div class="feretui-smart-buttons">
+        {% for btn in smart_buttons %}
+        <a href="{{ btn.url }}" hx-get="{{ btn.url }}" hx-push-url="true" class="button outline secondary is-small feretui-smart-button">
+          {% if btn.icon %}<i class="{{ btn.icon }}"></i>{% endif %}
+          <span><strong>{{ btn.count }}</strong> {{ btn.label }}</span>
+        </a>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <div class="feretui-form-grid grid">
+        {% for field in form if field.type not in ('HiddenField', 'TextAreaField', 'One2ManyField') and field.name != 'pk' %}
+        <div class="feretui-grid-field">
+          {{ field(readonly=True) }}
+        </div>
+        {% endfor %}
+      </div>
+
+      {% for field in form if field.type in ('TextAreaField', 'One2ManyField') %}
+      <div class="feretui-fullwidth-field">
+        {{ field(readonly=True) }}
+      </div>
+      {% endfor %}
+    </div>
+  </template>
+  <template id="view-sheet-readwrite-form">
+    <div class="container feretui-form-sheet mb-4">
+      {% if error %}
+      <div class="notification is-danger" role="alert">
+        {{ error }}
+      </div>
+      {% endif %}
+
+      <div style="display: none;">
+        {% for field in form if field.type == 'HiddenField' or field.name == 'pk' %}
+        {{ field }}
+        {% endfor %}
+      </div>
+
+      <div class="feretui-form-grid grid">
+        {% for field in form if field.type not in ('HiddenField', 'TextAreaField', 'One2ManyField') and field.name != 'pk' %}
+        <div class="feretui-grid-field">
+          {{ field }}
+        </div>
+        {% endfor %}
+      </div>
+
+      {% for field in form if field.type in ('TextAreaField', 'One2ManyField') %}
+      <div class="feretui-fullwidth-field">
+        {{ field }}
+      </div>
+      {% endfor %}
+    </div>
+  </template>
   <template id="feretui-resource-label-header">
     <div class="grid" style="align-items: center; margin-bottom: 1rem;">
       <div id="label">
@@ -139,7 +196,7 @@
   <template id="feretui-resource-read-header">
     <div class="grid" style="align-items: center; margin-bottom: 1rem;">
       <div id="label">
-        <h1>{{ form.pk.data }}</h1>
+        <h1>{{ record_title or form.pk.data }}</h1>
       </div>
       <div id="buttons" class="is-hidden-print">
         <include template="view-buttons-header"/>
@@ -151,7 +208,7 @@
   <template id="feretui-resource-edit-header">
     <div class="grid" style="align-items: center; margin-bottom: 1rem;">
       <div id="label">
-        <h1>{{ form.pk.data }}</h1>
+        <h1>{{ record_title or form.pk.data }}</h1>
       </div>
       <div id="buttons" class="is-hidden-print">
         <include template="view-buttons-header"/>

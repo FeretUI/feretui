@@ -115,12 +115,26 @@ class ReadView(ActionsMixinForView, TemplateMixinForView, View):
         # if not pk:
         #     raise ViewError()
 
+        form = self.resource.read(self.form_cls, pk)
+        record_title = ""
+        for title_attr in ("order_ref", "name", "title", "label", "code"):
+            if hasattr(form, title_attr) and getattr(form, title_attr).data:
+                record_title = str(getattr(form, title_attr).data)
+                break
+
         res.update(
             {
                 "actions": self.get_actions(feretui, session, options),
-                "form": self.resource.read(self.form_cls, pk),
+                "form": form,
+                "record_title": record_title,
             },
         )
+        if hasattr(self.resource, "get_smart_buttons"):
+            res["smart_buttons"] = self.resource.get_smart_buttons(
+                form,
+                feretui,
+                session,
+            )
         return res
 
     def get_header_buttons(

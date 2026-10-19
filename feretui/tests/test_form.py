@@ -13,7 +13,19 @@ from wtforms import BooleanField, RadioField, SelectField, StringField
 from wtforms.validators import InputRequired, Length, ValidationError
 
 import feretui as fui
-from feretui.form import FeretUIForm, Password, get_field_translations, no_wrap, onchange
+from feretui.form import (
+    FeretUIForm,
+    HiddenField,
+    Many2OneField,
+    One2ManyField,
+    Password,
+    get_field_translations,
+    no_wrap,
+    onchange,
+    wrap_hidden,
+    wrap_many2one,
+    wrap_one2many,
+)
 
 
 class TestForm:
@@ -662,5 +674,121 @@ class TestForm:
         )
         assert 'id="wrap-sub"' in f_html
         assert 'hx-swap-oob="true"' in f_html
+
+    def test_hidden_field(self, feretui, frequest) -> None:
+        """Test HiddenField and wrap_hidden without extra wrappers."""
+        class HiddenForm(FeretUIForm):
+            pk = HiddenField("ID")
+
+        form = HiddenForm(MultiDict(pk="123"))
+        html = form.pk()
+        assert 'type="hidden"' in html
+        assert 'value="123"' in html
+        assert "<label" not in html
+
+        direct_html = wrap_hidden(feretui, frequest.session, form.pk)
+        assert 'type="hidden"' in direct_html
+
+    def test_many2one_field(self, feretui, frequest) -> None:
+        """Test Many2OneField in read and edit modes with choices and links."""
+        class PartnerForm(FeretUIForm):
+            partner_id = Many2OneField(
+                "Partner",
+                resource="partners",
+                choices=[("1", "Alice"), ("2", "Bob")],
+            )
+
+        # Read mode with value
+        form = PartnerForm(MultiDict(partner_id="1"))
+        read_html = form.partner_id(readonly=True)
+        assert "Alice" in read_html
+        assert 'class="feretui-many2one-link"' in read_html
+        assert "/?page=resource&resource=partners&view=read&pk=1" in read_html
+
+        # Read mode without value
+        empty_form = PartnerForm()
+        empty_html = empty_form.partner_id(readonly=True)
+        assert "feretui-many2one-empty" in empty_html
+        assert "-" in empty_html
+
+        # Edit mode with value
+        edit_html = form.partner_id(readonly=False)
+        assert "<select" in edit_html
+        assert 'value="1"' in edit_html
+        assert "Alice" in edit_html
+
+        # Direct wrap_many2one without wrapper_id
+        direct_html = wrap_many2one(feretui, frequest.session, form.partner_id)
+        assert "feretui-many2one-wrapper" in direct_html
+        assert "id=" not in direct_html or "wrap-" not in direct_html
+
+        # Direct wrap_many2one with wrapper_id and oob
+        oob_html = wrap_many2one(
+            feretui,
+            frequest.session,
+            form.partner_id,
+            wrapper_id="wrap-partner",
+            oob=True,
+        )
+        assert 'id="wrap-partner"' in oob_html
+        assert 'hx-swap-oob="true"' in oob_html
+
+    def test_one2many_field(self, feretui, frequest) -> None:
+        """Test One2ManyField process_data and rendering with dict and object rows."""
+        class OrderForm(FeretUIForm):
+            lines = One2ManyField(
+                "Lines",
+                columns=[("name", "Product"), ("qty", "Qty")],
+                target_resource="products",
+            )
+
+        form = OrderForm()
+        # Test process_data variations
+        form.lines.process_data(None)
+        assert form.lines.data == []
+
+        form.lines.process_data([{"id": 1, "name": "Item A", "qty": 2}])
+        assert len(form.lines.data) == 1
+
+        form.lines.process_data(( {"id": 2, "name": "Item B", "qty": 3}, ))
+        assert len(form.lines.data) == 1
+        assert isinstance(form.lines.data, list)
+
+        form.lines.process_data(999)  # Non-iterable fallback
+        assert form.lines.data == []
+
+        # Render with dict data
+        form.lines.process_data([{"id": 10, "name": "Desk", "qty": 1}])
+        dict_html = form.lines()
+        assert "feretui-one2many-table" in dict_html
+        assert "Desk" in dict_html
+        assert "/?page=resource&resource=products&view=read&pk=10" in dict_html
+
+        # Render with object data
+        class LineObj:
+            id = 20
+            name = "Chair"
+            qty = 4
+
+        form.lines.process_data([LineObj()])
+        obj_html = form.lines()
+        assert "Chair" in obj_html
+        assert "/?page=resource&resource=products&view=read&pk=20" in obj_html
+
+        # Direct wrap_one2many without wrapper_id
+        direct_html = wrap_one2many(feretui, frequest.session, form.lines)
+        assert "feretui-one2many-wrapper" in direct_html
+
+        # Direct wrap_one2many with wrapper_id and oob
+        oob_html = wrap_one2many(
+            feretui,
+            frequest.session,
+            form.lines,
+            wrapper_id="wrap-lines",
+            oob=True,
+        )
+        assert 'id="wrap-lines"' in oob_html
+        assert 'hx-swap-oob="true"' in oob_html
+
 
 

@@ -62,12 +62,25 @@ Open your browser and navigate to:
 2. Notice the **Export CSV** and **Export XLSX** buttons in the toolbar.
 3. Click either button to download structured data formatted according to your active filters.
 
-### 🎨 4. Switching Modern Themes & Dark Mode
-1. In `app.py`, customize your theme:
+### 🔗 4. Relational Links (Many2One) & Embedded Sub-Tables (One2Many)
+1. Open a **Customer** (e.g. *Acme Corporation*):
+   - Notice the **Smart Button** at the top right showing the total order count (e.g. `[ 🛒 1 Orders ]`).
+   - Notice the **Sales Orders** embedded table listing all orders for this customer with direct view links!
+2. Open a **Sales Order** (e.g. *SO-2026-001*):
+   - Look at the **Customer** field: rendered as a clickable Many2One link (`[ ↗ Acme Corporation ]`) in read mode and a select + jump button in edit mode.
+   - Look at the **Order Lines** sub-table: dynamically lists line items with product descriptions, quantities, unit prices, and subtotals.
+   - Notice how technical IDs are hidden and the order reference or partner name is displayed prominently in the sheet header!
+
+### 🎨 5. Modern Sheet Form Templates & Dark Mode
+1. Forms use modern ERP card layouts (``view-sheet-readonly-form`` & ``view-sheet-readwrite-form``) featuring:
+   - Technical IDs (``pk`` / ``HiddenField``) hidden from display.
+   - Responsive 2-column input grid (``.feretui-form-grid``).
+   - Full-width sections for notes and x2many sub-tables.
+2. In `app.py`, customize your theme:
    ```python
    myferet = FeretUI(title="Mini ERP", theme="materia")  # or flatly, lux, minty, pulse, darkly, united
    ```
-2. Pico CSS automatically supports Dark Mode: toggle via system preferences or `session.color_scheme = "dark"`.
+3. Pico CSS automatically supports Dark Mode: toggle via system preferences or `session.color_scheme = "dark"`.
 
 ---
 

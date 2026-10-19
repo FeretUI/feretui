@@ -249,7 +249,13 @@ all the translation messages in pot file.
 """
 
 from feretui.feretui import FeretUI
-from feretui.form import FeretUIForm, Password
+from feretui.form import (
+    FeretUIForm,
+    Many2OneField,
+    One2ManyField,
+    Password,
+    StatusBarField,
+)
 from feretui.helper import (
     action_for_authenticated_user,
     action_for_unauthenticated_user,
@@ -291,6 +297,9 @@ from feretui.session import Session
 __all__ = [
     "FeretUI",
     "FeretUIForm",
+    "Many2OneField",
+    "One2ManyField",
+    "StatusBarField",
     "Password",
     "action_for_authenticated_user",
     "action_for_unauthenticated_user",

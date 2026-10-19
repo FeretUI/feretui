@@ -849,4 +849,84 @@ footer.is-hidden-print {
   color: var(--pico-muted-color);
 }
 
+/* ==========================================================================
+   ERP Form Sheet & Relationship Views (Many2One & One2Many)
+   ========================================================================== */
+
+.feretui-form-sheet {
+  background: var(--pico-card-background-color, #ffffff);
+  border: 1px solid var(--pico-card-border-color, var(--pico-muted-border-color));
+  border-radius: var(--pico-border-radius, 8px);
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  margin-bottom: 2rem;
+}
+
+.feretui-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.feretui-grid-field {
+  min-width: 0;
+}
+
+.feretui-fullwidth-field {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.feretui-many2one-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 600;
+  color: var(--pico-primary, #2563eb);
+  text-decoration: none;
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--pico-border-radius, 4px);
+  background: rgba(37, 99, 235, 0.08);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.feretui-many2one-link:hover {
+  background: rgba(37, 99, 235, 0.18);
+  text-decoration: underline;
+}
+
+.feretui-one2many-table {
+  border: 1px solid var(--pico-muted-border-color);
+  border-radius: var(--pico-border-radius, 6px);
+  overflow: hidden;
+}
+
+.feretui-one2many-table th {
+  background: var(--pico-table-row-stripped-background-color, rgba(0, 0, 0, 0.02));
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--pico-muted-color);
+}
+
+.feretui-smart-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid var(--pico-muted-border-color);
+  padding-bottom: 0.75rem;
+}
+
+.feretui-smart-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+
 
