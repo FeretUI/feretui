@@ -13,7 +13,7 @@ The main class to create a resource.
 import inspect
 from collections.abc import Callable
 from copy import deepcopy
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from markupsafe import Markup
 from polib import POFile
@@ -60,6 +60,94 @@ class Resource:
         """Return the resource as a string."""
         return f"<{self.__class__.__name__} code={self.code}>"
 
+    def get_defaults(
+        self: "Resource",
+        session: Session,  # noqa: ARG002
+    ) -> dict[str, Any]:
+        """Return default form values for a new record.
+
+        :param session: The user session
+        :type session: :class:`feretui.session.Session`
+        :return: Dictionary of default field values
+        :rtype: dict[str, Any]
+        """
+        return {}
+
+    def before_create(
+        self: "Resource",
+        session: Session,  # noqa: ARG002
+        form: object,  # noqa: ARG002
+    ) -> None:
+        """Lifecycle hook executed before persisting a new record.
+
+        :param session: The user session
+        :type session: :class:`feretui.session.Session`
+        :param form: Validated creation form
+        """
+
+    def after_create(
+        self: "Resource",
+        session: Session,  # noqa: ARG002
+        pk: object,  # noqa: ARG002
+    ) -> None:
+        """Lifecycle hook executed after creating a new record.
+
+        :param session: The user session
+        :type session: :class:`feretui.session.Session`
+        :param pk: Primary key of created record
+        :type pk: object
+        """
+
+    def before_update(
+        self: "Resource",
+        session: Session,  # noqa: ARG002
+        form: object,  # noqa: ARG002
+    ) -> None:
+        """Lifecycle hook executed before updating an existing record.
+
+        :param session: The user session
+        :type session: :class:`feretui.session.Session`
+        :param form: Validated update form
+        """
+
+    def after_update(
+        self: "Resource",
+        session: Session,  # noqa: ARG002
+        form: object,  # noqa: ARG002
+    ) -> None:
+        """Lifecycle hook executed after updating an existing record.
+
+        :param session: The user session
+        :type session: :class:`feretui.session.Session`
+        :param form: Form with updated values
+        """
+
+    def before_delete(
+        self: "Resource",
+        session: Session,  # noqa: ARG002
+        pks: list[object],  # noqa: ARG002
+    ) -> None:
+        """Lifecycle hook executed before deleting records.
+
+        :param session: The user session
+        :type session: :class:`feretui.session.Session`
+        :param pks: Primary keys of records to delete
+        :type pks: list[object]
+        """
+
+    def after_delete(
+        self: "Resource",
+        session: Session,  # noqa: ARG002
+        pks: list[object],  # noqa: ARG002
+    ) -> None:
+        """Lifecycle hook executed after deleting records.
+
+        :param session: The user session
+        :type session: :class:`feretui.session.Session`
+        :param pks: Primary keys of deleted records
+        :type pks: list[object]
+        """
+
     def export_catalog(
         self: "Resource",
         translation: "Translation",
@@ -94,6 +182,12 @@ class Resource:
 
         cls.menu.querystring["resource"] = cls.code
         cls.context = f"resource:{cls.code}"
+        if (
+            cls.page_visibility is None
+            and "action_security" not in cls.__dict__
+        ):
+            cls.action_security = None
+
         resource = cls()
         for attr in dir(cls):
             if attr.startswith("MetaView") and inspect.isclass(
@@ -180,11 +274,11 @@ class Resource:
         if self.page_visibility:
             func = self.page_visibility(func)
 
-        return Markup.unescape(
+        return Markup(
             feretui.render_template(
                 session,
                 "feretui-page-resource",
-                view=Markup.unescape(func(feretui, session, options)),
+                view=Markup(func(feretui, session, options)),
                 code=self.code,
             ),
         )

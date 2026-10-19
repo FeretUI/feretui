@@ -40,6 +40,7 @@ feretui.session module
 
 .. automodule:: feretui.session
    :members:
+   :exclude-members: SignUpForm
 
 
 feretui.template module

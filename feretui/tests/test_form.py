@@ -16,6 +16,7 @@ import feretui as fui
 from feretui.form import (
     FeretUIForm,
     HiddenField,
+    Many2ManyField,
     Many2OneField,
     One2ManyField,
     Password,
@@ -23,6 +24,7 @@ from feretui.form import (
     no_wrap,
     onchange,
     wrap_hidden,
+    wrap_many2many,
     wrap_many2one,
     wrap_one2many,
 )
@@ -616,7 +618,7 @@ class TestForm:
 
         form = CartForm()
         price_html = form.price()
-        assert 'hx-post="/feretui/action/resource?action=onchange&field=price"' in price_html
+        assert 'hx-post="/feretui/action/resource?action=onchange&amp;field=price"' in price_html
         assert 'id="field-price-wrapper"' in price_html
         assert 'id="field-total-wrapper"' in form.total()
 
@@ -703,7 +705,9 @@ class TestForm:
         read_html = form.partner_id(readonly=True)
         assert "Alice" in read_html
         assert 'class="feretui-many2one-link"' in read_html
-        assert "/?page=resource&resource=partners&view=read&pk=1" in read_html
+        assert "/?page=resource&amp;resource=partners&amp;view=read&amp;pk=1" in read_html
+        assert "/feretui/action/goto?page=resource&amp;resource=partners&amp;view=read&amp;pk=1" in read_html
+        assert 'hx-target="#feretui-body"' in read_html
 
         # Read mode without value
         empty_form = PartnerForm()
@@ -716,6 +720,7 @@ class TestForm:
         assert "<select" in edit_html
         assert 'value="1"' in edit_html
         assert "Alice" in edit_html
+        assert 'hx-target="#feretui-body"' in edit_html
 
         # Direct wrap_many2one without wrapper_id
         direct_html = wrap_many2one(feretui, frequest.session, form.partner_id)
@@ -762,7 +767,43 @@ class TestForm:
         dict_html = form.lines()
         assert "feretui-one2many-table" in dict_html
         assert "Desk" in dict_html
-        assert "/?page=resource&resource=products&view=read&pk=10" in dict_html
+        assert "/?page=resource&amp;resource=products&amp;view=read&amp;pk=10" in dict_html
+        assert "/feretui/action/goto?page=resource&amp;resource=products&amp;view=read&amp;pk=10" in dict_html
+        assert "/?page=resource&amp;resource=products&amp;view=update&amp;pk=10" in dict_html
+        assert "/?page=resource&amp;resource=products&amp;view=delete&amp;pk=10" in dict_html
+        assert "/?page=resource&amp;resource=products&amp;view=create" in dict_html
+        assert 'hx-target="#feretui-body"' in dict_html
+
+        # Test flags can_create=False, can_edit=False, can_delete=False
+        class RestrictedForm(FeretUIForm):
+            lines = One2ManyField(
+                "Lines",
+                columns=[("name", "Product")],
+                target_resource="products",
+                can_create=False,
+                can_edit=False,
+                can_delete=False,
+            )
+
+        r_form = RestrictedForm()
+        r_form.lines.process_data([{"id": 10, "name": "Desk"}])
+        r_html = r_form.lines()
+        assert "/?page=resource&amp;resource=products&amp;view=create" not in r_html
+        assert "/?page=resource&amp;resource=products&amp;view=update&amp;pk=10" not in r_html
+        assert "/?page=resource&amp;resource=products&amp;view=delete&amp;pk=10" not in r_html
+        assert "/?page=resource&amp;resource=products&amp;view=read&amp;pk=10" in r_html
+
+        # Test without target_resource: inline removal button
+        class LocalForm(FeretUIForm):
+            items = One2ManyField(
+                "Local Items",
+                columns=[("name", "Item")],
+            )
+
+        l_form = LocalForm()
+        l_form.items.process_data([{"name": "Local Row"}])
+        l_html = l_form.items()
+        assert "this.closest('tr').remove()" in l_html
 
         # Render with object data
         class LineObj:
@@ -773,7 +814,7 @@ class TestForm:
         form.lines.process_data([LineObj()])
         obj_html = form.lines()
         assert "Chair" in obj_html
-        assert "/?page=resource&resource=products&view=read&pk=20" in obj_html
+        assert "/?page=resource&amp;resource=products&amp;view=read&amp;pk=20" in obj_html
 
         # Direct wrap_one2many without wrapper_id
         direct_html = wrap_one2many(feretui, frequest.session, form.lines)
@@ -789,6 +830,386 @@ class TestForm:
         )
         assert 'id="wrap-lines"' in oob_html
         assert 'hx-swap-oob="true"' in oob_html
+
+    def test_many2many_field(self, feretui, frequest) -> None:
+        """Test Many2ManyField process_data and rendering with dict and object rows."""
+        class TaggedForm(FeretUIForm):
+            tags = Many2ManyField(
+                "Tags",
+                columns=[("name", "Tag Name")],
+                target_resource="tags",
+            )
+
+        form = TaggedForm()
+        form.tags.process_data([{"id": 1, "name": "Python"}])
+        html = form.tags()
+        assert "feretui-one2many-table" in html
+        assert "Python" in html
+        assert "/?page=resource&amp;resource=tags&amp;view=read&amp;pk=1" in html
+        assert "/feretui/action/goto?page=resource&amp;resource=tags&amp;view=read&amp;pk=1" in html
+        assert 'hx-target="#feretui-body"' in html
+
+        direct_html = wrap_many2many(feretui, frequest.session, form.tags)
+        assert "feretui-one2many-wrapper" in direct_html
+
+    def test_gettext_no_context(self) -> None:
+        """Test gettext fallback when feretui or request context is missing."""
+        from feretui.context import cvar_feretui
+        from feretui.form import FeretUIForm, gettext
+
+        class SimpleForm(FeretUIForm):
+            pass
+
+        token = cvar_feretui.set(None)
+        try:
+            assert gettext(SimpleForm, "Untranslated text") == "Untranslated text"
+        finally:
+            cvar_feretui.reset(token)
+
+    def test_file_field(self, feretui, frequest) -> None:
+        """Test FileField processing and rendering."""
+        from feretui.form import FileField, FeretUIForm, wrap_file
+
+        class DocumentForm(FeretUIForm):
+            doc = FileField("Document", allowed_extensions=["pdf", "docx"], max_size=1024)
+
+        form = DocumentForm()
+        # Empty
+        assert form.doc.data is None
+        html_empty = form.doc()
+        assert 'type="file"' in html_empty
+
+        # Formdata processing
+        form.doc.process_formdata(["invoice.pdf"])
+        assert form.doc.data == "invoice.pdf"
+        html_filled = form.doc()
+        assert "invoice.pdf" in html_filled
+        assert "Current file:" in html_filled
+
+        # Readonly rendering with string data
+        html_ro = form.doc(readonly=True)
+        assert 'type="file"' not in html_ro
+        assert "invoice.pdf" in html_ro
+
+        # Readonly with object having filename
+        class FileObj:
+            filename = "report.docx"
+
+        form.doc.data = FileObj()
+        html_obj = form.doc(readonly=True)
+        assert "report.docx" in html_obj
+
+        # Readonly with dict having filename
+        form.doc.data = {"filename": "sheet.xlsx"}
+        html_dict = form.doc(readonly=True)
+        assert "sheet.xlsx" in html_dict
+
+        # Readonly with no file
+        form.doc.data = None
+        html_none = form.doc(readonly=True)
+        assert "No file" in html_none
+
+        # Empty formdata
+        form.doc.process_formdata([])
+        assert form.doc.data is None
+
+        # Direct wrap with wrapper_id and oob
+        wrapped = wrap_file(
+            feretui,
+            frequest.session,
+            form.doc,
+            wrapper_id="doc-wrap",
+            oob=True,
+        )
+        assert 'id="doc-wrap"' in wrapped
+        assert 'hx-swap-oob="true"' in wrapped
+
+    def test_multi_file_field(self, feretui, frequest) -> None:
+        """Test MultiFileField processing and rendering."""
+        from feretui.form import MultiFileField, FeretUIForm, wrap_multi_file
+
+        class AttachmentForm(FeretUIForm):
+            files = MultiFileField("Attachments")
+
+        form = AttachmentForm()
+        assert form.files.data == []
+
+        # Process formdata
+        form.files.process_formdata(["f1.pdf", "f2.png"])
+        assert form.files.data == ["f1.pdf", "f2.png"]
+        html_rendered = form.files()
+        assert "f1.pdf, f2.png" in html_rendered
+
+        # Readonly with dict and object items
+        class CustomFile:
+            filename = "contract.pdf"
+
+        form.files.data = ["plain.txt", CustomFile(), {"filename": "archive.zip"}]
+        html_ro = form.files(readonly=True)
+        assert "plain.txt, contract.pdf, archive.zip" in html_ro
+
+        # Single item fallback
+        form.files.data = "single.pdf"
+        html_single = form.files(readonly=True)
+        assert "single.pdf" in html_single
+
+        # Empty formdata
+        form.files.process_formdata([])
+        assert form.files.data == []
+
+        # Process data branches
+        form.files.process_data(None)
+        assert form.files.data == []
+        form.files.process_data(["doc.pdf"])
+        assert form.files.data == ["doc.pdf"]
+        form.files.process_data(("doc2.pdf",))
+        assert form.files.data == ["doc2.pdf"]
+        form.files.process_data("doc3.pdf")
+        assert form.files.data == ["doc3.pdf"]
+
+        # Direct wrap with wrapper_id and oob
+        wrapped = wrap_multi_file(
+            feretui,
+            frequest.session,
+            form.files,
+            wrapper_id="multi-wrap",
+            oob=True,
+        )
+        assert 'id="multi-wrap"' in wrapped
+
+    def test_image_field(self, feretui, frequest) -> None:
+        """Test ImageField rendering with preview and avatar mode."""
+        from feretui.form import ImageField, FeretUIForm, wrap_image
+
+        class ProfileForm(FeretUIForm):
+            avatar = ImageField("Avatar", is_avatar=True)
+            photo = ImageField("Photo", is_avatar=False)
+
+        form = ProfileForm()
+        # Empty avatar
+        html_avatar_empty = form.avatar()
+        assert "feretui-avatar" in html_avatar_empty
+        assert "ti-photo" in html_avatar_empty
+
+        # Filled with URL string
+        form.photo.data = "/static/uploads/photo.jpg"
+        html_photo = form.photo()
+        assert "/static/uploads/photo.jpg" in html_photo
+        assert "<img" in html_photo
+        assert 'src="/static/uploads/photo.jpg"' in html_photo
+
+        # Readonly mode
+        html_photo_ro = form.photo(readonly=True)
+        assert 'type="file"' not in html_photo_ro
+        assert "/static/uploads/photo.jpg" in html_photo_ro
+
+        # Dict with url / filename
+        form.photo.data = {"url": "/images/logo.png"}
+        html_dict = form.photo()
+        assert "/images/logo.png" in html_dict
+
+        # Object with filename
+        class ImgObj:
+            filename = "/images/portrait.png"
+
+        form.photo.data = ImgObj()
+        html_obj = form.photo()
+        assert "/images/portrait.png" in html_obj
+
+        # Direct wrap with wrapper_id and oob
+        wrapped = wrap_image(
+            feretui,
+            frequest.session,
+            form.photo,
+            wrapper_id="photo-wrap",
+            oob=True,
+        )
+        assert 'id="photo-wrap"' in wrapped
+        assert 'hx-swap-oob="true"' in wrapped
+
+    def test_monetary_field(self, feretui, frequest) -> None:
+        """Test MonetaryField rendering and formatting."""
+        from decimal import Decimal
+        from feretui.form import MonetaryField, FeretUIForm, wrap_monetary
+
+        class PricingForm(FeretUIForm):
+            price_eur = MonetaryField("Price EUR", currency="€", currency_position="after")
+            price_usd = MonetaryField("Price USD", currency="$", currency_position="before")
+
+        form = PricingForm()
+        # Empty
+        html_eur = form.price_eur()
+        assert "feretui-monetary" in html_eur
+        assert "€" in html_eur
+
+        # EUR with float value
+        form.price_eur.data = 1250.5
+        html_eur_filled = form.price_eur()
+        assert "feretui-monetary" in html_eur_filled
+
+        # EUR readonly
+        html_eur_ro = form.price_eur(readonly=True)
+        assert "1250.50 €" in html_eur_ro
+
+        # USD before position filled and readonly
+        form.price_usd.data = Decimal("99.99")
+        html_usd = form.price_usd()
+        assert "$" in html_usd
+        html_usd_ro = form.price_usd(readonly=True)
+        assert "$ 99.99" in html_usd_ro
+
+        # Invalid float fallback
+        form.price_eur.data = "invalid-amount"
+        assert form.price_eur._value() == "invalid-amount"
+        html_inv_ro = form.price_eur(readonly=True)
+        assert "invalid-amount" in html_inv_ro
+
+        # raw_data and None data coverage
+        form.price_eur.raw_data = ["42.50"]
+        assert form.price_eur._value() == "42.50"
+        form.price_eur.raw_data = None
+        form.price_eur.data = None
+        assert form.price_eur._value() == ""
+
+        # Direct wrap with wrapper_id and oob
+        wrapped = wrap_monetary(
+            feretui,
+            frequest.session,
+            form.price_eur,
+            wrapper_id="eur-wrap",
+            oob=True,
+        )
+        assert 'id="eur-wrap"' in wrapped
+
+    def test_tags_field(self, feretui, frequest) -> None:
+        """Test TagsField parsing and rendering."""
+        from feretui.form import TagsField, FeretUIForm, wrap_tags
+
+        class ArticleForm(FeretUIForm):
+            tags = TagsField("Tags", separator=",")
+
+        form = ArticleForm()
+        assert form.tags.data == []
+
+        # Process data from list
+        form.tags.process_data(["tech", "python", "ai"])
+        assert form.tags.data == ["tech", "python", "ai"]
+        html_rendered = form.tags()
+        assert "feretui-tag" in html_rendered
+        assert "tech" in html_rendered
+        assert "python" in html_rendered
+        assert "ai" in html_rendered
+
+        # Readonly mode
+        html_ro = form.tags(readonly=True)
+        assert 'name="tags"' not in html_ro
+        assert "tech" in html_ro
+
+        # Process data from comma string
+        form.tags.process_data("web, cloud, devops")
+        assert form.tags.data == ["web", "cloud", "devops"]
+
+        # Process data from None or non-iterable
+        form.tags.process_data(None)
+        assert form.tags.data == []
+        form.tags.process_data(12345)
+        assert form.tags.data == []
+
+        # Process formdata from string
+        form.tags.process_formdata(["finance, legal, erp"])
+        assert form.tags.data == ["finance", "legal", "erp"]
+
+        # Process formdata from list
+        form.tags.process_formdata([["lead", "urgent"]])
+        assert form.tags.data == ["lead", "urgent"]
+
+        # Process formdata from non-string/list
+        form.tags.process_formdata([123])
+        assert form.tags.data == []
+
+        # Process formdata from empty
+        form.tags.process_formdata([])
+        assert form.tags.data == []
+
+        # Direct wrap with wrapper_id and oob
+        wrapped = wrap_tags(
+            feretui,
+            frequest.session,
+            form.tags,
+            wrapper_id="tags-wrap",
+            oob=True,
+        )
+        assert 'id="tags-wrap"' in wrapped
+
+    def test_wysiwyg_field(self, feretui, frequest) -> None:
+        """Test WYSIWYGField, RichTextField, and HtmlField rendering."""
+        from feretui.form import (
+            HtmlField,
+            RichTextField,
+            WYSIWYGField,
+            FeretUIForm,
+            wrap_wysiwyg,
+        )
+
+        assert RichTextField is WYSIWYGField
+        assert HtmlField is WYSIWYGField
+
+        class ArticleForm(FeretUIForm):
+            content = WYSIWYGField(
+                "Article Content",
+                min_height="350px",
+                placeholder="Type your story here...",
+            )
+            notes = RichTextField("Internal Notes")
+
+        form = ArticleForm()
+        form.content.data = "<p>Hello <strong>World</strong>!</p>"
+
+        # Edit mode rendering
+        html_rendered = form.content()
+        assert "feretui-wysiwyg-container" in html_rendered
+        assert "feretui-wysiwyg-toolbar" in html_rendered
+        assert 'data-command="bold"' in html_rendered
+        assert 'data-command="italic"' in html_rendered
+        assert 'data-command="createLink"' in html_rendered
+        assert 'data-placeholder="Type your story here..."' in html_rendered
+        assert "min-height: 350px;" in html_rendered
+        assert "Hello <strong>World</strong>!" in html_rendered
+        assert 'class="feretui-wysiwyg-textarea"' in html_rendered
+        assert "<textarea" in html_rendered
+        assert 'name="content"' in html_rendered
+        assert 'id="content"' in html_rendered
+
+        # Readonly mode rendering
+        html_ro = form.content(readonly=True)
+        assert "feretui-wysiwyg-preview" in html_ro
+        assert "Hello <strong>World</strong>!" in html_ro
+        assert "feretui-wysiwyg-toolbar" not in html_ro
+        assert "feretui-wysiwyg-textarea" not in html_ro
+
+        # Empty / None data rendering
+        form.content.data = None
+        html_empty = form.content()
+        assert "feretui-wysiwyg-container" in html_empty
+
+        # Errors rendering
+        form.content.errors = ["Content is required"]
+        html_err = form.content()
+        assert "Content is required" in html_err
+
+        # Direct wrap_wysiwyg with wrapper_id, oob, nolabel
+        wrapped = wrap_wysiwyg(
+            feretui,
+            frequest.session,
+            form.content,
+            wrapper_id="content-wrap",
+            oob=True,
+            nolabel=True,
+        )
+        assert 'id="content-wrap"' in wrapped
+        assert 'hx-swap-oob="true"' in wrapped
+        assert "<label" not in wrapped
+
 
 
 

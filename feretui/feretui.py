@@ -131,15 +131,19 @@ def import_feretui_addons(feretui: "FeretUI") -> None:
     """Import the main static used by FeretUI client.
 
     * javascript:
-        * Htmx_
-        * `hyperscript <https://hyperscript.org/docs/>`_
-        * `sortablejs <https://sortablejs.github.io/Sortable/>`_
+        * Htmx_ 2.0.4 & SSE extension 2.2.2
+        * `hyperscript <https://hyperscript.org/docs/>`_ 0.9.14
+        * `alpinejs <https://alpinejs.dev/>`_ 3.14.8
+        * `sortablejs <https://sortablejs.github.io/Sortable/>`_ 1.15.7
+        * FeretUI client scripts
 
     * css:
-        * `pico <https://picocss.com/>`_
+        * `pico <https://picocss.com/>`_ 2.1.1
+        * FeretUI client styles
+        * `tabler-icons <https://tabler.io/icons>`_ 3.49.0
 
-    * font
-        * `Fontawesome <https://fontawesome.com/>`_
+    * font:
+        * `Tabler Icons <https://tabler.io/icons>`_
 
     * image:
         * FeretUI logo.
@@ -154,15 +158,23 @@ def import_feretui_addons(feretui: "FeretUI") -> None:
     # ---- JS ----
     feretui.register_js(
         "htmx.js",
-        Path(feretui_path, "static", "htmx.1.9.10.js"),
+        Path(feretui_path, "static", "htmx.2.0.4.min.js"),
+    )
+    feretui.register_js(
+        "htmx-sse.js",
+        Path(feretui_path, "static", "htmx-ext-sse.2.2.2.js"),
     )
     feretui.register_js(
         "hyperscript.js",
-        Path(feretui_path, "static", "hyperscript.0.9.12.js"),
+        Path(feretui_path, "static", "hyperscript.0.9.14.min.js"),
+    )
+    feretui.register_js(
+        "alpine.js",
+        Path(feretui_path, "static", "alpine.3.14.8.min.js"),
     )
     feretui.register_js(
         "sortable.js",
-        Path(feretui_path, "static", "sortable.1.15.2.min.js"),
+        Path(feretui_path, "static", "sortable.1.15.7.min.js"),
     )
     feretui.register_js(
         "feretui.js",
@@ -180,39 +192,6 @@ def import_feretui_addons(feretui: "FeretUI") -> None:
         Path(feretui_path, "static", "feretui.css"),
         compress=True,
     )
-    feretui.register_css(
-        "fontawesome/css/all.css",
-        Path(
-            feretui_path,
-            "static",
-            "fontawesome-free-6.5.1-web",
-            "css",
-            "all.min.css",
-        ),
-        compress=False,
-    )
-
-    # ---- FontAwesome Fonts ----
-    for font in (
-        "fa-brands-400.ttf",
-        "fa-brands-400.woff2",
-        "fa-regular-400.ttf",
-        "fa-regular-400.woff2",
-        "fa-solid-900.ttf",
-        "fa-solid-900.woff2",
-        "fa-v4compatibility.ttf",
-        "fa-v4compatibility.woff2",
-    ):
-        feretui.register_font(
-            f"fontawesome/webfonts/{font}",
-            Path(
-                feretui_path,
-                "static",
-                "fontawesome-free-6.5.1-web",
-                "webfonts",
-                font,
-            ),
-        )
 
     # ---- Tabler Icons ----
     feretui.register_css(
@@ -544,7 +523,7 @@ class FeretUI:
                 "feretui-client",
                 title=title,
                 request=request,
-                page=Markup.unescape(
+                page=Markup(
                     self.get_page(page)(
                         self,
                         request.session,
@@ -565,7 +544,7 @@ class FeretUI:
                 template = template.replace("feretui-html", "html")
             template = template.replace("feretui-head", "head")
             template = template.replace("feretui-body", "body")
-            return Response(f"<!DOCTYPE html5>\n{Markup.unescape(template)}")
+            return Response(f"<!DOCTYPE html>\n{template}")
 
     # ---------- statics  ----------
     @property

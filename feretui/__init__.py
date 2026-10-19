@@ -199,11 +199,16 @@ to manipulate this data.
 
 * :class:`feretui.resources.resource.Resource`
 * :class:`feretui.resources.list.LResource`
+* :class:`feretui.resources.kanban.KResource`
 * :class:`feretui.resources.create.CResource`
-* :class:`feretui.resources.list.RResource`
+* :class:`feretui.resources.read.RResource`
 * :class:`feretui.resources.update.UResource`
 * :class:`feretui.resources.delete.DResource`
-* :class:`feretui.resources.LCRUDResource`
+* :class:`feretui.resources.LCRUDResource` (alias :class:`.LCRUD`)
+* :class:`feretui.resources.KCRUDResource` (alias :class:`.KCRUD`)
+* :class:`feretui.resources.LKCRUDResource` (alias :class:`.LKCRUD`)
+* :class:`feretui.resources.CalCRUDResource` (alias :class:`.CalCRUD`)
+* :class:`feretui.resources.GCRUDResource` (alias :class:`.GCRUD`)
 
 
 The client FeretUI add translation mechanism. This mecanism can be declared
@@ -251,10 +256,19 @@ all the translation messages in pot file.
 from feretui.feretui import FeretUI
 from feretui.form import (
     FeretUIForm,
+    FileField,
+    ImageField,
+    Many2ManyField,
     Many2OneField,
+    MonetaryField,
+    MultiFileField,
     One2ManyField,
     Password,
+    RichTextField,
     StatusBarField,
+    TagsField,
+    WYSIWYGField,
+    wrap_wysiwyg,
 )
 from feretui.helper import (
     action_for_authenticated_user,
@@ -279,12 +293,22 @@ from feretui.menus import (
 )
 from feretui.request import Request
 from feretui.resources import (
+    GCRUD,
+    KCRUD,
+    LCRUD,
+    LKCRUD,
     Action,
     Actionset,
+    CalCRUD,
+    CalCRUDResource,
     CResource,
     DResource,
+    GCRUDResource,
     GotoViewAction,
+    KCRUDResource,
+    KResource,
     LCRUDResource,
+    LKCRUDResource,
     LResource,
     Resource,
     RResource,
@@ -297,9 +321,18 @@ from feretui.session import Session
 __all__ = [
     "FeretUI",
     "FeretUIForm",
+    "FileField",
+    "MultiFileField",
+    "ImageField",
+    "Many2ManyField",
     "Many2OneField",
+    "MonetaryField",
     "One2ManyField",
     "StatusBarField",
+    "TagsField",
+    "WYSIWYGField",
+    "RichTextField",
+    "wrap_wysiwyg",
     "Password",
     "action_for_authenticated_user",
     "action_for_unauthenticated_user",
@@ -324,12 +357,22 @@ __all__ = [
     "CResource",
     "DResource",
     "GotoViewAction",
-    "LCRUDResource",
+    "KResource",
     "LResource",
-    "Resource",
     "RResource",
-    "SelectedRowsAction",
     "UResource",
+    "LCRUDResource",
+    "KCRUDResource",
+    "LKCRUDResource",
+    "CalCRUDResource",
+    "GCRUDResource",
+    "LCRUD",
+    "KCRUD",
+    "LKCRUD",
+    "CalCRUD",
+    "GCRUD",
+    "Resource",
+    "SelectedRowsAction",
     "Response",
     "Session",
 ]

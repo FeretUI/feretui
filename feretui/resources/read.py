@@ -130,11 +130,25 @@ class ReadView(ActionsMixinForView, TemplateMixinForView, View):
             },
         )
         if hasattr(self.resource, "get_smart_buttons"):
-            res["smart_buttons"] = self.resource.get_smart_buttons(
-                form,
-                feretui,
-                session,
+            raw_sbs = (
+                self.resource.get_smart_buttons(
+                    form,
+                    feretui,
+                    session,
+                )
+                or []
             )
+            sbs = []
+            for sb in raw_sbs:
+                item = dict(sb)
+                if "goto_url" not in item:
+                    url = item.get("url", "")
+                    query = (
+                        url.split("?", 1)[1] if "?" in url else url.lstrip("/")
+                    )
+                    item["goto_url"] = f"{feretui.base_url}/action/goto?{query}"
+                sbs.append(item)
+            res["smart_buttons"] = sbs
         return res
 
     def get_header_buttons(
@@ -157,7 +171,7 @@ class ReadView(ActionsMixinForView, TemplateMixinForView, View):
         res = super().get_header_buttons(feretui, session, options)
         if self.create_button_redirect_to:
             res.append(
-                Markup.unescape(
+                Markup(
                     feretui.render_template(
                         session,
                         "view-goto-create-button",
@@ -172,7 +186,7 @@ class ReadView(ActionsMixinForView, TemplateMixinForView, View):
             )
         if self.edit_button_redirect_to:
             res.append(
-                Markup.unescape(
+                Markup(
                     feretui.render_template(
                         session,
                         "view-goto-edit-button",
@@ -186,7 +200,7 @@ class ReadView(ActionsMixinForView, TemplateMixinForView, View):
             )
         if self.delete_button_redirect_to:
             res.append(
-                Markup.unescape(
+                Markup(
                     feretui.render_template(
                         session,
                         "view-goto-delete-button",
@@ -200,7 +214,7 @@ class ReadView(ActionsMixinForView, TemplateMixinForView, View):
             )
         if self.return_button_redirect_to:
             res.append(
-                Markup.unescape(
+                Markup(
                     feretui.render_template(
                         session,
                         "view-goto-return-button",

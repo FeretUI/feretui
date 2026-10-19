@@ -154,7 +154,7 @@ class Action(ActionI18nMixin):
         :return: The html
         :rtype: Markup
         """
-        return Markup.unescape(
+        return Markup(
             feretui.render_template(
                 session,
                 self.template_id,
@@ -327,7 +327,7 @@ class Actionset(ActionI18nMixin):
         :return: The html
         :rtype: Markup
         """
-        return Markup.unescape(
+        return Markup(
             feretui.render_template(
                 session,
                 "feretui-page-resource-action-set",

@@ -125,7 +125,7 @@ class ListView(MultiView, LabelMixinForView, View):
                     f"{base_url}?{urllib.parse.urlencode(params, doseq=True)}"
                 )
                 res.append(
-                    Markup.unescape(
+                    Markup(
                         feretui.render_template(
                             session,
                             "view-export-button",
@@ -244,7 +244,7 @@ class ListView(MultiView, LabelMixinForView, View):
         :return: The html page in
         :rtype: str.
         """
-        return Markup.unescape(
+        return Markup(
             feretui.render_template(
                 session,
                 "feretui-resource-list",

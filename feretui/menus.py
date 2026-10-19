@@ -270,7 +270,7 @@ class Menu(ContextProperties):
         :return: The html
         :rtype: str
         """
-        return Markup.unescape(
+        return Markup(
             feretui.render_template(
                 session,
                 self.template_id,
@@ -313,7 +313,7 @@ class ChildrenMenu:
         :return: The html
         :rtype: str
         """
-        return Markup.unescape(
+        return Markup(
             feretui.render_template(
                 session,
                 self.template_id,
@@ -446,7 +446,7 @@ class ToolBarDividerMenu(ToolBarMenu):
         :return: The html
         :rtype: str
         """
-        return Markup.unescape(
+        return Markup(
             feretui.render_template(session, self.template_id),
         )
 
@@ -532,7 +532,7 @@ class ToolBarButtonMenu(Menu):
         :return: The html
         :rtype: str
         """
-        return Markup.unescape(
+        return Markup(
             feretui.render_template(
                 session,
                 self.template_id,
@@ -786,7 +786,7 @@ class SitemapMenu:
         """Return the menu."""
         key = "sitemap-header-menu" if len(self.children) else "sitemap-menu"
         menu = self.menu
-        return Markup.unescape(
+        return Markup(
             feretui.render_template(
                 session,
                 key,

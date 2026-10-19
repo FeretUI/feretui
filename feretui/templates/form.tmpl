@@ -122,7 +122,11 @@
       {% if readonly %}
         {% if link_url %}
         <div class="feretui-many2one-link-container">
-          <a href="{{ link_url }}" hx-get="{{ link_url }}" hx-push-url="true" class="feretui-many2one-link">
+          <a href="{{ link_url }}"
+             hx-get="{{ goto_url }}"
+             hx-target="#feretui-body"
+             hx-swap="innerHTML"
+             class="feretui-many2one-link">
             <i class="ti ti-arrow-up-right"></i>
             {{ display_text }}
           </a>
@@ -138,7 +142,13 @@
             {{ widget }}
           </div>
           {% if link_url %}
-          <a href="{{ link_url }}" hx-get="{{ link_url }}" hx-push-url="true" class="button outline secondary is-small" style="padding: 0.35rem 0.65rem;" title="View record">
+          <a href="{{ link_url }}"
+             hx-get="{{ goto_url }}"
+             hx-target="#feretui-body"
+             hx-swap="innerHTML"
+             class="button outline secondary is-small"
+             style="padding: 0.35rem 0.65rem;"
+             title="View record">
             <i class="ti ti-external-link"></i>
           </a>
           {% endif %}
@@ -151,11 +161,25 @@
   </template>
   <template id="feretui-one2many-field">
     <div class="feretui-one2many-wrapper" aria-description="{{ description }}" style="margin-top: 1rem; margin-bottom: 1.5rem;">
-      {% if label %}
       <div class="feretui-one2many-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; border-bottom: 1px solid var(--pico-muted-border-color); padding-bottom: 0.25rem;">
+        {% if label %}
         <h4 style="margin-bottom: 0;">{{ label.text }}</h4>
+        {% else %}
+        <div></div>
+        {% endif %}
+        {% if target_resource and can_create %}
+        <a href="{{ create_href }}"
+           hx-get="{{ create_goto }}"
+           hx-target="#feretui-body"
+           hx-swap="innerHTML"
+           class="button outline primary is-small"
+           style="padding: 0.2rem 0.65rem; font-size: 0.8rem; margin: 0; display: inline-flex; align-items: center; gap: 0.35rem;"
+           title="{{ add_label }}">
+          <i class="ti ti-plus"></i>
+          <span>{{ add_label }}</span>
+        </a>
+        {% endif %}
       </div>
-      {% endif %}
       <div class="table-container overflow-auto">
         <table class="striped is-fullwidth feretui-one2many-table" style="margin-bottom: 0.5rem;">
           <thead>
@@ -163,8 +187,8 @@
               {% for col_name, col_label in columns %}
               <th>{{ col_label }}</th>
               {% endfor %}
-              {% if target_resource %}
-              <th style="width: 60px; text-align: center;"></th>
+              {% if target_resource or can_delete %}
+              <th style="width: 120px; text-align: center;">Actions</th>
               {% endif %}
             </tr>
           </thead>
@@ -174,8 +198,11 @@
               <tr>
                 {% for col_name, col_label in columns %}
                 <td>
-                  {% if col_name == first_column and target_resource and row.pk %}
-                    <a href="/?page=resource&resource={{ target_resource }}&view=read&pk={{ row.pk }}" hx-get="/?page=resource&resource={{ target_resource }}&view=read&pk={{ row.pk }}" hx-push-url="true">
+                  {% if col_name == first_column and target_resource and row.pk and can_view %}
+                    <a href="{{ row.read_href }}"
+                       hx-get="{{ row.read_goto }}"
+                       hx-target="#feretui-body"
+                       hx-swap="innerHTML">
                       {{ row[col_name] }}
                     </a>
                   {% else %}
@@ -183,20 +210,60 @@
                   {% endif %}
                 </td>
                 {% endfor %}
-                {% if target_resource %}
-                <td style="text-align: center;">
-                  {% if row.pk %}
-                  <a href="/?page=resource&resource={{ target_resource }}&view=read&pk={{ row.pk }}" hx-get="/?page=resource&resource={{ target_resource }}&view=read&pk={{ row.pk }}" hx-push-url="true" class="button outline secondary is-small" style="padding: 0.15rem 0.4rem; font-size: 0.75rem;" title="View">
-                    <i class="ti ti-eye"></i>
-                  </a>
-                  {% endif %}
+                {% if target_resource or can_delete %}
+                <td style="text-align: center; white-space: nowrap;">
+                  <div class="feretui-one2many-actions buttons" style="display: inline-flex; gap: 0.25rem; justify-content: center; margin: 0;">
+                    {% if target_resource and row.pk and can_view %}
+                    <a href="{{ row.read_href }}"
+                       hx-get="{{ row.read_goto }}"
+                       hx-target="#feretui-body"
+                       hx-swap="innerHTML"
+                       class="button outline secondary is-small"
+                       style="padding: 0.15rem 0.45rem; font-size: 0.75rem; margin: 0;"
+                       title="View">
+                      <i class="ti ti-eye"></i>
+                    </a>
+                    {% endif %}
+                    {% if target_resource and row.pk and can_edit %}
+                    <a href="{{ row.edit_href }}"
+                       hx-get="{{ row.edit_goto }}"
+                       hx-target="#feretui-body"
+                       hx-swap="innerHTML"
+                       class="button outline secondary is-small"
+                       style="padding: 0.15rem 0.45rem; font-size: 0.75rem; margin: 0;"
+                       title="Edit">
+                      <i class="ti ti-edit"></i>
+                    </a>
+                    {% endif %}
+                    {% if can_delete %}
+                      {% if target_resource and row.pk %}
+                      <a href="{{ row.delete_href }}"
+                         hx-get="{{ row.delete_goto }}"
+                         hx-target="#feretui-body"
+                         hx-swap="innerHTML"
+                         class="button outline secondary is-small is-danger"
+                         style="padding: 0.15rem 0.45rem; font-size: 0.75rem; margin: 0; color: var(--pico-color-red-500, #e53e3e);"
+                         title="Delete">
+                        <i class="ti ti-trash"></i>
+                      </a>
+                      {% else %}
+                      <button type="button"
+                              class="button outline secondary is-small is-danger"
+                              style="padding: 0.15rem 0.45rem; font-size: 0.75rem; margin: 0; color: var(--pico-color-red-500, #e53e3e);"
+                              onclick="this.closest('tr').remove()"
+                              title="Delete">
+                        <i class="ti ti-trash"></i>
+                      </button>
+                      {% endif %}
+                    {% endif %}
+                  </div>
                 </td>
                 {% endif %}
               </tr>
               {% endfor %}
             {% else %}
               <tr>
-                <td colspan="{{ columns | length + (1 if target_resource else 0) }}" style="text-align: center; color: var(--pico-muted-color); padding: 1.5rem;">
+                <td colspan="{{ columns | length + (1 if (target_resource or can_delete) else 0) }}" style="text-align: center; color: var(--pico-muted-color); padding: 1.5rem;">
                   <em>No records found</em>
                 </td>
               </tr>
@@ -204,6 +271,163 @@
           </tbody>
         </table>
       </div>
+      {% if target_resource and can_create %}
+      <div style="margin-top: 0.5rem;">
+        <a href="{{ create_href }}"
+           hx-get="{{ create_goto }}"
+           hx-target="#feretui-body"
+           hx-swap="innerHTML"
+           class="button outline primary is-small"
+           style="padding: 0.25rem 0.65rem; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 0.35rem;"
+           title="{{ add_label }}">
+          <i class="ti ti-plus"></i>
+          <span>{{ add_label }}</span>
+        </a>
+      </div>
+      {% endif %}
+      {% if not readonly and errors %}
+      <include template="feretui-input-error"/>
+      {% endif %}
+    </div>
+  </template>
+  <template id="feretui-file-field">
+    <div class="feretui-file-wrapper" aria-description="{{ description }}">
+      {% if label %}
+      <include template="feretui-input-label"/>
+      {% endif %}
+      {% if readonly %}
+        <div class="feretui-file-preview">
+          {% if filename %}
+          <i class="ti ti-file"></i> <span>{{ filename }}</span>
+          {% else %}
+          <span style="color: var(--pico-muted-color); font-style: italic;">No file</span>
+          {% endif %}
+        </div>
+      {% else %}
+        {{ widget }}
+        {% if filename %}
+        <div class="feretui-file-current" style="margin-top: 0.25rem; font-size: 0.85rem; color: var(--pico-muted-color);">
+          <i class="ti ti-paperclip"></i> Current file: <strong>{{ filename }}</strong>
+        </div>
+        {% endif %}
+      {% endif %}
+      {% if not readonly and errors %}
+      <include template="feretui-input-error"/>
+      {% endif %}
+    </div>
+  </template>
+  <template id="feretui-image-field">
+    <div class="feretui-image-wrapper" aria-description="{{ description }}">
+      {% if label %}
+      <include template="feretui-input-label"/>
+      {% endif %}
+      <div class="feretui-image-container" style="display: flex; align-items: center; gap: 1rem; margin-top: 0.25rem;">
+        {% if image_url %}
+        <img src="{{ image_url }}" alt="Preview" class="feretui-image-preview {{ 'feretui-avatar' if is_avatar else '' }}" style="max-height: 80px; max-width: 120px; border-radius: {{ '50%' if is_avatar else '4px' }}; border: 1px solid var(--pico-muted-border-color); object-fit: cover;" />
+        {% else %}
+        <div class="feretui-image-placeholder {{ 'feretui-avatar' if is_avatar else '' }}" style="width: 60px; height: 60px; border-radius: {{ '50%' if is_avatar else '4px' }}; background: var(--pico-card-background-color); border: 1px dashed var(--pico-muted-border-color); display: flex; align-items: center; justify-content: center; color: var(--pico-muted-color);">
+          <i class="ti ti-photo" style="font-size: 1.5rem;"></i>
+        </div>
+        {% endif %}
+        {% if not readonly %}
+        <div style="flex: 1;">
+          {{ widget }}
+        </div>
+        {% endif %}
+      </div>
+      {% if not readonly and errors %}
+      <include template="feretui-input-error"/>
+      {% endif %}
+    </div>
+  </template>
+  <template id="feretui-monetary-field">
+    <div class="feretui-monetary-wrapper" aria-description="{{ description }}">
+      {% if label %}
+      <include template="feretui-input-label"/>
+      {% endif %}
+      {% if readonly %}
+        <div class="feretui-monetary-readonly" style="font-weight: 600;">
+          {% if currency_position == 'before' %}{{ currency }} {% endif %}{{ value or '0.00' }}{% if currency_position == 'after' %} {{ currency }}{% endif %}
+        </div>
+      {% else %}
+        <div class="feretui-monetary-group" style="display: flex; align-items: center;">
+          {% if currency_position == 'before' %}
+          <span class="feretui-currency-badge" style="padding: 0.5rem 0.75rem; background: var(--pico-card-background-color); border: 1px solid var(--pico-muted-border-color); border-right: none; border-radius: var(--pico-border-radius) 0 0 var(--pico-border-radius); font-weight: 600;">{{ currency }}</span>
+          {% endif %}
+          {{ widget }}
+          {% if currency_position == 'after' %}
+          <span class="feretui-currency-badge" style="padding: 0.5rem 0.75rem; background: var(--pico-card-background-color); border: 1px solid var(--pico-muted-border-color); border-left: none; border-radius: 0 var(--pico-border-radius) var(--pico-border-radius) 0; font-weight: 600;">{{ currency }}</span>
+          {% endif %}
+        </div>
+      {% endif %}
+      {% if not readonly and errors %}
+      <include template="feretui-input-error"/>
+      {% endif %}
+    </div>
+  </template>
+  <template id="feretui-tags-field">
+    <div class="feretui-tags-wrapper" aria-description="{{ description }}">
+      {% if label %}
+      <include template="feretui-input-label"/>
+      {% endif %}
+      <div class="tags" style="margin-bottom: 0.5rem;">
+        {% for tag in tags %}
+        <span class="tag is-info feretui-tag">{{ tag }}</span>
+        {% endfor %}
+      </div>
+      {% if not readonly %}
+      {{ widget }}
+      {% endif %}
+      {% if not readonly and errors %}
+      <include template="feretui-input-error"/>
+      {% endif %}
+    </div>
+  </template>
+  <template id="feretui-wysiwyg-field">
+    <div class="feretui-wysiwyg-wrapper" aria-description="{{ description }}">
+      {% if label %}
+      <include template="feretui-input-label"/>
+      {% endif %}
+      {% if readonly %}
+        <div class="feretui-wysiwyg-preview" style="min-height: {{ min_height }};">
+          {{ value | safe }}
+        </div>
+      {% else %}
+        <div class="feretui-wysiwyg-container">
+          <div class="feretui-wysiwyg-toolbar" role="toolbar" aria-label="Text formatting toolbar">
+            <div class="feretui-wysiwyg-group">
+              <button type="button" class="button outline secondary is-small" data-command="bold" title="Bold"><i class="ti ti-bold"></i></button>
+              <button type="button" class="button outline secondary is-small" data-command="italic" title="Italic"><i class="ti ti-italic"></i></button>
+              <button type="button" class="button outline secondary is-small" data-command="underline" title="Underline"><i class="ti ti-underline"></i></button>
+              <button type="button" class="button outline secondary is-small" data-command="strikeThrough" title="Strikethrough"><i class="ti ti-strikethrough"></i></button>
+            </div>
+            <div class="feretui-wysiwyg-group">
+              <button type="button" class="button outline secondary is-small" data-command="formatBlock" data-value="h1" title="Heading 1"><i class="ti ti-h-1"></i></button>
+              <button type="button" class="button outline secondary is-small" data-command="formatBlock" data-value="h2" title="Heading 2"><i class="ti ti-h-2"></i></button>
+              <button type="button" class="button outline secondary is-small" data-command="formatBlock" data-value="h3" title="Heading 3"><i class="ti ti-h-3"></i></button>
+              <button type="button" class="button outline secondary is-small" data-command="formatBlock" data-value="p" title="Paragraph"><i class="ti ti-paragraph"></i></button>
+            </div>
+            <div class="feretui-wysiwyg-group">
+              <button type="button" class="button outline secondary is-small" data-command="insertUnorderedList" title="Bullet list"><i class="ti ti-list"></i></button>
+              <button type="button" class="button outline secondary is-small" data-command="insertOrderedList" title="Numbered list"><i class="ti ti-list-numbers"></i></button>
+              <button type="button" class="button outline secondary is-small" data-command="formatBlock" data-value="blockquote" title="Quote"><i class="ti ti-quote"></i></button>
+              <button type="button" class="button outline secondary is-small" data-command="formatBlock" data-value="pre" title="Code"><i class="ti ti-code"></i></button>
+            </div>
+            <div class="feretui-wysiwyg-group">
+              <button type="button" class="button outline secondary is-small" data-command="createLink" title="Link"><i class="ti ti-link"></i></button>
+              <button type="button" class="button outline secondary is-small" data-command="unlink" title="Remove link"><i class="ti ti-unlink"></i></button>
+              <button type="button" class="button outline secondary is-small" data-command="removeFormat" title="Clear formatting"><i class="ti ti-clear-formatting"></i></button>
+            </div>
+          </div>
+          <div class="feretui-wysiwyg-editor"
+               contenteditable="true"
+               data-placeholder="{{ placeholder }}"
+               style="min-height: {{ min_height }};">
+            {{ value | safe }}
+          </div>
+          <textarea name="{{ field.name }}" id="{{ field.id }}" class="feretui-wysiwyg-textarea" style="display: none;">{{ value }}</textarea>
+        </div>
+      {% endif %}
       {% if not readonly and errors %}
       <include template="feretui-input-error"/>
       {% endif %}

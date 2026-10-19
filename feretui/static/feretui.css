@@ -329,22 +329,105 @@ legend small[aria-hidden="true"],
 }
 
 /* Bulma-compatible columns flex support */
-.columns.is-desktop {
+.columns {
   display: flex;
   flex-wrap: wrap;
   gap: 1.5rem;
   align-items: flex-start;
 }
 
-.columns.is-desktop > .column {
+.columns > .column {
   flex: 1 1 0%;
   min-width: 0;
+}
+
+.columns > .column.is-narrow,
+.columns > .column.is-narrow-desktop {
+  flex: 0 0 auto;
+  max-width: 100%;
 }
 
 .columns.is-desktop > .column.is-narrow,
 .columns.is-desktop > .column.is-narrow-desktop {
   flex: 0 0 240px;
   max-width: 240px;
+}
+
+.columns > .column.is-half {
+  flex: 0 0 calc(50% - 0.75rem);
+}
+
+.columns > .column.is-one-third {
+  flex: 0 0 calc(33.333% - 1rem);
+}
+
+.columns > .column.is-two-thirds {
+  flex: 0 0 calc(66.666% - 0.5rem);
+}
+
+.columns > .column.is-one-quarter {
+  flex: 0 0 calc(25% - 1.125rem);
+}
+
+.columns > .column.is-three-quarters {
+  flex: 0 0 calc(75% - 0.375rem);
+}
+
+/* Bulma-compatible field grouping */
+.field.is-grouped {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.field.is-grouped.is-grouped-multiline {
+  flex-wrap: wrap;
+}
+
+.field.is-grouped.is-grouped-right {
+  justify-content: flex-end;
+}
+
+.field.is-grouped.is-grouped-centered {
+  justify-content: center;
+}
+
+/* Bulma-compatible readonly plain-text input */
+.input.is-static,
+input.is-static,
+textarea.is-static,
+select.is-static {
+  background-color: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  pointer-events: none !important;
+  color: inherit !important;
+}
+
+/* Text and Float Utilities */
+.has-text-left {
+  text-align: left !important;
+}
+
+.has-text-right {
+  text-align: right !important;
+}
+
+.is-pulled-left {
+  float: left !important;
+}
+
+.is-pulled-right {
+  float: right !important;
+}
+
+.is-clearfix::after {
+  content: "";
+  display: table;
+  clear: both;
 }
 
 /* ==========================================================================
@@ -910,6 +993,20 @@ footer.is-hidden-print {
   color: var(--pico-muted-color);
 }
 
+.feretui-one2many-actions {
+  display: inline-flex;
+  gap: 0.25rem;
+  justify-content: center;
+  align-items: center;
+}
+
+.feretui-one2many-actions .button {
+  padding: 0.15rem 0.45rem !important;
+  font-size: 0.75rem !important;
+  margin: 0 !important;
+  line-height: 1.2 !important;
+}
+
 .feretui-smart-buttons {
   display: flex;
   justify-content: flex-end;
@@ -928,5 +1025,165 @@ footer.is-hidden-print {
   font-size: 0.85rem;
   text-decoration: none;
 }
+
+/* ==========================================================================
+   Monetary, File, Image & Tags Fields
+   ========================================================================== */
+
+.feretui-monetary {
+  text-align: right;
+  font-family: var(--pico-font-family-monospace, monospace);
+  font-weight: 600;
+}
+
+.feretui-monetary-group {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.feretui-monetary-group input {
+  margin-bottom: 0 !important;
+}
+
+.feretui-currency-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  color: var(--pico-muted-color);
+  user-select: none;
+}
+
+.feretui-file-wrapper {
+  margin-bottom: 1rem;
+}
+
+.feretui-file-preview {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--pico-card-background-color);
+  border: 1px solid var(--pico-muted-border-color);
+  border-radius: var(--pico-border-radius);
+  font-size: 0.9rem;
+}
+
+.feretui-image-wrapper {
+  margin-bottom: 1rem;
+}
+
+.feretui-image-preview {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.feretui-avatar {
+  border-radius: 50% !important;
+}
+
+.feretui-tags-wrapper {
+  margin-bottom: 1rem;
+}
+
+.feretui-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 0.2rem 0.55rem;
+  border-radius: 12px;
+}
+
+/* WYSIWYG / Rich-Text Editor */
+.feretui-wysiwyg-wrapper {
+  margin-bottom: 1rem;
+}
+
+.feretui-wysiwyg-container {
+  border: 1px solid var(--pico-muted-border-color);
+  border-radius: var(--pico-border-radius);
+  background: var(--pico-card-background-color);
+  overflow: hidden;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.feretui-wysiwyg-container:focus-within {
+  border-color: var(--pico-primary);
+  box-shadow: 0 0 0 var(--pico-outline-width) var(--pico-primary-focus);
+}
+
+.feretui-wysiwyg-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  padding: 0.35rem 0.5rem;
+  background: var(--pico-background-color);
+  border-bottom: 1px solid var(--pico-muted-border-color);
+  align-items: center;
+  user-select: none;
+}
+
+.feretui-wysiwyg-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  margin-right: 0.5rem;
+}
+
+.feretui-wysiwyg-group:last-child {
+  margin-right: 0;
+}
+
+.feretui-wysiwyg-group .button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.45rem;
+  font-size: 0.85rem;
+  height: auto;
+  min-height: unset;
+  line-height: 1;
+  border: 1px solid transparent;
+  border-radius: var(--pico-border-radius);
+  background: transparent;
+  color: var(--pico-color);
+  cursor: pointer;
+  margin: 0;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.feretui-wysiwyg-group .button:hover {
+  background: var(--pico-card-background-color);
+  border-color: var(--pico-muted-border-color);
+  color: var(--pico-primary);
+}
+
+.feretui-wysiwyg-editor {
+  padding: 0.75rem 1rem;
+  outline: none;
+  overflow-y: auto;
+  color: var(--pico-color);
+  line-height: 1.6;
+}
+
+.feretui-wysiwyg-editor:empty:before {
+  content: attr(data-placeholder);
+  color: var(--pico-muted-color);
+  pointer-events: none;
+  display: block;
+}
+
+.feretui-wysiwyg-preview {
+  padding: 0.75rem 1rem;
+  background: var(--pico-card-background-color);
+  border: 1px solid var(--pico-muted-border-color);
+  border-radius: var(--pico-border-radius);
+  color: var(--pico-color);
+  line-height: 1.6;
+  overflow-y: auto;
+}
+
 
 

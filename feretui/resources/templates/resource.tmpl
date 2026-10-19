@@ -129,7 +129,11 @@
       {% if smart_buttons %}
       <div class="feretui-smart-buttons">
         {% for btn in smart_buttons %}
-        <a href="{{ btn.url }}" hx-get="{{ btn.url }}" hx-push-url="true" class="button outline secondary is-small feretui-smart-button">
+        <a href="{{ btn.url }}"
+           hx-get="{{ btn.goto_url or btn.url }}"
+           hx-target="#feretui-body"
+           hx-swap="innerHTML"
+           class="button outline secondary is-small feretui-smart-button">
           {% if btn.icon %}<i class="{{ btn.icon }}"></i>{% endif %}
           <span><strong>{{ btn.count }}</strong> {{ btn.label }}</span>
         </a>
@@ -138,14 +142,14 @@
       {% endif %}
 
       <div class="feretui-form-grid grid">
-        {% for field in form if field.type not in ('HiddenField', 'TextAreaField', 'One2ManyField') and field.name != 'pk' %}
+        {% for field in form if field.type not in ('HiddenField', 'TextAreaField', 'One2ManyField', 'Many2ManyField', 'WYSIWYGField') and field.name != 'pk' %}
         <div class="feretui-grid-field">
           {{ field(readonly=True) }}
         </div>
         {% endfor %}
       </div>
 
-      {% for field in form if field.type in ('TextAreaField', 'One2ManyField') %}
+      {% for field in form if field.type in ('TextAreaField', 'One2ManyField', 'Many2ManyField', 'WYSIWYGField') %}
       <div class="feretui-fullwidth-field">
         {{ field(readonly=True) }}
       </div>
@@ -167,14 +171,14 @@
       </div>
 
       <div class="feretui-form-grid grid">
-        {% for field in form if field.type not in ('HiddenField', 'TextAreaField', 'One2ManyField') and field.name != 'pk' %}
+        {% for field in form if field.type not in ('HiddenField', 'TextAreaField', 'One2ManyField', 'Many2ManyField', 'WYSIWYGField') and field.name != 'pk' %}
         <div class="feretui-grid-field">
           {{ field }}
         </div>
         {% endfor %}
       </div>
 
-      {% for field in form if field.type in ('TextAreaField', 'One2ManyField') %}
+      {% for field in form if field.type in ('TextAreaField', 'One2ManyField', 'Many2ManyField', 'WYSIWYGField') %}
       <div class="feretui-fullwidth-field">
         {{ field }}
       </div>

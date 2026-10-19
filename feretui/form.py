@@ -42,6 +42,7 @@ from password_validator import PasswordValidator
 from polib import POFile
 from wtforms.fields import (
     BooleanField,
+    DecimalField,
     Field,
     FormField,
     HiddenField,
@@ -53,7 +54,7 @@ from wtforms.fields import (
 from wtforms.fields.core import UnboundField
 from wtforms.form import Form
 from wtforms.validators import InputRequired, ValidationError
-from wtforms.widgets import ListWidget
+from wtforms.widgets import FileInput, ListWidget, TextArea, TextInput
 from wtforms.widgets.core import clean_key
 from wtforms_components import read_only
 
@@ -107,7 +108,7 @@ def wrap_input(
     wrapper_id = kwargs.pop("wrapper_id", None)
     oob = kwargs.pop("oob", False)
 
-    html = Markup.unescape(
+    html = Markup(
         feretui.render_template(
             session,
             "feretui-input-field",
@@ -152,7 +153,7 @@ def wrap_bool(
     wrapper_id = kwargs.pop("wrapper_id", None)
     oob = kwargs.pop("oob", False)
 
-    html = Markup.unescape(
+    html = Markup(
         feretui.render_template(
             session,
             "feretui-bool-field",
@@ -207,7 +208,7 @@ def wrap_radio(
     wrapper_id = kwargs.pop("wrapper_id", None)
     oob = kwargs.pop("oob", False)
 
-    html = Markup.unescape(
+    html = Markup(
         feretui.render_template(
             session,
             template_id,
@@ -261,7 +262,7 @@ def wrap_fieldset(
     wrapper_id = kwargs.pop("wrapper_id", None)
     oob = kwargs.pop("oob", False)
 
-    html = Markup.unescape(
+    html = Markup(
         feretui.render_template(
             session,
             "feretui-fieldset",
@@ -488,7 +489,7 @@ def wrap_status_bar(
     wrapper_id = kwargs.pop("wrapper_id", None)
     oob = kwargs.pop("oob", False)
     widget_html = field.widget(field, **kwargs)
-    html = Markup.unescape(
+    html = Markup(
         feretui.render_template(
             session,
             "feretui-status-bar-field",
@@ -550,16 +551,22 @@ def wrap_many2one(
                 break
 
     link_url = ""
+    goto_url = ""
     if target_resource and val:
         link_url = (
             f"/?page=resource&resource={target_resource}&view=read&pk={val}"
+        )
+        base_url = getattr(feretui, "base_url", "/feretui")
+        goto_url = (
+            f"{base_url}/action/goto?page=resource&"
+            f"resource={target_resource}&view=read&pk={val}"
         )
 
     wrapper_id = kwargs.pop("wrapper_id", None)
     oob = kwargs.pop("oob", False)
     widget_html = field.widget(field, **kwargs) if not readonly else ""
 
-    html = Markup.unescape(
+    html = Markup(
         feretui.render_template(
             session,
             "feretui-many2one-field",
@@ -568,6 +575,7 @@ def wrap_many2one(
             readonly=readonly,
             display_text=display_text,
             link_url=link_url,
+            goto_url=goto_url,
             target_resource=target_resource,
             description=field.description,
             errors=field.errors,
@@ -589,12 +597,22 @@ class One2ManyField(Field):
         validators: list | None = None,
         columns: list[tuple[str, str]] | None = None,
         target_resource: str | None = None,
+        can_create: bool = True,
+        can_edit: bool = True,
+        can_delete: bool = True,
+        can_view: bool = True,
+        add_label: str | None = None,
         **kwargs: dict,
     ) -> None:
         """Initialize One2ManyField."""
         super().__init__(label, validators, **kwargs)
         self.columns = columns or []
         self.target_resource = target_resource
+        self.can_create = can_create
+        self.can_edit = can_edit
+        self.can_delete = can_delete
+        self.can_view = can_view
+        self.add_label = add_label
         self.data: list = []
 
     def process_data(self: "One2ManyField", value: object) -> None:
@@ -618,8 +636,25 @@ def wrap_one2many(
     """Render one2many field as an embedded sub-table."""
     readonly = kwargs.pop("readonly", False)
     target_resource = getattr(field, "target_resource", None)
+    can_create = getattr(field, "can_create", True)
+    can_edit = getattr(field, "can_edit", True)
+    can_delete = getattr(field, "can_delete", True)
+    can_view = getattr(field, "can_view", True)
+    add_label = getattr(field, "add_label", None) or "Add a line"
     columns = getattr(field, "columns", [])
     first_col = columns[0][0] if columns else ""
+
+    base_url = getattr(feretui, "base_url", "/feretui")
+    create_href = (
+        f"/?page=resource&resource={target_resource}&view=create"
+        if target_resource
+        else ""
+    )
+    create_goto = (
+        f"{base_url}/action/goto?page=resource&resource={target_resource}&view=create"
+        if target_resource
+        else ""
+    )
 
     rows: list[dict[str, object]] = []
     raw_data = getattr(field, "data", []) or []
@@ -630,7 +665,45 @@ def wrap_one2many(
             if not isinstance(item, dict)
             else item.get("id", item.get("pk", ""))
         )
-        row_dict["pk"] = str(pk_val) if pk_val else ""
+        pk_str = str(pk_val) if pk_val else ""
+        row_dict["pk"] = pk_str
+
+        row_dict["read_href"] = (
+            f"/?page=resource&resource={target_resource}&view=read&pk={pk_str}"
+            if target_resource and pk_str
+            else ""
+        )
+        row_dict["read_goto"] = (
+            f"{base_url}/action/goto?page=resource&"
+            f"resource={target_resource}&view=read&pk={pk_str}"
+            if target_resource and pk_str
+            else ""
+        )
+        row_dict["edit_href"] = (
+            f"/?page=resource&resource={target_resource}&"
+            f"view=update&pk={pk_str}"
+            if target_resource and pk_str
+            else ""
+        )
+        row_dict["edit_goto"] = (
+            f"{base_url}/action/goto?page=resource&"
+            f"resource={target_resource}&view=update&pk={pk_str}"
+            if target_resource and pk_str
+            else ""
+        )
+        row_dict["delete_href"] = (
+            f"/?page=resource&resource={target_resource}&"
+            f"view=delete&pk={pk_str}"
+            if target_resource and pk_str
+            else ""
+        )
+        row_dict["delete_goto"] = (
+            f"{base_url}/action/goto?page=resource&"
+            f"resource={target_resource}&view=delete&pk={pk_str}"
+            if target_resource and pk_str
+            else ""
+        )
+
         for col_name, _ in columns:
             if isinstance(item, dict):
                 row_dict[col_name] = str(item.get(col_name, ""))
@@ -641,7 +714,7 @@ def wrap_one2many(
     wrapper_id = kwargs.pop("wrapper_id", None)
     oob = kwargs.pop("oob", False)
 
-    html = Markup.unescape(
+    html = Markup(
         feretui.render_template(
             session,
             "feretui-one2many-field",
@@ -650,7 +723,459 @@ def wrap_one2many(
             first_column=first_col,
             rows=rows,
             target_resource=target_resource,
+            create_href=create_href,
+            create_goto=create_goto,
+            can_create=can_create,
+            can_edit=can_edit,
+            can_delete=can_delete,
+            can_view=can_view,
+            add_label=add_label,
             readonly=readonly,
+            description=field.description,
+            errors=field.errors,
+        ),
+    )
+    if wrapper_id:
+        oob_attr = ' hx-swap-oob="true"' if oob else ""
+        return Markup(f'<div id="{wrapper_id}"{oob_attr}>{html}</div>')  # noqa: S704
+
+    return html
+
+
+class Many2ManyField(One2ManyField):
+    """Field representing a Many-to-Many relationship in a Form."""
+
+
+def wrap_many2many(
+    feretui: "FeretUI",
+    session: "Session",
+    field: Many2ManyField,
+    **kwargs: dict,
+) -> Markup:
+    """Render many2many field as an embedded sub-table.
+
+    :param feretui: The feretui client.
+    :type feretui: :class:`feretui.feretui.FeretUI`
+    :param session: The user session.
+    :type session: :class:`feretui.session.Session`
+    :param field: The many2many field to render.
+    :type field: :class:`feretui.form.Many2ManyField`
+    :return: Rendered HTML Markup.
+    """
+    return wrap_one2many(feretui, session, field, **kwargs)
+
+
+class FileField(Field):
+    """Field representing a file upload."""
+
+    widget = FileInput()
+
+    def __init__(
+        self: "FileField",
+        label: str | None = None,
+        validators: list | None = None,
+        allowed_extensions: list[str] | set[str] | None = None,
+        max_size: int | None = None,
+        **kwargs: dict,
+    ) -> None:
+        """Initialize FileField."""
+        super().__init__(label, validators, **kwargs)
+        self.allowed_extensions = (
+            set(allowed_extensions) if allowed_extensions else None
+        )
+        self.max_size = max_size
+
+    def process_formdata(self: "FileField", valuelist: list) -> None:
+        """Process submitted form data for file."""
+        if valuelist:
+            self.data = valuelist[0]
+        else:
+            self.data = None
+
+
+def wrap_file(
+    feretui: "FeretUI",
+    session: "Session",
+    field: FileField,
+    **kwargs: dict,
+) -> Markup:
+    """Render file upload field."""
+    readonly = kwargs.pop("readonly", False)
+    filename = ""
+    if field.data:
+        if isinstance(field.data, str):
+            filename = field.data
+        elif hasattr(field.data, "filename"):
+            filename = str(getattr(field.data, "filename", ""))
+        elif isinstance(field.data, dict):
+            filename = str(field.data.get("filename", ""))
+
+    wrapper_id = kwargs.pop("wrapper_id", None)
+    oob = kwargs.pop("oob", False)
+    widget_html = field.widget(field, **kwargs) if not readonly else ""
+
+    html = Markup(
+        feretui.render_template(
+            session,
+            "feretui-file-field",
+            label=None if kwargs.pop("nolabel", False) else field.label,
+            widget=widget_html,
+            readonly=readonly,
+            filename=filename,
+            description=field.description,
+            errors=field.errors,
+        ),
+    )
+    if wrapper_id:
+        oob_attr = ' hx-swap-oob="true"' if oob else ""
+        return Markup(f'<div id="{wrapper_id}"{oob_attr}>{html}</div>')  # noqa: S704
+
+    return html
+
+
+class MultiFileField(Field):
+    """Field representing multiple file uploads."""
+
+    widget = FileInput(multiple=True)
+
+    def __init__(
+        self: "MultiFileField",
+        label: str | None = None,
+        validators: list | None = None,
+        allowed_extensions: list[str] | set[str] | None = None,
+        max_size: int | None = None,
+        **kwargs: dict,
+    ) -> None:
+        """Initialize MultiFileField."""
+        super().__init__(label, validators, **kwargs)
+        self.allowed_extensions = (
+            set(allowed_extensions) if allowed_extensions else None
+        )
+        self.max_size = max_size
+
+    def process_formdata(self: "MultiFileField", valuelist: list) -> None:
+        """Process submitted form data for multiple files."""
+        self.data = list(valuelist) if valuelist else []
+
+    def process_data(self: "MultiFileField", value: object) -> None:
+        """Process initial data loaded into field."""
+        if value is None:
+            self.data = []
+        elif isinstance(value, list):
+            self.data = value
+        elif hasattr(value, "__iter__") and not isinstance(value, str):
+            self.data = list(value)
+        else:
+            self.data = [value]
+
+
+def wrap_multi_file(
+    feretui: "FeretUI",
+    session: "Session",
+    field: MultiFileField,
+    **kwargs: dict,
+) -> Markup:
+    """Render multiple files upload field."""
+    readonly = kwargs.pop("readonly", False)
+    filenames: list[str] = []
+    if field.data:
+        items = field.data if isinstance(field.data, list) else [field.data]
+        for it in items:
+            if isinstance(it, str):
+                filenames.append(it)
+            elif hasattr(it, "filename"):
+                filenames.append(str(getattr(it, "filename", "")))
+            elif isinstance(it, dict):
+                filenames.append(str(it.get("filename", "")))
+
+    filename_str = ", ".join(filenames)
+    wrapper_id = kwargs.pop("wrapper_id", None)
+    oob = kwargs.pop("oob", False)
+    widget_html = field.widget(field, **kwargs) if not readonly else ""
+
+    html = Markup(
+        feretui.render_template(
+            session,
+            "feretui-file-field",
+            label=None if kwargs.pop("nolabel", False) else field.label,
+            widget=widget_html,
+            readonly=readonly,
+            filename=filename_str,
+            description=field.description,
+            errors=field.errors,
+        ),
+    )
+    if wrapper_id:
+        oob_attr = ' hx-swap-oob="true"' if oob else ""
+        return Markup(f'<div id="{wrapper_id}"{oob_attr}>{html}</div>')  # noqa: S704
+
+    return html
+
+
+class ImageField(FileField):
+    """Field representing an image upload with preview."""
+
+    def __init__(
+        self: "ImageField",
+        label: str | None = None,
+        validators: list | None = None,
+        is_avatar: bool = False,
+        **kwargs: dict,
+    ) -> None:
+        """Initialize ImageField."""
+        super().__init__(label, validators, **kwargs)
+        self.is_avatar = is_avatar
+
+
+def wrap_image(
+    feretui: "FeretUI",
+    session: "Session",
+    field: ImageField,
+    **kwargs: dict,
+) -> Markup:
+    """Render image upload field with preview."""
+    readonly = kwargs.pop("readonly", False)
+    image_url = ""
+    if field.data:
+        if isinstance(field.data, str):
+            image_url = field.data
+        elif hasattr(field.data, "filename"):
+            image_url = str(getattr(field.data, "filename", ""))
+        elif isinstance(field.data, dict):
+            image_url = str(
+                field.data.get("url", field.data.get("filename", "")),
+            )
+
+    wrapper_id = kwargs.pop("wrapper_id", None)
+    oob = kwargs.pop("oob", False)
+    is_avatar = getattr(field, "is_avatar", False)
+    widget_html = field.widget(field, **kwargs) if not readonly else ""
+
+    html = Markup(
+        feretui.render_template(
+            session,
+            "feretui-image-field",
+            label=None if kwargs.pop("nolabel", False) else field.label,
+            widget=widget_html,
+            readonly=readonly,
+            image_url=image_url,
+            is_avatar=is_avatar,
+            description=field.description,
+            errors=field.errors,
+        ),
+    )
+    if wrapper_id:
+        oob_attr = ' hx-swap-oob="true"' if oob else ""
+        return Markup(f'<div id="{wrapper_id}"{oob_attr}>{html}</div>')  # noqa: S704
+
+    return html
+
+
+class MonetaryField(DecimalField):
+    """Field representing a monetary / currency amount."""
+
+    def __init__(
+        self: "MonetaryField",
+        label: str | None = None,
+        validators: list | None = None,
+        places: int = 2,
+        currency: str = "€",
+        currency_position: str = "after",
+        **kwargs: dict,
+    ) -> None:
+        """Initialize MonetaryField."""
+        super().__init__(label, validators, places=places, **kwargs)
+        self.currency = currency
+        self.currency_position = currency_position
+
+    def _value(self: "MonetaryField") -> str:
+        """Format the decimal value safely."""
+        if self.raw_data:
+            return self.raw_data[0]
+        if self.data is None:
+            return ""
+        try:
+            return f"{float(self.data):.{self.places}f}"
+        except (ValueError, TypeError):
+            return str(self.data)
+
+
+def wrap_monetary(
+    feretui: "FeretUI",
+    session: "Session",
+    field: MonetaryField,
+    **kwargs: dict,
+) -> Markup:
+    """Render monetary field with currency symbol."""
+    readonly = kwargs.pop("readonly", False)
+    currency = getattr(field, "currency", "€")
+    currency_pos = getattr(field, "currency_position", "after")
+    val_str = ""
+    if field.data is not None:
+        try:
+            val_str = f"{float(field.data):.2f}"
+        except (ValueError, TypeError):
+            val_str = str(field.data)
+
+    wrapper_id = kwargs.pop("wrapper_id", None)
+    oob = kwargs.pop("oob", False)
+    render_kw = kwargs.setdefault("render_kw", {})
+    existing_class = render_kw.get("class", "")
+    render_kw["class"] = f"{existing_class} feretui-monetary".strip()
+    widget_html = field.widget(field, **kwargs) if not readonly else ""
+
+    html = Markup(
+        feretui.render_template(
+            session,
+            "feretui-monetary-field",
+            label=None if kwargs.pop("nolabel", False) else field.label,
+            widget=widget_html,
+            readonly=readonly,
+            value=val_str,
+            currency=currency,
+            currency_position=currency_pos,
+            description=field.description,
+            errors=field.errors,
+        ),
+    )
+    if wrapper_id:
+        oob_attr = ' hx-swap-oob="true"' if oob else ""
+        return Markup(f'<div id="{wrapper_id}"{oob_attr}>{html}</div>')  # noqa: S704
+
+    return html
+
+
+class TagsField(Field):
+    """Field representing tags or badges."""
+
+    widget = TextInput()
+
+    def __init__(
+        self: "TagsField",
+        label: str | None = None,
+        validators: list | None = None,
+        separator: str = ",",
+        **kwargs: dict,
+    ) -> None:
+        """Initialize TagsField."""
+        super().__init__(label, validators, **kwargs)
+        self.separator = separator
+        self.data: list[str] = []
+
+    def _value(self: "TagsField") -> str:
+        """Return the string representation for the widget."""
+        return self.separator.join(self.data) if self.data else ""
+
+    def process_formdata(self: "TagsField", valuelist: list) -> None:
+        """Process form data from user input."""
+        if valuelist:
+            raw = valuelist[0]
+            if isinstance(raw, str):
+                self.data = [
+                    t.strip() for t in raw.split(self.separator) if t.strip()
+                ]
+            elif isinstance(raw, list):
+                self.data = [str(t).strip() for t in raw if str(t).strip()]
+            else:
+                self.data = []
+        else:
+            self.data = []
+
+    def process_data(self: "TagsField", value: object) -> None:
+        """Process initial data loaded into field."""
+        if value is None:
+            self.data = []
+        elif isinstance(value, str):
+            self.data = [
+                t.strip() for t in value.split(self.separator) if t.strip()
+            ]
+        elif isinstance(value, list | tuple | set):
+            self.data = [str(t).strip() for t in value if str(t).strip()]
+        else:
+            self.data = []
+
+
+def wrap_tags(
+    feretui: "FeretUI",
+    session: "Session",
+    field: TagsField,
+    **kwargs: dict,
+) -> Markup:
+    """Render tags field as badges and input."""
+    readonly = kwargs.pop("readonly", False)
+    tags = getattr(field, "data", []) or []
+
+    wrapper_id = kwargs.pop("wrapper_id", None)
+    oob = kwargs.pop("oob", False)
+    widget_html = field.widget(field, **kwargs) if not readonly else ""
+
+    html = Markup(
+        feretui.render_template(
+            session,
+            "feretui-tags-field",
+            label=None if kwargs.pop("nolabel", False) else field.label,
+            widget=widget_html,
+            readonly=readonly,
+            tags=tags,
+            description=field.description,
+            errors=field.errors,
+        ),
+    )
+    if wrapper_id:
+        oob_attr = ' hx-swap-oob="true"' if oob else ""
+        return Markup(f'<div id="{wrapper_id}"{oob_attr}>{html}</div>')  # noqa: S704
+
+    return html
+
+
+class WYSIWYGField(Field):
+    """Field representing a rich-text / WYSIWYG editor."""
+
+    widget = TextArea()
+
+    def __init__(
+        self: "WYSIWYGField",
+        label: str | None = None,
+        validators: list | None = None,
+        min_height: str = "200px",
+        placeholder: str | None = None,
+        **kwargs: dict,
+    ) -> None:
+        """Initialize WYSIWYGField."""
+        super().__init__(label, validators, **kwargs)
+        self.min_height = min_height
+        self.placeholder = placeholder or ""
+
+
+RichTextField = WYSIWYGField
+HtmlField = WYSIWYGField
+
+
+def wrap_wysiwyg(
+    feretui: "FeretUI",
+    session: "Session",
+    field: WYSIWYGField,
+    **kwargs: dict,
+) -> Markup:
+    """Render WYSIWYG editor field."""
+    readonly = kwargs.pop("readonly", False)
+    val = str(field.data) if field.data is not None else ""
+    min_height = getattr(field, "min_height", "200px")
+    placeholder = getattr(field, "placeholder", "")
+
+    wrapper_id = kwargs.pop("wrapper_id", None)
+    oob = kwargs.pop("oob", False)
+
+    html = Markup(
+        feretui.render_template(
+            session,
+            "feretui-wysiwyg-field",
+            field=field,
+            label=None if kwargs.pop("nolabel", False) else field.label,
+            readonly=readonly,
+            value=val,
+            min_height=min_height,
+            placeholder=placeholder,
             description=field.description,
             errors=field.errors,
         ),
@@ -668,8 +1193,13 @@ def gettext(
     context_suffix: str = "",
 ) -> str:
     """Translate the string."""
-    translation = cvar_feretui.get().translation
-    lang = cvar_request.get().session.lang
+    feret = cvar_feretui.get(None)
+    req = cvar_request.get(None)
+    if not feret or not req or not hasattr(req, "session"):
+        return string
+
+    translation = feret.translation
+    lang = req.session.lang
     for form_cls in form.__mro__:
         if hasattr(form_cls, "get_context"):
             context = form_cls.get_context() + context_suffix
@@ -885,7 +1415,14 @@ class FeretUIForm(Form):
         StatusBarField: wrap_status_bar,
         Many2OneField: wrap_many2one,
         One2ManyField: wrap_one2many,
+        Many2ManyField: wrap_many2many,
         HiddenField: wrap_hidden,
+        FileField: wrap_file,
+        MultiFileField: wrap_multi_file,
+        ImageField: wrap_image,
+        MonetaryField: wrap_monetary,
+        TagsField: wrap_tags,
+        WYSIWYGField: wrap_wysiwyg,
     }
     DEFAULT_WRAPPER = wrap_input
     TRANSLATED_MESSAGES = [
@@ -1027,7 +1564,7 @@ class FeretUIForm(Form):
                         "hx-post" not in render_kw
                         and "hx_post" not in render_kw
                     ):
-                        feret = cvar_feretui.get()
+                        feret = cvar_feretui.get(None)
                         base_url = feret.base_url if feret else "/feretui"
                         render_kw["hx-post"] = (
                             f"{base_url}/action/resource"

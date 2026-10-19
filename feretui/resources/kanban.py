@@ -228,7 +228,7 @@ class KanbanView(MultiView, LabelMixinForView, View):
             f"?action=move_card&resource={self.resource.code}&view={self.code}"
         )
 
-        return Markup.unescape(
+        return Markup(
             feretui.render_template(
                 session,
                 "feretui-resource-kanban",

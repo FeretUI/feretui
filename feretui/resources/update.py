@@ -100,7 +100,7 @@ class EditView(TemplateMixinForView, View):
         options.pop("form", None)
         res = super().get_header_buttons(feretui, session, options)
         res.append(
-            Markup.unescape(
+            Markup(
                 feretui.render_template(
                     session,
                     "view-do-save-button",
@@ -109,7 +109,7 @@ class EditView(TemplateMixinForView, View):
         )
         if self.cancel_button_redirect_to:
             res.append(
-                Markup.unescape(
+                Markup(
                     feretui.render_template(
                         session,
                         "view-goto-edit-cancel-button",
@@ -191,7 +191,9 @@ class EditView(TemplateMixinForView, View):
 
         if form.validate():
             try:
+                self.resource.before_update(request.session, form)
                 self.resource.update([form])
+                self.resource.after_update(request.session, form)
                 if self.after_update_redirect_to:
                     base_url = request.get_base_url_from_current_url()
                     options.update(
@@ -223,6 +225,7 @@ class UResource:
     """UResource class."""
 
     MetaViewUpdate = DefaultViewUpdate
+    MetaViewEdit = DefaultViewUpdate
 
     def build_view(
         self: "UResource",
@@ -235,7 +238,7 @@ class UResource:
         :return: An instance of the view
         :rtype: :class:`feretui.resources.view.View`
         """
-        if view_cls_name.startswith("MetaViewUpdate"):
+        if view_cls_name.startswith(("MetaViewUpdate", "MetaViewEdit")):
             meta_view_cls = self.get_meta_view_class(view_cls_name)
             meta_view_cls.append(EditView)
             view_cls = type(

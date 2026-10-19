@@ -15,13 +15,14 @@
 Welcome to FeretUI's documentation!
 ===================================
 
-.. include:: feretui.rst
+FeretUI is a modern, ultra-lightweight ERP and web back-office framework built on Python, HTMX, SortableJS, and Pico CSS.
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
    tutorials.rst
+   how_to_make_a_cms.rst
    views.rst
    widgets.rst
    css_classes.rst

@@ -19,8 +19,6 @@ The availlable actions are:
 
 from typing import TYPE_CHECKING
 
-from markupsafe import Markup
-
 from feretui.exceptions import ActionError, ResourceError
 from feretui.helper import (
     action_for_authenticated_user,
@@ -81,7 +79,7 @@ def goto(
         headers["HX-Title"] = title
 
     return Response(
-        Markup.unescape(body),
+        body,
         headers=headers,
     )
 

@@ -92,7 +92,7 @@ class TestMiniERP:
         # Verify Many2One link to customer
         assert "feretui-many2one-link" in response.text
         assert "Acme Corporation" in response.text
-        assert "/?page=resource&resource=customers&view=read&pk=" in response.text
+        assert "/?page=resource&amp;resource=customers&amp;view=read&amp;pk=" in response.text
         # Verify One2Many order lines table
         assert "feretui-one2many-table" in response.text
         assert "Order Lines" in response.text
@@ -108,3 +108,33 @@ class TestMiniERP:
         assert "Customers" in response.text
         assert "Products" in response.text
         assert "Orders" in response.text
+
+    def test_one2many_goto_navigation(self) -> None:
+        """Verify One2Many link points to action/goto with #feretui-body target and returns clean fragment."""
+        client = TestClient(app)
+        with SessionLocal() as db:
+            order = db.scalar(select(SaleOrder).limit(1))
+            assert order is not None
+            oid = str(order.id)
+
+        response = client.get(f"/?page=resource&resource=orders&view=read&pk={oid}")
+        assert response.status_code == 200
+        assert 'hx-target="#body"' in response.text
+        assert 'hx-swap="innerHTML"' in response.text
+        assert "/feretui/action/goto?page=resource&amp;resource=products&amp;view=read&amp;pk=" in response.text
+
+        # Now simulate HTMX following the link to view the product
+        goto_resp = client.get(
+            "/feretui/action/goto?page=resource&resource=products&view=read&pk=1",
+            headers={"HX-Request": "true"},
+        )
+        assert goto_resp.status_code == 200
+        # Must return ONLY the resource fragment, NOT a full HTML page with duplicate navbar/footer
+        assert "<!DOCTYPE html>" not in goto_resp.text
+        assert "<feretui-html>" not in goto_resp.text
+        assert "<header" not in goto_resp.text
+        assert "feretui-client-footer" not in goto_resp.text
+        assert 'id="resource-products"' in goto_resp.text
+        assert "HX-Push-Url" in goto_resp.headers
+        assert goto_resp.headers["HX-Push-Url"] == "/?page=resource&resource=products&view=read&pk=1"
+

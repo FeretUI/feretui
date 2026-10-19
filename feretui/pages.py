@@ -67,7 +67,7 @@ def page_404(feretui: "FeretUI", session: Session, options: dict) -> str:
     if isinstance(page, list):
         page = page[0]
 
-    return Markup.unescape(
+    return Markup(
         feretui.render_template(session, "feretui-page-404", page=page),
     )
 
@@ -94,7 +94,7 @@ def page_forbidden(
     if isinstance(page, list):
         page = page[0]
 
-    return Markup.unescape(
+    return Markup(
         feretui.render_template(session, "feretui-page-forbidden", page=page),
     )
 
@@ -115,7 +115,7 @@ def homepage(
     :return: The html page in
     :rtype: str
     """
-    return Markup.unescape(
+    return Markup(
         feretui.render_template(session, "feretui-page-homepage"),
     )
 
@@ -137,7 +137,7 @@ def sitemap(
     :rtype: str
     """
     menus = feretui.get_site_map_menus()
-    return Markup.unescape(
+    return Markup(
         feretui.render_template(
             session,
             "feretui-page-sitemap",
@@ -164,7 +164,7 @@ def static_page(template_id: str) -> Callable:
         if template_id not in feretui.template.known:
             raise PageError(template_id)
 
-        return Markup.unescape(feretui.render_template(session, template_id))
+        return Markup(feretui.render_template(session, template_id))
 
     return _static_page
 
@@ -192,12 +192,12 @@ def aside_menu(
     menus = feretui.get_aside_menus(options["aside"][0])
     page = options.get("aside_page", ["homepage"])[0]
 
-    return Markup.unescape(
+    return Markup(
         feretui.render_template(
             session,
             "feretui-page-aside",
             menus=menus,
-            page=Markup.unescape(
+            page=Markup(
                 feretui.get_page(page)(feretui, session, options),
             ),
         ),
@@ -222,7 +222,7 @@ def login(feretui: "FeretUI", session: Session, options: dict) -> str:
     """
     form = options.get("form", session.LoginForm())
     error = options.get("error")
-    return Markup.unescape(
+    return Markup(
         feretui.render_template(
             session,
             "feretui-page-login",
@@ -250,7 +250,7 @@ def signup(feretui: "FeretUI", session: Session, options: dict) -> str:
     """
     form = options.get("form", session.SignUpForm())
     error = options.get("error")
-    return Markup.unescape(
+    return Markup(
         feretui.render_template(
             session,
             "feretui-page-signup",
@@ -281,4 +281,4 @@ def resource_page(feretui: "FeretUI", session: Session, options: dict) -> str:
         raise PageError("No resource in the query string")
 
     resource = feretui.get_resource(code)
-    return Markup.unescape(resource.render(feretui, session, options))
+    return Markup(resource.render(feretui, session, options))

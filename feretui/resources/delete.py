@@ -97,13 +97,13 @@ class DeleteView(TemplateMixinForView, LabelMixinForView, View):
         res = super().get_header_buttons(feretui, session, options)
         res.extend(
             [
-                Markup.unescape(
+                Markup(
                     feretui.render_template(
                         session,
                         "view-do-delete-button",
                     ),
                 ),
-                Markup.unescape(
+                Markup(
                     feretui.render_template(
                         session,
                         "view-goto-cancel-button",
@@ -168,7 +168,9 @@ class DeleteView(TemplateMixinForView, LabelMixinForView, View):
         pks = options.get("pk")
         if pks:
             try:
+                self.resource.before_delete(request.session, pks)
                 self.resource.delete(pks)
+                self.resource.after_delete(request.session, pks)
                 if self.after_delete_redirect_to:
                     base_url = request.get_base_url_from_current_url()
                     options.update(

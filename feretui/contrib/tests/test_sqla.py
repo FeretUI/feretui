@@ -47,6 +47,7 @@ class Item(Base):
     description: Mapped[str] = mapped_column(Text, nullable=True)
     price: Mapped[float] = mapped_column(Float, default=0.0)
     cost: Mapped[Decimal] = mapped_column(Numeric(10, 2), default=Decimal("0.0"))
+    quantity: Mapped[int] = mapped_column(Integer, default=0)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     created_date: Mapped[datetime.date] = mapped_column(Date, nullable=True)
     created_at: Mapped[datetime.datetime] = mapped_column(
@@ -95,6 +96,7 @@ class TestSQLAlchemyResource:
             assert "description" in fields
             assert "price" in fields
             assert "cost" not in fields
+            assert "quantity" in fields
             assert "is_active" in fields
             assert "created_date" in fields
             assert "created_at" in fields
@@ -450,6 +452,240 @@ class TestSQLAlchemyResource:
                 select(StageModel).where(StageModel.id == int(sm_id)),
             )
             assert refreshed_stage.stage == "s2"
+
+    def test_is_auto_sequence_and_pk_db_generated(self) -> None:
+        from sqlalchemy import Column
+        from feretui.contrib.sqla import is_auto_sequence_column
+
+        # Auto PK integer
+        col_int = Column("id", Integer, primary_key=True, autoincrement=True)
+        assert is_auto_sequence_column(col_int) is True
+
+        # Non PK
+        col_non_pk = Column("name", String(50), primary_key=False)
+        assert is_auto_sequence_column(col_non_pk) is False
+
+        # Manual PK string
+        col_str_pk = Column("code", String(20), primary_key=True, autoincrement=False)
+        assert is_auto_sequence_column(col_str_pk) is False
+
+        # PK with server_default
+        col_uuid = Column("uid", String(36), primary_key=True, server_default="uuid()")
+        assert is_auto_sequence_column(col_uuid) is True
+
+        # PK with default
+        col_default = Column("seq_id", Integer, primary_key=True, default=1)
+        assert is_auto_sequence_column(col_default) is True
+
+        # Test model_to_form with manual PK vs auto PK
+        class NaturalModel(Base):
+            __tablename__ = "natural_items"
+            code: Mapped[str] = mapped_column(String(20), primary_key=True)
+            name: Mapped[str] = mapped_column(String(50))
+
+        # Auto: code is manual PK => included in form
+        auto_form = model_to_form(NaturalModel, pk_db_generated="auto")()
+        assert "code" in auto_form._fields
+        assert "pk" in auto_form._fields
+
+        # Forced True: code omitted from form inputs
+        forced_form = model_to_form(NaturalModel, pk_db_generated=True)()
+        assert "code" not in forced_form._fields
+        assert "pk" in forced_form._fields
+
+    def test_sqla_crud_mixin(self, sqla_engine) -> None:
+        from feretui.contrib.sqla import SQLACrudMixin
+
+        session_factory = sessionmaker(bind=sqla_engine)
+
+        class CrudItem(Base, SQLACrudMixin):
+            __tablename__ = "crud_items"
+            id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+            name: Mapped[str] = mapped_column(String(50))
+            category: Mapped[str] = mapped_column(String(50), default="general")
+
+        Base.metadata.create_all(sqla_engine)
+        with session_factory() as db:
+            ci1 = CrudItem(name="A", category="c1")
+            ci2 = CrudItem(name="B", category="c2")
+            ci3 = CrudItem(name="C", category="c1")
+            db.add_all([ci1, ci2, ci3])
+            db.commit()
+            ci1_id, ci2_id = ci1.id, ci2.id
+
+        with session_factory() as db:
+            # get_by_id
+            item = CrudItem.get_by_id(db, ci1_id)
+            assert item is not None
+            assert item.name == "A"
+
+            # search_records with filters and pagination
+            res = CrudItem.search_records(db, filters={"category": "c1"}, limit=10)
+            assert len(res) == 2
+            assert {r.name for r in res} == {"A", "C"}
+
+            # search_records with list filter and order_by
+            res2 = CrudItem.search_records(
+                db,
+                filters={"category": ["c1", "c2"]},
+                order_by=CrudItem.name.desc(),
+            )
+            assert len(res2) == 3
+            assert res2[0].name == "C"
+
+            # get_by_id on non-existent
+            assert CrudItem.get_by_id(db, 99999) is None
+
+            # delete_records
+            CrudItem.delete_records(db, [ci1_id, ci2_id])
+            assert CrudItem.get_by_id(db, ci1_id) is None
+            assert CrudItem.get_by_id(db, ci2_id) is None
+
+        # Model with non-id PK get_by_id
+        class CodeItem(Base, SQLACrudMixin):
+            __tablename__ = "code_items"
+            code: Mapped[str] = mapped_column(String(10), primary_key=True)
+            desc: Mapped[str] = mapped_column(String(50))
+
+        Base.metadata.create_all(sqla_engine)
+        with session_factory() as db:
+            c = CodeItem(code="ABC", desc="Desc")
+            db.add(c)
+            db.commit()
+
+        with session_factory() as db:
+            fetched = CodeItem.get_by_id(db, "ABC")
+            assert fetched is not None
+            assert fetched.desc == "Desc"
+
+        # Model without primary key fallback
+        class NoPkStub(SQLACrudMixin):
+            pass
+
+        assert NoPkStub.get_by_id(None, "1") is None
+
+    def test_cascade_delete_and_one2many_protection(
+        self,
+        sqla_engine,
+    ) -> None:
+        from sqlalchemy import ForeignKey
+        from sqlalchemy.orm import relationship
+        from feretui.form import One2ManyField
+
+        session_factory = sessionmaker(bind=sqla_engine)
+
+        class OrderParent(Base):
+            __tablename__ = "order_parents"
+            id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+            ref: Mapped[str] = mapped_column(String(50))
+            lines = relationship(
+                "OrderChild",
+                cascade="all, delete-orphan",
+                backref="parent",
+            )
+
+        class OrderChild(Base):
+            __tablename__ = "order_children"
+            id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+            parent_id: Mapped[int] = mapped_column(Integer, ForeignKey("order_parents.id"))
+            detail: Mapped[str] = mapped_column(String(50))
+
+        Base.metadata.create_all(sqla_engine)
+        with session_factory() as db:
+            parent = OrderParent(
+                ref="ORD-01",
+                lines=[OrderChild(detail="Line 1"), OrderChild(detail="Line 2")],
+            )
+            db.add(parent)
+            db.commit()
+            pid = str(parent.id)
+
+        class ParentResource(SQLAlchemyResource):
+            code = "parent_res"
+            label = "Parent"
+            model = OrderParent
+
+        ParentResource.session_factory = session_factory
+        res = ParentResource.build()
+
+        # Update test with One2ManyField: lines should not be wiped
+        class DummyFormWithO2M(FeretUIForm):
+            pk = StringField()
+            ref = StringField()
+            lines = One2ManyField()
+
+        f = DummyFormWithO2M()
+        f.pk.data = pid
+        f.ref.data = "ORD-01-UPDATED"
+        f.lines.data = []  # Empty list should NOT overwrite lines
+
+        res.update([f])
+        with session_factory() as db:
+            p = db.scalar(select(OrderParent).where(OrderParent.id == int(pid)))
+            assert p.ref == "ORD-01-UPDATED"
+            # Verify lines were NOT deleted
+            assert len(p.lines) == 2
+
+        # Delete test: verify ORM cascade deletes child records
+        res.delete([pid])
+        with session_factory() as db:
+            p_after = db.scalar(select(OrderParent).where(OrderParent.id == int(pid)))
+            assert p_after is None
+            # Child lines must also be deleted by ORM cascade
+            children = db.scalars(
+                select(OrderChild).where(OrderChild.parent_id == int(pid)),
+            ).all()
+            assert len(children) == 0
+
+        # Create with manual PK
+        class ManualPkModel(Base):
+            __tablename__ = "manual_pk_models"
+            code: Mapped[str] = mapped_column(String(20), primary_key=True)
+            name: Mapped[str] = mapped_column(String(50))
+
+        Base.metadata.create_all(sqla_engine)
+
+        class ManualPkResource(SQLAlchemyResource):
+            code = "manual_res"
+            label = "Manual"
+            model = ManualPkModel
+            pk_db_generated = False
+
+        ManualPkResource.session_factory = session_factory
+        m_res = ManualPkResource.build()
+
+        class ManualForm(FeretUIForm):
+            pk = StringField()
+            code = StringField()
+            name = StringField()
+
+        mf = ManualForm()
+        mf.pk.data = "MN-01"
+        mf.code.data = "MN-01"
+        mf.name.data = "Manual Item"
+        created_pk = m_res.create(mf)
+        assert created_pk == "MN-01"
+
+        # Create with auto PK and empty string
+        class AutoItemForm(FeretUIForm):
+            pk = StringField()
+            name = StringField()
+            id = StringField()
+
+        class AutoItemResource(SQLAlchemyResource):
+            code = "auto_res"
+            label = "Auto"
+            model = Item
+            pk_db_generated = True
+
+        AutoItemResource.session_factory = session_factory
+        ai_res = AutoItemResource.build()
+        a_form = AutoItemForm()
+        a_form.pk.data = None
+        a_form.name.data = "Auto Item with empty id"
+        a_form.id.data = ""
+        auto_pk = ai_res.create(a_form)
+        assert auto_pk.isdigit()
 
 
 

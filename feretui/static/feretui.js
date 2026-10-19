@@ -32,12 +32,65 @@ function initKanban() {
   });
 }
 
+function initWysiwyg() {
+  document.querySelectorAll('.feretui-wysiwyg-container').forEach(function (container) {
+    if (container._wysiwygInitialized) return;
+    container._wysiwygInitialized = true;
+
+    var editor = container.querySelector('.feretui-wysiwyg-editor');
+    var textarea = container.querySelector('.feretui-wysiwyg-textarea');
+    if (!editor || !textarea) return;
+
+    function syncToTextarea() {
+      var content = editor.innerHTML.trim();
+      if (content === '<p><br></p>' || content === '<br>') {
+        content = '';
+      }
+      if (textarea.value !== content) {
+        textarea.value = content;
+        textarea.dispatchEvent(new Event('input', { bubbles: true }));
+        textarea.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    }
+
+    editor.addEventListener('input', syncToTextarea);
+    editor.addEventListener('blur', syncToTextarea);
+
+    container.querySelectorAll('.feretui-wysiwyg-toolbar button[data-command]').forEach(function (btn) {
+      btn.addEventListener('mousedown', function (e) {
+        e.preventDefault();
+      });
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        var command = btn.getAttribute('data-command');
+        var value = btn.getAttribute('data-value') || null;
+
+        if (command === 'createLink') {
+          var url = prompt('Enter URL:', 'https://');
+          if (url) {
+            document.execCommand(command, false, url);
+          }
+        } else if (command === 'formatBlock') {
+          document.execCommand(command, false, '<' + value + '>');
+        } else {
+          document.execCommand(command, false, value);
+        }
+
+        editor.focus();
+        syncToTextarea();
+      });
+    });
+  });
+}
+
 document.addEventListener('DOMContentLoaded', function () {
   initKanban();
+  initWysiwyg();
 
   if (typeof document.body !== 'undefined') {
     document.body.addEventListener('htmx:afterSwap', function () {
       initKanban();
+      initWysiwyg();
     });
   }
 

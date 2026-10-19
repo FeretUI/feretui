@@ -37,9 +37,9 @@ StatusBar Widget & Field
 
 In read mode, stages appear as sequential badges highlighting the active stage. In edit mode, stages act as interactive state-transition buttons.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Reactive Calculations with ``@onchange``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 FeretUI supports reactive form recalculations using the :func:`feretui.form.onchange` decorator.
 When an observed field changes in the browser, HTMX automatically posts to ``/feretui/action/onchange``, runs the decorated Python method, and updates only the modified fields using out-of-band swaps (``hx-swap-oob="true"``).

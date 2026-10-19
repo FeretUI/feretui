@@ -203,7 +203,7 @@ class ActionsMixinForView:
         if not res:
             qs = request.get_query_string_from_current_url()
             res = Response(
-                Markup.unescape(self.render(feretui, request.session, qs)),
+                Markup(self.render(feretui, request.session, qs)),
             )
 
         if not isinstance(res, Response):
@@ -335,7 +335,7 @@ class MultiView(ActionsMixinForView):
         res = []
         if self.create_button_redirect_to:
             res.append(
-                Markup.unescape(
+                Markup(
                     feretui.render_template(
                         session,
                         "view-goto-create-button",
@@ -349,7 +349,7 @@ class MultiView(ActionsMixinForView):
             )
         if self.delete_button_redirect_to:
             res.append(
-                Markup.unescape(
+                Markup(
                     feretui.render_template(
                         session,
                         "view-goto-selected-delete-button",
@@ -379,7 +379,7 @@ class MultiView(ActionsMixinForView):
         :rtype: list[str]
         """
         res = [
-            Markup.unescape(
+            Markup(
                 feretui.render_template(
                     session,
                     "view-filter",
@@ -811,7 +811,7 @@ class TemplateMixinForView:
                 self.get_compiled_template(feretui, session, template_id),
             )
 
-        return Markup.unescape(
+        return Markup(
             feretui.render_template(
                 session,
                 template_id,

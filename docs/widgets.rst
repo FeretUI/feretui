@@ -290,6 +290,30 @@ Numeric, Dates, and Choice Fields
 * ``StatusBarField``: Interactive workflow pipeline.
 * ``Many2OneField``: Foreign key relational field with link navigation.
 * ``One2ManyField``: Embedded sub-table for related records.
+* ``WYSIWYGField`` (aliases: ``RichTextField``, ``HtmlField``): Built-in rich-text / HTML editor.
+
+WYSIWYG and Rich-Text Editor
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For CMS, descriptions, email bodies, and formatted content, FeretUI includes a lightweight, native WYSIWYG editor :class:`~feretui.form.WYSIWYGField` (also accessible via aliases ``RichTextField`` and ``HtmlField``).
+
+.. code-block:: python
+
+    from feretui.form import FeretUIForm, WYSIWYGField
+
+    class ArticleForm(FeretUIForm):
+        content = WYSIWYGField(
+            "Article Body",
+            min_height="300px",
+            placeholder="Compose your rich text here...",
+        )
+
+Key Features:
+
+* **Zero external runtime dependency**: 100% theme-aware using Pico CSS v2 and Tabler icons.
+* **Formatting toolbar**: Bold, Italic, Underline, Strikethrough, Headings (H1, H2, H3), Paragraph, Bullet / Numbered lists, Blockquotes, Preformatted code, and Links.
+* **Seamless sync**: Updates an underlying hidden ``<textarea>`` automatically on change and blur, integrating with standard form POST and HTMX triggers.
+* **Read-only preview**: Renders formatted HTML securely inside a styled container when the view is in read-only mode.
 
 ---
 

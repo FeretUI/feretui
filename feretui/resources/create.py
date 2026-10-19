@@ -98,13 +98,13 @@ class CreateView(TemplateMixinForView, LabelMixinForView, View):
         res = super().get_header_buttons(feretui, session, options)
         res.extend(
             [
-                Markup.unescape(
+                Markup(
                     feretui.render_template(
                         session,
                         "view-do-save-button",
                     ),
                 ),
-                Markup.unescape(
+                Markup(
                     feretui.render_template(
                         session,
                         "view-goto-cancel-button",
@@ -132,10 +132,16 @@ class CreateView(TemplateMixinForView, LabelMixinForView, View):
         :rtype: dict.
         """
         res = super().render_kwargs(feretui, session, options)
+        if "form" in options:
+            form = options["form"]
+        else:
+            defaults = self.resource.get_defaults(session) or {}
+            form = self.form_cls(data=defaults) if defaults else self.form_cls()
+
         res.update(
             {
                 "label": self.get_label(feretui, session),
-                "form": options.get("form", self.form_cls()),
+                "form": form,
                 "error": options.get("error"),
             },
         )
@@ -160,7 +166,9 @@ class CreateView(TemplateMixinForView, LabelMixinForView, View):
         form = self.form_cls(request.form)
         if form.validate():
             try:
+                self.resource.before_create(request.session, form)
                 pk = self.resource.create(form)
+                self.resource.after_create(request.session, pk)
                 if self.after_create_redirect_to:
                     base_url = request.get_base_url_from_current_url()
                     options.update(

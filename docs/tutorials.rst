@@ -73,6 +73,9 @@ You can do without directly with SQL or just with full static page.
 Examples
 --------
 
+Mini-ERP
+--------
+
 A complete **Mini-ERP** demonstration application is provided in the repository under ``examples/mini_erp/``:
 
 * Shows **SQLAlchemyResource** automated CRUD and filtering.
@@ -92,3 +95,27 @@ To run the Mini-ERP locally:
     python app.py
 
 Then open your browser at ``http://localhost:8000``.
+
+Mini-CMS
+--------
+
+A complete **Mini-CMS** demonstration application is provided in the repository under ``examples/mini_cms/``:
+
+* Shows **WYSIWYGField** rich-text editing with a native toolbar and clean HTML output.
+* Demonstrates an **Editorial Kanban Desk** grouping articles by publication status (*Draft* → *Under Review* → *Published* → *Archived*).
+* Demonstrates reactive **@onchange** auto-slugification from article titles.
+* Demonstrates **One2ManyField** articles sub-tables and **Many2OneField** category links.
+* Demonstrates **Category Stat / Smart Buttons** on form headers.
+
+For the full step-by-step tutorial, see :doc:`how_to_make_a_cms` or the `Mini-CMS README <https://github.com/FeretUI/feretui/blob/main/examples/mini_cms/README.md>`_.
+
+To run the Mini-CMS locally:
+
+.. code-block:: bash
+
+    cd examples/mini_cms
+    python app.py
+
+Then open your browser at ``http://localhost:8000``.
+
+

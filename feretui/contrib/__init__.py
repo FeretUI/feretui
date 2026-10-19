@@ -7,6 +7,16 @@
 # obtain one at http://mozilla.org/MPL/2.0/.
 """FeretUI Contrib extensions (ORM helpers, integrations)."""
 
-from feretui.contrib.sqla import SQLAlchemyResource, model_to_form
+from feretui.contrib.sqla import (
+    SQLACrudMixin,
+    SQLAlchemyResource,
+    is_auto_sequence_column,
+    model_to_form,
+)
 
-__all__ = ["SQLAlchemyResource", "model_to_form"]
+__all__ = [
+    "SQLACrudMixin",
+    "SQLAlchemyResource",
+    "is_auto_sequence_column",
+    "model_to_form",
+]
