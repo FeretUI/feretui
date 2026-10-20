@@ -60,11 +60,16 @@ Existing views
 ~~~~~~~~~~~~~~
 
 * List : :class:`feretui.resources.list.LResource`
+* Kanban : :class:`feretui.resources.kanban.KResource`
+* Calendar : :class:`feretui.resources.calendar.CalResource`
 * Create / New : :class:`feretui.resources.create.CResource`
 * Read : :class:`feretui.resources.read.RResource`
 * Update / Edit : :class:`feretui.resources.update.UResource`
 * Delete / Remove : :class:`feretui.resources.delete.DResource`
-* List + Create + Read + Update + Delete : :class:`feretui.resources.LCRUDResource`
+* List + CRUD : :class:`feretui.resources.LCRUDResource`
+* Kanban + CRUD : :class:`feretui.resources.KCRUDResource`
+* List + Kanban + CRUD : :class:`feretui.resources.LKCRUDResource`
+* Calendar + CRUD : :class:`feretui.resources.CalCRUDResource`
 
 You can update the configuration of the view in your
 resource::
@@ -148,8 +153,43 @@ The action's type are:
 
 * :class:`feretui.resources.actions.Action` : call the method
 * :class:`feretui.resources.actions.GotoViewAction` : call the goto main action to change page
+* :class:`feretui.resources.actions.OpenModalAction` : open a resource view inside a stackable dialog modal
 * :class:`feretui.resources.actions.SelectedRowsAction` : call the method only if a row is selected. 
   This action can be called only on a MetaView List type
+
+~~~~~~~
+Chatter
+~~~~~~~
+
+Resources can include a social timeline, internal notes, and activity tracking by inheriting :class:`~feretui.resources.chatter.HasChatterMixin` and setting ``chatter = True``:
+
+::
+
+    from feretui import Resource, LCRUDResource, HasChatterMixin
+
+    @myferet.register_resource()
+    class OrderResource(HasChatterMixin, LCRUDResource, Resource):
+        code = "orders"
+        label = "Orders"
+        chatter = True
+
+This adds an interactive timeline below the form sheet (in both read-only and edit modes), allowing users to log internal notes and messages via HTMX without refreshing the page.
+
+~~~~~~~~~~~~~
+Quick Filters
+~~~~~~~~~~~~~
+
+MetaViews (such as ``MetaViewList`` and ``MetaViewKanban``) can define 1-click filter buttons using :class:`~feretui.resources.common.QuickFilter`:
+
+::
+
+    from feretui import QuickFilter
+
+    class MetaViewList:
+        quick_filters = [
+            QuickFilter("In Progress", "status", "in_progress", icon="ti ti-clock"),
+            QuickFilter("Done", "status", "done", icon="ti ti-check"),
+        ]
 
 ~~~~~~~~~~~~~~~~~~~~~~~
 Visibility and security

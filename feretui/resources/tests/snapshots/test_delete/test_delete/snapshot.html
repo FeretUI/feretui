@@ -1,13 +1,20 @@
 <div class="container is-fluid" id="resource-foo-view-list">
  <form>
-  <div class="is-hidden-print" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
-   <div>
-    <h1>
+  <div class="is-hidden-print feretui-control-panel" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+   <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+    <h1 style="margin-bottom: 0;">
      Foo
-     <small>
+     <small style="font-size: 0.9rem; color: var(--pico-muted-color);">
       (0)
      </small>
     </h1>
+    <div class="feretui-search-box" style="position: relative; display: inline-flex; align-items: center;">
+     <i class="ti ti-search" style="position: absolute; left: 0.65rem; color: var(--pico-muted-color); pointer-events: none;">
+     </i>
+     <input class="input is-small feretui-search-input" hx-get="?page=resource&resource=foo&view=list" hx-include="closest form" hx-push-url="true" hx-swap="innerHTML" hx-target="#feretui-body" hx-trigger="keyup changed delay:300ms, search" name="search" placeholder="Search..." style="padding-left: 2rem; margin-bottom: 0; height: 2rem; font-size: 0.85rem; width: 170px;" type="search" value="">
+    </div>
+    
+        
    </div>
    <div style="text-align: right;">
     <div class="field is-grouped is-grouped-multiline">
@@ -18,13 +25,14 @@
   <div class="grid" style="grid-template-columns: 1fr 240px; align-items: start;">
    <div>
     <div class="is-hidden-print" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.75rem;">
-     <div style="flex: 0 0 auto;">
+     <div style="flex: 0 0 auto; display: flex; align-items: center; gap: 0.5rem;">
       <div class="buttons is-centered is-hidden-print">
        
       </div>
      </div>
      <div style="margin-left: auto;">
       
+        
      </div>
     </div>
     <div class="table-container overflow-auto">
@@ -50,9 +58,11 @@
         
        </tr>
       </thead>
+      
       <tbody>
        
       </tbody>
+      
       <tfoot>
        <tr>
         <th class="is-narrow" id="checkbox-all-resource-foo-view-list">
@@ -77,13 +87,14 @@
      </table>
     </div>
     <div class="is-hidden-print" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.75rem;">
-     <div style="flex: 0 0 auto;">
+     <div style="flex: 0 0 auto; display: flex; align-items: center; gap: 0.5rem;">
       <div class="buttons is-centered is-hidden-print">
        
       </div>
      </div>
      <div style="margin-left: auto;">
       
+        
      </div>
     </div>
    </div>

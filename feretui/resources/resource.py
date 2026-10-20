@@ -148,6 +148,58 @@ class Resource:
         :type pks: list[object]
         """
 
+    def get_view_switchers(
+        self: "Resource",
+        feretui: "FeretUI",
+        session: Session,
+        options: dict,
+    ) -> list[dict[str, Any]]:
+        """Return available collection view switcher buttons.
+
+        :param feretui: The feretui instance
+        :param session: The user session
+        :param options: Current request query options
+        :return: List of switcher dicts (view, label, icon, is_active, url,
+            goto_url)
+        """
+        current_view = options.get("view", self.default_view)
+        collection_views = [
+            ("list", "List", "ti ti-list"),
+            ("kanban", "Kanban", "ti ti-layout-kanban"),
+            ("grid", "Grid", "ti ti-layout-grid"),
+            ("calendar", "Calendar", "ti ti-calendar"),
+            ("graph", "Graph", "ti ti-chart-bar"),
+        ]
+        available: list[dict[str, Any]] = []
+        for view_code, label, icon in collection_views:
+            if view_code in self.views:
+                view_obj = self.views[view_code]
+                if hasattr(view_obj, "is_visible") and not view_obj.is_visible(
+                    session
+                ):
+                    continue
+                opt = options.copy()
+                opt["page"] = "resource"
+                opt["resource"] = self.code
+                opt["view"] = view_code
+                opt.pop("pk", None)
+                query_items = [f"{k}={v}" for k, v in opt.items()]
+                qs = "&".join(query_items)
+                url = f"/?{qs}"
+                goto_url = f"{feretui.base_url}/action/goto?{qs}"
+                available.append(
+                    {
+                        "view": view_code,
+                        "label": label,
+                        "icon": icon,
+                        "is_active": (view_code == current_view),
+                        "url": url,
+                        "goto_url": goto_url,
+                    }
+                )
+
+        return available if len(available) > 1 else []
+
     def export_catalog(
         self: "Resource",
         translation: "Translation",
@@ -268,6 +320,18 @@ class Resource:
         if not viewcode:
             func = page_404
         else:
+            if (
+                viewcode == "update"
+                and "update" not in self.views
+                and "edit" in self.views
+            ):
+                viewcode = "edit"
+            elif (
+                viewcode == "edit"
+                and "edit" not in self.views
+                and "update" in self.views
+            ):
+                viewcode = "update"
             view = self.views.get(viewcode)
             func = page_404 if not view else view.render
 
@@ -282,6 +346,39 @@ class Resource:
                 code=self.code,
             ),
         )
+
+    def _resolve_viewcode(
+        self: "Resource",
+        options: dict,
+        qs: dict,
+        action: str | None,
+        query: dict,
+    ) -> str | None:
+        """Resolve view code with update/edit aliasing and fallback."""
+        viewcode = options.get("view") or query.get("view") or qs.get("view")
+        if isinstance(viewcode, list):
+            viewcode = viewcode[0]
+
+        if (
+            viewcode == "update"
+            and "update" not in self.views
+            and "edit" in self.views
+        ):
+            return "edit"
+        if (
+            viewcode == "edit"
+            and "edit" not in self.views
+            and "update" in self.views
+        ):
+            return "update"
+
+        if not viewcode and action in ("save", "onchange"):
+            pk_val = options.get("pk") or qs.get("pk")
+            if pk_val:
+                return "edit" if "edit" in self.views else self.default_view
+            return "create" if "create" in self.views else self.default_view
+
+        return viewcode
 
     def router(
         self: "Resource",
@@ -300,31 +397,37 @@ class Resource:
         qs = request.get_query_string_from_current_url()
         options = (
             request.query if request.method == Request.GET else request.params
-        )
-        viewcode = qs.get("view")
-        if isinstance(viewcode, list):
-            viewcode = viewcode[0]
-
-        if not viewcode:
-            raise ResourceError("No view defined in the query string")
-
-        view = self.views.get(viewcode)
-        if not view:
-            raise ResourceError(f"No view {viewcode} defined in {self}")
-
-        action = options.get("action")
+        ) or {}
+        action = options.get("action") or request.query.get("action")
         if isinstance(action, list):
             action = action[0]
 
         if not action:
             raise ResourceError("No action defined in the query string")
 
-        if not hasattr(view, action):
+        viewcode = self._resolve_viewcode(
+            options,
+            qs,
+            action,
+            request.query,
+        )
+
+        view = self.views.get(viewcode) if viewcode else None
+        if view and hasattr(view, action):
+            func = getattr(view, action)
+        elif hasattr(self, action):
+            func = getattr(self, action)
+        else:
+            if not viewcode:
+                raise ResourceError("No view defined in the query string")
+
+            if not view:
+                raise ResourceError(f"No view {viewcode} defined in {self}")
+
             raise ResourceError(
                 f"{self.code} - {viewcode} has no method {action}",
             )
 
-        func = getattr(view, action)
         if self.action_security:
             func = self.action_security(func)
 

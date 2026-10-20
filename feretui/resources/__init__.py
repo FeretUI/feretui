@@ -53,10 +53,30 @@ from feretui.resources.actions import (  # noqa: F401
     Action,
     Actionset,
     GotoViewAction,
+    OpenModalAction,
+    OpenModalSelectedRowsAction,
+    OpenWizardAction,
     SelectedRowsAction,
 )
+from feretui.resources.calendar import (  # noqa: F401
+    CalendarView,
+    CalResource,
+)
+from feretui.resources.chatter import HasChatterMixin  # noqa: F401
+from feretui.resources.common import QuickFilter  # noqa: F401
 from feretui.resources.create import CResource
 from feretui.resources.delete import DResource
+from feretui.resources.graph import (  # noqa: F401
+    DefaultViewGraph,
+    GraphView,
+    GResource,
+)
+from feretui.resources.grid import (  # noqa: F401
+    DefaultViewGrid,
+    GridCRUDResource,
+    GridResource,
+    GridView,
+)
 from feretui.resources.kanban import (  # noqa: F401
     KanbanView,
     KResource,
@@ -69,6 +89,7 @@ from feretui.resources.status import (  # noqa: F401
     StatusBarWidget,
 )
 from feretui.resources.update import UResource
+from feretui.resources.wizard import WizardResource  # noqa: F401
 
 
 class LCRUDResource(LResource, CResource, RResource, UResource, DResource):
@@ -222,11 +243,10 @@ class LKCRUDResource(
         after_delete_redirect_to: str = "list"
 
 
-class CalCRUDResource(CResource, RResource, UResource, DResource):
+class CalCRUDResource(CalResource, CResource, RResource, UResource, DResource):
     """CalCRUDResource class.
 
     Calendar + CRUD mixin for date-based planning and scheduling views.
-    Full Calendar view renderer planned in Milestone 3.
     """
 
     default_view = "calendar"
@@ -256,11 +276,10 @@ class CalCRUDResource(CResource, RResource, UResource, DResource):
         after_delete_redirect_to: str = "calendar"
 
 
-class GCRUDResource(CResource, RResource, UResource, DResource):
+class GCRUDResource(GResource, CResource, RResource, UResource, DResource):
     """GCRUDResource class.
 
     Graph / Reporting + CRUD mixin for statistical analysis and metrics.
-    Full Graph/Chart view renderer planned in Milestone 3.
     """
 
     default_view = "graph"
@@ -296,3 +315,4 @@ KCRUD = KCRUDResource
 LKCRUD = LKCRUDResource
 CalCRUD = CalCRUDResource
 GCRUD = GCRUDResource
+GridCRUD = GridCRUDResource

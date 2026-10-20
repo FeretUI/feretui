@@ -5,10 +5,12 @@ from multidict import MultiDict
 from wtforms import StringField
 
 from feretui.actions import (
+    close_modal,
     goto,
     login_password,
     login_signup,
     logout,
+    modal,
     resource,
 )
 from feretui.exceptions import (
@@ -20,6 +22,7 @@ from feretui.exceptions import (
 )
 from feretui.pages import homepage
 from feretui.request import Request
+from feretui.resources import OpenModalAction
 from feretui.resources.resource import Resource
 from feretui.resources.view import View
 from feretui.response import Response
@@ -362,3 +365,138 @@ class TestAction:
             feretui.resources['test'])
 
         assert resource(feretui, request).body == 'bar'
+
+    def test_modal_without_resource(self, feretui, session) -> None:
+        request = Request(method=Request.GET, session=session)
+        with pytest.raises(ActionError, match="No resource"):
+            modal(feretui, request)
+
+    def test_modal_with_unexisting_view(self, feretui, session) -> None:
+        @feretui.register_resource()
+        class MyResource(Resource):
+            code = "test_modal_res"
+            label = "Test Modal Res"
+
+        request = Request(
+            method=Request.GET,
+            session=session,
+            querystring="resource=test_modal_res&view=nonexistent",
+        )
+        with pytest.raises(ActionError, match="View nonexistent not found"):
+            modal(feretui, request)
+
+    def test_modal_render(self, feretui, session) -> None:
+        @feretui.register_resource()
+        class MyResource(Resource):
+            code = "modal_record"
+            label = "Modal Record"
+
+            class Form:
+                pk = StringField()
+
+        class DummyView(View):
+            code = "create"
+
+            class Form:
+                pk = StringField()
+
+            def render(self, feretui, session, options):
+                return "<form id='dummy-form'>Dummy Content</form>"
+
+        feretui.resources["modal_record"].views["create"] = DummyView(
+            feretui.resources["modal_record"]
+        )
+
+        request = Request(
+            method=Request.GET,
+            session=session,
+            querystring="resource=modal_record&view=create&title=Quick+Create&modal_size=large",
+        )
+        res = modal(feretui, request)
+        assert res.status_code == 200
+        assert '<dialog class="feretui-modal"' in res.body
+        assert "feretui-modal-large" in res.body
+        assert "Quick Create" in res.body
+        assert "Dummy Content" in res.body
+
+    def test_close_modal(self, feretui, session) -> None:
+        request = Request(method=Request.POST, session=session)
+        res = close_modal(feretui, request)
+        assert res.status_code == 200
+        assert res.headers["HX-Trigger"] == "closeModal"
+
+    def test_open_modal_action(self, feretui, session) -> None:
+        from feretui.context import cvar_feretui, cvar_request
+
+        cvar_feretui.set(feretui)
+        cvar_request.set(Request(session=session))
+
+        action = OpenModalAction(
+            label="Add Subline",
+            resource="lines",
+            view="create",
+            title="Add Order Line",
+            modal_size="large",
+            target_field="line_ids",
+            icon="ti ti-plus",
+            description="Create a new line in dialog",
+        )
+        action.context = "resource:orders:view:read:action:modal"
+        url = action.get_url(feretui, session, {"resource": "orders", "pk": "123"})
+        assert "/action/modal?" in url
+        assert "resource=lines" in url
+        assert "view=create" in url
+        assert "title=Add+Order+Line" in url
+        assert "target_field=line_ids" in url
+        assert "modal_size=large" in url
+
+        rendered = action.render(feretui, session, {}, "orders", "read")
+        assert 'hx-target="#feretui-modal-stack"' in rendered
+        assert 'hx-swap="beforeend"' in rendered
+        assert "Add Subline" in rendered
+        assert "ti ti-plus" in rendered
+        assert 'data-tooltip="Create a new line in dialog"' in rendered
+        assert "ti ti-info-circle" in rendered
+
+        # Test OpenModalAction with pk and empty resource falling back to options
+        action_with_pk = OpenModalAction(
+            label="Edit Line",
+            resource="",
+            view="edit",
+            pk="999",
+        )
+        url2 = action_with_pk.get_url(feretui, session, {"resource": "lines"})
+        assert "resource=lines" in url2
+        assert "pk=999" in url2
+
+    def test_modal_render_default_title(self, feretui, session) -> None:
+        @feretui.register_resource()
+        class MyResource2(Resource):
+            code = "modal_record2"
+            label = "Modal Item"
+
+            class Form:
+                pk = StringField()
+
+        class DummyView(View):
+            code = "edit"
+
+            class Form:
+                pk = StringField()
+
+            def render(self, feretui, session, options):
+                return "<div>Edit Content</div>"
+
+        feretui.resources["modal_record2"].views["edit"] = DummyView(
+            feretui.resources["modal_record2"]
+        )
+
+        request = Request(
+            method=Request.GET,
+            session=session,
+            querystring="resource=modal_record2&view=edit",
+        )
+        res = modal(feretui, request)
+        assert res.status_code == 200
+        assert "Modal Item - Edit" in res.body
+

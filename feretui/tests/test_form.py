@@ -769,7 +769,7 @@ class TestForm:
         assert "Desk" in dict_html
         assert "/?page=resource&amp;resource=products&amp;view=read&amp;pk=10" in dict_html
         assert "/feretui/action/goto?page=resource&amp;resource=products&amp;view=read&amp;pk=10" in dict_html
-        assert "/?page=resource&amp;resource=products&amp;view=update&amp;pk=10" in dict_html
+        assert "/?page=resource&amp;resource=products&amp;view=edit&amp;pk=10" in dict_html
         assert "/?page=resource&amp;resource=products&amp;view=delete&amp;pk=10" in dict_html
         assert "/?page=resource&amp;resource=products&amp;view=create" in dict_html
         assert 'hx-target="#feretui-body"' in dict_html
@@ -789,7 +789,7 @@ class TestForm:
         r_form.lines.process_data([{"id": 10, "name": "Desk"}])
         r_html = r_form.lines()
         assert "/?page=resource&amp;resource=products&amp;view=create" not in r_html
-        assert "/?page=resource&amp;resource=products&amp;view=update&amp;pk=10" not in r_html
+        assert "/?page=resource&amp;resource=products&amp;view=edit&amp;pk=10" not in r_html
         assert "/?page=resource&amp;resource=products&amp;view=delete&amp;pk=10" not in r_html
         assert "/?page=resource&amp;resource=products&amp;view=read&amp;pk=10" in r_html
 
@@ -830,6 +830,85 @@ class TestForm:
         )
         assert 'id="wrap-lines"' in oob_html
         assert 'hx-swap-oob="true"' in oob_html
+
+        # Test embedded=True with target foreign key resolution
+        class EmbeddedForm(FeretUIForm):
+            lines = One2ManyField(
+                "Order Lines",
+                columns=[("name", "Product")],
+                target_resource="products",
+                embedded=True,
+            )
+
+        emb_form = EmbeddedForm()
+        # Row has id=10 (line ID) but product_id=99 (catalog item ID)
+        emb_form.lines.process_data([{"id": 10, "product_id": 99, "name": "Desk"}])
+        emb_html = emb_form.lines()
+        assert "action/modal?resource=products" in emb_html
+        assert "pk=99" in emb_html
+        assert "this.closest('tr').remove()" in emb_html
+        assert "action/goto?page=resource&amp;resource=products&amp;view=delete" not in emb_html
+
+        # Test One2ManyField process with formdata
+        class SubForm(FeretUIForm):
+            lines = One2ManyField("Lines", columns=[("name", "Product")])
+
+        # Indexed sub-fields
+        f_indexed = SubForm(formdata={"lines[0][name]": "Table", "lines[1][name]": "Lamp"})
+        assert f_indexed.lines.is_submitted is True
+        assert len(f_indexed.lines.data) == 2
+        assert f_indexed.lines.data[0]["name"] == "Table"
+        assert f_indexed.lines.data[1]["name"] == "Lamp"
+
+        # JSON encoded string
+        f_json = SubForm(formdata={"lines": '[{"name": "Bookshelf"}]'})
+        assert f_json.lines.is_submitted is True
+        assert len(f_json.lines.data) == 1
+        assert f_json.lines.data[0]["name"] == "Bookshelf"
+
+        # Empty marker
+        f_empty = SubForm(formdata={"lines__present": "1"})
+        assert f_empty.lines.is_submitted is True
+        assert f_empty.lines.data == []
+
+        # Formdata with get / getlist or fallback
+        class DictWrapper:
+            def __init__(self, d):
+                self._d = d
+            def __iter__(self):
+                return iter(self._d)
+            def __getitem__(self, k):
+                return self._d[k]
+            def __contains__(self, k):
+                return k in self._d
+
+        raw_obj = DictWrapper({"lines[0][name]": "Direct"})
+        f_obj = SubForm()
+        f_obj.lines.process(raw_obj)
+        assert f_obj.lines.data == [{"name": "Direct"}]
+
+        class DictWithKeysAndGet:
+            def __init__(self, d):
+                self._d = d
+            def __iter__(self):
+                return iter(self._d)
+            def keys(self):
+                return self._d.keys()
+            def get(self, k, default=None):
+                return self._d.get(k, default)
+            def __contains__(self, k):
+                return k in self._d
+
+        get_obj = DictWithKeysAndGet({"lines[0][name]": "WithGet", "lines": "not-json"})
+        f_get = SubForm()
+        f_get.lines.process(get_obj)
+        assert f_get.lines.data == [{"name": "WithGet"}]
+
+        raw_obj_key = DictWrapper({"lines": '[{"name": "CustomMapping"}]'})
+        f_custom = SubForm()
+        f_custom.lines.process(raw_obj_key)
+        assert f_custom.lines.data == [{"name": "CustomMapping"}]
+
 
     def test_many2many_field(self, feretui, frequest) -> None:
         """Test Many2ManyField process_data and rendering with dict and object rows."""
@@ -1209,6 +1288,84 @@ class TestForm:
         assert 'id="content-wrap"' in wrapped
         assert 'hx-swap-oob="true"' in wrapped
         assert "<label" not in wrapped
+
+    def test_notebook_and_page(self, feretui, frequest) -> None:
+        """Test Notebook and Page layout component."""
+        from wtforms import StringField, TextAreaField
+        from feretui.form import FeretUIForm, Notebook, Page
+
+        # Page initialization and auto-slugification
+        p1 = Page("Order Lines", icon="ti ti-list", fields=["lines"], description="Items in order")
+        assert p1.name == "order_lines"
+        assert p1.label == "Order Lines"
+        assert p1.icon == "ti ti-list"
+        assert p1.fields == ["lines"]
+        assert p1.description == "Items in order"
+
+        p2 = Page("Internal Notes", name="notes", fields=["notes"])
+        assert p2.name == "notes"
+
+        # Notebook initialization and methods
+        nb = Notebook(p1, p2)
+        assert nb.default_page == "order_lines"
+        assert nb.get_page("notes") is p2
+        assert nb.get_page("unknown") is None
+        assert nb.get_all_field_names() == {"lines", "notes"}
+
+        # Empty notebook fallback
+        empty_nb = Notebook()
+        assert empty_nb.default_page == ""
+        assert empty_nb.get_all_field_names() == set()
+
+        class ComplexForm(FeretUIForm):
+            customer = StringField("Customer")
+            lines = TextAreaField("Lines")
+            notes = TextAreaField("Notes")
+            notebook = nb
+
+        form = ComplexForm()
+        form.customer.data = "Acme Corp"
+        form.lines.data = "Product A x 2"
+        form.notes.data = "Deliver ASAP"
+
+        # Render notebook edit mode
+        html_edit = nb.render(form, readonly=False)
+        assert "feretui-notebook" in html_edit
+        assert "feretui-tabs" in html_edit
+        assert "feretui-tab-button is-active" in html_edit
+        assert 'data-tab="order_lines"' in html_edit
+        assert 'data-tab="notes"' in html_edit
+        assert '<i class="ti ti-list"></i>' in html_edit
+        assert 'title="Items in order"' in html_edit
+        assert "Product A x 2" in html_edit
+        assert "Deliver ASAP" in html_edit
+
+        # Render notebook readonly mode
+        html_ro = nb.render(form, readonly=True)
+        assert "feretui-notebook" in html_ro
+        assert "Product A x 2" in html_ro
+
+        # Render sheet templates with notebook
+        sheet_ro = feretui.render_template(
+            frequest.session,
+            "view-sheet-readonly-form",
+            form=form,
+            smart_buttons=[],
+        )
+        assert "feretui-notebook" in sheet_ro
+        assert "Acme Corp" in sheet_ro
+        assert "Product A x 2" in sheet_ro
+
+        sheet_rw = feretui.render_template(
+            frequest.session,
+            "view-sheet-readwrite-form",
+            form=form,
+            error=None,
+        )
+        assert "feretui-notebook" in sheet_rw
+        assert "Acme Corp" in sheet_rw
+        assert "Product A x 2" in sheet_rw
+
 
 
 

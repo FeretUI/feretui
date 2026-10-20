@@ -1,9 +1,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 0.0.1\n"
-"POT-Creation-Date: 2024-06-25T09:21:00.490710\n"
-"PO-Revision-Date: \n"
+"Project-Id-Version: 0.2.0\n"
+"POT-Creation-Date: 2026-10-20T14:29:13.637323\n"
+"PO-Revision-Date: 2026-10-20T14:30:12.590440\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -11,7 +11,6 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 3.2.2\n"
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Not a valid integer value."
@@ -305,10 +304,6 @@ msgctxt "form:feretui.form:FeretUIForm"
 msgid "without spaces"
 msgstr "sans espaces"
 
-msgctxt "template:feretui-client-header:nav:aria-label"
-msgid "main navigation"
-msgstr "Somaire"
-
 msgctxt "template:feretui-client-header:a:data-tooltip"
 msgid "Go to the homepage"
 msgstr "Aller à la page d'accueil"
@@ -316,10 +311,6 @@ msgstr "Aller à la page d'accueil"
 msgctxt "template:feretui-client-header"
 msgid "Go to the homepage"
 msgstr "Aller à la page d'accueil"
-
-msgctxt "template:feretui-client-header:a:aria-label"
-msgid "menu"
-msgstr "Menu"
 
 msgctxt "template:feretui-client-header"
 msgid "Log out"
@@ -336,6 +327,10 @@ msgstr "FeretUI"
 msgctxt "template:feretui-client-footer"
 msgid "by Js Suzanne."
 msgstr "par Jean-Sébastien Suzanne."
+
+msgctxt "template:feretui-modal-dialog:button:aria-label"
+msgid "Close"
+msgstr "Fermer"
 
 msgctxt "template:feretui-page-404"
 msgid "Page not found"
@@ -406,20 +401,148 @@ msgid "Sign up"
 msgstr "Enregistrer"
 
 msgctxt "template:feretui-input-label"
-msgid "("
-msgstr "("
+msgid "(required)"
+msgstr "(requis)"
 
-msgctxt "template:feretui-input-label"
-msgid "required"
-msgstr "requis"
+msgctxt "template:feretui-radio-field-vertical"
+msgid "(required)"
+msgstr "(requis)"
 
-msgctxt "template:feretui-input-label"
-msgid ")"
-msgstr ")"
+msgctxt "template:feretui-radio-field-horizontal"
+msgid "(required)"
+msgstr "(requis)"
+
+msgctxt "template:feretui-fieldset"
+msgid "(required)"
+msgstr "(requis)"
+
+msgctxt "template:feretui-many2one-field:a:data-tooltip"
+msgid "View record"
+msgstr "Voir l'enregistrement"
+
+msgctxt "template:feretui-one2many-field"
+msgid "Actions"
+msgstr "Actions"
+
+msgctxt "template:feretui-one2many-field"
+msgid "Actions"
+msgstr "Actions"
+
+msgctxt "template:feretui-one2many-field:a:data-tooltip"
+msgid "View"
+msgstr "Voir"
+
+msgctxt "template:feretui-one2many-field:a:data-tooltip"
+msgid "Edit"
+msgstr "Modifier"
+
+msgctxt "template:feretui-one2many-field:a:data-tooltip"
+msgid "Delete"
+msgstr "Supprimer"
+
+msgctxt "template:feretui-one2many-field:button:data-tooltip"
+msgid "Remove line"
+msgstr "Supprimer la ligne"
+
+msgctxt "template:feretui-one2many-field:a:data-tooltip"
+msgid "View"
+msgstr "Voir"
+
+msgctxt "template:feretui-one2many-field"
+msgid "No records found"
+msgstr "Aucun enregistrement trouvé"
+
+msgctxt "template:feretui-file-field"
+msgid "No file"
+msgstr "Aucun fichier"
+
+msgctxt "template:feretui-file-field"
+msgid "Current file:"
+msgstr "Fichier actuel :"
+
+msgctxt "template:feretui-wysiwyg-field:div:aria-label"
+msgid "Text formatting toolbar"
+msgstr "Barre d'outils de formatage de texte"
 
 msgctxt "template:view-delete-form"
 msgid "Do you wanted delete its ?"
 msgstr "Voulez vous supprimer les entrées?"
+
+msgctxt "template:feretui-resource-grid:div:aria-label"
+msgid "View switcher"
+msgstr "Sélecteur de vue"
+
+msgctxt "template:feretui-resource-grid"
+msgid "No records found."
+msgstr "Aucun enregistrement trouvé."
+
+msgctxt "template:feretui-resource-kanban:div:aria-label"
+msgid "View switcher"
+msgstr "Sélecteur de vue"
+
+msgctxt "template:feretui-resource-calendar"
+msgid "Today"
+msgstr "Aujourd'hui"
+
+msgctxt "template:feretui-resource-calendar:div:aria-label"
+msgid "View switcher"
+msgstr "Sélecteur de vue"
+
+msgctxt "template:feretui-resource-chatter"
+msgid "Activity & Notes"
+msgstr "Activités & Notes"
+
+msgctxt "template:feretui-resource-chatter"
+msgid "Send / Log Note"
+msgstr "Envoyer / Noter"
+
+msgctxt "template:feretui-resource-chatter-thread"
+msgid "No messages or activity logged yet."
+msgstr "Aucun message ou activité enregistré pour le moment."
+
+msgctxt "template:feretui-resource-graph"
+msgid "Bar"
+msgstr "Barres"
+
+msgctxt "template:feretui-resource-graph"
+msgid "Line"
+msgstr "Lignes"
+
+msgctxt "template:feretui-resource-graph"
+msgid "Pie"
+msgstr "Camembert"
+
+msgctxt "template:feretui-resource-graph"
+msgid "Measure:"
+msgstr "Mesure :"
+
+msgctxt "template:feretui-resource-graph:div:aria-label"
+msgid "View switcher"
+msgstr "Sélecteur de vue"
+
+msgctxt "template:feretui-resource-graph"
+msgid "Group / Dimension"
+msgstr "Groupe / Dimension"
+
+msgctxt "template:feretui-resource-graph"
+msgid "Value / Sum"
+msgstr "Valeur / Somme"
+
+msgctxt "template:feretui-resource-graph"
+msgid "Count"
+msgstr "Nombre"
+
+msgctxt "template:feretui-resource-graph"
+msgid "Share"
+msgstr "Part"
+
+msgctxt "template:feretui-resource-graph"
+msgid "Total"
+msgstr "Total"
+
+msgctxt "template:feretui-resource-graph"
+msgid "100%"
+msgstr "100%"
 
 msgctxt "template:view-goto-create-button"
 msgid "Create"
@@ -457,6 +580,10 @@ msgctxt "template:view-goto-edit-cancel-button"
 msgid "Cancel"
 msgstr "Annuler"
 
+msgctxt "template:view-pagination:nav:aria-label"
+msgid "pagination"
+msgstr "pagination"
+
 msgctxt "template:view-pagination"
 msgid "Selected"
 msgstr "Sélectionné"
@@ -468,6 +595,14 @@ msgstr "Précédent"
 msgctxt "template:view-pagination"
 msgid "Next"
 msgstr "Suivant"
+
+msgctxt "template:view-pagination:div:aria-label"
+msgid "View switcher"
+msgstr "Sélecteur de vue"
+
+msgctxt "template:view-multi-header"
+msgid "Group by..."
+msgstr "Grouper par..."
 
 msgctxt "template:view-filter"
 msgid "Filter"
@@ -500,3 +635,7 @@ msgstr "Mot de passe"
 msgctxt "form:feretui.session:SignUpForm:field:password_confirm:label"
 msgid "Password Confirm"
 msgstr "Confirmer le mot de passe"
+
+msgctxt "template:feretui-input-label"
+msgid "required"
+msgstr "requis"

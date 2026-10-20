@@ -25,6 +25,7 @@
             {{ page }}
           </div>
         </main>
+        <div id="feretui-modal-stack"></div>
         <include template="feretui-client-footer"/>
         {% for js in feretui.js_import %}
         {% compress 'js' %}
@@ -139,5 +140,18 @@
       </span>
       {% endif %}
     </span>
+  </template>
+  <template id="feretui-modal-dialog">
+    <dialog class="feretui-modal" id="modal-{{ modal_id }}" open>
+      <article class="feretui-modal-card {{ 'feretui-modal-' + modal_size if modal_size else '' }}">
+        <header class="feretui-modal-header">
+          <button type="button" aria-label="Close" class="feretui-modal-close close" onclick="feretuiCloseModal(this)"></button>
+          <h4>{{ title }}</h4>
+        </header>
+        <div class="feretui-modal-content">
+          {{ content }}
+        </div>
+      </article>
+    </dialog>
   </template>
 </templates>

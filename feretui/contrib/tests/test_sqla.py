@@ -179,6 +179,35 @@ class TestSQLAlchemyResource:
             )
             assert ds_empty["total"] == 0
 
+            # Filter with search
+            ds_search = res.filtered_reads(
+                res.Form,
+                [("search", ["Widget"])],
+                0,
+                10,
+            )
+            assert ds_search["total"] == 1
+            assert ds_search["forms"][0].name.data == "Widget A"
+
+            # Filter with explicit search_fields
+            res.search_fields = ["name"]
+            ds_search_fields = res.filtered_reads(
+                res.Form,
+                [("q", ["A"])],
+                0,
+                10,
+            )
+            assert ds_search_fields["total"] == 1
+
+            # Filter with search no match
+            ds_search_none = res.filtered_reads(
+                res.Form,
+                [("search", ["ZZZ"])],
+                0,
+                10,
+            )
+            assert ds_search_none["total"] == 0
+
             # 4. Update
             update_form = res.Form(
                 data={
@@ -426,6 +455,14 @@ class TestSQLAlchemyResource:
             )
             assert refreshed.status == "done"
 
+        # Successful move with list arguments
+        res.move_card([tid], ["draft"])
+        with session_factory() as db:
+            refreshed = db.scalar(
+                select(TaskModel).where(TaskModel.id == int(tid)),
+            )
+            assert refreshed.status == "draft"
+
         # Model with stage attribute instead of status
         class StageModel(Base):
             __tablename__ = "stage_tasks"
@@ -626,6 +663,45 @@ class TestSQLAlchemyResource:
             # Verify lines were NOT deleted
             assert len(p.lines) == 2
 
+        # Create test with One2ManyField: should not set empty list
+        f_new = DummyFormWithO2M()
+        f_new.ref.data = "ORD-NEW"
+        f_new.lines.data = []
+        new_pid = res.create(f_new)
+        assert new_pid is not None
+
+        # Integer string conversion test
+        class OrderChildResource(SQLAlchemyResource):
+            code = "child_res"
+            label = "Child"
+            model = OrderChild
+
+        OrderChildResource.session_factory = session_factory
+        child_res = OrderChildResource.build()
+
+        class ChildForm(FeretUIForm):
+            pk = StringField()
+            parent_id = StringField()
+            detail = StringField()
+
+        cf = ChildForm()
+        cf.parent_id.data = str(new_pid)
+        cf.detail.data = "New Child"
+        cid = child_res.create(cf)
+        with session_factory() as db:
+            child_inst = db.scalar(select(OrderChild).where(OrderChild.id == int(cid)))
+            assert child_inst.parent_id == int(new_pid)
+
+        # Update child with string parent_id
+        cf_up = ChildForm()
+        cf_up.pk.data = cid
+        cf_up.parent_id.data = str(pid)
+        cf_up.detail.data = "Updated Child"
+        child_res.update([cf_up])
+        with session_factory() as db:
+            child_up = db.scalar(select(OrderChild).where(OrderChild.id == int(cid)))
+            assert child_up.parent_id == int(pid)
+
         # Delete test: verify ORM cascade deletes child records
         res.delete([pid])
         with session_factory() as db:
@@ -686,6 +762,170 @@ class TestSQLAlchemyResource:
         a_form.id.data = ""
         auto_pk = ai_res.create(a_form)
         assert auto_pk.isdigit()
+
+    def test_x2many_reconciliation(self, sqla_engine) -> None:
+        from sqlalchemy import ForeignKey
+        from sqlalchemy.orm import relationship, sessionmaker
+        from feretui.form import One2ManyField
+
+        session_factory = sessionmaker(bind=sqla_engine)
+
+        class ParentModel(Base):
+            __tablename__ = "parent_models"
+            id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+            ref: Mapped[str] = mapped_column(String(50))
+            lines = relationship(
+                "ChildModel",
+                cascade="all, delete-orphan",
+                backref="parent",
+            )
+
+        class ChildModel(Base):
+            __tablename__ = "child_models"
+            id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+            parent_id: Mapped[int] = mapped_column(Integer, ForeignKey("parent_models.id"))
+            detail: Mapped[str] = mapped_column(String(50))
+            qty: Mapped[int] = mapped_column(Integer, default=1)
+            price: Mapped[float] = mapped_column(Float, default=0.0)
+
+        Base.metadata.create_all(sqla_engine)
+
+        class ParentO2MResource(SQLAlchemyResource):
+            code = "parent_o2m"
+            label = "Parent O2M"
+            model = ParentModel
+
+        ParentO2MResource.session_factory = session_factory
+        res = ParentO2MResource.build()
+
+        class OrderForm(FeretUIForm):
+            pk = StringField()
+            ref = StringField()
+            lines = One2ManyField(
+                columns=[("detail", "Detail"), ("qty", "Qty"), ("price", "Price")],
+                embedded=True,
+            )
+
+        # 1. Create with child lines submitted as formdata
+        formdata = {
+            "ref": "ORD-X2M-1",
+            "lines__present": "1",
+            "lines[0][detail]": "Created Line 1",
+            "lines[0][qty]": "5",
+            "lines[0][price]": "19.99",
+            "lines[1][detail]": "Created Line 2",
+        }
+        form = OrderForm(formdata=formdata)
+        assert len(form.lines.data) == 2
+        assert form.lines.is_submitted is True
+        pid = res.create(form)
+
+        with session_factory() as db:
+            p = db.scalar(select(ParentModel).where(ParentModel.id == int(pid)))
+            assert p is not None
+            assert len(p.lines) == 2
+            line_details = {l.detail for l in p.lines}
+            assert "Created Line 1" in line_details
+            assert "Created Line 2" in line_details
+            line1 = next(l for l in p.lines if l.detail == "Created Line 1")
+            line2 = next(l for l in p.lines if l.detail == "Created Line 2")
+            assert line1.qty == 5
+            assert abs(line1.price - 19.99) < 0.001
+
+        # 2. Update: modify line1, delete line2, add line3
+        update_data = {
+            "pk": pid,
+            "ref": "ORD-X2M-1-MODIFIED",
+            "lines__present": "1",
+            "lines[0][id]": str(line1.id),
+            "lines[0][detail]": "Updated Line 1",
+            "lines[0][qty]": "10",
+            "lines[0][price]": "29.50",
+            "lines[1][detail]": "New Line 3",
+        }
+        up_form = OrderForm(formdata=update_data)
+        assert len(up_form.lines.data) == 2
+        res.update([up_form])
+
+        with session_factory() as db:
+            p_up = db.scalar(select(ParentModel).where(ParentModel.id == int(pid)))
+            assert p_up.ref == "ORD-X2M-1-MODIFIED"
+            assert len(p_up.lines) == 2
+            up_details = {l.detail for l in p_up.lines}
+            assert "Updated Line 1" in up_details
+            assert "New Line 3" in up_details
+            assert "Created Line 2" not in up_details
+            line1_up = next(l for l in p_up.lines if l.detail == "Updated Line 1")
+            assert line1_up.qty == 10
+            assert abs(line1_up.price - 29.50) < 0.001
+
+        # 3. Update with JSON string formdata
+        import json
+        json_formdata = {
+            "pk": pid,
+            "ref": "ORD-JSON",
+            "lines": json.dumps([{"detail": "JSON Line"}]),
+        }
+        json_form = OrderForm(formdata=json_formdata)
+        assert len(json_form.lines.data) == 1
+        res.update([json_form])
+
+        with session_factory() as db:
+            p_json = db.scalar(select(ParentModel).where(ParentModel.id == int(pid)))
+            assert len(p_json.lines) == 1
+            assert p_json.lines[0].detail == "JSON Line"
+
+        # 4. Update with empty lines (user deleted all rows)
+        clear_data = {
+            "pk": pid,
+            "ref": "ORD-EMPTY",
+            "lines__present": "1",
+        }
+        clear_form = OrderForm(formdata=clear_data)
+        assert len(clear_form.lines.data) == 0
+        assert clear_form.lines.is_submitted is True
+        res.update([clear_form])
+
+        with session_factory() as db:
+            p_empty = db.scalar(select(ParentModel).where(ParentModel.id == int(pid)))
+            assert len(p_empty.lines) == 0
+
+        # 5. Test rendering wrap_one2many in readonly and embedded modes
+        feretui = FeretUI()
+        session = Session()
+        render_form = OrderForm(formdata={"lines[0][detail]": "Test Row"})
+        with set_context(feretui, Request(session=session)):
+            html_edit = str(render_form.lines(readonly=False))
+            assert "lines[0][detail]" in html_edit
+            assert "lines-row-template" in html_edit
+            assert "addOne2ManyRow" in html_edit
+
+            html_ro = str(render_form.lines(readonly=True))
+            assert "lines[0][detail]" not in html_ro
+            assert "addOne2ManyRow" not in html_ro
+
+        # 6. Branch coverage on save_relations edge cases
+        class DummyForm(FeretUIForm):
+            lines = StringField("Lines")
+
+        dummy_form = DummyForm()
+        dummy_parent = ParentModel(ref="DUMMY")
+        with session_factory() as db:
+            res.save_relations(db, dummy_parent, dummy_form)  # line 408
+
+        order_form_none = OrderForm()
+        order_form_none.lines.data = None
+        with session_factory() as db:
+            res.save_relations(db, dummy_parent, order_form_none)  # line 412
+
+        dummy_parent_no_rel = ParentModel(ref="NO_REL")
+        dummy_parent_no_rel.__dict__["lines"] = None
+        order_form_sub = OrderForm()
+        order_form_sub.lines.data = ["not-a-dict"]
+        order_form_sub.lines.is_submitted = True
+        with session_factory() as db:
+            res.save_relations(db, dummy_parent_no_rel, order_form_sub)  # line 424
+            res.save_relations(db, dummy_parent, order_form_sub)  # line 435
 
 
 

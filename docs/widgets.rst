@@ -334,11 +334,14 @@ In resource views, actions represent buttons that trigger Python methods or navi
      - Dropdown menu grouping multiple actions under a single label.
    * - :class:`~feretui.resources.actions.GotoViewAction`
      - Button navigating to a specific view (e.g. print or duplicate).
+   * - :class:`~feretui.resources.actions.OpenModalAction`
+     - Button opening a resource view inside a stackable HTML5 dialog modal.
    * - :class:`~feretui.resources.actions.SelectedRowsAction`
      - Batch action in :class:`~feretui.resources.list.ListView`, enabled only when rows are selected.
 
 Example Declaration in ``MetaViewRead``::
 
+    from feretui import OpenModalAction
     from feretui.resources.actions import Action, Actionset, GotoViewAction
 
     class MetaViewRead:
@@ -347,12 +350,46 @@ Example Declaration in ``MetaViewRead``::
             Actionset("Advanced Options", [
                 GotoViewAction("Duplicate", "duplicate", icon="ti ti-copy"),
                 Action("Send by Email", "send_email", icon="ti ti-mail"),
+                OpenModalAction("Add Customer Note", resource="notes", view="create", icon="ti ti-note"),
             ]),
         ]
 
 ---
 
-8. ERP Keyboard Shortcuts
+8. Tabbed Form Layouts: ``Notebook`` & ``Page``
+-----------------------------------------------
+
+For complex business documents (such as Sales Orders, Invoices, or Projects), FeretUI provides declarative tab containers to organize fields cleanly into pages:
+
+.. code-block:: python
+
+    from feretui import FeretUIForm, Notebook, Page, One2ManyField
+    from wtforms import StringField, TextAreaField
+
+    class SaleOrderForm(FeretUIForm):
+        order_ref = StringField("Order Reference")
+        lines = One2ManyField("Order Lines", columns=[("product", "Product"), ("qty", "Quantity")])
+        notes = TextAreaField("Terms & Conditions")
+        audit_info = TextAreaField("Audit Information")
+
+        notebook = Notebook(
+            Page("Order Lines", name="lines", icon="ti ti-list", fields=["lines"]),
+            Page("Terms & Conditions", name="terms", icon="ti ti-file-text", fields=["notes"]),
+            Page("Audit Trail", name="audit", icon="ti ti-history", fields=["audit_info"]),
+            default_page="lines",
+        )
+
+Key Capabilities:
+~~~~~~~~~~~~~~~~~
+
+* **Pure Client Switching**: Fast local JavaScript tab selection without incurring server network trips.
+* **Full-Width Relational Sub-Tables**: Sub-tables (such as ``One2ManyField``) inside a page automatically fill the complete tab pane width.
+* **Unified Read & Edit Renders**: Seamlessly adapts whether the form is rendered in read-only or editable sheet mode.
+* **ARIA Tablist Accessibility**: Automatically generates ``role="tablist"``, ``role="tab"``, and ``role="tabpanel"`` with synced ``aria-selected`` and ``aria-controls`` attributes.
+
+---
+
+9. ERP Keyboard Shortcuts
 -------------------------
 
 FeretUI includes global keyboard shortcuts to speed up routine tasks:
@@ -370,4 +407,32 @@ FeretUI includes global keyboard shortcuts to speed up routine tasks:
    * - ``Alt + F``
      - **Search / Filter**: Immediately focuses the search input.
    * - ``Escape`` (Échap)
-     - **Cancel / Return**: Cancels current editing and returns to the previous view.
+     - **Cancel / Return / Close Modal**: Cancels editing or closes the topmost modal dialog.
+
+---
+
+10. Progress Bar Widget & Field
+-------------------------------
+
+The :class:`~feretui.form.ProgressBarField` and :class:`~feretui.form.ProgressBarWidget` render visual HTML5 ``<progress>`` elements with dynamic percentage labels, suitable for progress tracking, quota utilization, delivery completion, or project milestones.
+
+Form Usage::
+
+    from feretui.form import FeretUIForm, ProgressBarField
+
+    class TaskForm(FeretUIForm):
+        progress = ProgressBarField(
+            "Progress",
+            max_value=100.0,
+            show_label=True,
+            label_template="{percent}% completed",
+        )
+        quota = ProgressBarField(
+            "Quota",
+            max_value=500.0,
+            label_template="{value}/{max_value} units ({percent}%)",
+        )
+
+List View Usage:
+When used as a field in a resource Form, `progress_bar_widget` automatically renders a compact, inline progress indicator with a percentage tag in tabular list columns and cards.
+

@@ -114,6 +114,17 @@
       {% endif %}
     </div>
   </template>
+  <template id="feretui-progress-bar-field">
+    <div class="feretui-progress-bar-wrapper" aria-description="{{ description }}">
+      {% if label %}
+      <include template="feretui-input-label"/>
+      {% endif %}
+      {{ widget }}
+      {% if errors %}
+      <include template="feretui-input-error"/>
+      {% endif %}
+    </div>
+  </template>
   <template id="feretui-many2one-field">
     <div class="feretui-many2one-wrapper" aria-description="{{ description }}">
       {% if label %}
@@ -137,17 +148,36 @@
         </div>
         {% endif %}
       {% else %}
-        <div class="feretui-many2one-edit-container" style="display: flex; gap: 0.5rem; align-items: center;">
+        <div class="feretui-many2one-edit-container" style="display: flex; gap: 0.5rem; align-items: center;"
+             onchange="(function(el){
+               var sel = el.querySelector('select');
+               var btn = el.querySelector('.feretui-many2one-goto-btn');
+               if (!sel || !btn) return;
+               var val = sel.value;
+               var res = btn.getAttribute('data-resource');
+               var base = btn.getAttribute('data-base-url') || '/feretui';
+               if (val) {
+                 btn.style.display = '';
+                 btn.setAttribute('href', '/?page=resource&resource=' + res + '&view=read&pk=' + val);
+                 btn.setAttribute('hx-get', base + '/action/goto?page=resource&resource=' + res + '&view=read&pk=' + val);
+                 if (window.htmx) { htmx.process(btn); }
+               } else {
+                 btn.style.display = 'none';
+               }
+             })(this)">
           <div style="flex: 1;">
             {{ widget }}
           </div>
-          {% if link_url %}
+          {% if target_resource %}
           <a href="{{ link_url }}"
              hx-get="{{ goto_url }}"
              hx-target="#feretui-body"
              hx-swap="innerHTML"
-             class="button outline secondary is-small"
-             style="padding: 0.35rem 0.65rem;"
+             class="button outline secondary is-small feretui-many2one-goto-btn"
+             style="padding: 0.35rem 0.65rem; {% if not link_url %}display: none;{% endif %}"
+             data-base-url="{{ feretui.base_url if feretui else '/feretui' }}"
+             data-resource="{{ target_resource }}"
+             data-tooltip="View record"
              title="View record">
             <i class="ti ti-external-link"></i>
           </a>
@@ -160,24 +190,53 @@
     </div>
   </template>
   <template id="feretui-one2many-field">
-    <div class="feretui-one2many-wrapper" aria-description="{{ description }}" style="margin-top: 1rem; margin-bottom: 1.5rem;">
+    <div class="feretui-one2many-wrapper feretui-one2many-container" aria-description="{{ description }}" style="margin-top: 1rem; margin-bottom: 1.5rem;">
+      {% if not readonly and embedded %}
+      <input type="hidden" name="{{ field_name }}__present" value="1">
+      {% endif %}
       <div class="feretui-one2many-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; border-bottom: 1px solid var(--pico-muted-border-color); padding-bottom: 0.25rem;">
         {% if label %}
         <h4 style="margin-bottom: 0;">{{ label.text }}</h4>
         {% else %}
         <div></div>
         {% endif %}
-        {% if target_resource and can_create %}
-        <a href="{{ create_href }}"
-           hx-get="{{ create_goto }}"
-           hx-target="#feretui-body"
-           hx-swap="innerHTML"
-           class="button outline primary is-small"
-           style="padding: 0.2rem 0.65rem; font-size: 0.8rem; margin: 0; display: inline-flex; align-items: center; gap: 0.35rem;"
-           title="{{ add_label }}">
-          <i class="ti ti-plus"></i>
-          <span>{{ add_label }}</span>
-        </a>
+        {% if can_create and not readonly %}
+          {% if embedded %}
+          <button type="button"
+             onclick="addOne2ManyRow(this, '{{ field_name }}')"
+             class="button outline primary is-small"
+             style="padding: 0.2rem 0.65rem; font-size: 0.8rem; margin: 0; display: inline-flex; align-items: center; gap: 0.35rem;"
+             data-tooltip="{{ add_label }}"
+             title="{{ add_label }}">
+            <i class="ti ti-plus"></i>
+            <span>{{ add_label }}</span>
+          </button>
+          {% if create_modal_url %}
+          <button type="button"
+             hx-get="{{ create_modal_url }}"
+             hx-target="#feretui-modal-container"
+             hx-swap="innerHTML"
+             class="button outline secondary is-small"
+             style="padding: 0.2rem 0.65rem; font-size: 0.8rem; margin: 0; display: inline-flex; align-items: center; gap: 0.35rem;"
+             data-tooltip="Add from {{ target_resource }}"
+             title="Add from {{ target_resource }}">
+            <i class="ti ti-search"></i>
+            <span>Add from {{ target_resource }}</span>
+          </button>
+          {% endif %}
+          {% elif target_resource %}
+          <a href="{{ create_href }}"
+             hx-get="{{ create_goto }}"
+             hx-target="#feretui-body"
+             hx-swap="innerHTML"
+             class="button outline primary is-small"
+             style="padding: 0.2rem 0.65rem; font-size: 0.8rem; margin: 0; display: inline-flex; align-items: center; gap: 0.35rem;"
+             data-tooltip="{{ add_label }}"
+             title="{{ add_label }}">
+            <i class="ti ti-plus"></i>
+            <span>{{ add_label }}</span>
+          </a>
+          {% endif %}
         {% endif %}
       </div>
       <div class="table-container overflow-auto">
@@ -187,8 +246,10 @@
               {% for col_name, col_label in columns %}
               <th>{{ col_label }}</th>
               {% endfor %}
-              {% if target_resource or can_delete %}
-              <th style="width: 120px; text-align: center;">Actions</th>
+              {% if (target_resource or can_delete) and not readonly %}
+              <th style="width: 80px; text-align: center;">Actions</th>
+              {% elif target_resource and can_view %}
+              <th style="width: 80px; text-align: center;">Actions</th>
               {% endif %}
             </tr>
           </thead>
@@ -196,9 +257,15 @@
             {% if rows %}
               {% for row in rows %}
               <tr>
+                {% if not readonly and embedded %}
+                <input type="hidden" name="{{ field_name }}[{{ loop.index0 }}][pk]" value="{{ row.pk }}">
+                <input type="hidden" name="{{ field_name }}[{{ loop.index0 }}][id]" value="{{ row.pk }}">
+                {% endif %}
                 {% for col_name, col_label in columns %}
                 <td>
-                  {% if col_name == first_column and target_resource and row.pk and can_view %}
+                  {% if not readonly and embedded %}
+                  <input type="text" name="{{ field_name }}[{{ loop.index0 }}][{{ col_name }}]" value="{{ row[col_name] }}" class="input is-small">
+                  {% elif col_name == first_column and target_resource and row.target_pk and can_view %}
                     <a href="{{ row.read_href }}"
                        hx-get="{{ row.read_goto }}"
                        hx-target="#feretui-body"
@@ -210,39 +277,42 @@
                   {% endif %}
                 </td>
                 {% endfor %}
-                {% if target_resource or can_delete %}
+                {% if (target_resource or can_delete) and not readonly %}
                 <td style="text-align: center; white-space: nowrap;">
                   <div class="feretui-one2many-actions buttons" style="display: inline-flex; gap: 0.25rem; justify-content: center; margin: 0;">
-                    {% if target_resource and row.pk and can_view %}
+                    {% if target_resource and row.target_pk and can_view %}
                     <a href="{{ row.read_href }}"
                        hx-get="{{ row.read_goto }}"
                        hx-target="#feretui-body"
                        hx-swap="innerHTML"
                        class="button outline secondary is-small"
                        style="padding: 0.15rem 0.45rem; font-size: 0.75rem; margin: 0;"
+                       data-tooltip="View"
                        title="View">
                       <i class="ti ti-eye"></i>
                     </a>
                     {% endif %}
-                    {% if target_resource and row.pk and can_edit %}
+                    {% if not embedded and target_resource and row.target_pk and can_edit %}
                     <a href="{{ row.edit_href }}"
                        hx-get="{{ row.edit_goto }}"
                        hx-target="#feretui-body"
                        hx-swap="innerHTML"
                        class="button outline secondary is-small"
                        style="padding: 0.15rem 0.45rem; font-size: 0.75rem; margin: 0;"
+                       data-tooltip="Edit"
                        title="Edit">
                       <i class="ti ti-edit"></i>
                     </a>
                     {% endif %}
                     {% if can_delete %}
-                      {% if target_resource and row.pk %}
+                      {% if not embedded and target_resource and row.pk %}
                       <a href="{{ row.delete_href }}"
                          hx-get="{{ row.delete_goto }}"
                          hx-target="#feretui-body"
                          hx-swap="innerHTML"
                          class="button outline secondary is-small is-danger"
                          style="padding: 0.15rem 0.45rem; font-size: 0.75rem; margin: 0; color: var(--pico-color-red-500, #e53e3e);"
+                         data-tooltip="Delete"
                          title="Delete">
                         <i class="ti ti-trash"></i>
                       </a>
@@ -251,19 +321,33 @@
                               class="button outline secondary is-small is-danger"
                               style="padding: 0.15rem 0.45rem; font-size: 0.75rem; margin: 0; color: var(--pico-color-red-500, #e53e3e);"
                               onclick="this.closest('tr').remove()"
-                              title="Delete">
+                              data-tooltip="Remove line"
+                              title="Remove line">
                         <i class="ti ti-trash"></i>
                       </button>
                       {% endif %}
                     {% endif %}
                   </div>
                 </td>
+                {% elif target_resource and can_view %}
+                <td style="text-align: center; white-space: nowrap;">
+                  <a href="{{ row.read_href }}"
+                     hx-get="{{ row.read_goto }}"
+                     hx-target="#feretui-body"
+                     hx-swap="innerHTML"
+                     class="button outline secondary is-small"
+                     style="padding: 0.15rem 0.45rem; font-size: 0.75rem; margin: 0;"
+                     data-tooltip="View"
+                     title="View">
+                    <i class="ti ti-eye"></i>
+                  </a>
+                </td>
                 {% endif %}
               </tr>
               {% endfor %}
             {% else %}
-              <tr>
-                <td colspan="{{ columns | length + (1 if (target_resource or can_delete) else 0) }}" style="text-align: center; color: var(--pico-muted-color); padding: 1.5rem;">
+              <tr class="feretui-empty-row">
+                <td colspan="{{ columns | length + (1 if ((target_resource or can_delete) or (target_resource and can_view)) else 0) }}" style="text-align: center; color: var(--pico-muted-color); padding: 1.5rem;">
                   <em>No records found</em>
                 </td>
               </tr>
@@ -271,19 +355,27 @@
           </tbody>
         </table>
       </div>
-      {% if target_resource and can_create %}
-      <div style="margin-top: 0.5rem;">
-        <a href="{{ create_href }}"
-           hx-get="{{ create_goto }}"
-           hx-target="#feretui-body"
-           hx-swap="innerHTML"
-           class="button outline primary is-small"
-           style="padding: 0.25rem 0.65rem; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 0.35rem;"
-           title="{{ add_label }}">
-          <i class="ti ti-plus"></i>
-          <span>{{ add_label }}</span>
-        </a>
-      </div>
+      {% if not readonly and embedded %}
+      <template id="{{ field_name }}-row-template">
+        <tr>
+          <input type="hidden" name="{{ field_name }}[__INDEX__][pk]" value="">
+          <input type="hidden" name="{{ field_name }}[__INDEX__][id]" value="">
+          {% for col_name, col_label in columns %}
+          <td>
+            <input type="text" name="{{ field_name }}[__INDEX__][{{ col_name }}]" value="" class="input is-small">
+          </td>
+          {% endfor %}
+          <td style="text-align: center; white-space: nowrap;">
+            <button type="button"
+                    class="button outline secondary is-small is-danger"
+                    style="padding: 0.15rem 0.45rem; font-size: 0.75rem; margin: 0; color: var(--pico-color-red-500, #e53e3e);"
+                    onclick="this.closest('tr').remove()"
+                    title="Remove line">
+              <i class="ti ti-trash"></i>
+            </button>
+          </td>
+        </tr>
+      </template>
       {% endif %}
       {% if not readonly and errors %}
       <include template="feretui-input-error"/>
@@ -431,6 +523,31 @@
       {% if not readonly and errors %}
       <include template="feretui-input-error"/>
       {% endif %}
+    </div>
+  </template>
+  <template id="feretui-wizard-form">
+    <div class="feretui-wizard-container">
+      <form hx-post="{{ submit_url }}"
+            hx-target="closest dialog"
+            hx-swap="outerHTML">
+        {% for active_id in active_ids %}
+        <input type="hidden" name="active_ids" value="{{ active_id }}" />
+        {% endfor %}
+        <div class="feretui-wizard-body" style="margin-bottom: 1.5rem;">
+          {% for field in form %}
+          {{ field() }}
+          {% endfor %}
+        </div>
+        <footer class="feretui-modal-footer" style="display: flex; justify-content: flex-end; gap: 0.5rem; border-top: 1px solid var(--pico-muted-border-color); padding-top: 1rem;">
+          <button type="button" class="button secondary outline" onclick="feretuiCloseModal(this)">
+            {{ cancel_label }}
+          </button>
+          <button type="submit" class="button is-primary">
+            {% if confirm_icon %}<i class="{{ confirm_icon }}" style="margin-right: 0.35rem;"></i>{% endif %}
+            <span>{{ confirm_label }}</span>
+          </button>
+        </footer>
+      </form>
     </div>
   </template>
 </templates>

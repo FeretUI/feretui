@@ -187,6 +187,8 @@ class EditView(TemplateMixinForView, View):
         form = self.form_cls(request.form)
         if not form.pk.data:
             form.pk.data = pk  # getter
+            if form.pk.raw_data is None:
+                form.pk.raw_data = []
             form.pk.raw_data.append(pk)  # validator
 
         if form.validate():

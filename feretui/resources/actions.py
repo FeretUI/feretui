@@ -13,7 +13,7 @@ Declare the actions.
 
 import urllib
 from collections.abc import Callable
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from markupsafe import Markup
 from polib import POFile
@@ -358,3 +358,142 @@ class Actionset(ActionI18nMixin):
         :rtype: bool
         """
         return all(action.is_visible(session) for action in self.actions)
+
+
+class OpenModalAction(Action):
+    """Action class to open a view in a stackable modal dialog."""
+
+    template_id: str = "feretui-page-resource-action-open-modal"
+
+    def __init__(
+        self: "OpenModalAction",
+        label: str,
+        resource: str | None = None,
+        view: str = "create",
+        title: str | None = None,
+        pk: str | None = None,
+        target_field: str | None = None,
+        modal_size: str = "normal",
+        icon: str | None = None,
+        description: str | None = None,
+        visible_callback: Callable | None = None,
+    ) -> None:
+        """Construct the OpenModalAction.
+
+        :param label: Button label
+        :param resource: Target resource code (defaults to current resource)
+        :param view: Target view code (e.g. 'create', 'edit', 'read')
+        :param title: Modal header title
+        :param pk: Optional primary key for edit/read
+        :param target_field: Form field name to update upon modal completion
+        :param modal_size: 'small', 'normal', 'large', or 'full'
+        :param icon: Icon class (e.g. 'ti ti-plus')
+        :param description: Tooltip
+        :param visible_callback: Visibility check
+        """
+        super().__init__(
+            label,
+            method="modal",
+            icon=icon,
+            description=description,
+            visible_callback=visible_callback,
+        )
+        self.resource = resource
+        self.view = view
+        self.title = title
+        self.pk = pk
+        self.target_field = target_field
+        self.modal_size = modal_size
+
+    def get_url(
+        self: "OpenModalAction",
+        feretui: "FeretUI",
+        session: Session,  # noqa: ARG002
+        options: dict,
+    ) -> str:
+        """Return the modal fetch URL."""
+        res_code = self.resource
+        if not res_code:
+            res_opt = options.get("resource", "")
+            res_code = res_opt[0] if isinstance(res_opt, list) else res_opt
+
+        params: dict[str, Any] = {
+            "resource": res_code,
+            "view": self.view,
+        }
+        if self.title:
+            params["title"] = self.title
+        if self.pk:
+            params["pk"] = self.pk
+        elif "pk" in options:
+            pk_val = options["pk"]
+            params["pk"] = pk_val[0] if isinstance(pk_val, list) else pk_val
+        if self.target_field:
+            params["target_field"] = self.target_field
+        if self.modal_size:
+            params["modal_size"] = self.modal_size
+
+        qs = urllib.parse.urlencode(params)
+        return f"{feretui.base_url}/action/modal?{qs}"
+
+
+class OpenModalSelectedRowsAction(OpenModalAction, SelectedRowsAction):
+    """OpenModalAction that is enabled only when rows are selected."""
+
+    template_id: str = (
+        "feretui-page-resource-action-open-modal-for-selected-rows"
+    )
+
+
+class OpenWizardAction(SelectedRowsAction):
+    """Action that opens a transient Wizard modal, supporting selected rows."""
+
+    template_id: str = (
+        "feretui-page-resource-action-open-modal-for-selected-rows"
+    )
+
+    def __init__(
+        self: "OpenWizardAction",
+        label: str,
+        wizard: str,
+        title: str | None = None,
+        modal_size: str = "normal",
+        icon: str | None = None,
+        description: str | None = None,
+        visible_callback: Callable | None = None,
+        for_selected_rows: bool = True,
+    ) -> None:
+        """Construct the OpenWizardAction."""
+        super().__init__(
+            label,
+            method="wizard",
+            icon=icon,
+            description=description,
+            visible_callback=visible_callback,
+        )
+        self.wizard = wizard
+        self.title = title
+        self.modal_size = modal_size
+        self.for_selected_rows = for_selected_rows
+        if not for_selected_rows:
+            self.template_id = "feretui-page-resource-action-open-modal"
+
+    def get_url(
+        self: "OpenWizardAction",
+        feretui: "FeretUI",
+        session: Session,  # noqa: ARG002
+        options: dict,
+    ) -> str:
+        """Return the wizard modal fetch URL."""
+        params: dict[str, Any] = {
+            "wizard": self.wizard,
+            "modal_size": self.modal_size,
+        }
+        if self.title:
+            params["title"] = self.title
+        if "pk" in options:
+            pk_val = options["pk"]
+            params["pk"] = pk_val[0] if isinstance(pk_val, list) else pk_val
+
+        qs = urllib.parse.urlencode(params)
+        return f"{feretui.base_url}/action/wizard?{qs}"

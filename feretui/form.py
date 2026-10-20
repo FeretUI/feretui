@@ -34,7 +34,10 @@ Added the also the validators
 * :class:`.Password`
 """
 
+import json
+import re
 from collections.abc import Callable
+from contextlib import suppress
 from typing import TYPE_CHECKING, Any
 
 from markupsafe import Markup, escape
@@ -53,6 +56,7 @@ from wtforms.fields import (
 )
 from wtforms.fields.core import UnboundField
 from wtforms.form import Form
+from wtforms.utils import unset_value
 from wtforms.validators import InputRequired, ValidationError
 from wtforms.widgets import FileInput, ListWidget, TextArea, TextInput
 from wtforms.widgets.core import clean_key
@@ -516,6 +520,134 @@ def wrap_hidden(
     return Markup(field.widget(field, **kwargs))
 
 
+class ProgressBarWidget:
+    """Widget rendering an HTML5 <progress> element."""
+
+    def __init__(
+        self: "ProgressBarWidget",
+        max_value: float = 100.0,
+        show_label: bool = True,
+        label_template: str | None = None,
+    ) -> None:
+        """Initialize ProgressBarWidget."""
+        self.max_value = max_value
+        self.show_label = show_label
+        self.label_template = label_template
+
+    def __call__(
+        self: "ProgressBarWidget",
+        field: "Field",
+        **_kwargs: dict,
+    ) -> Markup:
+        """Render progress bar element."""
+        raw_val = getattr(field, "data", 0.0)
+        try:
+            val = (
+                float(raw_val)
+                if raw_val is not None and str(raw_val).strip() != ""
+                else 0.0
+            )
+        except (ValueError, TypeError):
+            val = 0.0
+
+        max_val = getattr(field, "max_value", self.max_value) or 100.0
+        percent = int(round((val / max_val) * 100)) if max_val else 0
+        percent = max(0, min(100, percent))
+
+        show_lbl = getattr(field, "show_label", self.show_label)
+        lbl_tmpl = getattr(field, "label_template", self.label_template)
+
+        if lbl_tmpl:
+            text = lbl_tmpl.format(
+                value=val, max_value=max_val, percent=percent
+            )
+        elif show_lbl:
+            text = f"{percent}%"
+        else:
+            text = ""
+
+        progress_bar = (
+            f'<progress value="{val}" max="{max_val}">{percent}%</progress>'
+        )
+        text_html = (
+            f'<small class="progress-label" style="font-size: 0.8rem; '
+            f'font-weight: 500; margin-left: 0.5rem;">{escape(text)}</small>'
+            if text
+            else ""
+        )
+        html = (
+            '<div class="feretui-progress-bar" style="display: flex; '
+            'align-items: center; gap: 0.5rem;">'
+            f"{progress_bar}{text_html}</div>"
+        )
+        return Markup(html)  # noqa: S704
+
+
+class ProgressBarField(Field):
+    """Field representing a progress bar."""
+
+    widget = ProgressBarWidget()
+
+    def __init__(
+        self: "ProgressBarField",
+        label: str | None = None,
+        validators: list | None = None,
+        max_value: float = 100.0,
+        show_label: bool = True,
+        label_template: str | None = None,
+        **kwargs: dict,
+    ) -> None:
+        """Initialize ProgressBarField."""
+        super().__init__(label=label, validators=validators, **kwargs)
+        self.max_value = max_value
+        self.show_label = show_label
+        self.label_template = label_template
+        self.widget = ProgressBarWidget(
+            max_value=max_value,
+            show_label=show_label,
+            label_template=label_template,
+        )
+
+    def process_formdata(
+        self: "ProgressBarField", valuelist: list[Any]
+    ) -> None:
+        """Process incoming form submission."""
+        if valuelist:
+            try:
+                self.data = float(valuelist[0])
+            except (ValueError, TypeError):
+                self.data = None
+        else:
+            self.data = None
+
+
+def wrap_progress_bar(
+    feretui: "FeretUI",
+    session: "Session",
+    field: ProgressBarField,
+    **kwargs: dict,
+) -> Markup:
+    """Render progress bar field with template."""
+    wrapper_id = kwargs.pop("wrapper_id", None)
+    oob = kwargs.pop("oob", False)
+    widget_html = field.widget(field, **kwargs)
+    html = Markup(
+        feretui.render_template(
+            session,
+            "feretui-progress-bar-field",
+            label=None if kwargs.pop("nolabel", False) else field.label,
+            widget=widget_html,
+            description=field.description,
+            errors=field.errors,
+        ),
+    )
+    if wrapper_id:
+        oob_attr = ' hx-swap-oob="true"' if oob else ""
+        return Markup(f'<div id="{wrapper_id}"{oob_attr}>{html}</div>')  # noqa: S704
+
+    return html
+
+
 class Many2OneField(SelectField):
     """Field representing a Many-to-One relationship to another Resource."""
 
@@ -602,6 +734,7 @@ class One2ManyField(Field):
         can_delete: bool = True,
         can_view: bool = True,
         add_label: str | None = None,
+        embedded: bool = False,
         **kwargs: dict,
     ) -> None:
         """Initialize One2ManyField."""
@@ -613,7 +746,9 @@ class One2ManyField(Field):
         self.can_delete = can_delete
         self.can_view = can_view
         self.add_label = add_label
+        self.embedded = embedded
         self.data: list = []
+        self.is_submitted: bool = False
 
     def process_data(self: "One2ManyField", value: object) -> None:
         """Process data for One2ManyField."""
@@ -625,6 +760,87 @@ class One2ManyField(Field):
             self.data = list(value)
         else:
             self.data = []
+
+    def process(
+        self: "One2ManyField",
+        formdata: object = None,
+        data: object = unset_value,
+        extra_filters: object = None,
+    ) -> None:
+        """Process formdata and initial data."""
+        with suppress(AttributeError):
+            super().process(formdata, data=data, extra_filters=extra_filters)
+        if formdata is not None:
+            self._process_subtable_formdata(formdata)
+
+    def _extract_raw_val(self: "One2ManyField", formdata: object) -> object:
+        """Extract raw value from formdata for this field."""
+        if self.name not in formdata:
+            return None
+        if hasattr(formdata, "getlist"):
+            with suppress(KeyError):
+                v_list = formdata.getlist(self.name)
+                return v_list[0] if v_list else None
+        elif hasattr(formdata, "get"):
+            return formdata.get(self.name)
+        return formdata[self.name]
+
+    def _parse_indexed_row_entry(
+        self: "One2ManyField",
+        formdata: object,
+        rows: dict[int, dict[str, Any]],
+        key: str,
+        pattern: re.Pattern,
+    ) -> None:
+        """Parse a single indexed form field into rows dict."""
+        m = pattern.match(key)
+        if not m:
+            return
+        idx = int(m.group(1))
+        col = m.group(2)
+        if hasattr(formdata, "getlist"):
+            val_list = formdata.getlist(key)
+            val = val_list[0] if val_list else ""
+        elif hasattr(formdata, "get"):
+            val = formdata.get(key)
+        else:
+            val = formdata[key]
+        if idx not in rows:
+            rows[idx] = {}
+        rows[idx][col] = val
+
+    def _process_subtable_formdata(
+        self: "One2ManyField",
+        formdata: object,
+    ) -> None:
+        """Parse submitted rows from formdata."""
+        raw_val = self._extract_raw_val(formdata)
+        if isinstance(raw_val, str) and raw_val.strip().startswith("["):
+            with suppress(Exception):
+                self.data = json.loads(raw_val)
+                self.is_submitted = True
+                return
+
+        rows: dict[int, dict[str, Any]] = {}
+        pattern = re.compile(
+            r"^"
+            + re.escape(self.name)
+            + r"\[(\d+)\](?:\[|\.)([a-zA-Z0-9_]+)\]?$"
+        )
+
+        keys: list[str] = []
+        with suppress(Exception):
+            keys = [str(k) for k in formdata]
+
+        for key in keys:
+            self._parse_indexed_row_entry(formdata, rows, key, pattern)
+
+        if rows:
+            self.data = [rows[i] for i in sorted(rows.keys())]
+            self.is_submitted = True
+        elif f"{self.name}__present" in keys:
+            self.data = []
+            self.is_submitted = True
 
 
 def wrap_one2many(
@@ -641,6 +857,7 @@ def wrap_one2many(
     can_delete = getattr(field, "can_delete", True)
     can_view = getattr(field, "can_view", True)
     add_label = getattr(field, "add_label", None) or "Add a line"
+    embedded = getattr(field, "embedded", False)
     columns = getattr(field, "columns", [])
     first_col = columns[0][0] if columns else ""
 
@@ -655,6 +872,12 @@ def wrap_one2many(
         if target_resource
         else ""
     )
+    create_modal_url = (
+        f"{base_url}/action/modal?resource={target_resource}&"
+        f"view=create&title={add_label}&modal_size=normal"
+        if target_resource
+        else ""
+    )
 
     rows: list[dict[str, object]] = []
     raw_data = getattr(field, "data", []) or []
@@ -665,30 +888,42 @@ def wrap_one2many(
             if not isinstance(item, dict)
             else item.get("id", item.get("pk", ""))
         )
-        pk_str = str(pk_val) if pk_val else ""
+        pk_str = str(pk_val) if pk_val is not None else ""
         row_dict["pk"] = pk_str
 
+        target_pk = pk_str
+        if target_resource:
+            single_name = target_resource.rstrip("s")
+            fk_name = f"{single_name}_id"
+            if not isinstance(item, dict):
+                fk_val = getattr(item, fk_name, None)
+            else:
+                fk_val = item.get(fk_name)
+            if fk_val is not None:
+                target_pk = str(fk_val)
+        row_dict["target_pk"] = target_pk
+
         row_dict["read_href"] = (
-            f"/?page=resource&resource={target_resource}&view=read&pk={pk_str}"
-            if target_resource and pk_str
+            f"/?page=resource&resource={target_resource}&view=read&pk={target_pk}"
+            if target_resource and target_pk
             else ""
         )
         row_dict["read_goto"] = (
             f"{base_url}/action/goto?page=resource&"
-            f"resource={target_resource}&view=read&pk={pk_str}"
-            if target_resource and pk_str
+            f"resource={target_resource}&view=read&pk={target_pk}"
+            if target_resource and target_pk
             else ""
         )
         row_dict["edit_href"] = (
             f"/?page=resource&resource={target_resource}&"
-            f"view=update&pk={pk_str}"
-            if target_resource and pk_str
+            f"view=edit&pk={target_pk}"
+            if target_resource and target_pk
             else ""
         )
         row_dict["edit_goto"] = (
             f"{base_url}/action/goto?page=resource&"
-            f"resource={target_resource}&view=update&pk={pk_str}"
-            if target_resource and pk_str
+            f"resource={target_resource}&view=edit&pk={target_pk}"
+            if target_resource and target_pk
             else ""
         )
         row_dict["delete_href"] = (
@@ -718,6 +953,7 @@ def wrap_one2many(
         feretui.render_template(
             session,
             "feretui-one2many-field",
+            field_name=field.name,
             label=None if kwargs.pop("nolabel", False) else field.label,
             columns=columns,
             first_column=first_col,
@@ -725,11 +961,13 @@ def wrap_one2many(
             target_resource=target_resource,
             create_href=create_href,
             create_goto=create_goto,
+            create_modal_url=create_modal_url,
             can_create=can_create,
             can_edit=can_edit,
             can_delete=can_delete,
             can_view=can_view,
             add_label=add_label,
+            embedded=embedded,
             readonly=readonly,
             description=field.description,
             errors=field.errors,
@@ -1187,6 +1425,122 @@ def wrap_wysiwyg(
     return html
 
 
+class Page:
+    """Represents a single tab page inside a Notebook."""
+
+    def __init__(
+        self: "Page",
+        label: str,
+        name: str | None = None,
+        icon: str | None = None,
+        fields: list[str] | None = None,
+        description: str | None = None,
+    ) -> None:
+        """Initialize Page.
+
+        :param label: Tab label
+        :param name: Unique identifier for tab (auto-slugified if omitted)
+        :param icon: Optional Tabler icon class (e.g. 'ti ti-list')
+        :param fields: List of field names belonging to this tab page
+        :param description: Optional description or tooltip
+        """
+        self.label = label
+        self.name = name or label.lower().replace(" ", "_")
+        self.icon = icon
+        self.fields = list(fields or [])
+        self.description = description
+
+
+class Notebook:
+    """Represents a collection of tab pages for organizing complex forms."""
+
+    def __init__(
+        self: "Notebook",
+        *pages: Page,
+        default_page: str | None = None,
+    ) -> None:
+        """Initialize Notebook with one or more Page instances."""
+        self.pages = list(pages)
+        fallback = self.pages[0].name if self.pages else ""
+        self.default_page = default_page or fallback
+
+    def get_page(self: "Notebook", name: str) -> Page | None:
+        """Find and return a page by its name."""
+        for page in self.pages:
+            if page.name == name:
+                return page
+        return None
+
+    def get_all_field_names(self: "Notebook") -> set[str]:
+        """Return the set of all field names contained in any page."""
+        names: set[str] = set()
+        for page in self.pages:
+            names.update(page.fields)
+        return names
+
+    def render(
+        self: "Notebook",
+        form: "FeretUIForm",
+        readonly: bool = False,
+    ) -> Markup:
+        """Render the notebook tabs and page contents."""
+        default_tab = self.default_page
+        tab_buttons = []
+        tab_panes = []
+
+        for page in self.pages:
+            is_active = page.name == default_tab
+            active_cls = " is-active" if is_active else ""
+            icon_html = f'<i class="{page.icon}"></i> ' if page.icon else ""
+            desc_attr = (
+                f' title="{page.description}"' if page.description else ""
+            )
+
+            tab_buttons.append(
+                f'<button type="button"'
+                f' class="feretui-tab-button{active_cls}"'
+                f' data-tab="{page.name}"'
+                f' role="tab"'
+                f' aria-selected="{"true" if is_active else "false"}"'
+                f' aria-controls="tab-pane-{page.name}"'
+                f'{desc_attr}>'
+                f'{icon_html}<span>{page.label}</span>'
+                f'</button>'
+            )
+
+            fields_html = []
+            for f_name in page.fields:
+                if f_name in form._fields:
+                    f = form[f_name]
+                    rendered_f = f(readonly=True) if readonly else f()
+                    fields_html.append(
+                        '<div class="feretui-tab-field '
+                        'feretui-fullwidth-field">'
+                        f"{rendered_f}"
+                        "</div>"
+                    )
+
+            pane_content = "".join(fields_html)
+            tab_panes.append(
+                f'<div class="feretui-tab-pane{active_cls}"'
+                f' id="tab-pane-{page.name}"'
+                f' data-tab="{page.name}"'
+                f' role="tabpanel">'
+                f"{pane_content}"
+                f"</div>"
+            )
+
+        buttons_joined = "".join(tab_buttons)
+        panes_joined = "".join(tab_panes)
+
+        return Markup(  # noqa: S704
+            f'<div class="feretui-notebook" data-active-tab="{default_tab}">'
+            f'<nav class="feretui-tabs" role="tablist">{buttons_joined}</nav>'
+            f'<div class="feretui-tab-content">{panes_joined}</div>'
+            f"</div>"
+        )
+
+
 def gettext(
     form: Form,
     string: str,
@@ -1351,6 +1705,7 @@ class FeretUIForm(Form):
     """
 
     onchange_warning: str | None = None
+    notebook: Notebook | None = None
 
     @classmethod
     def get_onchange_handlers(
@@ -1413,6 +1768,7 @@ class FeretUIForm(Form):
         SelectFieldBase._Option: no_wrap,
         SelectMultipleField: wrap_select_multiple,
         StatusBarField: wrap_status_bar,
+        ProgressBarField: wrap_progress_bar,
         Many2OneField: wrap_many2one,
         One2ManyField: wrap_one2many,
         Many2ManyField: wrap_many2many,
@@ -1538,6 +1894,19 @@ class FeretUIForm(Form):
         * Translation
         * Bulma render
         """
+
+        def wrap_formdata(
+            self: object,
+            form: Form,
+            formdata: object,
+        ) -> object:
+            """Wrap formdata in MultiDict if it is a plain dict."""
+            if isinstance(formdata, dict) and not hasattr(formdata, "getlist"):
+                from multidict import MultiDict
+                from wtforms.meta import WebobInputWrapper
+
+                return WebobInputWrapper(MultiDict(formdata))
+            return super().wrap_formdata(form, formdata)
 
         def bind_field(
             self: Any,

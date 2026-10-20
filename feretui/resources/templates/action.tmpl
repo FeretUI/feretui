@@ -32,4 +32,32 @@
       {% endfor %}
     </article>
   </template>
+  <template id="feretui-page-resource-action-open-modal">
+    <button
+      class="button panel-block is-fullwidth outline secondary"
+      type="button"
+      hx-get="{{ url }}"
+      hx-target="#feretui-modal-stack"
+      hx-swap="beforeend"
+    >
+      <include template="feretui-icon" />
+      <span>{{ label }}</span>
+      <include template="feretui-description"/>
+    </button>
+  </template>
+  <template id="feretui-page-resource-action-open-modal-for-selected-rows">
+    <button
+      class="button panel-block selected-buttons-resource-{{ rcode }}-view-{{ vcode }} is-fullwidth outline secondary"
+      type="button"
+      hx-get="{{ url }}"
+      hx-include="closest form"
+      hx-target="#feretui-modal-stack"
+      hx-swap="beforeend"
+      disabled
+    >
+      <include template="feretui-icon" />
+      <span>{{ label }}</span>
+      <include template="feretui-description"/>
+    </button>
+  </template>
 </templates>

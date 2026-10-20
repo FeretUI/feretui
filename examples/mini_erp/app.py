@@ -24,16 +24,28 @@ from wtforms import FloatField, HiddenField, StringField, TextAreaField
 from wtforms.validators import InputRequired
 
 from feretui import (
+    Actionset,
     FeretUI,
+    HasChatterMixin,
     Many2OneField,
+    Notebook,
     One2ManyField,
+    OpenModalAction,
+    OpenWizardAction,
+    Page,
+    QuickFilter,
+    Response,
     Session,
     StatusBarField,
+    WizardResource,
 )
 from feretui.contrib.sqla import SQLAlchemyResource
 from feretui.ext.starlette import get_routes_for_feretui_client
-from feretui.form import FeretUIForm, onchange
+from feretui.form import FeretUIForm, ProgressBarField, onchange
+from feretui.resources import GResource
+from feretui.resources.grid import GridResource
 from feretui.resources.kanban import KResource
+
 
 from .models import Base, Customer, Product, SaleOrder, SaleOrderLine
 
@@ -128,6 +140,20 @@ def init_demo_db() -> None:
             db.add_all([l1, l2, l3])
             db.commit()
 
+            order_res = myferet.get_resource("orders")
+            order_res.add_chatter_message(
+                str(o1.id),
+                "Order confirmed and sent to warehouse.",
+                author="System",
+                msg_type="note",
+            )
+            order_res.add_chatter_message(
+                str(o1.id),
+                "Customer requested express delivery if possible.",
+                author="Alice Smith",
+                msg_type="message",
+            )
+
 
 def get_customer_choices() -> list[tuple[str, str]]:
     """Return available customers as (id, name) tuples for Select/Many2One."""
@@ -176,9 +202,12 @@ class CustomerResource(SQLAlchemyResource):
     menu_visibility = None
     page_visibility = None
 
+    search_fields = ["name", "email", "city"]
+
     class MetaViewList:
         enable_export = True
         export_formats = ["csv", "xlsx"]
+        group_by_fields = [("city", "City")]
 
     class MetaViewRead:
         body_template_id = "view-sheet-readonly-form"
@@ -204,26 +233,42 @@ class CustomerResource(SQLAlchemyResource):
         ]
 
 
+class ProductForm(FeretUIForm):
+    """Product catalog form with stock progress bar."""
+
+    pk = HiddenField("ID")
+    name = StringField("Product Name", validators=[InputRequired()])
+    sku = StringField("SKU", validators=[InputRequired()])
+    price = FloatField("Price ($)", validators=[InputRequired()])
+    stock = ProgressBarField("Stock Level", max_value=100.0, show_label=True)
+
+
 @myferet.register_resource()
-class ProductResource(SQLAlchemyResource):
+class ProductResource(GridResource, SQLAlchemyResource):
     """Product catalog management resource."""
 
     code = "products"
     label = "Products"
     model = Product
     session_factory = SessionLocal
+    Form = ProductForm
     menu_visibility = None
     page_visibility = None
+    search_fields = ["name", "sku"]
 
     class MetaViewList:
         enable_export = True
         export_formats = ["csv", "xlsx"]
+
+    class MetaViewGrid:
+        limit = 12
 
     class MetaViewRead:
         body_template_id = "view-sheet-readonly-form"
 
     class MetaViewEdit:
         body_template_id = "view-sheet-readwrite-form"
+
 
 
 class OrderForm(FeretUIForm):
@@ -256,9 +301,15 @@ class OrderForm(FeretUIForm):
             ("subtotal", "Subtotal ($)"),
         ],
         target_resource="products",
+        embedded=True,
     )
     total_amount = FloatField("Total Amount ($)", default=0.0)
     notes = TextAreaField("Notes")
+
+    notebook = Notebook(
+        Page("Order Lines", name="lines", icon="ti ti-list", fields=["lines"]),
+        Page("Notes & Terms", name="notes", icon="ti ti-notes", fields=["notes"]),
+    )
 
     @onchange("customer_id")
     def _on_customer_change(self) -> None:
@@ -271,9 +322,66 @@ class OrderForm(FeretUIForm):
                     self.notes.data = f"Default Terms for {c.name} ({c.city})"
 
 
+class BatchCancelOrderForm(FeretUIForm):
+    """Wizard form for cancelling orders in bulk."""
+
+    reason = StringField("Cancellation Reason", validators=[InputRequired()])
+
+
 @myferet.register_resource()
-class OrderResource(KResource, SQLAlchemyResource):
-    """Sales Order resource supporting List, Kanban, and Sheet Form views."""
+class BatchCancelOrderWizard(WizardResource):
+    """Batch wizard for bulk cancelling orders."""
+
+    code = "batch_cancel_orders"
+    label = "Cancel Orders"
+    title = "Batch Cancel Orders"
+    Form = BatchCancelOrderForm
+    icon = "ti ti-ban"
+    confirm_label = "Confirm Cancellation"
+    confirm_icon = "ti ti-ban"
+    menu_visibility = None
+    page_visibility = None
+    action_security = None
+
+    def get_defaults(
+        self, session: Session, active_ids: list[str]  # noqa: ARG002
+    ) -> dict[str, Any]:
+        """Prefill cancellation reason with count of selected orders."""
+        return {
+            "reason": f"Cancellation requested for {len(active_ids)} order(s)",
+        }
+
+    def execute(
+        self,
+        form: FeretUIForm,
+        session: Session,  # noqa: ARG002
+        active_ids: list[str],
+    ) -> Response:
+        """Execute cancellation on selected order records."""
+        int_ids = [int(i) for i in active_ids if str(i).isdigit()]
+        if int_ids:
+            with SessionLocal() as db:
+                orders = db.scalars(
+                    select(SaleOrder).where(SaleOrder.id.in_(int_ids))
+                ).all()
+                for order in orders:
+                    order.status = "cancelled"
+                    if form.reason.data:
+                        order.notes = f"Cancelled: {form.reason.data}"
+                db.commit()
+        return Response(
+            "<!-- modal-closed -->",
+            status_code=200,
+            headers={
+                "HX-Trigger": "closeModal",
+                "HX-Refresh": "true",
+            },
+        )
+
+
+@myferet.register_resource()
+class OrderResource(HasChatterMixin, GResource, KResource, SQLAlchemyResource):
+    """Sales Order resource supporting List, Kanban, Graph, and Sheet Form views."""
 
     code = "orders"
     label = "Orders"
@@ -283,16 +391,67 @@ class OrderResource(KResource, SQLAlchemyResource):
     default_view = "kanban"
     menu_visibility = None
     page_visibility = None
+    chatter = True
+    search_fields = ["order_ref", "customer_name", "notes"]
 
     class MetaViewList:
         enable_export = True
         export_formats = ["csv", "xlsx"]
+        group_by_fields = [
+            ("status", "Status"),
+            ("customer_name", "Customer"),
+        ]
+        quick_filters = [
+            QuickFilter("In Progress", "status", "in_progress", icon="ti ti-clock"),
+            QuickFilter("Done", "status", "done", icon="ti ti-check"),
+        ]
+        actions = [
+            Actionset(
+                "Batch Operations",
+                [
+                    OpenWizardAction(
+                        "Batch Cancel",
+                        wizard="batch_cancel_orders",
+                        title="Cancel Selected Orders",
+                        icon="ti ti-ban",
+                        for_selected_rows=True,
+                    ),
+                ],
+            ),
+            Actionset(
+                "Quick Creation",
+                [
+                    OpenModalAction(
+                        "New Customer",
+                        resource="customers",
+                        view="create",
+                        title="Quick Add Customer",
+                        modal_size="normal",
+                        icon="ti ti-user-plus",
+                    ),
+                ],
+            ),
+        ]
 
     class MetaViewKanban:
         column_field = "status"
         card_title_field = "order_ref"
         card_body_fields = ["customer_name", "total_amount"]
         do_click_on_entry_redirect_to = "read"
+        group_by_fields = [
+            ("status", "Status"),
+            ("customer_name", "Customer"),
+        ]
+
+    class MetaViewGraph:
+        graph_type = "bar"
+        group_by = "status"
+        measure = "total_amount"
+        measure_operator = "sum"
+        group_by_fields = [
+            ("status", "Status"),
+            ("customer_name", "Customer"),
+        ]
 
     class MetaViewRead:
         body_template_id = "view-sheet-readonly-form"

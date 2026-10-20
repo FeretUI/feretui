@@ -148,4 +148,32 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
   });
+
+  // Transparently remap target between #feretui-body and #body if one is missing
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest('[hx-target]');
+    if (a) {
+      var t = a.getAttribute('hx-target');
+      if (t === '#body' && !document.getElementById('body') && document.getElementById('feretui-body')) {
+        a.setAttribute('hx-target', '#feretui-body');
+      } else if (t === '#feretui-body' && !document.getElementById('feretui-body') && document.getElementById('body')) {
+        a.setAttribute('hx-target', '#body');
+      }
+    }
+  }, true);
 });
+
+function addOne2ManyRow(btn, fieldName) {
+  const container = btn.closest('.feretui-one2many-wrapper') || btn.closest('.field') || btn.closest('form');
+  if (!container) return;
+  const tbody = container.querySelector('table.feretui-one2many-table tbody');
+  const tpl = container.querySelector('template#' + fieldName + '-row-template');
+  if (!tbody || !tpl) return;
+  const emptyRow = tbody.querySelector('.feretui-empty-row');
+  if (emptyRow) emptyRow.remove();
+  const idx = tbody.querySelectorAll('tr').length;
+  const html = tpl.innerHTML.replaceAll('__INDEX__', idx);
+  tbody.insertAdjacentHTML('beforeend', html);
+}
+window.addOne2ManyRow = addOne2ManyRow;
+

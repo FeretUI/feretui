@@ -642,3 +642,123 @@ class TestTemplateMixinForView:
         response2 = view.onchange(feretui, request2)
         assert '<div id="feretui-onchange-alert" hx-swap-oob="true"></div>' in response2.body
 
+    def test_quick_filters(self, feretui, session) -> None:
+        from feretui.resources import QuickFilter
+        from feretui.resources.common import MultiView
+
+        class DummyMultiView(MultiView, View):
+            code = "multi_test"
+            limit = 20
+            do_click_on_entry_redirect_to = "read"
+            create_button_redirect_to = "create"
+            delete_button_redirect_to = "delete"
+
+            class Form:
+                pk = StringField()
+                status = StringField()
+
+            quick_filters = [
+                QuickFilter("In Progress", "status", "in_progress", icon="ti ti-clock"),
+                ("Done", "status", "done", "ti ti-check"),
+                {"label": "Draft", "field": "status", "value": "draft", "icon": "ti ti-pencil"},
+            ]
+
+        class DummyResource(Resource):
+            code = "dummy"
+
+            def filtered_reads(self, form_cls, filters, offset, limit):
+                return {"forms": [], "total": 0}
+
+        res = DummyResource()
+        res.context = "test"
+        view = DummyMultiView(res)
+
+        # Test inactive filters
+        qf_items = view.get_quick_filters(feretui, session, {})
+        assert len(qf_items) == 3
+        qf_prog = qf_items[0]
+        assert qf_prog["label"] == "In Progress"
+        assert qf_prog["is_active"] is False
+        assert qf_prog["method"] == "post"
+        assert "filter[status]=in_progress" in qf_prog["url"]
+
+        # Test active filter
+        qf_items_active = view.get_quick_filters(
+            feretui, session, {"filter[status]": ["in_progress"]}
+        )
+        assert qf_items_active[0]["is_active"] is True
+        assert qf_items_active[0]["method"] == "delete"
+        assert qf_items_active[1]["is_active"] is False
+        assert qf_items_active[1]["method"] == "post"
+
+    def test_render_kwargs_search_and_group_by(self, feretui, session) -> None:
+        """Test MultiView.render_kwargs with search and group_by options."""
+        class DummyForm(FeretUIForm):
+            pk = StringField("PK")
+            status = StringField("Status")
+            category = StringField("Category")
+
+        f1 = DummyForm(data={"pk": "1", "status": "open", "category": "A"})
+        f2 = DummyForm(data={"pk": "2", "status": "closed", "category": "A"})
+        f3 = DummyForm(data={"pk": "3", "status": "open", "category": "B"})
+
+        captured_filters = []
+
+        class DummyResource(Resource):
+            code = "item"
+
+            def filtered_reads(self, form_cls, filters, offset, limit):
+                nonlocal captured_filters
+                captured_filters = list(filters)
+                return {"forms": [f1, f2, f3], "total": 3}
+
+        class DummyMultiView(MultiView, View):
+            code = "multi"
+            limit = 20
+            do_click_on_entry_redirect_to = "read"
+            create_button_redirect_to = "create"
+            delete_button_redirect_to = "delete"
+            Form = DummyForm
+            group_by_fields = [("status", "Status"), ("category", "Category")]
+
+        res = DummyResource()
+        res.context = "resource:item"
+        view = DummyMultiView(res)
+
+        # 1. Search option
+        options_search = {"search": ["test"]}
+        kwargs = view.render_kwargs(feretui, session, options_search)
+        assert kwargs["search_query"] == "test"
+        assert ("search", ["test"]) in captured_filters
+        assert kwargs["grouped_forms"] is None
+
+        # 2. Group by option
+        options_gb = {"group_by": ["status"]}
+        kwargs_gb = view.render_kwargs(feretui, session, options_gb)
+        assert kwargs_gb["group_by"] == "status"
+        assert kwargs_gb["grouped_forms"] is not None
+        assert "open" in kwargs_gb["grouped_forms"]
+        assert len(kwargs_gb["grouped_forms"]["open"]) == 2
+        assert len(kwargs_gb["grouped_forms"]["closed"]) == 1
+
+        # 3. Render view-multi-header template with search & group_by
+        html = feretui.render_template(
+            session,
+            "view-multi-header",
+            label="Items",
+            dataset={"total": 3},
+            search_query="Widget",
+            group_by="status",
+            group_by_options=[("status", "Status")],
+            quick_filters=[],
+            filters=[],
+            rcode="item",
+            vcode="multi",
+        )
+        assert 'name="search"' in html
+        assert 'value="Widget"' in html
+        assert 'name="group_by"' in html
+        assert "selected" in html
+
+
+

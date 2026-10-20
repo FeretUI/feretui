@@ -979,6 +979,32 @@ footer.is-hidden-print {
   text-decoration: underline;
 }
 
+td .feretui-many2one-link {
+  font-size: 0.85rem;
+  padding: 0.15rem 0.45rem;
+  font-weight: 500;
+}
+
+.feretui-record-link {
+  color: var(--pico-color, currentColor);
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.feretui-record-link:hover {
+  color: var(--pico-primary, #3b82f6);
+  text-decoration: underline;
+}
+
+table tbody tr[hx-trigger*="dblclick"] {
+  cursor: pointer;
+}
+
+table tbody tr[hx-trigger*="dblclick"]:hover {
+  background-color: var(--pico-table-row-stripped-background-color, rgba(125, 125, 125, 0.05));
+}
+
 .feretui-one2many-table {
   border: 1px solid var(--pico-muted-border-color);
   border-radius: var(--pico-border-radius, 6px);
@@ -1184,6 +1210,470 @@ footer.is-hidden-print {
   line-height: 1.6;
   overflow-y: auto;
 }
+
+/* Notebook / Tabs Component */
+.feretui-notebook {
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-top: 1px solid var(--pico-muted-border-color);
+}
+
+.feretui-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  border-bottom: 2px solid var(--pico-muted-border-color);
+  margin-bottom: 1rem;
+  padding-top: 0.5rem;
+}
+
+.feretui-tab-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--pico-muted-color);
+  cursor: pointer;
+  margin-bottom: -2px;
+  border-radius: var(--pico-border-radius) var(--pico-border-radius) 0 0;
+  transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.feretui-tab-button:hover {
+  color: var(--pico-color);
+  background: var(--pico-card-background-color);
+}
+
+.feretui-tab-button.is-active {
+  color: var(--pico-primary);
+  border-bottom-color: var(--pico-primary);
+  background: var(--pico-card-background-color);
+  font-weight: 600;
+}
+
+.feretui-tab-pane {
+  display: none;
+  animation: feretui-fade-in 0.15s ease;
+}
+
+.feretui-tab-pane.is-active {
+  display: block;
+}
+
+.feretui-tab-field {
+  margin-bottom: 1rem;
+}
+
+@keyframes feretui-fade-in {
+  from { opacity: 0; transform: translateY(2px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Stackable Modal Dialogs */
+#feretui-modal-stack {
+  position: relative;
+}
+
+dialog.feretui-modal {
+  border: none;
+  background: transparent;
+  padding: 0;
+  max-width: 100vw;
+  max-height: 100vh;
+  margin: auto;
+  overflow: visible;
+}
+
+dialog.feretui-modal::backdrop {
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: feretui-fade-in 0.2s ease;
+}
+
+.feretui-modal-card {
+  width: 90vw;
+  max-width: 680px;
+  max-height: 85vh;
+  margin: 0 auto;
+  background: var(--pico-background-color, #ffffff);
+  border: 1px solid var(--pico-muted-border-color, #e2e8f0);
+  border-radius: var(--pico-border-radius, 0.5rem);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: feretui-slide-down 0.2s ease;
+}
+
+.feretui-modal-small {
+  max-width: 440px;
+}
+
+.feretui-modal-large {
+  max-width: 960px;
+}
+
+.feretui-modal-full {
+  max-width: 96vw;
+  height: 92vh;
+  max-height: 92vh;
+}
+
+.feretui-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  background: var(--pico-card-sectionning-background-color, rgba(0, 0, 0, 0.02));
+  border-bottom: 1px solid var(--pico-muted-border-color, #e2e8f0);
+  margin-bottom: 0;
+}
+
+.feretui-modal-header h4 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--pico-color, #1e293b);
+}
+
+.feretui-modal-close {
+  background: transparent;
+  border: none;
+  font-size: 1.25rem;
+  line-height: 1;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  color: var(--pico-muted-color, #64748b);
+  border-radius: 4px;
+  transition: background 0.15s ease, color 0.15s ease;
+  order: 2;
+}
+
+.feretui-modal-close::before {
+  content: "×";
+  font-size: 1.5rem;
+}
+
+.feretui-modal-close:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--pico-color, #0f172a);
+}
+
+.feretui-modal-content {
+  padding: 1.25rem;
+  overflow-y: auto;
+  flex: 1 1 auto;
+}
+
+@keyframes feretui-slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-16px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Calendar View */
+.feretui-calendar-view {
+  width: 100%;
+}
+
+.feretui-calendar-container {
+  overflow-x: auto;
+  background: var(--pico-card-background-color, #ffffff);
+  border: 1px solid var(--pico-muted-border-color, #e2e8f0);
+  border-radius: var(--pico-border-radius, 0.5rem);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+}
+
+.feretui-calendar-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 0;
+  table-layout: fixed;
+}
+
+.feretui-calendar-table th {
+  text-align: center;
+  padding: 0.65rem 0.5rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  color: var(--pico-muted-color, #64748b);
+  background: var(--pico-card-sectionning-background-color, rgba(0, 0, 0, 0.02));
+  border-bottom: 1px solid var(--pico-muted-border-color, #e2e8f0);
+  border-right: 1px solid var(--pico-muted-border-color, #f1f5f9);
+}
+
+.feretui-calendar-cell {
+  height: 110px;
+  min-height: 110px;
+  vertical-align: top;
+  padding: 0.4rem;
+  border-bottom: 1px solid var(--pico-muted-border-color, #e2e8f0);
+  border-right: 1px solid var(--pico-muted-border-color, #e2e8f0);
+  transition: background-color 0.15s ease;
+}
+
+.feretui-calendar-cell:hover {
+  background-color: var(--pico-card-sectionning-background-color, rgba(0, 0, 0, 0.02));
+}
+
+.feretui-calendar-cell.other-month {
+  background-color: rgba(0, 0, 0, 0.015);
+  opacity: 0.65;
+}
+
+.feretui-calendar-cell.is-today {
+  background-color: rgba(var(--pico-primary-rgb, 59, 130, 246), 0.04);
+}
+
+.feretui-calendar-cell.is-today .day-number {
+  background: var(--pico-primary, #3b82f6);
+  color: #ffffff;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.feretui-calendar-day-header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.25rem;
+}
+
+.day-number {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--pico-muted-color, #64748b);
+}
+
+.feretui-calendar-day-events {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  overflow-y: auto;
+  max-height: 80px;
+}
+
+.feretui-calendar-event {
+  background: var(--pico-primary, #3b82f6);
+  color: #ffffff;
+  padding: 0.2rem 0.45rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  transition: transform 0.1s ease, filter 0.1s ease;
+}
+
+.feretui-calendar-event:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.1);
+}
+
+.feretui-calendar-event.event-color-done,
+.feretui-calendar-event.event-color-green {
+  background: #10b981;
+}
+
+.feretui-calendar-event.event-color-warning,
+.feretui-calendar-event.event-color-orange {
+  background: #f59e0b;
+}
+
+.feretui-calendar-event.event-color-danger,
+.feretui-calendar-event.event-color-red {
+  background: #ef4444;
+}
+
+.feretui-calendar-event.event-color-secondary,
+.feretui-calendar-event.event-color-gray {
+  background: #64748b;
+}
+
+/* Chatter Component */
+.feretui-chatter-container {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--pico-muted-border-color, #e2e8f0);
+}
+
+.feretui-chatter-header h4 {
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--pico-color, #1e293b);
+}
+
+.feretui-chatter-composer {
+  margin-bottom: 1.5rem;
+  background: var(--pico-card-sectionning-background-color, rgba(0, 0, 0, 0.02));
+  border: 1px solid var(--pico-muted-border-color, #e2e8f0);
+  border-radius: var(--pico-border-radius, 0.5rem);
+  padding: 0.75rem;
+}
+
+.feretui-chatter-input {
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  resize: vertical;
+}
+
+.feretui-chatter-composer-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.feretui-chatter-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.feretui-chatter-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--pico-card-background-color, #ffffff);
+  border: 1px solid var(--pico-muted-border-color, #e2e8f0);
+  border-radius: var(--pico-border-radius, 0.375rem);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.feretui-chatter-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--pico-primary, #3b82f6);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.feretui-chatter-content {
+  flex: 1 1 auto;
+}
+
+.feretui-chatter-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
+}
+
+.feretui-chatter-author {
+  font-size: 0.9rem;
+  color: var(--pico-color, #0f172a);
+}
+
+.feretui-chatter-date {
+  font-size: 0.75rem;
+  color: var(--pico-muted-color, #64748b);
+}
+
+.feretui-chatter-body {
+  font-size: 0.88rem;
+  line-height: 1.4;
+  color: var(--pico-color, #334155);
+}
+
+.feretui-chatter-empty {
+  text-align: center;
+  padding: 1.5rem 0;
+  color: var(--pico-muted-color, #64748b);
+}
+
+/* Segmented View Switcher (List / Kanban / Calendar / Graph) */
+.feretui-view-switcher {
+  display: inline-flex !important;
+  width: auto !important;
+  max-width: fit-content !important;
+  align-items: center !important;
+  background: var(--pico-card-sectioning-background-color, rgba(125, 125, 125, 0.08)) !important;
+  border: 1px solid var(--pico-muted-border-color, rgba(125, 125, 125, 0.2)) !important;
+  border-radius: var(--pico-border-radius, 0.375rem) !important;
+  padding: 3px !important;
+  gap: 3px !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+  margin-bottom: 0 !important;
+}
+
+.feretui-view-switcher .feretui-view-btn,
+.feretui-view-switcher a[role="button"],
+.feretui-view-switcher a {
+  display: inline-flex !important;
+  flex: 0 0 2rem !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 2rem !important;
+  height: 2rem !important;
+  min-height: 2rem !important;
+  max-height: 2rem !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  border-radius: calc(var(--pico-border-radius, 0.375rem) - 2px) !important;
+  background: transparent !important;
+  color: var(--pico-muted-color, #64748b) !important;
+  font-size: 1.15rem !important;
+  line-height: 1 !important;
+  text-decoration: none !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease-in-out !important;
+}
+
+.feretui-view-switcher .feretui-view-btn i,
+.feretui-view-switcher a i {
+  font-size: 1.15rem;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.feretui-view-switcher .feretui-view-btn:hover,
+.feretui-view-switcher a:hover {
+  background: var(--pico-card-background-color, rgba(125, 125, 125, 0.15)) !important;
+  color: var(--pico-color, currentColor) !important;
+}
+
+.feretui-view-switcher .feretui-view-btn.is-active,
+.feretui-view-switcher a.is-active,
+.feretui-view-switcher a[aria-current="page"] {
+  background: var(--pico-primary, #3b82f6) !important;
+  color: var(--pico-primary-inverse, #ffffff) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+}
+
+
+
+
+
 
 
 

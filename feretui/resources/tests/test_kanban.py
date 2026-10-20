@@ -175,6 +175,16 @@ class TestKanban:
         assert response.status_code == 200
         assert res.moves == [("2", "done", 0)]
 
+        # Move via list params and column alias
+        req_list = Request(
+            session=session,
+            method=Request.POST,
+            params={"pk": ["3"], "column": ["in_progress"], "index": ["1"]},
+        )
+        response_list = view.move_card(feretui, req_list)
+        assert response_list.status_code == 200
+        assert res.moves[-1] == ("3", "in_progress", 1)
+
         # Missing params raises ResourceError
         bad_req = Request(
             session=session,
@@ -183,6 +193,15 @@ class TestKanban:
         )
         with pytest.raises(ResourceError, match="Missing 'pk' or 'stage'"):
             view.move_card(feretui, bad_req)
+
+        # Empty list params raises ResourceError
+        bad_req2 = Request(
+            session=session,
+            method=Request.POST,
+            params={"pk": [], "stage": []},
+        )
+        with pytest.raises(ResourceError, match="Missing 'pk' or 'stage'"):
+            view.move_card(feretui, bad_req2)
 
     def test_kanban_get_columns_from_bound_form(self, feretui, frequest) -> None:
         class BoundChoiceForm(FeretUIForm):
@@ -254,4 +273,36 @@ class TestKanban:
         # Super build_view delegation to LResource
         list_view = res.build_view("MetaViewList")
         assert isinstance(list_view, ListView)
+
+    def test_kanban_card_body_formatting(self, feretui, session) -> None:
+        class CardDetailsForm(FeretUIForm):
+            pk = StringField()
+            status = StringField()
+            customer = SelectField(choices=[("c1", "Acme Corp")])
+            empty_tags = StringField()
+            orders = StringField()
+
+        class DetailResource(KResource, Resource):
+            code = "details"
+            label = "Details"
+            Form = CardDetailsForm
+
+            class MetaViewKanban:
+                card_body_fields = ["customer", "empty_tags", "orders"]
+
+            def filtered_reads(self, form_cls, filters, offset, limit):
+                f = form_cls()
+                f.pk.data = "1"
+                f.status.data = "todo"
+                f.customer.data = "c1"
+                f.empty_tags.data = []
+                f.orders.data = ["o1", "o2"]
+                return {"forms": [f], "total": 1}
+
+        res = DetailResource.build()
+        res.context = "test"
+        html = res.views["kanban"].render(feretui, session, {})
+        assert "Acme Corp" in html
+        assert "-" in html
+        assert "2 items" in html
 

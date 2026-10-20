@@ -110,7 +110,7 @@
   </template>
   <template id="view-pagination">
     <div class="is-hidden-print" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.75rem;">
-      <div style="flex: 0 0 auto;">
+      <div style="flex: 0 0 auto; display: flex; align-items: center; gap: 0.5rem;">
         <include template="view-buttons-header" />
       </div>
       <div style="margin-left: auto;">
@@ -166,17 +166,105 @@
           {% endif %}
         </nav>
         {% endif %}
+        {% if view_switchers %}
+        <div class="feretui-view-switcher" role="toolbar" aria-label="View switcher">
+          {% for sw in view_switchers %}
+          <a href="{{ sw.url }}"
+             hx-get="{{ sw.goto_url }}"
+             hx-target="#feretui-body"
+             hx-swap="innerHTML"
+             role="button"
+             class="feretui-view-btn {{ 'is-active' if sw.is_active else '' }}"
+             aria-current="{{ 'page' if sw.is_active else 'false' }}"
+             data-tooltip="{{ sw.label }}"
+             data-placement="bottom"
+             title="{{ sw.label }}">
+            <i class="{{ sw.icon }}"></i>
+          </a>
+          {% endfor %}
+        </div>
+        {% endif %}
       </div>
     </div>
   </template>
   <template id="view-multi-header">
-    <div class="is-hidden-print" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
-      <div>
-        <h1>{{ label }} <small>({{ dataset.total }})</small></h1>
+    <div class="is-hidden-print feretui-control-panel" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+      <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+        <h1 style="margin-bottom: 0;">{{ label }} <small style="font-size: 0.9rem; color: var(--pico-muted-color);">({{ dataset.total }})</small></h1>
+        <div class="feretui-search-box" style="position: relative; display: inline-flex; align-items: center;">
+          <i class="ti ti-search" style="position: absolute; left: 0.65rem; color: var(--pico-muted-color); pointer-events: none;"></i>
+          <input type="search"
+                 name="search"
+                 value="{{ search_query or '' }}"
+                 placeholder="Search..."
+                 hx-get="?page=resource&amp;resource={{ rcode }}&amp;view={{ vcode }}"
+                 hx-include="closest form"
+                 hx-trigger="keyup changed delay:300ms, search"
+                 hx-target="#feretui-body"
+                 hx-swap="innerHTML"
+                 hx-push-url="true"
+                 style="padding-left: 2rem; margin-bottom: 0; height: 2rem; font-size: 0.85rem; width: 170px;"
+                 class="input is-small feretui-search-input" />
+        </div>
+        {% if group_by_options %}
+        <div class="feretui-group-by-selector" style="display: inline-flex; align-items: center;">
+          <select name="group_by"
+                  id="group-by-{{ rcode }}"
+                  class="select is-small"
+                  hx-get="?page=resource&amp;resource={{ rcode }}&amp;view={{ vcode }}"
+                  hx-include="closest form"
+                  hx-target="#feretui-body"
+                  hx-swap="innerHTML"
+                  hx-push-url="true"
+                  style="height: 2rem; padding: 0.2rem 1.75rem 0.2rem 0.6rem; font-size: 0.85rem; margin-bottom: 0;">
+            <option value="">Group by...</option>
+            {% for gb_name, gb_label in group_by_options %}
+            {% if group_by == gb_name %}
+            <option value="{{ gb_name }}" selected="selected">{{ gb_label }}</option>
+            {% else %}
+            <option value="{{ gb_name }}">{{ gb_label }}</option>
+            {% endif %}
+            {% endfor %}
+          </select>
+        </div>
+        {% endif %}
+        {% if quick_filters %}
+        <div class="feretui-quick-filters buttons has-addons" style="margin: 0; display: inline-flex;">
+          {% for qf in quick_filters %}
+          {% if qf.method == 'delete' %}
+          <button
+            type="button"
+            class="button outline {{ 'is-primary active' if qf.is_active else 'secondary' }} is-small"
+            hx-delete="{{ qf.url }}"
+            hx-target="#feretui-body"
+            hx-swap="innerHTML"
+            style="padding: 0.25rem 0.5rem; margin: 0; font-size: 0.85rem;"
+            title="{{ qf.label }}"
+          >
+            {% if qf.icon %}<i class="{{ qf.icon }}"></i>{% endif %}
+            <span>{{ qf.label }}</span>
+          </button>
+          {% else %}
+          <button
+            type="button"
+            class="button outline {{ 'is-primary active' if qf.is_active else 'secondary' }} is-small"
+            hx-post="{{ qf.url }}"
+            hx-target="#feretui-body"
+            hx-swap="innerHTML"
+            style="padding: 0.25rem 0.5rem; margin: 0; font-size: 0.85rem;"
+            title="{{ qf.label }}"
+          >
+            {% if qf.icon %}<i class="{{ qf.icon }}"></i>{% endif %}
+            <span>{{ qf.label }}</span>
+          </button>
+          {% endif %}
+          {% endfor %}
+        </div>
+        {% endif %}
       </div>
       <div style="text-align: right;">
         <div class="field is-grouped is-grouped-multiline">
-        {% for fname, values in filters %}
+        {% for fname, values in filters if fname != 'search' %}
           <div class="control" style="display: inline-block; margin: 0.25rem;">
             <div class="tags has-addons">
               <span class="tag is-dark">{{ fname }}</span>

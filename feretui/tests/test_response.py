@@ -20,3 +20,38 @@ def test_response() -> None:
     assert response.body == '<div>Response</div>'
     assert response.status_code == 200
     assert response.headers == {}
+
+
+def test_response_redirect_hx() -> None:
+    """Test Response.redirect with HX header."""
+    resp = Response.redirect("/next-page")
+    assert resp.status_code == 200
+    assert resp.headers == {"HX-Redirect": "/next-page"}
+
+
+def test_response_redirect_standard() -> None:
+    """Test Response.redirect without HX header (302)."""
+    resp = Response.redirect("/login", hx=False)
+    assert resp.status_code == 302
+    assert resp.headers == {"Location": "/login"}
+
+
+def test_response_refresh() -> None:
+    """Test Response.refresh helper."""
+    resp = Response.refresh()
+    assert resp.status_code == 200
+    assert resp.headers == {"HX-Refresh": "true"}
+
+
+def test_response_with_trigger() -> None:
+    """Test Response.with_trigger helper variations."""
+    resp1 = Response("ok").with_trigger("itemSaved")
+    assert resp1.headers["HX-Trigger"] == "itemSaved"
+
+    resp2 = Response("ok").with_trigger("showToast", "success")
+    assert resp2.headers["HX-Trigger"] == "showToast:success"
+
+    resp3 = Response("ok").with_trigger("cartUpdated", {"count": 3})
+    assert 'cartUpdated' in resp3.headers["HX-Trigger"]
+    assert '"count": 3' in resp3.headers["HX-Trigger"]
+

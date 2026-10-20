@@ -50,10 +50,42 @@ A resource combines one or more views by inheriting from dedicated mixins:
      - :class:`~feretui.resources.kanban.KanbanView`
      - ``"kanban"``
      - Kanban stage board with SortableJS drag-and-drop.
+   * - :class:`~feretui.resources.calendar.CalResource`
+     - :class:`~feretui.resources.calendar.CalendarView`
+     - ``"calendar"``
+     - Interactive monthly calendar for deadlines, events, and bookings.
+   * - :class:`~feretui.resources.chatter.HasChatterMixin`
+     - *(mixin)*
+     - *(form)*
+     - Social collaboration, internal notes, activity timeline, and message posting.
+   * - :class:`~feretui.resources.grid.GridResource`
+     - :class:`~feretui.resources.grid.GridView`
+     - ``"grid"``
+     - Responsive card gallery / mosaic view with search and pagination.
+   * - :class:`~feretui.resources.graph.GResource`
+     - :class:`~feretui.resources.graph.GraphView`
+     - ``"graph"``
+     - Interactive analytics charts (bar, line, pie) and summary pivot table.
    * - :class:`~feretui.resources.LCRUDResource`
      - *(shortcut)*
      - *(all)*
      - Shortcut combining List, Create, Read, Update, and Delete.
+   * - :class:`~feretui.resources.KCRUDResource`
+     - *(shortcut)*
+     - *(all)*
+     - Shortcut combining Kanban, Create, Read, Update, and Delete.
+   * - :class:`~feretui.resources.LKCRUDResource`
+     - *(shortcut)*
+     - *(all)*
+     - Shortcut combining List, Kanban, and full CRUD.
+   * - :class:`~feretui.resources.CalCRUDResource`
+     - *(shortcut)*
+     - *(all)*
+     - Shortcut combining Calendar and full CRUD.
+   * - :class:`~feretui.resources.GCRUDResource`
+     - *(shortcut)*
+     - *(all)*
+     - Shortcut combining Graph and full CRUD.
 
 Example declaration with SQLAlchemy::
 
@@ -341,4 +373,332 @@ Example Configuration::
                     "url": "/?page=resource&resource=orders&view=list",
                 },
             ]
+
+---
+
+11. Calendar View: Planning and Deadlines
+-----------------------------------------
+
+The Calendar view (:class:`~feretui.resources.calendar.CalendarView`, enabled via :class:`~feretui.resources.calendar.CalResource` or :class:`~feretui.resources.CalCRUDResource`) presents business records as interactive events placed upon a monthly calendar grid.
+
+Key Capabilities:
+~~~~~~~~~~~~~~~~~
+
+* **Month Navigation**: Year and month switcher with rollover between adjacent years.
+* **Date Parsing**: Automatically handles ``datetime``, ``date``, and standard ISO string formats (``YYYY-MM-DD``).
+* **Click-to-Read Navigation**: Clicking an event badge directly opens the record in read mode via HTMX.
+* **Configurable Metadata**:
+
+.. code-block:: python
+
+    from feretui import FeretUIForm
+    from feretui.resources import CalCRUDResource
+    from feretui.contrib.sqla import SQLAlchemyResource
+    from wtforms import StringField, DateField
+
+    class TaskForm(FeretUIForm):
+        name = StringField("Task Name")
+        deadline = DateField("Deadline")
+        priority = StringField("Priority")
+
+    @myferet.register_resource()
+    class TaskResource(CalCRUDResource, SQLAlchemyResource):
+        code = "tasks"
+        label = "Task Planning"
+        model = Task
+        Form = TaskForm
+
+        class MetaViewCalendar:
+            date_start_field = "deadline"
+            date_stop_field = None          # Optional end date for multi-day events
+            title_field = "name"            # Label displayed in the event chip
+            color_field = "priority"        # Badge color modifier
+
+---
+
+12. Multi-View Switcher and Top Control Panel
+---------------------------------------------
+
+When a resource provides more than one collection view (e.g. List, Kanban, and Calendar), FeretUI automatically generates a responsive **View Switcher** toolbar on the top-right of the control panel:
+
+.. code-block:: html
+
+    <div class="feretui-view-switcher">
+      <a class="feretui-view-button is-active" href="/?page=resource&resource=orders&view=kanban">...</a>
+      <a class="feretui-view-button" href="/?page=resource&resource=orders&view=list">...</a>
+      <a class="feretui-view-button" href="/?page=resource&resource=orders&view=calendar">...</a>
+    </div>
+
+Features:
+~~~~~~~~~
+
+1. **State Preservation**: Switching views preserves the active filters, search keywords, and pagination limits across view types.
+2. **Context-Aware Visibility**: Views whose ``is_visible(session)`` method returns ``False`` are automatically omitted from the switcher.
+3. **Deep Linking & HTMX**: Navigation updates the browser address bar with ``hx-push-url="true"`` while updating only the central ``#body`` container.
+
+---
+
+13. Quick Filters and Faceted Search
+------------------------------------
+
+The :class:`~feretui.resources.common.QuickFilter` class provides declarative, single-click filter buttons rendered at the top of collection views (List and Kanban).
+
+.. code-block:: python
+
+    from feretui import QuickFilter
+
+    class MetaViewList:
+        quick_filters = [
+            QuickFilter("In Progress", "status", "in_progress", icon="ti ti-clock"),
+            QuickFilter("Done", "status", "done", icon="ti ti-check"),
+            QuickFilter("High Priority", "priority", "urgent", icon="ti ti-alert-triangle"),
+        ]
+
+Features:
+~~~~~~~~~
+
+* **One-Click Toggle**: Clicking an inactive filter adds ``filter[field]=value`` via HTMX POST. Clicking an active filter removes it via HTMX DELETE.
+* **Badge Highlighting**: Active filter buttons are styled with primary theme contrast (``.is-active``).
+* **Flexible Declarations**: Supports :class:`~feretui.resources.common.QuickFilter` instances, 4-tuples ``("Label", "field", "value", "icon")``, or dictionaries.
+
+---
+
+14. Social Collaboration & Activity Timeline: Chatter
+-----------------------------------------------------
+
+The :class:`~feretui.resources.chatter.HasChatterMixin` mixin equips any resource with an integrated communication hub directly underneath the form sheet.
+
+Activating the Chatter:
+~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+    from feretui.resources import HasChatterMixin, LCRUDResource
+    from feretui.contrib.sqla import SQLAlchemyResource
+
+    @myferet.register_resource()
+    class OrderResource(HasChatterMixin, LCRUDResource, SQLAlchemyResource):
+        code = "orders"
+        label = "Orders"
+        model = SaleOrder
+        chatter = True  # Activates the chatter panel on readonly & edit sheets
+
+Programmatic Notes & History:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can programmatically record internal notes and activity log entries using :meth:`~feretui.resources.chatter.HasChatterMixin.add_chatter_message`:
+
+.. code-block:: python
+
+    order_resource = myferet.get_resource("orders")
+
+    # Record an automated system audit entry
+    order_resource.add_chatter_message(
+        pk="101",
+        body="Order confirmed and sent to logistics warehouse.",
+        author="System",
+        msg_type="note",
+    )
+
+    # Record a customer communication note
+    order_resource.add_chatter_message(
+        pk="101",
+        body="Customer phoned requesting express Saturday delivery.",
+        author="Alice Smith",
+        msg_type="message",
+    )
+
+Interactive Client Features:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+1. **Rich Scribe Area**: Toggle between *Internal Note* (yellow background highlight) and *Public Message*.
+2. **Instant HTMX Post**: Submissions hit ``/action/resource?action=chatter_post&pk=...`` and seamlessly prepend the new note to the timeline without page reload.
+3. **Audit Trail**: Every message displays the author's initials, name, publication date/time, and icon badge.
+
+---
+
+15. Stackable Modal Dialogs
+---------------------------
+
+FeretUI provides a multi-level modal dialog system built on the HTML5 ``<dialog>`` standard and Pico CSS:
+
+Opening a Modal via Action:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+    from feretui import OpenModalAction, Actionset
+
+    class MetaViewList:
+        actions = [
+            Actionset("Quick Create", [
+                OpenModalAction(
+                    "New Customer",
+                    resource="customers",
+                    view="create",
+                    title="Quick Add Customer",
+                    modal_size="normal",  # "small" | "normal" | "large" | "full"
+                    icon="ti ti-user-plus",
+                ),
+            ]),
+        ]
+
+Features:
+~~~~~~~~~
+
+* **Modal Stacking**: Modals are appended to the root ``#feretui-modal-stack`` container, allowing child dialogs to stack over parent dialogs with automatically managed ``z-index``.
+* **Fluid Sizing**: Supports four responsive size variants: ``small`` (450px), ``normal`` (640px), ``large`` (900px), and ``full`` (95vw).
+* **Keyboard & Backdrop Closing**: Pressing ``Escape`` or clicking the dark backdrop smoothly closes the topmost modal dialog.
+* **Server-Triggered Dismissal**: Backend controllers can emit the ``HX-Trigger: closeModal`` header to instruct the client to dismiss the active dialog after successful creation.
+
+---
+
+16. Graph and Analytics View (GraphView)
+----------------------------------------
+
+FeretUI includes built-in business intelligence and reporting through :class:`~feretui.resources.graph.GraphView` and the :class:`~feretui.resources.graph.GResource` mixin.
+
+It generates server-side SVG charts (Bar, Line, Pie) with no heavy front-end charting dependencies, paired with a dynamic summary Pivot Table.
+
+Declaration Example:
+~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+    from feretui.resources.graph import GResource
+    from feretui.contrib.sqla import SQLAlchemyResource
+
+    class SalesAnalyticsResource(GResource, SQLAlchemyResource):
+        code = "sales_analytics"
+        label = "Sales Analytics"
+        model = SaleOrder
+        default_view = "graph"
+
+        class MetaViewGraph:
+            graph_type = "bar"  # "bar" | "line" | "pie"
+            group_by = "status"
+            measure = "total_amount"
+            measure_operator = "sum"  # "sum" | "avg" | "count"
+            group_by_fields = [
+                ("status", "Status"),
+                ("salesperson", "Salesperson"),
+            ]
+
+Key Capabilities:
+~~~~~~~~~~~~~~~~~
+
+* **Instant Chart Switching**: Switch between Bar, Line, and Pie charts directly from the view toolbar.
+* **Aggregations**: Automatically computes ``sum``, ``avg``, and ``count`` operations across grouped records.
+* **Pivot Table**: Renders an interactive breakdown table detailing each dimension's value, record count, and percentage share.
+* **Control Panel Compatibility**: Seamlessly integrated with the real-time search box and dynamic *Group by* dropdown.
+
+---
+
+17. Interactive Assistants and Batch Wizards (WizardResource)
+-------------------------------------------------------------
+
+FeretUI provides ephemeral, transient assistants called **Wizards** via :class:`~feretui.resources.wizard.WizardResource`.
+Wizards are rendered inside HTML5 ``<dialog>`` stackable modals and enable multi-step workflows, confirmation dialogues, and bulk batch actions across records selected in a list view.
+
+Declaration Example:
+~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+    from wtforms import StringField
+    from wtforms.validators import InputRequired
+    from feretui import FeretUIForm, Response, Session, WizardResource
+
+    class BatchCancelOrderForm(FeretUIForm):
+        reason = StringField("Cancellation Reason", validators=[InputRequired()])
+
+    class BatchCancelOrderWizard(WizardResource):
+        code = "batch_cancel_orders"
+        label = "Cancel Orders"
+        title = "Cancel Selected Orders"
+        Form = BatchCancelOrderForm
+        icon = "ti ti-ban"
+        confirm_label = "Confirm Cancellation"
+        confirm_icon = "ti ti-ban"
+
+        def get_defaults(self, session: Session, active_ids: list[str]) -> dict[str, Any]:
+            return {
+                "reason": f"Cancellation requested for {len(active_ids)} order(s)",
+            }
+
+        def execute(
+            self,
+            form: FeretUIForm,
+            session: Session,
+            active_ids: list[str],
+        ) -> Response | None:
+            # Execute business logic on selected active_ids...
+            return Response(
+                "<!-- modal-closed -->",
+                status_code=200,
+                headers={"HX-Trigger": "closeModal", "HX-Refresh": "true"},
+            )
+
+Wiring into a List View:
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+To attach a wizard to a list view as a batch action for selected rows, use :class:`~feretui.resources.actions.OpenWizardAction`:
+
+.. code-block:: python
+
+    from feretui import Actionset, OpenWizardAction
+
+    class OrderResource(SQLAlchemyResource):
+        ...
+        class MetaViewList:
+            actions = [
+                Actionset(
+                    "Batch Actions",
+                    [
+                        OpenWizardAction(
+                            "Batch Cancel",
+                            wizard="batch_cancel_orders",
+                            title="Cancel Selected Orders",
+                            icon="ti ti-ban",
+                            for_selected_rows=True,
+                        ),
+                    ],
+                ),
+            ]
+
+When users select multiple rows using row checkboxes in the list view and click the batch action button, FeretUI packages the selected IDs into ``active_ids`` and opens the wizard modal with pre-populated contextual defaults.
+
+
+8. Grid View (Gallery / Mosaic Cards)
+--------------------------------------
+
+The :class:`~feretui.resources.grid.GridResource` and :class:`~feretui.resources.grid.GridView` provide a modern, responsive card-based mosaic layout for resources where visual browsing is preferred over tabular density (such as product catalogs, customer directories, employee cards, or asset inventories).
+
+Key Features:
+* **Responsive CSS Grid Layout**: Automatically wraps cards using CSS grid with min-card sizing (``grid-template-columns: repeat(auto-fill, minmax(280px, 1fr))``).
+* **Direct Navigation**: Clicking any card navigates to the record's detail read/edit view.
+* **Integrated View Switcher**: Seamlessly toggles between List, Grid, Kanban, and Calendar views without losing search queries or active filters.
+* **Search and Pagination**: Inherits FeretUI's unified ``MultiView`` search, filtering, and page navigation.
+
+Example Declaration::
+
+    from feretui.resources.grid import GridCRUDResource
+    from feretui.resources.resource import Resource
+    from wtforms import StringField, DecimalField
+
+    class ProductResource(GridCRUDResource, Resource):
+        code = "products"
+        label = "Products"
+
+        class Form:
+            pk = StringField("ID")
+            name = StringField("Product Name")
+            sku = StringField("SKU")
+            price = DecimalField("Unit Price")
+
+        class MetaViewGrid:
+            limit = 24
+
+
+
 

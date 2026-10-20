@@ -14,6 +14,7 @@ from polib import POFile
 from wtforms import SelectField, StringField
 
 from feretui.exceptions import ResourceError
+from feretui.form import FeretUIForm
 from feretui.request import Request
 from feretui.resources.actions import Action, Actionset, SelectedRowsAction
 from feretui.resources.list import LResource
@@ -226,4 +227,150 @@ class TestLResource:
         assert 'ID,Name' in content
         assert '1,Alice' in content
         assert '2,Bob' in content
+
+    def test_widgets(self, feretui) -> None:
+        from collections import namedtuple
+        from feretui.context import cvar_feretui
+        from feretui.form import BooleanField, FeretUIForm, Many2OneField, One2ManyField, StatusBarField
+        from feretui.resources.list import (
+            boolean_widget,
+            many2one_widget,
+            one2many_widget,
+            span_widget,
+            statusbar_widget,
+        )
+
+        class DummyForm(FeretUIForm):
+            m2o = Many2OneField(choices=[('1', 'Acme')])
+            o2m = One2ManyField()
+            status = StatusBarField(choices=[('done', 'Done'), ('draft', 'Draft'), ('cancelled', 'Cancelled'), ('other', 'Other')])
+            flag = BooleanField()
+            normal = StringField()
+
+        form = DummyForm()
+        # many2one_widget
+        form.m2o.data = ""
+        assert '<span class="text-muted">-</span>' in str(many2one_widget(form.m2o))
+        form.m2o.data = "1"
+        assert "Acme" in str(many2one_widget(form.m2o))
+        # without target_resource
+        assert "<span>Acme</span>" in str(many2one_widget(form.m2o))
+        form.m2o.target_resource = "partner"
+        assert 'resource=partner' in str(many2one_widget(form.m2o))
+        # without cvar_feretui (fallback to /feretui base_url)
+        import contextvars
+        ctx = contextvars.Context()
+        assert 'resource=partner' in str(ctx.run(many2one_widget, form.m2o))
+
+        # one2many_widget
+        form.o2m.data = None
+        assert '<span class="text-muted">-</span>' in str(one2many_widget(form.o2m))
+        Item = namedtuple('Item', ['id', 'name', 'order_ref', 'title', 'label'], defaults=[None, None, None, None, None])
+        form.o2m.target_resource = "orders"
+        form.o2m.data = [Item(id=1, name='SO-01')]
+        assert 'resource=orders' in str(one2many_widget(form.o2m))
+        assert 'resource=orders' in str(ctx.run(one2many_widget, form.o2m))
+        assert 'SO-01' in str(one2many_widget(form.o2m))
+        # items without target_resource
+        form.o2m.target_resource = None
+        assert 'SO-01' in str(one2many_widget(form.o2m))
+        # > 3 items
+        form.o2m.data = [Item(name=f'Item {i}') for i in range(5)]
+        assert '+2' in str(one2many_widget(form.o2m))
+        # items without names
+        form.o2m.data = [object()]
+        form.o2m.target_resource = "items"
+        assert '1 item' in str(one2many_widget(form.o2m))
+        form.o2m.data = [object(), object()]
+        assert '2 items' in str(one2many_widget(form.o2m))
+        form.o2m.target_resource = "order"
+        form.o2m.data = [object(), object()]
+        assert '2 orders' in str(one2many_widget(form.o2m))
+
+        # statusbar_widget
+        form.status.data = ""
+        assert '<span class="text-muted">-</span>' in str(statusbar_widget(form.status))
+        form.status.data = "done"
+        assert 'is-success' in str(statusbar_widget(form.status))
+        form.status.data = "draft"
+        assert 'is-info' in str(statusbar_widget(form.status))
+        form.status.data = "cancelled"
+        assert 'is-danger' in str(statusbar_widget(form.status))
+        form.status.data = "other"
+        assert 'is-secondary' in str(statusbar_widget(form.status))
+
+        # boolean_widget
+        form.flag.data = True
+        assert 'ti-check' in str(boolean_widget(form.flag))
+        form.flag.data = False
+        assert '<span class="text-muted">-</span>' in str(boolean_widget(form.flag))
+
+        # span_widget
+        form.normal.data = None
+        assert '<span class="text-muted">-</span>' in str(span_widget(form.normal))
+        form.normal.data = []
+        assert '<span class="text-muted">-</span>' in str(span_widget(form.normal))
+        form.normal.data = [Item(name="Tag1")]
+        assert 'Tag1' in str(span_widget(form.normal))
+        form.normal.data = [Item(name=f"Tag{i}") for i in range(5)]
+        assert '+2' in str(span_widget(form.normal))
+        form.normal.data = [object()]
+        assert '1 items' in str(span_widget(form.normal))
+
+        # widget dispatch on list view with subclass
+        class CustomBool(BooleanField):
+            pass
+        class SubForm(FeretUIForm):
+            cb = CustomBool()
+        sub_form = SubForm()
+        sub_form.cb.data = True
+        resource = MyResource.build()
+        view = resource.views['list']
+        assert 'ti-check' in str(view.widget(sub_form.cb))
+
+    def test_list_view_grouped_forms(self, feretui, session) -> None:
+        """Test list view rendering with grouped_forms."""
+        resource = MyResource.build()
+        view = resource.views['list']
+        class RowForm(FeretUIForm):
+            pk = StringField("PK")
+            foo = StringField("Foo")
+            test = StringField("Test")
+
+        row1 = RowForm(data={"pk": "1", "foo": "Foo 1", "test": "Open"})
+        row2 = RowForm(data={"pk": "2", "foo": "Foo 2", "test": "Closed"})
+
+        grouped = {
+            "Open": [row1],
+            "Closed": [row2],
+        }
+        html = feretui.render_template(
+            session,
+            "feretui-resource-list",
+            widget=view.widget,
+            rcode=resource.code,
+            vcode="list",
+            label="My List",
+            form=RowForm(),
+            offset=0,
+            limit=20,
+            paginations=range(0, 2, 20),
+            dataset={"total": 2, "forms": [row1, row2]},
+            filters=[],
+            search_query="",
+            group_by="test",
+            group_by_options=[("test", "Test")],
+            grouped_forms=grouped,
+            open_view_url="/goto",
+            header_buttons=[],
+            view_switchers=[],
+            quick_filters=[],
+            actions=[],
+        )
+        assert "feretui-group-header" in html
+        assert "Open" in html
+        assert "Closed" in html
+        assert "Foo 1" in html
+        assert "Foo 2" in html
+
 

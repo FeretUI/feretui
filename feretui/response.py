@@ -75,3 +75,44 @@ class Response:
         self.body = body
         self.status_code = status_code
         self.headers = headers
+
+    @classmethod
+    def redirect(
+        cls: type["Response"],
+        url: str,
+        hx: bool = True,
+        status_code: int = 200,
+    ) -> "Response":
+        """Return a redirect response using HX-Redirect or standard 302."""
+        if hx:
+            return cls(
+                body="",
+                status_code=status_code,
+                headers={"HX-Redirect": url},
+            )
+        return cls(
+            body="",
+            status_code=302,
+            headers={"Location": url},
+        )
+
+    @classmethod
+    def refresh(cls: type["Response"]) -> "Response":
+        """Return a response instructing client to refresh via HX-Refresh."""
+        return cls(body="", status_code=200, headers={"HX-Refresh": "true"})
+
+    def with_trigger(
+        self: "Response",
+        event_name: str,
+        detail: str | dict | None = None,
+    ) -> "Response":
+        """Add an HX-Trigger event to response headers."""
+        if detail is None:
+            self.headers["HX-Trigger"] = event_name
+        elif isinstance(detail, dict):
+            import json
+
+            self.headers["HX-Trigger"] = json.dumps({event_name: detail})
+        else:
+            self.headers["HX-Trigger"] = f"{event_name}:{detail}"
+        return self

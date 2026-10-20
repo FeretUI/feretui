@@ -1,13 +1,20 @@
 <div class="container is-fluid" id="resource-foo-view-list">
  <form>
-  <div class="is-hidden-print" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
-   <div>
-    <h1>
+  <div class="is-hidden-print feretui-control-panel" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+   <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+    <h1 style="margin-bottom: 0;">
      Bar
-     <small>
+     <small style="font-size: 0.9rem; color: var(--pico-muted-color);">
       (10)
      </small>
     </h1>
+    <div class="feretui-search-box" style="position: relative; display: inline-flex; align-items: center;">
+     <i class="ti ti-search" style="position: absolute; left: 0.65rem; color: var(--pico-muted-color); pointer-events: none;">
+     </i>
+     <input class="input is-small feretui-search-input" hx-get="?page=resource&resource=foo&view=list" hx-include="closest form" hx-push-url="true" hx-swap="innerHTML" hx-target="#feretui-body" hx-trigger="keyup changed delay:300ms, search" name="search" placeholder="Search..." style="padding-left: 2rem; margin-bottom: 0; height: 2rem; font-size: 0.85rem; width: 170px;" type="search" value="">
+    </div>
+    
+        
    </div>
    <div style="text-align: right;">
     <div class="field is-grouped is-grouped-multiline">
@@ -33,7 +40,7 @@
   <div class="grid" style="grid-template-columns: 1fr 240px; align-items: start;">
    <div>
     <div class="is-hidden-print" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.75rem;">
-     <div style="flex: 0 0 auto;">
+     <div style="flex: 0 0 auto; display: flex; align-items: center; gap: 0.5rem;">
       <div class="buttons is-centered is-hidden-print">
        
       </div>
@@ -72,6 +79,7 @@
           
       </nav>
       
+        
      </div>
     </div>
     <div class="table-container overflow-auto">
@@ -105,6 +113,7 @@
         
        </tr>
       </thead>
+      
       <tbody>
        
        <tr hx-get="None&pk=0" hx-trigger="dblclick">
@@ -126,15 +135,21 @@
         </th>
         
         <td headers="pk 0">
-         <span>0</span>
+         
+                      <span>0</span>
+                      
         </td>
         
         <td headers="foo 0">
-         <span>Foo</span>
+         
+                      <span>Foo</span>
+                      
         </td>
         
         <td headers="test 0">
-         <span>Test 1</span>
+         
+                      <span>Test 1</span>
+                      
         </td>
         
        </tr>
@@ -158,15 +173,21 @@
         </th>
         
         <td headers="pk 1">
-         <span>1</span>
+         
+                      <span>1</span>
+                      
         </td>
         
         <td headers="foo 1">
-         <span>Foo</span>
+         
+                      <span>Foo</span>
+                      
         </td>
         
         <td headers="test 1">
-         <span>Test 1</span>
+         
+                      <span>Test 1</span>
+                      
         </td>
         
        </tr>
@@ -190,15 +211,21 @@
         </th>
         
         <td headers="pk 2">
-         <span>2</span>
+         
+                      <span>2</span>
+                      
         </td>
         
         <td headers="foo 2">
-         <span>Foo</span>
+         
+                      <span>Foo</span>
+                      
         </td>
         
         <td headers="test 2">
-         <span>Test 1</span>
+         
+                      <span>Test 1</span>
+                      
         </td>
         
        </tr>
@@ -222,15 +249,21 @@
         </th>
         
         <td headers="pk 3">
-         <span>3</span>
+         
+                      <span>3</span>
+                      
         </td>
         
         <td headers="foo 3">
-         <span>Foo</span>
+         
+                      <span>Foo</span>
+                      
         </td>
         
         <td headers="test 3">
-         <span>Test 1</span>
+         
+                      <span>Test 1</span>
+                      
         </td>
         
        </tr>
@@ -254,15 +287,21 @@
         </th>
         
         <td headers="pk 4">
-         <span>4</span>
+         
+                      <span>4</span>
+                      
         </td>
         
         <td headers="foo 4">
-         <span>Foo</span>
+         
+                      <span>Foo</span>
+                      
         </td>
         
         <td headers="test 4">
-         <span>Test 1</span>
+         
+                      <span>Test 1</span>
+                      
         </td>
         
        </tr>
@@ -286,15 +325,21 @@
         </th>
         
         <td headers="pk 5">
-         <span>5</span>
+         
+                      <span>5</span>
+                      
         </td>
         
         <td headers="foo 5">
-         <span>Foo</span>
+         
+                      <span>Foo</span>
+                      
         </td>
         
         <td headers="test 5">
-         <span>Test 1</span>
+         
+                      <span>Test 1</span>
+                      
         </td>
         
        </tr>
@@ -318,15 +363,21 @@
         </th>
         
         <td headers="pk 6">
-         <span>6</span>
+         
+                      <span>6</span>
+                      
         </td>
         
         <td headers="foo 6">
-         <span>Foo</span>
+         
+                      <span>Foo</span>
+                      
         </td>
         
         <td headers="test 6">
-         <span>Test 1</span>
+         
+                      <span>Test 1</span>
+                      
         </td>
         
        </tr>
@@ -350,15 +401,21 @@
         </th>
         
         <td headers="pk 7">
-         <span>7</span>
+         
+                      <span>7</span>
+                      
         </td>
         
         <td headers="foo 7">
-         <span>Foo</span>
+         
+                      <span>Foo</span>
+                      
         </td>
         
         <td headers="test 7">
-         <span>Test 1</span>
+         
+                      <span>Test 1</span>
+                      
         </td>
         
        </tr>
@@ -382,15 +439,21 @@
         </th>
         
         <td headers="pk 8">
-         <span>8</span>
+         
+                      <span>8</span>
+                      
         </td>
         
         <td headers="foo 8">
-         <span>Foo</span>
+         
+                      <span>Foo</span>
+                      
         </td>
         
         <td headers="test 8">
-         <span>Test 1</span>
+         
+                      <span>Test 1</span>
+                      
         </td>
         
        </tr>
@@ -414,20 +477,27 @@
         </th>
         
         <td headers="pk 9">
-         <span>9</span>
+         
+                      <span>9</span>
+                      
         </td>
         
         <td headers="foo 9">
-         <span>Foo</span>
+         
+                      <span>Foo</span>
+                      
         </td>
         
         <td headers="test 9">
-         <span>Test 1</span>
+         
+                      <span>Test 1</span>
+                      
         </td>
         
        </tr>
        
       </tbody>
+      
       <tfoot>
        <tr>
         <th class="is-narrow" id="checkbox-all-resource-foo-view-list">
@@ -460,7 +530,7 @@
      </table>
     </div>
     <div class="is-hidden-print" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.75rem;">
-     <div style="flex: 0 0 auto;">
+     <div style="flex: 0 0 auto; display: flex; align-items: center; gap: 0.5rem;">
       <div class="buttons is-centered is-hidden-print">
        
       </div>
@@ -499,6 +569,7 @@
           
       </nav>
       
+        
      </div>
     </div>
    </div>

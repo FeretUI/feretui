@@ -132,9 +132,37 @@ feretui.resources modules
    :members:
    :private-members:
 
+.. automodule:: feretui.resources.calendar
+   :members:
+   :private-members:
+
+.. automodule:: feretui.resources.chatter
+   :members:
+   :private-members:
+
 .. automodule:: feretui.resources.status
    :members:
    :private-members:
+
+.. automodule:: feretui.resources.graph
+   :members:
+   :private-members:
+
+.. automodule:: feretui.resources.grid
+   :members:
+   :private-members:
+
+.. automodule:: feretui.resources.wizard
+   :members:
+   :private-members:
+
+
+feretui.protocols module
+------------------------
+
+.. automodule:: feretui.protocols
+   :members:
+
 
 
 feretui.contrib module

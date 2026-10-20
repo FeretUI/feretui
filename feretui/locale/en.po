@@ -1,9 +1,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 0.0.1\n"
-"POT-Creation-Date: 2024-06-25T09:21:00.490710\n"
-"PO-Revision-Date: \n"
+"Project-Id-Version: 0.2.0\n"
+"POT-Creation-Date: 2026-10-20T14:29:13.637323\n"
+"PO-Revision-Date: 2026-10-20T14:30:12.587903\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -11,7 +11,6 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.2.2\n"
 
 msgctxt "form:feretui.form:FeretUIForm"
 msgid "Not a valid integer value."
@@ -301,20 +300,12 @@ msgctxt "form:feretui.form:FeretUIForm"
 msgid "without spaces"
 msgstr ""
 
-msgctxt "template:feretui-client-header:nav:aria-label"
-msgid "main navigation"
-msgstr ""
-
 msgctxt "template:feretui-client-header:a:data-tooltip"
 msgid "Go to the homepage"
 msgstr ""
 
 msgctxt "template:feretui-client-header"
 msgid "Go to the homepage"
-msgstr ""
-
-msgctxt "template:feretui-client-header:a:aria-label"
-msgid "menu"
 msgstr ""
 
 msgctxt "template:feretui-client-header"
@@ -331,6 +322,10 @@ msgstr ""
 
 msgctxt "template:feretui-client-footer"
 msgid "by Js Suzanne."
+msgstr ""
+
+msgctxt "template:feretui-modal-dialog:button:aria-label"
+msgid "Close"
 msgstr ""
 
 msgctxt "template:feretui-page-404"
@@ -402,19 +397,147 @@ msgid "Sign up"
 msgstr ""
 
 msgctxt "template:feretui-input-label"
-msgid "("
+msgid "(required)"
 msgstr ""
 
-msgctxt "template:feretui-input-label"
-msgid "required"
+msgctxt "template:feretui-radio-field-vertical"
+msgid "(required)"
 msgstr ""
 
-msgctxt "template:feretui-input-label"
-msgid ")"
+msgctxt "template:feretui-radio-field-horizontal"
+msgid "(required)"
+msgstr ""
+
+msgctxt "template:feretui-fieldset"
+msgid "(required)"
+msgstr ""
+
+msgctxt "template:feretui-many2one-field:a:data-tooltip"
+msgid "View record"
+msgstr ""
+
+msgctxt "template:feretui-one2many-field"
+msgid "Actions"
+msgstr ""
+
+msgctxt "template:feretui-one2many-field"
+msgid "Actions"
+msgstr ""
+
+msgctxt "template:feretui-one2many-field:a:data-tooltip"
+msgid "View"
+msgstr ""
+
+msgctxt "template:feretui-one2many-field:a:data-tooltip"
+msgid "Edit"
+msgstr ""
+
+msgctxt "template:feretui-one2many-field:a:data-tooltip"
+msgid "Delete"
+msgstr ""
+
+msgctxt "template:feretui-one2many-field:button:data-tooltip"
+msgid "Remove line"
+msgstr ""
+
+msgctxt "template:feretui-one2many-field:a:data-tooltip"
+msgid "View"
+msgstr ""
+
+msgctxt "template:feretui-one2many-field"
+msgid "No records found"
+msgstr ""
+
+msgctxt "template:feretui-file-field"
+msgid "No file"
+msgstr ""
+
+msgctxt "template:feretui-file-field"
+msgid "Current file:"
+msgstr ""
+
+msgctxt "template:feretui-wysiwyg-field:div:aria-label"
+msgid "Text formatting toolbar"
 msgstr ""
 
 msgctxt "template:view-delete-form"
 msgid "Do you wanted delete its ?"
+msgstr ""
+
+msgctxt "template:feretui-resource-grid:div:aria-label"
+msgid "View switcher"
+msgstr ""
+
+msgctxt "template:feretui-resource-grid"
+msgid "No records found."
+msgstr ""
+
+msgctxt "template:feretui-resource-kanban:div:aria-label"
+msgid "View switcher"
+msgstr ""
+
+msgctxt "template:feretui-resource-calendar"
+msgid "Today"
+msgstr ""
+
+msgctxt "template:feretui-resource-calendar:div:aria-label"
+msgid "View switcher"
+msgstr ""
+
+msgctxt "template:feretui-resource-chatter"
+msgid "Activity & Notes"
+msgstr ""
+
+msgctxt "template:feretui-resource-chatter"
+msgid "Send / Log Note"
+msgstr ""
+
+msgctxt "template:feretui-resource-chatter-thread"
+msgid "No messages or activity logged yet."
+msgstr ""
+
+msgctxt "template:feretui-resource-graph"
+msgid "Bar"
+msgstr ""
+
+msgctxt "template:feretui-resource-graph"
+msgid "Line"
+msgstr ""
+
+msgctxt "template:feretui-resource-graph"
+msgid "Pie"
+msgstr ""
+
+msgctxt "template:feretui-resource-graph"
+msgid "Measure:"
+msgstr ""
+
+msgctxt "template:feretui-resource-graph:div:aria-label"
+msgid "View switcher"
+msgstr ""
+
+msgctxt "template:feretui-resource-graph"
+msgid "Group / Dimension"
+msgstr ""
+
+msgctxt "template:feretui-resource-graph"
+msgid "Value / Sum"
+msgstr ""
+
+msgctxt "template:feretui-resource-graph"
+msgid "Count"
+msgstr ""
+
+msgctxt "template:feretui-resource-graph"
+msgid "Share"
+msgstr ""
+
+msgctxt "template:feretui-resource-graph"
+msgid "Total"
+msgstr ""
+
+msgctxt "template:feretui-resource-graph"
+msgid "100%"
 msgstr ""
 
 msgctxt "template:view-goto-create-button"
@@ -453,6 +576,10 @@ msgctxt "template:view-goto-edit-cancel-button"
 msgid "Cancel"
 msgstr ""
 
+msgctxt "template:view-pagination:nav:aria-label"
+msgid "pagination"
+msgstr ""
+
 msgctxt "template:view-pagination"
 msgid "Selected"
 msgstr ""
@@ -463,6 +590,14 @@ msgstr ""
 
 msgctxt "template:view-pagination"
 msgid "Next"
+msgstr ""
+
+msgctxt "template:view-pagination:div:aria-label"
+msgid "View switcher"
+msgstr ""
+
+msgctxt "template:view-multi-header"
+msgid "Group by..."
 msgstr ""
 
 msgctxt "template:view-filter"
@@ -495,4 +630,8 @@ msgstr ""
 
 msgctxt "form:feretui.session:SignUpForm:field:password_confirm:label"
 msgid "Password Confirm"
+msgstr ""
+
+msgctxt "template:feretui-input-label"
+msgid "required"
 msgstr ""

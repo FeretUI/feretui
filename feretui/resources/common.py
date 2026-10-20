@@ -12,7 +12,8 @@
 * :class:`.TemplateMixinForView`
 """
 
-from typing import TYPE_CHECKING
+import urllib.parse
+from typing import TYPE_CHECKING, Any
 
 from lxml.etree import Element, SubElement, tostring
 from lxml.html import fromstring
@@ -248,11 +249,39 @@ def _apply_filter_delete(
         del qs[f"filter[{param}]"]
 
 
+class QuickFilter:
+    """Declarative Quick Filter button."""
+
+    def __init__(
+        self: "QuickFilter",
+        label: str,
+        field: str,
+        value: str | int | float | bool,
+        icon: str | None = None,
+        default: bool = False,
+    ) -> None:
+        """Construct a QuickFilter.
+
+        :param label: Button label
+        :param field: Resource field name to filter on
+        :param value: Field value to match
+        :param icon: Optional icon class
+        :param default: If True, enabled by default
+        """
+        self.label = label
+        self.field = field
+        self.value = value
+        self.icon = icon
+        self.default = default
+
+
 class MultiView(ActionsMixinForView):
     """MultiView class.
 
     Render the buttons for view multi.
     """
+
+    quick_filters: list = []
 
     class Filter:
         """Filter's Form."""
@@ -413,6 +442,16 @@ class MultiView(ActionsMixinForView):
             for key, values in options.items()
             if (key.startswith("filter[") and key[-1] == "]")
         ]
+        search_query = options.get("search", "")
+        if isinstance(search_query, list):
+            search_query = search_query[0] if search_query else ""
+        if search_query:
+            filters.append(("search", [search_query]))
+
+        group_by = options.get("group_by", "")
+        if isinstance(group_by, list):
+            group_by = group_by[0] if group_by else ""
+
         offset = options.get("offset", 0)
         if isinstance(offset, list):
             offset = offset[0]
@@ -425,6 +464,18 @@ class MultiView(ActionsMixinForView):
             self.limit,
         )
         paginations = range(0, dataset["total"], self.limit)
+
+        grouped_forms = None
+        if group_by:
+            grouped_forms = {}
+            for row in dataset.get("forms", []):
+                val = (
+                    getattr(row[group_by], "data", None)
+                    if group_by in row
+                    else None
+                )
+                key_str = str(val) if val is not None else "None"
+                grouped_forms.setdefault(key_str, []).append(row)
 
         open_view_url = (
             self.get_transition_url(
@@ -446,14 +497,87 @@ class MultiView(ActionsMixinForView):
             "paginations": paginations,
             "dataset": dataset,
             "filters": filters,
+            "search_query": search_query,
+            "group_by": group_by,
+            "group_by_options": getattr(self, "group_by_fields", []),
+            "grouped_forms": grouped_forms,
             "open_view_url": open_view_url,
             "header_buttons": self.get_header_buttons(
                 feretui,
                 session,
                 options,
             ),
+            "view_switchers": self.resource.get_view_switchers(
+                feretui,
+                session,
+                options,
+            ),
+            "quick_filters": self.get_quick_filters(
+                feretui,
+                session,
+                options,
+            ),
             "actions": self.get_actions(feretui, session, options),
         }
+
+    def get_quick_filters(
+        self: "MultiView",
+        feretui: "FeretUI",
+        session: Session,  # noqa: ARG002
+        options: dict,
+    ) -> list[dict[str, Any]]:
+        """Return formatted quick filter button items."""
+        raw_filters = getattr(self, "quick_filters", []) or []
+        active_map: dict[str, set[str]] = {}
+        for key, values in options.items():
+            if key.startswith("filter[") and key.endswith("]"):
+                fname = key[7:-1]
+                val_list = values if isinstance(values, list) else [values]
+                active_map.setdefault(fname, set()).update(
+                    str(v) for v in val_list
+                )
+
+        res: list[dict[str, Any]] = []
+        for qf in raw_filters:
+            if isinstance(qf, tuple | list):
+                label = qf[0]
+                field = qf[1]
+                value = qf[2]
+                icon = qf[3] if len(qf) > 3 else None
+            elif isinstance(qf, dict):
+                label = qf.get("label", "")
+                field = qf.get("field", "")
+                value = qf.get("value", "")
+                icon = qf.get("icon")
+            else:
+                label = getattr(qf, "label", "")
+                field = getattr(qf, "field", "")
+                value = getattr(qf, "value", "")
+                icon = getattr(qf, "icon", None)
+
+            str_val = str(value)
+            is_active = field in active_map and str_val in active_map[field]
+
+            val_enc = urllib.parse.quote_plus(str_val)
+            url = (
+                f"{feretui.base_url}/action/resource"
+                f"?action=filters&resource={self.resource.code}&view={self.code}"
+                f"&filter[{field}]={val_enc}"
+            )
+            method = "delete" if is_active else "post"
+
+            res.append(
+                {
+                    "label": label,
+                    "field": field,
+                    "value": value,
+                    "icon": icon,
+                    "is_active": is_active,
+                    "url": url,
+                    "method": method,
+                }
+            )
+        return res
 
     # ---------------- View actions -------------------------
 
@@ -758,6 +882,20 @@ class TemplateMixinForView:
         :return: The kwargs
         :rtype: dict.
         """
+        pk = options.get("pk", [None])
+        if isinstance(pk, list):
+            pk = pk[0] if pk else None
+
+        has_chatter = getattr(self.resource, "chatter", False)
+        chatter_messages = []
+        chatter_post_url = ""
+        if has_chatter and pk:
+            chatter_messages = self.resource.get_chatter_messages(pk)
+            chatter_post_url = (
+                f"{feretui.base_url}/action/resource"
+                f"?action=chatter_post&resource={self.resource.code}&pk={pk}"
+            )
+
         return {
             "resource": self.resource,
             "header_buttons": self.get_header_buttons(
@@ -765,6 +903,15 @@ class TemplateMixinForView:
                 session,
                 options,
             ),
+            "view_switchers": self.resource.get_view_switchers(
+                feretui,
+                session,
+                options,
+            ),
+            "has_chatter": has_chatter,
+            "chatter_messages": chatter_messages,
+            "chatter_post_url": chatter_post_url,
+            "pk": pk,
             "rcode": self.resource.code,
             "vcode": self.code,
         }

@@ -9,6 +9,21 @@
 CHANGELOG
 =========
 
+0.2.0 (unreleased)
+------------------
+
+* Next-Gen ERP: Added social Chatter & Activity Timeline via :class:`~feretui.resources.chatter.HasChatterMixin`.
+* Next-Gen ERP: Added tabbed form layout organization via :class:`~feretui.form.Notebook` and :class:`~feretui.form.Page`.
+* Next-Gen ERP: Added interactive monthly Calendar view via :class:`~feretui.resources.calendar.CalendarView` and :class:`~feretui.resources.calendar.CalResource`.
+* Next-Gen ERP: Added dynamic View Switcher toolbar with state preservation across List, Kanban, and Calendar views.
+* Next-Gen ERP: Added multi-level stackable modal dialogs via :class:`~feretui.resources.actions.OpenModalAction`.
+* Next-Gen ERP: Added 1-click Quick Filters via :class:`~feretui.resources.common.QuickFilter`.
+* Next-Gen ERP: Added rich text WYSIWYG editor via :class:`~feretui.form.WYSIWYGField`.
+* Next-Gen ERP: Added relational navigation via :class:`~feretui.form.Many2OneField` and embedded sub-tables via :class:`~feretui.form.One2ManyField`.
+* Next-Gen ERP: Added workflow stage status bar via :class:`~feretui.form.StatusBarField`.
+* Security: Fixed unescaped user markup and hardened against XSS injections.
+* Assets: Upgraded HTMX to 2.0.4 with SSE support, _hyperscript to 0.9.14, and Alpine.js to 3.14.8.
+
 0.1.1 (unreleased)
 ------------------
 

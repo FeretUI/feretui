@@ -54,7 +54,16 @@ from jac.config import Config
 from jinja2 import Environment, PackageLoader, select_autoescape
 from markupsafe import Markup
 
-from feretui.actions import goto, login_password, login_signup, logout, resource
+from feretui.actions import (
+    close_modal,
+    goto,
+    login_password,
+    login_signup,
+    logout,
+    modal,
+    resource,
+    wizard,
+)
 from feretui.assets import AssetManager
 from feretui.context import set_context
 from feretui.exceptions import (
@@ -430,6 +439,9 @@ class FeretUI:
         self.register_action(login_signup)
         self.register_action(logout)
         self.register_action(resource)
+        self.register_action(modal)
+        self.register_action(close_modal)
+        self.register_action(wizard)
 
         # Pages
         self.pages: dict[
@@ -539,11 +551,13 @@ class FeretUI:
                     "<feretui-html",
                     f'<html data-theme="{color_scheme}"',
                 )
-                template = template.replace("</feretui-html>", "</html>")
             else:
-                template = template.replace("feretui-html", "html")
-            template = template.replace("feretui-head", "head")
-            template = template.replace("feretui-body", "body")
+                template = template.replace("<feretui-html", "<html")
+            template = template.replace("</feretui-html>", "</html>")
+            template = template.replace("<feretui-head>", "<head>")
+            template = template.replace("</feretui-head>", "</head>")
+            template = template.replace("<feretui-body>", "<body>")
+            template = template.replace("</feretui-body>", "</body>")
             return Response(f"<!DOCTYPE html>\n{template}")
 
     # ---------- statics  ----------

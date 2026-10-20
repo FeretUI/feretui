@@ -31,6 +31,52 @@
                     {% endfor %}
                   </tr>
                 </thead>
+                {% if grouped_forms %}
+                  {% for group_val, group_rows in grouped_forms.items() %}
+                  <tbody class="feretui-group-header-body">
+                    <tr class="feretui-group-header" style="background: var(--pico-card-background-color, #f8f9fa); cursor: pointer;" onclick="this.closest('tbody').nextElementSibling.classList.toggle('is-hidden')">
+                      <th colspan="{{ form._fields | length + 1 }}" style="padding: 0.5rem 0.75rem;">
+                        <i class="ti ti-folder" style="margin-right: 0.35rem; color: var(--pico-primary);"></i>
+                        <strong>{{ group_val or 'Undefined' }}</strong>
+                        <span class="badge is-secondary" style="margin-left: 0.5rem; font-size: 0.75rem; border-radius: 9999px; padding: 0.15rem 0.45rem;">{{ group_rows | length }}</span>
+                      </th>
+                    </tr>
+                  </tbody>
+                  <tbody class="feretui-group-items">
+                    {% for row in group_rows %}
+                    <tr
+                      hx-trigger="dblclick"
+                      hx-get="{{ open_view_url }}&amp;pk={{ row.pk.data }}"
+                    >
+                      <th id="{{ row.pk.data }}">
+                        <input
+                          type="checkbox"
+                          name="selected-rows-resource-{{ rcode }}-view-{{ vcode }}"
+                          class="selected-rows-resource-{{ rcode }}-view-{{ vcode }}"
+                          value="{{ row.pk.data }}"
+                        />
+                      </th>
+                      {% for field in form %}
+                      <td headers="{{ field.name }} {{ row.pk.data }}">
+                        {% if open_view_url and (field.name in ('pk', 'id', 'name', 'title', 'order_ref', 'customer_name') or loop.first or loop.index0 == 1) and row[field.name].__class__.__name__ not in ('Many2OneField', 'One2ManyField', 'Many2ManyField', 'BooleanField') %}
+                        <a href="{{ open_view_url }}&amp;pk={{ row.pk.data }}"
+                           hx-get="{{ open_view_url }}&amp;pk={{ row.pk.data }}"
+                           hx-target="#feretui-body"
+                           hx-swap="innerHTML"
+                           class="feretui-record-link"
+                           style="font-weight: 600; text-decoration: none; color: inherit;">
+                          {{ widget(row[field.name]) }}
+                        </a>
+                        {% else %}
+                        {{ widget(row[field.name]) }}
+                        {% endif %}
+                      </td>
+                      {% endfor %}
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                  {% endfor %}
+                {% else %}
                 <tbody>
                   {% for row in dataset.forms %}
                   <tr
@@ -61,12 +107,24 @@
                     </th>
                     {% for field in form %}
                     <td headers="{{ field.name }} {{ row.pk.data }}">
+                      {% if open_view_url and (field.name in ('pk', 'id', 'name', 'title', 'order_ref', 'customer_name') or loop.first or loop.index0 == 1) and row[field.name].__class__.__name__ not in ('Many2OneField', 'One2ManyField', 'Many2ManyField', 'BooleanField') %}
+                      <a href="{{ open_view_url }}&amp;pk={{ row.pk.data }}"
+                         hx-get="{{ open_view_url }}&amp;pk={{ row.pk.data }}"
+                         hx-target="#feretui-body"
+                         hx-swap="innerHTML"
+                         class="feretui-record-link"
+                         style="font-weight: 600; text-decoration: none; color: inherit;">
+                        {{ widget(row[field.name]) }}
+                      </a>
+                      {% else %}
                       {{ widget(row[field.name]) }}
+                      {% endif %}
                     </td>
                     {% endfor %}
                   </tr>
                   {% endfor %}
                 </tbody>
+                {% endif %}
                 <tfoot>
                   <tr>
                     <th class="is-narrow" id="checkbox-all-resource-{{ rcode }}-view-{{ vcode }}">
@@ -141,19 +199,29 @@
       </div>
       {% endif %}
 
+      {% set notebook_fields = form.notebook.get_all_field_names() if form.notebook else [] %}
+
       <div class="feretui-form-grid grid">
-        {% for field in form if field.type not in ('HiddenField', 'TextAreaField', 'One2ManyField', 'Many2ManyField', 'WYSIWYGField') and field.name != 'pk' %}
+        {% for field in form if field.type not in ('HiddenField', 'TextAreaField', 'One2ManyField', 'Many2ManyField', 'WYSIWYGField') and field.name != 'pk' and field.name not in notebook_fields %}
         <div class="feretui-grid-field">
           {{ field(readonly=True) }}
         </div>
         {% endfor %}
       </div>
 
-      {% for field in form if field.type in ('TextAreaField', 'One2ManyField', 'Many2ManyField', 'WYSIWYGField') %}
+      {% if form.notebook %}
+        {{ form.notebook.render(form, readonly=True) }}
+      {% endif %}
+
+      {% for field in form if field.type in ('TextAreaField', 'One2ManyField', 'Many2ManyField', 'WYSIWYGField') and field.name not in notebook_fields %}
       <div class="feretui-fullwidth-field">
         {{ field(readonly=True) }}
       </div>
       {% endfor %}
+
+      {% if has_chatter and pk %}
+      <include template="feretui-resource-chatter" />
+      {% endif %}
     </div>
   </template>
   <template id="view-sheet-readwrite-form">
@@ -170,19 +238,29 @@
         {% endfor %}
       </div>
 
+      {% set notebook_fields = form.notebook.get_all_field_names() if form.notebook else [] %}
+
       <div class="feretui-form-grid grid">
-        {% for field in form if field.type not in ('HiddenField', 'TextAreaField', 'One2ManyField', 'Many2ManyField', 'WYSIWYGField') and field.name != 'pk' %}
+        {% for field in form if field.type not in ('HiddenField', 'TextAreaField', 'One2ManyField', 'Many2ManyField', 'WYSIWYGField') and field.name != 'pk' and field.name not in notebook_fields %}
         <div class="feretui-grid-field">
           {{ field }}
         </div>
         {% endfor %}
       </div>
 
-      {% for field in form if field.type in ('TextAreaField', 'One2ManyField', 'Many2ManyField', 'WYSIWYGField') %}
+      {% if form.notebook %}
+        {{ form.notebook.render(form, readonly=False) }}
+      {% endif %}
+
+      {% for field in form if field.type in ('TextAreaField', 'One2ManyField', 'Many2ManyField', 'WYSIWYGField') and field.name not in notebook_fields %}
       <div class="feretui-fullwidth-field">
         {{ field }}
       </div>
       {% endfor %}
+
+      {% if has_chatter and pk %}
+      <include template="feretui-resource-chatter" />
+      {% endif %}
     </div>
   </template>
   <template id="feretui-resource-label-header">
@@ -239,14 +317,116 @@
       <p><strong>Do you wanted delete its ?</strong></p>
     </div>
   </template>
+  <template id="feretui-resource-grid">
+    <div id="resource-{{ rcode }}-view-{{ vcode }}" class="container is-fluid feretui-grid-view">
+      <form>
+        <include template="view-multi-header" />
+        <div class="grid" style="grid-template-columns: 1fr {% if actions %}240px{% endif %}; align-items: start;">
+          <div>
+            <div class="is-hidden-print" style="margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <include template="view-buttons-header" />
+              </div>
+              {% if view_switchers %}
+              <div class="feretui-view-switcher" role="toolbar" aria-label="View switcher">
+                {% for sw in view_switchers %}
+                <a href="{{ sw.url }}"
+                   hx-get="{{ sw.goto_url }}"
+                   hx-target="#feretui-body"
+                   hx-swap="innerHTML"
+                   role="button"
+                   class="feretui-view-btn {{ 'is-active' if sw.is_active else '' }}"
+                   aria-current="{{ 'page' if sw.is_active else 'false' }}"
+                   data-tooltip="{{ sw.label }}"
+                   data-placement="bottom"
+                   title="{{ sw.label }}">
+                  <i class="{{ sw.icon }}"></i>
+                </a>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+            {% if cards %}
+            <div class="feretui-cards-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem;">
+              {% for card in cards %}
+              <article class="feretui-grid-card" style="margin-bottom: 0; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; border: 1px solid var(--pico-muted-border-color); border-radius: 0.5rem; padding: 1rem;"
+                       hx-get="{{ card.goto_url }}"
+                       hx-target="#feretui-body"
+                       hx-swap="innerHTML">
+                <div>
+                  {% if card.image_url %}
+                  <div class="card-image" style="margin-bottom: 0.75rem; text-align: center;">
+                    <img src="{{ card.image_url }}" alt="{{ card.title }}" style="max-height: 120px; object-fit: contain; border-radius: 0.25rem;">
+                  </div>
+                  {% endif %}
+                  <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                    <h5 style="margin: 0; font-size: 1rem; font-weight: 600;">
+                      <a href="{{ card.url }}" style="text-decoration: none; color: inherit;">{{ card.title }}</a>
+                    </h5>
+                    {% if card.badge %}
+                    <span class="badge {{ card.badge_class or 'is-secondary' }}" style="font-size: 0.75rem; white-space: nowrap; margin-left: 0.5rem;">{{ card.badge }}</span>
+                    {% endif %}
+                  </div>
+                  {% if card.fields %}
+                  <div class="card-fields" style="font-size: 0.85rem; color: var(--pico-muted-color);">
+                    {% for f in card.fields %}
+                    <div style="margin-bottom: 0.25rem; display: flex; justify-content: space-between;">
+                      <span style="opacity: 0.8;">{{ f.label }}:</span>
+                      <strong style="color: var(--pico-color);">{{ f.value }}</strong>
+                    </div>
+                    {% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+              </article>
+              {% endfor %}
+            </div>
+            {% else %}
+            <div class="notification is-light text-center" style="padding: 2rem; text-align: center; color: var(--pico-muted-color);">
+              <i class="ti ti-layout-grid" style="font-size: 2rem; display: block; margin-bottom: 0.5rem; opacity: 0.5;"></i>
+              <p>No records found.</p>
+            </div>
+            {% endif %}
+          </div>
+          {% if actions %}
+          <div class="is-hidden-print">
+            {% for action in actions %}
+            {{ action }}
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+      </form>
+    </div>
+  </template>
   <template id="feretui-resource-kanban">
     <div id="resource-{{ rcode }}-view-{{ vcode }}" class="container is-fluid feretui-kanban-view" data-move-url="{{ move_url }}">
       <form>
         <include template="view-multi-header" />
         <div class="grid" style="grid-template-columns: 1fr {% if actions %}240px{% endif %}; align-items: start;">
           <div>
-            <div class="is-hidden-print" style="margin-bottom: 1rem;">
-              <include template="view-buttons-header" />
+            <div class="is-hidden-print" style="margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <include template="view-buttons-header" />
+              </div>
+              {% if view_switchers %}
+              <div class="feretui-view-switcher" role="toolbar" aria-label="View switcher">
+                {% for sw in view_switchers %}
+                <a href="{{ sw.url }}"
+                   hx-get="{{ sw.goto_url }}"
+                   hx-target="#feretui-body"
+                   hx-swap="innerHTML"
+                   role="button"
+                   class="feretui-view-btn {{ 'is-active' if sw.is_active else '' }}"
+                   aria-current="{{ 'page' if sw.is_active else 'false' }}"
+                   data-tooltip="{{ sw.label }}"
+                   data-placement="bottom"
+                   title="{{ sw.label }}">
+                  <i class="{{ sw.icon }}"></i>
+                </a>
+                {% endfor %}
+              </div>
+              {% endif %}
             </div>
             <div class="feretui-kanban-board">
               {% for col in columns %}
@@ -259,7 +439,17 @@
                   {% for card in col.cards %}
                   <article class="feretui-kanban-card" data-pk="{{ card.pk }}" hx-trigger="{{ 'dblclick' if open_view_url else '' }}" hx-get="{{ open_view_url }}&amp;pk={{ card.pk }}">
                     <header class="card-header">
+                      {% if open_view_url %}
+                      <a href="{{ open_view_url }}&amp;pk={{ card.pk }}"
+                         hx-get="{{ open_view_url }}&amp;pk={{ card.pk }}"
+                         hx-target="#feretui-body"
+                         hx-swap="innerHTML"
+                         style="color: inherit; text-decoration: none; font-weight: 700;">
+                        {{ card.title }}
+                      </a>
+                      {% else %}
                       <strong>{{ card.title }}</strong>
+                      {% endif %}
                     </header>
                     {% if card.body %}
                     <div class="card-body">
@@ -273,6 +463,280 @@
                 </div>
               </div>
               {% endfor %}
+            </div>
+          </div>
+          {% if actions %}
+            <div class="is-hidden-print">
+              {% for action in actions %}
+              {{ action }}
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+      </form>
+    </div>
+  </template>
+  <template id="feretui-resource-calendar">
+    <div id="resource-{{ rcode }}-view-{{ vcode }}" class="container is-fluid feretui-calendar-view">
+      <form>
+        <include template="view-multi-header" />
+        <div class="grid" style="grid-template-columns: 1fr {% if actions %}240px{% endif %}; align-items: start;">
+          <div>
+            <div class="is-hidden-print feretui-calendar-toolbar" style="margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <div class="buttons has-addons" style="margin: 0; display: inline-flex;">
+                  <a href="{{ prev_url }}" hx-get="{{ prev_url }}" hx-target="#feretui-body" hx-swap="innerHTML" class="button secondary outline is-small" title="Previous Month">
+                    <i class="ti ti-chevron-left"></i>
+                  </a>
+                  <a href="{{ today_url }}" hx-get="{{ today_url }}" hx-target="#feretui-body" hx-swap="innerHTML" class="button secondary outline is-small">
+                    Today
+                  </a>
+                  <a href="{{ next_url }}" hx-get="{{ next_url }}" hx-target="#feretui-body" hx-swap="innerHTML" class="button secondary outline is-small" title="Next Month">
+                    <i class="ti ti-chevron-right"></i>
+                  </a>
+                </div>
+                <h3 style="margin: 0; font-size: 1.25rem;">{{ month_name }} {{ year }}</h3>
+              </div>
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <include template="view-buttons-header" />
+                {% if view_switchers %}
+                <div class="feretui-view-switcher" role="toolbar" aria-label="View switcher">
+                  {% for sw in view_switchers %}
+                  <a href="{{ sw.url }}"
+                     hx-get="{{ sw.goto_url }}"
+                     hx-target="#feretui-body"
+                     hx-swap="innerHTML"
+                     role="button"
+                     class="feretui-view-btn {{ 'is-active' if sw.is_active else '' }}"
+                     aria-current="{{ 'page' if sw.is_active else 'false' }}"
+                     data-tooltip="{{ sw.label }}"
+                     data-placement="bottom"
+                     title="{{ sw.label }}">
+                    <i class="{{ sw.icon }}"></i>
+                  </a>
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="feretui-calendar-container">
+              <table class="feretui-calendar-table">
+                <thead>
+                  <tr>
+                    {% for day_name in day_names %}
+                    <th>{{ day_name }}</th>
+                    {% endfor %}
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for week in weeks %}
+                  <tr>
+                    {% for cell in week %}
+                    <td class="feretui-calendar-cell {{ 'is-today' if cell.is_today else '' }} {{ 'other-month' if not cell.is_current_month else '' }}"
+                        data-date="{{ cell.date_str }}">
+                      <div class="feretui-calendar-day-header">
+                        <span class="day-number">{{ cell.day }}</span>
+                      </div>
+                      <div class="feretui-calendar-day-events">
+                        {% for event in cell.events %}
+                        {% if open_view_url %}
+                        <div class="feretui-calendar-event {{ 'event-color-' + event.color if event.color else '' }}"
+                             hx-get="{{ open_view_url }}&amp;pk={{ event.pk }}"
+                             hx-target="#feretui-body"
+                             hx-swap="innerHTML"
+                             style="cursor: pointer;"
+                             title="{{ event.title }}">
+                          <span class="event-title">{{ event.title }}</span>
+                        </div>
+                        {% else %}
+                        <div class="feretui-calendar-event {{ 'event-color-' + event.color if event.color else '' }}"
+                             title="{{ event.title }}">
+                          <span class="event-title">{{ event.title }}</span>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                      </div>
+                    </td>
+                    {% endfor %}
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          {% if actions %}
+            <div class="is-hidden-print">
+              {% for action in actions %}
+              {{ action }}
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+      </form>
+    </div>
+  </template>
+  <template id="feretui-resource-chatter">
+    <div class="feretui-chatter-container">
+      <div class="feretui-chatter-header">
+        <h4><i class="ti ti-messages"></i> Activity &amp; Notes</h4>
+      </div>
+      <div class="feretui-chatter-composer">
+        <form hx-post="{{ chatter_post_url }}"
+              hx-target="#feretui-chatter-thread-{{ pk }}"
+              hx-swap="innerHTML">
+          <textarea name="chatter_body"
+                    placeholder="Log an internal note or message..."
+                    rows="2"
+                    class="feretui-chatter-input"></textarea>
+          <div class="feretui-chatter-composer-actions">
+            <button type="submit" class="button is-small is-primary">
+              <i class="ti ti-send"></i> Send / Log Note
+            </button>
+          </div>
+        </form>
+      </div>
+      <div id="feretui-chatter-thread-{{ pk }}" class="feretui-chatter-thread">
+        <include template="feretui-resource-chatter-thread" />
+      </div>
+    </div>
+  </template>
+  <template id="feretui-resource-chatter-thread">
+    <div class="feretui-chatter-thread-content">
+      {% if chatter_messages or messages %}
+      <ul class="feretui-chatter-list">
+        {% for msg in (chatter_messages or messages) %}
+        <li class="feretui-chatter-item {{ 'chatter-type-' + msg.type if msg.type else '' }}">
+          <div class="feretui-chatter-avatar">
+            <i class="{{ 'ti ti-note' if msg.type == 'note' else 'ti ti-message' }}"></i>
+          </div>
+          <div class="feretui-chatter-content">
+            <div class="feretui-chatter-meta">
+              <strong class="feretui-chatter-author">{{ msg.author }}</strong>
+              <small class="feretui-chatter-date">{{ msg.date }}</small>
+            </div>
+            <div class="feretui-chatter-body">
+              {{ msg.body }}
+            </div>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="feretui-chatter-empty text-muted">
+        <small>No messages or activity logged yet.</small>
+      </p>
+      {% endif %}
+    </div>
+  </template>
+  <template id="feretui-resource-graph">
+    <div id="resource-{{ rcode }}-view-{{ vcode }}" class="container is-fluid feretui-graph-view">
+      <form>
+        <include template="view-multi-header" />
+        <div class="grid" style="grid-template-columns: 1fr {% if actions %}240px{% endif %}; align-items: start;">
+          <div>
+            <div class="is-hidden-print feretui-graph-toolbar" style="margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <div class="buttons has-addons" style="margin: 0; display: inline-flex;">
+                  <button type="button"
+                          hx-get="?page=resource&amp;resource={{ rcode }}&amp;view={{ vcode }}&amp;graph_type=bar"
+                          hx-include="closest form"
+                          hx-target="#feretui-body"
+                          hx-swap="innerHTML"
+                          class="button is-small {{ 'is-primary' if active_graph_type == 'bar' else 'secondary outline' }}"
+                          title="Bar Chart">
+                    <i class="ti ti-chart-bar"></i>
+                    <span>Bar</span>
+                  </button>
+                  <button type="button"
+                          hx-get="?page=resource&amp;resource={{ rcode }}&amp;view={{ vcode }}&amp;graph_type=line"
+                          hx-include="closest form"
+                          hx-target="#feretui-body"
+                          hx-swap="innerHTML"
+                          class="button is-small {{ 'is-primary' if active_graph_type == 'line' else 'secondary outline' }}"
+                          title="Line Chart">
+                    <i class="ti ti-chart-line"></i>
+                    <span>Line</span>
+                  </button>
+                  <button type="button"
+                          hx-get="?page=resource&amp;resource={{ rcode }}&amp;view={{ vcode }}&amp;graph_type=pie"
+                          hx-include="closest form"
+                          hx-target="#feretui-body"
+                          hx-swap="innerHTML"
+                          class="button is-small {{ 'is-primary' if active_graph_type == 'pie' else 'secondary outline' }}"
+                          title="Pie Chart">
+                    <i class="ti ti-chart-pie"></i>
+                    <span>Pie</span>
+                  </button>
+                </div>
+                {% if active_measure %}
+                <span class="badge is-secondary" style="font-size: 0.8rem; padding: 0.2rem 0.5rem; border-radius: 4px;">
+                  Measure: <strong>{{ active_measure }}</strong> ({{ active_operator }})
+                </span>
+                {% endif %}
+              </div>
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <include template="view-buttons-header" />
+                {% if view_switchers %}
+                <div class="feretui-view-switcher" role="toolbar" aria-label="View switcher">
+                  {% for sw in view_switchers %}
+                  <a href="{{ sw.url }}"
+                     hx-get="{{ sw.goto_url }}"
+                     hx-target="#feretui-body"
+                     hx-swap="innerHTML"
+                     role="button"
+                     class="feretui-view-btn {{ 'is-active' if sw.is_active else '' }}"
+                     aria-current="{{ 'page' if sw.is_active else 'false' }}"
+                     data-tooltip="{{ sw.label }}"
+                     data-placement="bottom"
+                     title="{{ sw.label }}">
+                    <i class="{{ sw.icon }}"></i>
+                  </a>
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
+            </div>
+
+            <article class="card feretui-chart-card mb-4" style="background: var(--pico-card-background-color); border: 1px solid var(--pico-card-border-color); border-radius: 8px; padding: 1rem; overflow-x: auto;">
+              {{ chart_svg | safe }}
+            </article>
+
+            <div class="table-container overflow-auto mt-4">
+              <table class="striped is-fullwidth feretui-pivot-table">
+                <thead>
+                  <tr>
+                    <th>Group / Dimension</th>
+                    <th style="text-align: right;">Value / Sum</th>
+                    <th style="text-align: right;">Count</th>
+                    <th style="text-align: right;">Share</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for item in chart_data %}
+                  <tr>
+                    <td><strong>{{ item.label }}</strong></td>
+                    <td style="text-align: right;">{{ item.value }}</td>
+                    <td style="text-align: right;">{{ item.count }}</td>
+                    <td style="text-align: right;">
+                      {% if total_val %}
+                      {{ "%.1f"|format((item.value / total_val) * 100) }}%
+                      {% else %}
+                      0%
+                      {% endif %}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+                <tfoot>
+                  <tr style="font-weight: 700;">
+                    <td>Total</td>
+                    <td style="text-align: right;">{{ total_val }}</td>
+                    <td style="text-align: right;">{{ total_count }}</td>
+                    <td style="text-align: right;">100%</td>
+                  </tr>
+                </tfoot>
+              </table>
             </div>
           </div>
           {% if actions %}

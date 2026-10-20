@@ -16,6 +16,7 @@ The Kanban resource displays data as cards grouped by stage columns.
 from typing import TYPE_CHECKING, Any
 
 from markupsafe import Markup
+from wtforms import Field
 
 from feretui.exceptions import ResourceError
 from feretui.form import FeretUIForm
@@ -43,6 +44,8 @@ class DefaultViewKanban:
     columns: list[tuple[str, str]] | None = None
     card_title_field: str | None = None
     card_body_fields: list[str] | None = None
+    quick_filters: list = []
+    group_by_fields: list[tuple[str, str]] = []
 
 
 class KanbanView(MultiView, LabelMixinForView, View):
@@ -57,24 +60,27 @@ class KanbanView(MultiView, LabelMixinForView, View):
     columns: list[tuple[str, str]] | None = None
     card_title_field: str | None = None
     card_body_fields: list[str] | None = None
+    group_by_fields: list[tuple[str, str]] = []
 
     def get_columns(
         self: "KanbanView",
         forms: list[FeretUIForm],
+        column_field: str | None = None,
     ) -> list[tuple[str, str]]:
         """Return list of (key, label) stages for kanban columns."""
-        if self.columns:
+        col_f = column_field or self.column_field
+        if not column_field and self.columns:
             return list(self.columns)
 
-        if hasattr(self.form_cls, self.column_field):
-            unbound = getattr(self.form_cls, self.column_field)
+        if hasattr(self.form_cls, col_f):
+            unbound = getattr(self.form_cls, col_f)
             if hasattr(unbound, "kwargs") and "choices" in unbound.kwargs:
                 choices = unbound.kwargs["choices"]
                 if choices:
                     return list(choices)
 
         if forms:
-            first_field = getattr(forms[0], self.column_field, None)
+            first_field = getattr(forms[0], col_f, None)
             if (
                 first_field
                 and hasattr(first_field, "choices")
@@ -84,7 +90,7 @@ class KanbanView(MultiView, LabelMixinForView, View):
 
         seen: list[tuple[str, str]] = []
         for form in forms:
-            f = getattr(form, self.column_field, None)
+            f = getattr(form, col_f, None)
             val = str(f.data) if f and f.data is not None else ""
             if val and (val, val.title()) not in seen:
                 seen.append((val, val.title()))
@@ -94,9 +100,24 @@ class KanbanView(MultiView, LabelMixinForView, View):
 
         return seen
 
+    def _format_card_field_value(
+        self: "KanbanView",
+        field: Field,
+    ) -> str:
+        """Format a form field value for card body presentation."""
+        val = field.data if field.data is not None else ""
+        if hasattr(field, "choices") and field.choices:
+            for c_val, c_lbl in field.choices:
+                if str(c_val) == str(val):
+                    return str(c_lbl)
+        elif isinstance(val, list):
+            return "-" if not val else f"{len(val)} items"
+        return str(val)
+
     def _build_card(
         self: "KanbanView",
         form: FeretUIForm,
+        column_field: str | None = None,
     ) -> tuple[str, dict[str, Any]]:
         """Build a single card dictionary and return (column_value, card)."""
         pk = (
@@ -104,9 +125,10 @@ class KanbanView(MultiView, LabelMixinForView, View):
             if hasattr(form, "pk") and form.pk.data is not None
             else ""
         )
+        col_f = column_field or self.column_field
         col_val = ""
-        if hasattr(form, self.column_field):
-            field = getattr(form, self.column_field)
+        if hasattr(form, col_f):
+            field = getattr(form, col_f)
             col_val = str(field.data) if field.data is not None else ""
 
         if self.card_title_field and hasattr(form, self.card_title_field):
@@ -114,7 +136,7 @@ class KanbanView(MultiView, LabelMixinForView, View):
         else:
             title = ""
             for field in form:
-                if field.name not in ("pk", self.column_field):
+                if field.name not in ("pk", col_f):
                     title = str(field.data or "")
                     break
             if not title:
@@ -125,15 +147,12 @@ class KanbanView(MultiView, LabelMixinForView, View):
             for b_name in self.card_body_fields:
                 if hasattr(form, b_name):
                     b_field = getattr(form, b_name)
+                    lbl = b_field.label.text if b_field.label else b_name
                     body.append(
                         {
                             "name": b_name,
-                            "label": str(
-                                b_field.label.text if b_field.label else b_name
-                            ),
-                            "value": str(
-                                b_field.data if b_field.data is not None else ""
-                            ),
+                            "label": str(lbl),
+                            "value": self._format_card_field_value(b_field),
                         },
                     )
 
@@ -149,6 +168,7 @@ class KanbanView(MultiView, LabelMixinForView, View):
         self: "KanbanView",
         forms: list[FeretUIForm],
         stages: list[tuple[str, str]],
+        column_field: str | None = None,
     ) -> list[dict[str, Any]]:
         """Group forms into stage columns with card details."""
         columns_data = []
@@ -157,7 +177,7 @@ class KanbanView(MultiView, LabelMixinForView, View):
         }
 
         for form in forms:
-            col_val, card = self._build_card(form)
+            col_val, card = self._build_card(form, column_field=column_field)
             if col_val in grouped:
                 grouped[col_val].append(card)
             elif grouped:
@@ -193,12 +213,23 @@ class KanbanView(MultiView, LabelMixinForView, View):
         pk = request.params.get("pk") or (
             request.form.get("pk") if request.form else None
         )
-        stage = request.params.get("stage") or (
-            request.form.get("stage") if request.form else None
+        if isinstance(pk, list | tuple):
+            pk = pk[0] if pk else None
+
+        stage = (
+            request.params.get("stage")
+            or (request.form.get("stage") if request.form else None)
+            or request.params.get("column")
+            or (request.form.get("column") if request.form else None)
         )
+        if isinstance(stage, list | tuple):
+            stage = stage[0] if stage else None
+
         index_val = request.params.get("index") or (
             request.form.get("index") if request.form else None
         )
+        if isinstance(index_val, list | tuple):
+            index_val = index_val[0] if index_val else None
         index = int(index_val) if index_val is not None else None
 
         if not pk or not stage:
@@ -220,8 +251,12 @@ class KanbanView(MultiView, LabelMixinForView, View):
         dataset = kwargs.get("dataset", {})
         forms = dataset.get("forms", [])
 
-        stages = self.get_columns(forms)
-        columns = self.build_kanban_board(forms, stages)
+        group_by = kwargs.get("group_by")
+        active_col = group_by or self.column_field
+        stages = self.get_columns(forms, column_field=active_col)
+        columns = self.build_kanban_board(
+            forms, stages, column_field=active_col
+        )
 
         move_url = (
             f"{feretui.base_url}/action/resource"

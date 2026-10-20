@@ -37,9 +37,11 @@ try:
         Float,
         Integer,
         Numeric,
+        String,
         Text,
         func,
         inspect,
+        or_,
         select,
     )
 except ImportError as err:  # pragma: no cover
@@ -278,13 +280,44 @@ class SQLAlchemyResource(LCRUDResource, Resource):
         pk_attr = self.get_primary_key_attr()
         return str(getattr(instance, pk_attr))
 
+    def _build_search_clause(
+        self: "SQLAlchemyResource",
+        search_str: str,
+    ) -> object:
+        """Build OR-combined ILIKE clauses for full-text search."""
+        search_cols = getattr(self, "search_fields", None)
+        if not search_cols:
+            search_cols = [
+                c.name
+                for c in inspect(self.model).columns
+                if isinstance(c.type, String | Text)
+            ]
+        clauses = [
+            getattr(self.model, c).ilike(f"%{search_str}%")
+            for c in search_cols
+            if hasattr(self.model, c)
+        ]
+        return or_(*clauses) if clauses else None
+
+    def _inst_to_form(
+        self: "SQLAlchemyResource",
+        form_cls: type[FeretUIForm],
+        inst: object,
+    ) -> FeretUIForm:
+        """Convert a model instance to a form instance."""
+        data = {"pk": self.get_pk(inst)}
+        for col_name in form_cls()._fields:
+            if col_name != "pk" and hasattr(inst, col_name):
+                data[col_name] = getattr(inst, col_name)
+        return form_cls(data=data)
+
     def filtered_reads(
         self: "SQLAlchemyResource",
         form_cls: type[FeretUIForm],
         filters: list[tuple[str, list[str]]],
         offset: int,
         limit: int,
-    ) -> dict[str, Any]:
+    ) -> dict[str, object]:
         """Fetch filtered records, count, and return dataset."""
         if not self.model:
             return {"total": 0, "forms": []}
@@ -293,29 +326,31 @@ class SQLAlchemyResource(LCRUDResource, Resource):
             query = select(self.model)
 
             for field_name, values in filters:
-                if hasattr(self.model, field_name) and values:
+                if field_name in ("search", "q") and values:
+                    search_str = (
+                        values[0] if isinstance(values, list) else str(values)
+                    )
+                    clause = (
+                        self._build_search_clause(search_str)
+                        if search_str
+                        else None
+                    )
+                    if clause is not None:
+                        query = query.where(clause)
+                elif hasattr(self.model, field_name) and values:
                     col = getattr(self.model, field_name)
-                    if len(values) == 1:
-                        query = query.where(col == values[0])
-                    else:
-                        query = query.where(col.in_(values))
+                    query = query.where(
+                        col == values[0]
+                        if len(values) == 1
+                        else col.in_(values)
+                    )
 
             count_query = select(func.count()).select_from(query.subquery())
             total = db.scalar(count_query) or 0
 
             query = query.offset(offset).limit(limit)
             instances = db.scalars(query).all()
-
-            forms = []
-            for inst in instances:
-                data = {"pk": self.get_pk(inst)}
-                for col_name in form_cls()._fields:
-                    if col_name == "pk":
-                        continue
-                    if hasattr(inst, col_name):
-                        data[col_name] = getattr(inst, col_name)
-
-                forms.append(form_cls(data=data))
+            forms = [self._inst_to_form(form_cls, inst) for inst in instances]
 
             return {"total": total, "forms": forms}
 
@@ -343,11 +378,133 @@ class SQLAlchemyResource(LCRUDResource, Resource):
                     )
                     if name == pk_attr and field.data == "" and is_auto_pk:
                         continue
-                    setattr(inst, name, field.data)
+                    if isinstance(field, One2ManyField):
+                        continue
+                    val = field.data
+                    col_attr = getattr(self.model, name)
+                    if (
+                        hasattr(col_attr, "type")
+                        and isinstance(col_attr.type, Integer)
+                        and isinstance(val, str)
+                        and val.isdigit()
+                    ):
+                        val = int(val)
+                    setattr(inst, name, val)
 
             db.add(inst)
+            db.flush()
+            self.save_relations(db, inst, form)
             db.commit()
             return self.get_pk(inst)
+
+    def _populate_child_model(
+        self: "SQLAlchemyResource",
+        child_model: type,
+        child_inst: object,
+        row: dict[str, Any],
+        child_pk_col: str,
+    ) -> None:
+        """Populate child model attributes from row dictionary."""
+        for col_name, val in row.items():
+            if col_name in ("id", "pk", child_pk_col):
+                continue
+            if hasattr(child_model, col_name):
+                col_attr = getattr(child_model, col_name)
+                if (
+                    hasattr(col_attr, "type")
+                    and isinstance(col_attr.type, Integer)
+                    and isinstance(val, str)
+                    and val.isdigit()
+                ):
+                    val = int(val)
+                elif (
+                    hasattr(col_attr, "type")
+                    and isinstance(col_attr.type, Float)
+                    and isinstance(val, str)
+                ):
+                    with suppress(ValueError):
+                        val = float(val)
+                setattr(child_inst, col_name, val)
+
+    def _reconcile_one2many_relation(
+        self: "SQLAlchemyResource",
+        db: object,
+        inst: object,
+        rel: object,
+        raw_rows: list[object],
+    ) -> None:
+        """Reconcile rows of a single one2many relation."""
+        child_model = rel.mapper.class_
+        child_mapper = inspect(child_model)
+        child_pk_col = child_mapper.primary_key[0].name
+
+        child_collection = getattr(inst, rel.key, None)
+        if child_collection is None:
+            return
+
+        existing_by_pk = {}
+        for child in list(child_collection):
+            cpk = getattr(child, child_pk_col, None)
+            if cpk is not None:
+                existing_by_pk[str(cpk)] = child
+
+        kept_pks = set()
+        for row in raw_rows:
+            if not isinstance(row, dict):
+                continue
+            row_pk = str(
+                row.get(child_pk_col) or row.get("id") or row.get("pk") or ""
+            )
+            if row_pk and row_pk in existing_by_pk:
+                child_inst = existing_by_pk[row_pk]
+                kept_pks.add(row_pk)
+                self._populate_child_model(
+                    child_model,
+                    child_inst,
+                    row,
+                    child_pk_col,
+                )
+            else:
+                new_child = child_model()
+                self._populate_child_model(
+                    child_model,
+                    new_child,
+                    row,
+                    child_pk_col,
+                )
+                child_collection.append(new_child)
+
+        for old_pk, old_child in existing_by_pk.items():
+            if old_pk not in kept_pks:
+                child_collection.remove(old_child)
+                db.delete(old_child)
+
+    def save_relations(
+        self: "SQLAlchemyResource",
+        db: object,
+        inst: object,
+        form: FeretUIForm,
+    ) -> None:
+        """Persist or reconcile x2many relations during create and update."""
+        mapper = inspect(self.model)
+        for rel in mapper.relationships:
+            rel_name = rel.key
+            if rel_name not in form._fields:
+                continue
+            field = form._fields[rel_name]
+            if not isinstance(field, One2ManyField):
+                continue
+
+            raw_rows = getattr(field, "data", None)
+            if raw_rows is None:
+                continue
+
+            is_submitted = getattr(field, "is_submitted", False)
+            has_dicts = raw_rows and all(isinstance(r, dict) for r in raw_rows)
+            if not is_submitted and not has_dicts:
+                continue
+
+            self._reconcile_one2many_relation(db, inst, rel, raw_rows)
 
     def read(
         self: "SQLAlchemyResource",
@@ -405,7 +562,18 @@ class SQLAlchemyResource(LCRUDResource, Resource):
                         ):
                             if isinstance(field, One2ManyField):
                                 continue
-                            setattr(inst, name, field.data)
+                            val = field.data
+                            col_attr = getattr(self.model, name)
+                            if (
+                                hasattr(col_attr, "type")
+                                and isinstance(col_attr.type, Integer)
+                                and isinstance(val, str)
+                                and val.isdigit()
+                            ):
+                                val = int(val)
+                            setattr(inst, name, val)
+
+                    self.save_relations(db, inst, form)
 
             db.commit()
 
@@ -439,6 +607,11 @@ class SQLAlchemyResource(LCRUDResource, Resource):
         """Update card stage when dragged in Kanban view."""
         if not self.model:
             raise ResourceError("No model configured for SQLAlchemyResource")
+
+        if isinstance(pk, list | tuple):
+            pk = pk[0] if pk else None
+        if isinstance(stage, list | tuple):
+            stage = stage[0] if stage else None
 
         with self.get_db_session() as db:
             pk_attr = self.get_primary_key_attr()
